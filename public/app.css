@@ -154,3 +154,172 @@ body > a[href="#main"]:first-child:focus-visible {
   border-color: var(--color-primary);
   background: var(--color-primary-subtle);
 }
+
+/* ── Designer ─────────────────────────────────────────────────────────────────
+   A three-pane tool: palette, canvas, properties. Wide screens only; a phone
+   gets a note instead (the panes need ~1024px). */
+[data-designer] {
+  min-block-size: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: var(--color-bg-subtle);
+}
+[data-designer-bar] {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-block-end: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+}
+[data-designer-bar] input[data-ui="input"] {
+  inline-size: 18rem;
+  font-weight: var(--weight-semibold);
+}
+[data-designer-sr] {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+[data-designer-narrow] {
+  margin: 0;
+  padding: var(--space-6) var(--content-gutter);
+}
+[data-designer-panes] {
+  display: none;
+}
+@media (min-width: 64rem) {
+  [data-designer-narrow] { display: none; }
+  [data-designer-panes] {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr) 22rem;
+    align-items: start;
+    min-block-size: 0;
+  }
+}
+[data-designer-palette],
+[data-designer-props] {
+  position: sticky;
+  inset-block-start: var(--space-16);
+  block-size: calc(100dvh - var(--space-16));
+  overflow-y: auto;
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  padding: var(--space-5);
+  background: var(--color-bg);
+}
+[data-designer-palette] {
+  border-inline-end: var(--border-width) solid var(--color-border);
+}
+[data-designer-props] {
+  border-inline-start: var(--border-width) solid var(--color-border);
+}
+[data-designer-palette] [data-ui="button"] {
+  justify-content: flex-start;
+  inline-size: 100%;
+  cursor: grab;
+}
+[data-designer-center] {
+  padding: var(--space-6);
+  min-inline-size: 0;
+}
+[data-designer-canvas] {
+  display: grid;
+  gap: var(--space-5);
+  max-inline-size: var(--measure-content);
+  margin-inline: auto;
+  margin-block-start: var(--space-4);
+}
+[data-designer-section] {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-width) dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+}
+[data-designer-section-head] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+[data-designer-section-head] input[data-ui="input"] {
+  flex: 1;
+}
+[data-designer-list] {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+[data-designer-field] {
+  cursor: grab;
+  transition: border-color var(--duration-fast) var(--ease-default), box-shadow var(--duration-fast) var(--ease-default);
+}
+[data-designer-field]:hover {
+  border-color: var(--color-border-strong);
+}
+[data-designer-field][aria-current="true"] {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--color-primary-subtle);
+}
+[data-designer-field]:active {
+  cursor: grabbing;
+}
+[data-designer-grip] {
+  color: var(--color-fg-subtle);
+}
+/* The drop indicator: a bar where the dragged field will land. */
+[data-designer-drop] {
+  block-size: var(--space-1);
+  margin-block: var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  box-shadow: 0 0 0 var(--space-1) var(--color-primary-subtle);
+}
+[data-designer-end] {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+[data-designer-end]:only-child {
+  padding-block: var(--space-8);
+  background: var(--color-bg-subtle);
+}
+[data-designer-json] {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+[data-designer-frame] {
+  display: grid;
+  justify-items: center;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-muted);
+}
+[data-designer-frame] iframe {
+  inline-size: 100%;
+  block-size: 75dvh;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-lg);
+  transition: inline-size var(--duration-normal) var(--ease-default);
+}
+[data-designer-frame][data-device="phone"] iframe {
+  inline-size: 24rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-designer-field],
+  [data-designer-frame] iframe { transition: none; }
+}

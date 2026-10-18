@@ -127,8 +127,14 @@ export function apiRoutes(db: DB) {
 
   api.post("/forms", async (c) => {
     const body = await readJson(c);
-    const definition = "definition" in body ? body.definition : body;
-    const slug = typeof body.slug === "string" ? checkSlug(body.slug) : undefined;
+    // { definition, slug? } — or, for convenience, the bare definition.
+    const wrapped = "definition" in body;
+    if (wrapped) {
+      const extra = Object.keys(body).filter((k) => k !== "definition" && k !== "slug");
+      if (extra.length) throw invalid(extra.map((k) => ({ pointer: `/${k}`, detail: "Unknown key. POST /forms takes definition and slug." })));
+    }
+    const definition = wrapped ? body.definition : body;
+    const slug = wrapped && typeof body.slug === "string" ? checkSlug(body.slug) : undefined;
     if (slug && getFormBySlug(db, slug)) throw new Problem(409, "slug-taken", "Slug taken", `The slug "${slug}" is in use.`);
     const row = createForm(db, c.var.principal.workspaceId, definition, slug);
     c.header("Location", `/api/v1/forms/${row.id}`);
@@ -208,8 +214,11 @@ export function apiRoutes(db: DB) {
   });
   api.post("/forms/:id/preview", async (c) => {
     const row = mustForm(c);
-    const text = await c.req.text();
-    const body = text.trim() ? JSON.parse(text) : {};
+    const text = (await c.req.text()).trim();
+    let body: { definition?: unknown } = {};
+    if (text) {
+      try { body = JSON.parse(text); } catch { throw new Problem(400, "bad-json", "Malformed JSON", "The request body is not valid JSON."); }
+    }
     return preview(c, body.definition ?? JSON.parse(row.definition));
   });
 

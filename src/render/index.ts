@@ -39,7 +39,7 @@ const HELPERS = {
 
 type Ast = NonNullable<ReturnType<typeof compile>["ast"]>;
 const compiled = new Map<string, Ast>();
-const DEV = process.env.NODE_ENV === "development" || process.execArgv.some((a) => a.startsWith("--watch"));
+const DEV = process.env.NODE_ENV === "development" || "WATCH_REPORT_DEPENDENCIES" in process.env;
 
 function load(name: string): Ast {
   let ast = compiled.get(name);

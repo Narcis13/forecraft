@@ -1,0 +1,319 @@
+layout "layouts/base.faqir"
+
+block title
+  | Design · {{ page.title }} — forecraft
+
+block body
+  div(data-designer l-data="designer" data-prop-form-id=tojson(page.formId) data-prop-themes=tojson(page.themes) data-prop-accents=tojson(page.accents) l-init="init()" @keydown.window="keys($event)")
+    header(data-designer-bar)
+      div(data-ui="cluster" data-gap="3")
+        a(data-ui="button" data-variant="ghost" data-size="sm" href="/app/forms/{{ page.formId }}" aria-label="Back to the form")
+          span(data-ui="icon" data-icon="arrow-left" aria-hidden="true")
+        label(for="designer-title" data-designer-sr) Form title
+        input#designer-title(data-ui="input" data-size="sm" type="text" :value="title" @input="setTitle($event.target.value)")
+        span(data-ui="badge" :data-variant="status === 'saved' ? 'success' : status === 'error' ? 'destructive' : 'secondary'" aria-live="polite" l-text="statusText")
+      div(data-ui="cluster" data-gap="2")
+        div(data-ui="toggle-group" data-variant="segmented" role="radiogroup" aria-label="Layout of the form")
+          label(data-part="item" data-state="off")
+            input(data-part="control" type="radio" name="designer-mode" value="flat" :checked="mode === 'flat'" @change="setMode('flat')")
+            span(data-part="label") One page
+          label(data-part="item" data-state="off")
+            input(data-part="control" type="radio" name="designer-mode" value="sections" :checked="mode === 'sections'" @change="setMode('sections')")
+            span(data-part="label") Sections
+          label(data-part="item" data-state="off")
+            input(data-part="control" type="radio" name="designer-mode" value="wizard" :checked="mode === 'wizard'" @change="setMode('wizard')")
+            span(data-part="label") Wizard
+        button(type="button" data-ui="button" data-variant="ghost" data-size="sm" :disabled="!canUndo()" @click="undo()" aria-label="Undo (Ctrl+Z)")
+          span(data-ui="icon" data-icon="arrow-left" aria-hidden="true")
+          | Undo
+        button(type="button" data-ui="button" data-variant="ghost" data-size="sm" :disabled="!canRedo()" @click="redo()" aria-label="Redo (Ctrl+Shift+Z)")
+          | Redo
+          span(data-ui="icon" data-icon="arrow-right" aria-hidden="true")
+        a(data-ui="button" data-variant="outline" data-size="sm" href="/f/{{ page.slug }}" target="_blank" rel="noopener")
+          span(data-ui="icon" data-icon="external-link" aria-hidden="true")
+          | Public link
+        button(type="button" data-ui="button" data-variant="primary" data-size="sm" :disabled="publishing" @click="publish()")
+          span(data-ui="icon" data-icon="send" aria-hidden="true")
+          | Publish
+    p(data-designer-narrow)
+      span(data-ui="callout" data-variant="info" role="note")
+        span(data-part="content") The designer needs a wider screen (at least 1024 pixels). On a phone, open the form's dashboard page — or ask your agent to edit it through the API.
+    main#main(data-designer-panes)
+      aside(data-designer-palette data-gap="2" aria-label="Field types")
+        h2(data-ui="text" data-variant="eyebrow") Add a field
+        p(data-ui="text" data-size="xs" data-variant="muted") Drag onto the canvas, or click to add at the end.
+        div(data-ui="stack" data-gap="1")
+          template(l-for="k in kinds" l-key="k.id")
+            button(type="button" data-ui="button" data-variant="ghost" data-size="sm" draggable="true" data-designer-kind @dragstart="dragKind($event, k.id)" @dragend="dragEnd()" @click="addKind(k.id)")
+              span(data-ui="icon" :data-icon="k.icon" aria-hidden="true")
+              span(l-text="k.label")
+      section(data-designer-center aria-label="Canvas")
+        div#designer-tabs(data-ui="tabs" data-variant="underline")
+          div(data-part="list" role="tablist" aria-label="Designer views")
+            button#dt-build(data-part="trigger" role="tab" aria-controls="dp-build" aria-selected="true" @click="tab = 'build'") Build
+            button#dt-rules(data-part="trigger" role="tab" aria-controls="dp-rules" aria-selected="false" tabindex="-1" @click="tab = 'rules'") Rules
+            button#dt-look(data-part="trigger" role="tab" aria-controls="dp-look" aria-selected="false" tabindex="-1" @click="tab = 'look'") Appearance
+            button#dt-json(data-part="trigger" role="tab" aria-controls="dp-json" aria-selected="false" tabindex="-1" @click="tab = 'json'") JSON
+            button#dt-preview(data-part="trigger" role="tab" aria-controls="dp-preview" aria-selected="false" tabindex="-1" @click="tab = 'preview'") Preview
+          div#dp-build(data-part="panel" role="tabpanel" aria-labelledby="dt-build")
+            template(l-if="problems.length")
+              div(data-ui="callout" data-variant="destructive" role="alert")
+                strong(data-part="title") The API refused this definition
+                div(data-part="content")
+                  ul
+                    template(l-for="p in problems" l-key="p")
+                      li(l-text="p")
+            div(data-designer-canvas @dragleave="leaveCanvas($event)")
+              template(l-for="(section, si) in sections" l-key="section.key")
+                div(data-designer-section)
+                  template(l-if="mode !== 'flat'")
+                    div(data-designer-section-head)
+                      span(data-ui="badge" data-variant="primary" l-text="(mode === 'wizard' ? 'Step ' : 'Section ') + (si + 1)")
+                      label(:for="'sec-title-' + si" data-designer-sr) Title
+                      input(data-ui="input" data-size="sm" type="text" :id="'sec-title-' + si" :value="section.title" @input="setSection(si, 'title', $event.target.value)")
+                      div(data-ui="cluster" data-gap="1")
+                        button(type="button" data-ui="button" data-variant="ghost" data-size="sm" :disabled="si === 0" @click="moveSection(si, -1)" aria-label="Move up")
+                          span(data-ui="icon" data-icon="arrow-up" aria-hidden="true")
+                        button(type="button" data-ui="button" data-variant="ghost" data-size="sm" :disabled="si === sections.length - 1" @click="moveSection(si, 1)" aria-label="Move down")
+                          span(data-ui="icon" data-icon="arrow-down" aria-hidden="true")
+                        button(type="button" data-ui="button" data-variant="ghost" data-size="sm" :disabled="sections.length === 1" @click="removeSection(si)" aria-label="Remove, keeping its fields")
+                          span(data-ui="icon" data-icon="trash-2" aria-hidden="true")
+                  ul(data-designer-list role="list")
+                    template(l-for="(f, fi) in section.fields" l-key="f.name")
+                      li(data-designer-item)
+                        div(data-designer-drop l-show="isDrop(si, fi)" aria-hidden="true")
+                        div(data-designer-field data-ui="card" data-size="sm" tabindex="0" draggable="true" :id="'field-' + f.name" :aria-current="selected === f.name ? 'true' : 'false'" :aria-label="f.title + ', ' + f.kindLabel + (f.required ? ', required' : '') + '. Alt plus arrow keys to move.'" @click="select(f.name)" @keydown="cardKey($event, f.name)" @dragstart="dragField($event, f.name)" @dragend="dragEnd()" @dragover="overField($event, si, fi)" @drop="dropHere($event)")
+                          div(data-part="body")
+                            div(data-ui="cluster" data-gap="3")
+                              span(data-ui="icon" data-icon="move" aria-hidden="true" data-designer-grip)
+                              span(data-ui="icon" :data-icon="f.icon" aria-hidden="true")
+                              div(data-ui="stack" data-gap="0")
+                                span(data-ui="text" data-weight="medium" l-text="f.title")
+                                span(data-ui="text" data-size="xs" data-variant="muted" l-text="f.kindLabel + ' · ' + f.name")
+                              template(l-if="f.required")
+                                span(data-ui="badge" data-size="sm") required
+                              div(data-ui="cluster" data-gap="1" data-push)
+                                button(type="button" data-ui="button" data-variant="ghost" data-size="sm" aria-label="Duplicate" @click.stop="duplicate(f.name)")
+                                  span(data-ui="icon" data-icon="copy" aria-hidden="true")
+                                button(type="button" data-ui="button" data-variant="ghost" data-size="sm" aria-label="Delete" @click.stop="removeField(f.name)")
+                                  span(data-ui="icon" data-icon="trash-2" aria-hidden="true")
+                    li(data-designer-end @dragover="overEnd($event, si)" @drop="dropHere($event)")
+                      div(data-designer-drop l-show="isDrop(si, section.fields.length)" aria-hidden="true")
+                      p(data-ui="text" data-size="sm" data-variant="muted" l-text="section.fields.length ? 'Drop here to add at the end' : 'Empty — drag fields here'")
+              div(data-ui="cluster" data-gap="2")
+                button(type="button" data-ui="button" data-variant="outline" data-size="sm" @click="addSection()")
+                  span(data-ui="icon" data-icon="plus" aria-hidden="true")
+                  span(l-text="mode === 'wizard' ? 'Add a step' : 'Add a section'")
+          div#dp-rules(data-part="panel" role="tabpanel" aria-labelledby="dt-rules" hidden)
+            div(data-ui="stack" data-gap="4")
+              p(data-ui="text" data-variant="muted") Rules run in the browser as people type, and again on the server when they submit — the same definition, the same verdict.
+              ul(data-ui="stack" data-gap="2" role="list")
+                template(l-for="r in rulesView" l-key="r.id")
+                  li(data-ui="card" data-size="sm")
+                    div(data-part="body")
+                      div(data-ui="cluster" data-gap="3")
+                        span(data-ui="badge" :data-variant="r.verb === 'show' ? 'primary' : r.verb === 'require' ? 'warning' : 'secondary'" l-text="r.verb")
+                        span(l-text="r.text")
+                        button(type="button" data-ui="button" data-variant="ghost" data-size="sm" data-push aria-label="Delete rule" @click="removeRule(r.id)")
+                          span(data-ui="icon" data-icon="trash-2" aria-hidden="true")
+                template(l-if="!rulesView.length")
+                  li
+                    p(data-ui="text" data-size="sm" data-variant="muted") No rules yet. Show a field only when another answer calls for it, or make it required only then.
+              form(data-ui="card" aria-label="New rule" @submit.prevent="addRule()")
+                div(data-part="header")
+                  h3(data-part="title") New rule
+                div(data-part="body")
+                  div(data-ui="grid" data-cols="1" data-cols-md="2" data-gap="4")
+                    div(data-ui="field-group")
+                      label(data-part="label" for="rule-verb") Do this
+                      div(data-part="input")
+                        select#rule-verb(data-ui="select" l-model="ruleDraft.verb")
+                          option(value="show") Show the field
+                          option(value="require") Require the field
+                    div(data-ui="field-group")
+                      label(data-part="label" for="rule-target") Field
+                      div(data-part="input")
+                        select#rule-target(data-ui="select" l-model="ruleDraft.target")
+                          option(value="") Choose…
+                          template(l-for="f in fieldOptions" l-key="f.name")
+                            option(:value="f.name" l-text="f.title")
+                    div(data-ui="field-group")
+                      label(data-part="label" for="rule-field") When
+                      div(data-part="input")
+                        select#rule-field(data-ui="select" l-model="ruleDraft.field")
+                          option(value="") Choose…
+                          template(l-for="f in fieldOptions" l-key="f.name")
+                            option(:value="f.name" l-text="f.title")
+                    div(data-ui="field-group")
+                      label(data-part="label" for="rule-op") Is
+                      div(data-part="input")
+                        select#rule-op(data-ui="select" l-model="ruleDraft.op")
+                          option(value="eq") equal to / ticked
+                          option(value="neq") not equal to / not ticked
+                          option(value="filled") filled in
+                          option(value="empty") empty
+                    template(l-if="(ruleDraft.op === 'eq' || ruleDraft.op === 'neq') && !draftField().boolean")
+                      div(data-ui="field-group")
+                        label(data-part="label" for="rule-value") Value
+                        div(data-part="input")
+                          template(l-if="draftField().options.length")
+                            select#rule-value(data-ui="select" l-model="ruleDraft.value")
+                              option(value="") Choose…
+                              template(l-for="o in draftField().options" l-key="o")
+                                option(:value="o" l-text="o")
+                          template(l-if="!draftField().options.length")
+                            input#rule-value-text(data-ui="input" type="text" l-model="ruleDraft.value" aria-label="Value")
+                div(data-part="footer")
+                  button(type="submit" data-ui="button" data-variant="primary" data-size="sm") Add rule
+          div#dp-look(data-part="panel" role="tabpanel" aria-labelledby="dt-look" hidden)
+            div(data-ui="grid" data-cols="1" data-cols-md="2" data-gap="4")
+              div(data-ui="field-group")
+                label(data-part="label" for="look-theme") Theme
+                div(data-part="input")
+                  select#look-theme(data-ui="select" @change="setLook('theme', $event.target.value)")
+                    template(l-for="t in themes" l-key="t")
+                      option(:value="t" :selected="look('theme') === t" l-text="t")
+                p(data-part="description") 31 themes, each contrast-checked in light and dark.
+              div(data-ui="field-group")
+                label(data-part="label" for="look-accent") Accent
+                div(data-part="input")
+                  select#look-accent(data-ui="select" @change="setLook('accent', $event.target.value)")
+                    template(l-for="t in accents" l-key="t")
+                      option(:value="t" :selected="look('accent') === t" l-text="t === 'theme' ? 'The theme’s own' : t")
+              div(data-ui="field-group")
+                label(data-part="label" for="look-layout") Layout
+                div(data-part="input")
+                  select#look-layout(data-ui="select" @change="setLook('layout', $event.target.value)")
+                    option(value="card" :selected="look('layout') === 'card'") Card — centred, on a backdrop
+                    option(value="split" :selected="look('layout') === 'split'") Split — cover image beside the form
+                    option(value="page" :selected="look('layout') === 'page'") Page — wide, no card
+              div(data-ui="field-group")
+                label(data-part="label" for="look-scheme") Light or dark
+                div(data-part="input")
+                  select#look-scheme(data-ui="select" @change="setLook('scheme', $event.target.value)")
+                    option(value="auto" :selected="look('scheme') === 'auto'") Follow the visitor
+                    option(value="light" :selected="look('scheme') === 'light'") Always light
+                    option(value="dark" :selected="look('scheme') === 'dark'") Always dark
+              div(data-ui="field-group")
+                label(data-part="label" for="look-cover") Cover image URL
+                div(data-part="input")
+                  input#look-cover(data-ui="input" type="url" :value="look('coverImage')" placeholder="https://…" @change="setLook('coverImage', $event.target.value)")
+              div(data-ui="field-group")
+                label(data-part="label" for="look-eyebrow") Eyebrow
+                div(data-part="input")
+                  input#look-eyebrow(data-ui="input" type="text" :value="look('eyebrow')" placeholder="e.g. Lisbon · 14–15 May" @input="setLook('eyebrow', $event.target.value)")
+              div(data-ui="field-group")
+                label(data-part="label" for="look-submit") Submit button
+                div(data-part="input")
+                  input#look-submit(data-ui="input" type="text" :value="look('submitLabel')" @input="setLook('submitLabel', $event.target.value)")
+              div(data-ui="field-group")
+                label(data-part="label" for="look-redirect") After submitting, go to
+                div(data-part="input")
+                  input#look-redirect(data-ui="input" type="url" :value="look('redirect')" placeholder="Stay on the thank-you message" @change="setLook('redirect', $event.target.value)")
+              div(data-ui="field-group")
+                label(data-part="label" for="look-thanks-title") Thank-you title
+                div(data-part="input")
+                  input#look-thanks-title(data-ui="input" type="text" :value="look('thanksTitle')" @input="setLook('thanksTitle', $event.target.value)")
+              div(data-ui="field-group")
+                label(data-part="label" for="look-thanks") Thank-you message
+                div(data-part="input")
+                  textarea#look-thanks(data-ui="textarea" rows="3" :value="look('thanksMessage')" @input="setLook('thanksMessage', $event.target.value)")
+          div#dp-json(data-part="panel" role="tabpanel" aria-labelledby="dt-json" hidden)
+            div(data-ui="stack" data-gap="3")
+              p(data-ui="text" data-size="sm" data-variant="muted") This is the definition the API returns for this form. Edit it here or on the canvas: they are two views of one object.
+              template(l-if="jsonError")
+                div(data-ui="callout" data-variant="warning" role="status")
+                  div(data-part="content" l-text="jsonError")
+              div(data-ui="field-group")
+                label(data-part="label" for="designer-json") Definition (JSON)
+                div(data-part="input")
+                  textarea#designer-json(data-ui="textarea" data-designer-json rows="28" spellcheck="false" :value="jsonText" @input="editJson($event.target.value)")
+              div(data-ui="cluster" data-gap="2")
+                button(type="button" data-ui="button" data-variant="outline" data-size="sm" @click="formatJson()") Format
+          div#dp-preview(data-part="panel" role="tabpanel" aria-labelledby="dt-preview" hidden)
+            div(data-ui="stack" data-gap="3")
+              div(data-ui="cluster" data-gap="3")
+                div(data-ui="toggle-group" data-variant="segmented" role="radiogroup" aria-label="Preview size")
+                  label(data-part="item" data-state="off")
+                    input(data-part="control" type="radio" name="designer-device" value="desktop" l-model="device")
+                    span(data-part="label") Desktop
+                  label(data-part="item" data-state="off")
+                    input(data-part="control" type="radio" name="designer-device" value="phone" l-model="device")
+                    span(data-part="label") Phone
+                span(data-ui="badge" :data-variant="audit && !audit.counts.error && !audit.counts.critical ? 'success' : 'secondary'" l-text="auditText()")
+              div(data-designer-frame :data-device="device")
+                iframe#designer-preview(title="Live preview of the public form" loading="lazy")
+      aside(data-designer-props data-gap="3" aria-label="Properties")
+        template(l-if="!field()")
+          div(data-ui="stack" data-gap="4")
+            h2(data-ui="text" data-variant="eyebrow") The form
+            div(data-ui="field-group")
+              label(data-part="label" for="form-description") Description
+              div(data-part="input")
+                textarea#form-description(data-ui="textarea" rows="4" :value="def ? (def.schema.description || '') : ''" @input="setDescription($event.target.value)")
+              p(data-part="description") Shown under the title.
+            p(data-ui="text" data-size="sm" data-variant="muted") Select a field on the canvas to edit its label, name, help text, options and validation.
+            div(data-ui="card" data-size="sm" data-variant="filled")
+              div(data-part="body")
+                p(data-ui="text" data-size="sm") Keyboard: Tab to a field, Enter to select it, Alt+↑/↓ to move it, Delete to remove it, Ctrl+Z / Ctrl+Shift+Z to undo and redo.
+        template(l-if="field()")
+          div(data-ui="stack" data-gap="4")
+            div(data-ui="cluster" data-gap="2")
+              h2(data-ui="text" data-variant="eyebrow" l-text="field().kindLabel")
+              button(type="button" data-ui="button" data-variant="ghost" data-size="sm" data-push @click="selected = ''") Done
+            div(data-ui="field-group")
+              label(data-part="label" for="prop-title") Label
+              div(data-part="input")
+                input#prop-title(data-ui="input" type="text" :value="field().title" @input="setProp('title', $event.target.value)")
+            div(data-ui="field-group")
+              label(data-part="label" for="prop-name") Name
+              div(data-part="input")
+                input#prop-name(data-ui="input" type="text" :value="field().name" @change="rename($event.target.value)" aria-describedby="prop-name-hint")
+              p#prop-name-hint(data-part="description") The key in every submission and export.
+            template(l-if="field().hasPlaceholder")
+              div(data-ui="field-group")
+                label(data-part="label" for="prop-placeholder") Placeholder
+                div(data-part="input")
+                  input#prop-placeholder(data-ui="input" type="text" :value="field().placeholder" @input="setProp('placeholder', $event.target.value)")
+            div(data-ui="field-group")
+              label(data-part="label" for="prop-help") Help text
+              div(data-part="input")
+                textarea#prop-help(data-ui="textarea" rows="2" :value="field().description" @input="setProp('description', $event.target.value)")
+            div(data-ui="field-group")
+              label(data-part="label" for="prop-required") Required
+              div(data-part="input")
+                input#prop-required(data-ui="switch" type="checkbox" role="switch" :checked="field().required" @change="setProp('required', $event.target.checked)")
+            template(l-if="field().hasOptions")
+              div(data-ui="field-group")
+                label(data-part="label" for="prop-options") Options
+                div(data-part="input")
+                  textarea#prop-options(data-ui="textarea" rows="5" :value="field().options" @change="setProp('options', $event.target.value)" aria-describedby="prop-options-hint")
+                p#prop-options-hint(data-part="description") One per line.
+            template(l-if="field().isText")
+              div(data-ui="grid" data-cols="2" data-gap="3")
+                div(data-ui="field-group")
+                  label(data-part="label" for="prop-minlength") Min length
+                  div(data-part="input")
+                    input#prop-minlength(data-ui="input" type="number" min="0" :value="field().minLength" @change="setProp('minLength', $event.target.value)")
+                div(data-ui="field-group")
+                  label(data-part="label" for="prop-maxlength") Max length
+                  div(data-part="input")
+                    input#prop-maxlength(data-ui="input" type="number" min="1" :value="field().maxLength" @change="setProp('maxLength', $event.target.value)")
+            template(l-if="field().isNumber")
+              div(data-ui="grid" data-cols="2" data-gap="3")
+                div(data-ui="field-group")
+                  label(data-part="label" for="prop-min") Minimum
+                  div(data-part="input")
+                    input#prop-min(data-ui="input" type="number" :value="field().minimum" @change="setProp('minimum', $event.target.value)")
+                div(data-ui="field-group")
+                  label(data-part="label" for="prop-max") Maximum
+                  div(data-part="input")
+                    input#prop-max(data-ui="input" type="number" :value="field().maximum" @change="setProp('maximum', $event.target.value)")
+            button(type="button" data-ui="button" data-variant="outline" data-size="sm" @click="removeField(field().name)")
+              span(data-ui="icon" data-icon="trash-2" aria-hidden="true")
+              | Delete this field
+    p(data-designer-sr aria-live="polite" l-text="announce")
+  div#toasts(data-ui="toast" data-variant="bottom-right" data-part="container" role="region" aria-label="Notifications")
+
+block scripts
+  script(src="/designer.js" defer)

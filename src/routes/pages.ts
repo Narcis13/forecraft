@@ -10,7 +10,7 @@ import {
 } from "../auth/index.ts";
 import type { DB } from "../db/index.ts";
 import { type Env, sameOrigin } from "../api/http.ts";
-import { compileForm } from "../forms/model.ts";
+import { ACCENTS, compileForm, THEMES } from "../forms/model.ts";
 import { renderFormPage } from "../forms/page.ts";
 import {
   countSubmissions, getForm, getVersion, listForms, listSubmissions, listVersions, toResource, type FormRow,
@@ -273,6 +273,21 @@ export function pageRoutes(db: DB) {
       href: `/api/v1/forms/${row.id}/versions/${v.version}`,
     }));
     return c.html(page("pages/app/form-versions.faqir", { page: formPage(c, row, "versions", { versions }) }));
+  });
+
+  /** The drag-and-drop designer. It loads and saves the definition through /api/v1. */
+  app.get("/app/forms/:id/design", (c) => {
+    const row = mustForm(c);
+    if (!row) return c.notFound();
+    return c.html(page("pages/app/designer.faqir", {
+      page: {
+        formId: row.id,
+        slug: row.slug,
+        title: (JSON.parse(row.definition) as { schema: { title: string } }).schema.title,
+        themes: THEMES,
+        accents: ACCENTS,
+      },
+    }));
   });
 
   /** The draft, rendered exactly as the public page will be, marked as a preview. */

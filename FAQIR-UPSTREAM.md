@@ -168,3 +168,129 @@ prioritised shortlist.
   named hues (and `--accent-hue` for any other), computed with relative colour syntax
   so every theme keeps its own lightness and chroma; `contrast-tokens` should check
   each named hue against each theme.
+
+---
+
+## Forms (continued)
+
+### 14. `renderForm` emits `data-ui="checkbox-group"`, which is not a Faqir component
+
+- **Seen:** every enum-array field (`features` on `/f/customer-pulse`, `workshops`
+  on `/f/agents-summit`) renders
+  `<div data-ui="checkbox-group" role="group" aria-labelledby="…">`, and
+  `faqir audit` reports `unknown-component: data-ui="checkbox-group" is not a Faqir
+  component — no component, alias or base-layer value of that name exists`. The
+  renderer's own output is not clean against the registry it targets. (`radio-group`
+  is fine: the `radio` primitive's CSS declares it.)
+- **Where:** `packages/forms/src/index.js`, `renderCheckboxGroup` (line ~1412);
+  `registry/primitives/checkbox/` has no group.
+- **Here:** nothing; the warning is listed in `PROGRESS.md`.
+- **Suggested fix:** add `checkbox-group` to the `checkbox` primitive (CSS and manifest,
+  mirroring `radio-group`), and make the forms drift test audit its output against the
+  registry so an unknown `data-ui` fails it.
+
+### 15. A date field puts a dialog inside `<main>`
+
+- **Seen:** a `format: "date"` field renders the `date-picker` recipe, whose calendar
+  popover is a dialog. A form lives in `<main>`, so every page with a date field gets
+  the `landmark` warning "Dialog <div> is nested inside <main> — move it out of the main
+  content flow". A form field cannot move out of `<main>`.
+- **Where:** `src/audit/rules.ts` (the `landmark` rule's dialog check) against
+  `packages/forms/src/index.js` `renderDatePicker`.
+- **Here:** nothing; the warning is listed in `PROGRESS.md`.
+- **Suggested fix:** the `landmark` rule should exempt a dialog that is a part of an
+  inline control (`date-picker`, `combobox`, `select-custom` panels) — or the date-picker
+  should be a popover (`popover` attribute, top layer), which no landmark contains.
+
+### 16. Fields inside a group or a wizard step have no vertical rhythm, and top-level fields too much
+
+- **Seen:** the generated `<form>` is a flow root, so top-level field-groups are
+  separated by `--section-gap-sm` (section-sized gaps between two inputs). Inside a
+  `ui:groups` fieldset card or a wizard step card, field-groups sit in a card body,
+  which is not a flow root, so they touch: the next label starts right under the
+  previous input. Same form, two rhythms, neither right.
+- **Where:** `registry/base/rhythm.css` (flow roots exclude `[data-ui]` elements, so a
+  `fieldset data-ui="card"` is not one); `packages/forms/src/index.js` `fieldsetCard`
+  and `renderWizard`.
+- **Here:** `templates/pages/form.faqir` puts `data-gap="6"` on the `<section>` around
+  the form (the inherited `--flow-space` tunes the top level, no CSS); `public/app.css`
+  gives `form [data-ui="card"] > [data-part="body"]` a grid gap.
+- **Suggested fix:** `renderForm` emits `data-gap` on the form (an `opts.gap`, default
+  `4`), and `card`'s body becomes a flow root (or `field-group` gets its own
+  `field-group + field-group` spacing). Visual test: a grouped form and a wizard step
+  have the same gap between fields as a flat form.
+
+### 17. No scale or rating input; `radio-group` has no horizontal orientation
+
+- **Seen:** the customer survey needs a 0–10 recommendation scale and agree/disagree
+  scales. `renderForm` offers radio and select only, `radio-group` is always a vertical
+  column, and the `rating` primitive is read-only (`use-as-an-input` is in its unsafe
+  transforms). Eleven stacked radios are a poor survey.
+- **Where:** `registry/primitives/radio/radio.css` (`[data-ui="radio-group"]` is
+  `flex-direction: column`, no variant); `registry/primitives/rating/`;
+  `packages/forms/src/index.js` widget table.
+- **Here:** `public/app.css` lays out any radio group with 7+ options as a wrapping row
+  of bordered segments (`:has(> [data-ui="radio-label"]:nth-child(7))`), with the
+  checked one in `--color-primary-subtle`.
+- **Suggested fix:** `data-orientation="horizontal"` on `radio-group` (and
+  `checkbox-group`), a `scale` widget in `@faqir-ui/forms` for string/integer enums
+  that renders it with min/max captions, and an input variant of `rating`
+  (radios under a star mask) as a `rating` widget.
+
+---
+
+## Recipes and primitives
+
+### 10. Plain JavaScript cannot reach a component's controller
+
+- **Seen:** the dashboard shows a toast after an API call. From an expression,
+  `$ui('#toasts').add({…})` works; from plain JavaScript there is no public accessor —
+  the controller sits on a private `_faqir…` property of the element.
+- **Where:** `src/core-src/engine.js`, `getControllerApi` (private); the public
+  `Faqir` object has `data`, `store`, `directive`, `controller`, `inspect`, but no
+  `ui(el)`.
+- **Here:** every behaviour that needs a controller is a `Faqir.data` component in
+  `public/app.js`, whose methods reach `this.$ui(...)`.
+- **Suggested fix:** `Faqir.ui(elOrSelector)` returning the controller API (the same
+  function `$ui` calls).
+
+### 11. `alert-dialog` requires its own trigger, which keeps it inside `<main>`
+
+- **Seen:** deleting a response is a row action; the confirmation is one dialog opened
+  from any row. `dialog` made its trigger optional in 0.9-04; `alert-dialog` still
+  requires `[data-part="trigger"]` (`required-slot`, critical). With the trigger inside
+  the alert-dialog root, the root must sit where the button is — inside `<main>` —
+  which is the `landmark` warning "Dialog nested inside <main>".
+- **Where:** `registry/recipes/alert-dialog/alert-dialog.manifest.json`, slot `trigger`
+  `required: true`.
+- **Here:** destructive confirmations use `dialog` with `data-variant="danger"` on the
+  panel, placed in the layout's `dialogs` block outside `<main>`, and opened with
+  `$ui('#id').open()`; the row passes its id with `$dispatch`.
+- **Suggested fix:** make the trigger optional as for `dialog` (the controller already
+  has `open()`), so an alert-dialog can live at the end of `<body>`.
+
+### 12. `auth-form`'s canonical card fails `card`'s required body
+
+- **Seen:** the `auth-form` pattern's reference HTML puts `header`, `error`, `form`,
+  `separator`, `social` and `footer` directly in `<div data-ui="card">`. Copied as is,
+  `faqir audit` reports `critical required-slot: Missing required slot
+  [data-part="body"] in <div data-ui="card">`.
+- **Where:** `registry/patterns/auth-form/auth-form.html` (both variants, lines 10 and
+  95).
+- **Here:** `templates/pages/auth.faqir` wraps the error and the form in
+  `<div data-part="body">`.
+- **Suggested fix:** wrap them in the card body in the pattern's HTML, and audit every
+  pattern's reference HTML in the registry test (`audit:registry`) so a pattern cannot
+  ship markup its own components reject.
+
+### 13. `command-palette` items declare no target
+
+- **Seen:** a navigation palette needs each item to say where it goes. The item
+  declares no `data-value` / `href`, so `data-href` is an `unknown-attribute` warning,
+  and the `command-select` event carries only the element and its label.
+- **Where:** `registry/recipes/command-palette/command-palette.manifest.json`
+  (`slots.item`, no attributes); `command-palette.js` `selectItem`.
+- **Here:** `templates/layouts/app.faqir` routes by label: a `palette` component in
+  `public/app.js` holds a label → URL map passed as `data-prop-routes`.
+- **Suggested fix:** declare `data-value` on items and pass it as `detail.value`; and
+  let an item be an `<a href>` that the controller follows on Enter.
