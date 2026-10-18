@@ -38,7 +38,7 @@ describe("reports API", () => {
   });
 
   test("create from the invoice starter with a company and an accent", async () => {
-    const res = await s.api("/api/v1/reports", { method: "POST", json: { starter: "invoice", title: "Invoice", appearance: { accent: "#7c2d12", logo }, sample: { seller: { name: "Quayside Logistics Ltd" } } } });
+    const res = await s.api("/api/v1/reports", { method: "POST", json: { starter: "invoice", title: "Invoice", appearance: { accent: "#7c2d12", logo }, sample: { seller: { name: "Quayside Logistics Ltd", street: "4 Harbour Row", city: "Leith EH6 6LX", iban: "GB29NWBK60161331926819" } } } });
     assert.equal(res.status, 201, await res.clone().text());
     const r = await res.json();
     reportId = r.id;

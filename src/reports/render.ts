@@ -48,6 +48,8 @@ export interface RenderInput {
   share?: ShareView;
   /** An asset's media type, so a vector logo is not judged by its pixels. */
   assetType?: (id: string) => string | undefined;
+  /** An asset's stored pixel size, written as width/height so an SVG with only a viewBox has a shape. */
+  assetSize?: (id: string) => { width: number; height: number } | undefined;
   /** The document pattern's variant; the submission record uses "form". */
   variant?: "form" | "invoice";
 }
@@ -140,6 +142,7 @@ class Evaluator {
   money: DocMoney | null;
   assetUrl: (id: string) => string;
   assetType: (id: string) => string | undefined = () => undefined;
+  assetSize: (id: string) => { width: number; height: number } | undefined = () => undefined;
   constructor(report: CompiledReport, helpers: Helpers, labels: Labels, money: DocMoney | null, assetUrl: (id: string) => string) {
     this.report = report;
     this.helpers = helpers;
@@ -247,7 +250,7 @@ class Evaluator {
       case "letterhead": {
         // The block's own logo, else the report's (appearance.logo).
         const ref = typeof b.logo === "string" ? b.logo : this.report.appearance.logo;
-        const logo = ref ? { src: this.assetUrl(ref.slice(6)), alt: t(b.name), vector: this.assetType(ref.slice(6)) === "image/svg+xml" } : null;
+        const logo = ref ? { src: this.assetUrl(ref.slice(6)), alt: t(b.name), vector: this.assetType(ref.slice(6)) === "image/svg+xml", width: this.assetSize(ref.slice(6))?.width ?? false, height: this.assetSize(ref.slice(6))?.height ?? false } : null;
         return { name: t(b.name), logo, lines: ((b.lines as string[]) ?? []).map(t).filter(Boolean), details: this.pairs(b, b.details, scope) };
       }
       case "title": {
@@ -324,7 +327,7 @@ class Evaluator {
         const value = t(b.value);
         return { value, caption: b.caption ? t(b.caption) : false, size: (b.size as string) ?? (b.block === "qr" ? "md" : "sm"), aria: `${b.block === "qr" ? "QR code" : "Barcode"}: ${b.caption ? t(b.caption) : value.split("\n")[0]}` };
       }
-      case "image": return { src: this.assetUrl(String(b.src).slice(6)), vector: this.assetType(String(b.src).slice(6)) === "image/svg+xml", alt: t(b.alt), caption: b.caption ? t(b.caption) : false, size: (b.size as string) ?? "full" };
+      case "image": return { src: this.assetUrl(String(b.src).slice(6)), vector: this.assetType(String(b.src).slice(6)) === "image/svg+xml", width: this.assetSize(String(b.src).slice(6))?.width ?? false, height: this.assetSize(String(b.src).slice(6))?.height ?? false, alt: t(b.alt), caption: b.caption ? t(b.caption) : false, size: (b.size as string) ?? "full" };
       case "stamp": return { text: t(b.text), tone: (b.tone as string) ?? "default" };
       case "separator": case "page-break": return {};
       case "answers": {
@@ -495,6 +498,7 @@ export function renderReport(input: RenderInput): Rendered {
   const ev = new Evaluator(report, helpers, labels, money, (id) => `/assets/${id}`);
   ev.locale = locale;
   if (input.assetType) ev.assetType = input.assetType;
+  if (input.assetSize) ev.assetSize = input.assetSize;
   ev.currency = currency;
   const blocks = ev.blocks(def.layout, scope, 0, []);
 

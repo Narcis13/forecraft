@@ -49,7 +49,8 @@ export function fromStarter(db: DB, workspaceId: string, id: string, opts: Start
   }
   if (opts.sample !== undefined) {
     if (typeof opts.sample !== "object" || opts.sample === null || Array.isArray(opts.sample)) throw new Problem(422, "invalid-request", "Invalid request", "/sample: an object.", { errors: [{ pointer: "/sample", detail: "An object." }] });
-    def.sample = deepMerge(def.sample, opts.sample as Record<string, unknown>);
+    // Each top-level key of the caller's sample replaces the starter's: your seller is all yours.
+    def.sample = { ...def.sample, ...(opts.sample as Record<string, unknown>) };
   }
   if (def.source?.kind === "submission" || def.source?.kind === "summary") {
     if (typeof opts.form !== "string") throw new Problem(422, "form-required", "Form required", `The ${id} starter ${def.source.kind === "submission" ? "confirms" : "summarises"} a form: send \`form\` (frm_…).`, { errors: [{ pointer: "/form", detail: "Required for this starter." }] });
@@ -86,14 +87,6 @@ export function bindForm(def: ReportDefinition, form: { schema: { title: string;
   def.schema.description = `Confirmation for “${form.schema.title}”, with the answers, a check-in QR code and a barcode.`;
 }
 
-function deepMerge(a: Record<string, unknown>, b: Record<string, unknown>): Record<string, unknown> {
-  const out: Record<string, unknown> = { ...a };
-  for (const [k, v] of Object.entries(b)) {
-    const prev = out[k];
-    out[k] = v && typeof v === "object" && !Array.isArray(v) && prev && typeof prev === "object" && !Array.isArray(prev) ? deepMerge(prev as Record<string, unknown>, v as Record<string, unknown>) : v;
-  }
-  return out;
-}
 
 /** The zero-setup submission record: any submission of any form, printed. */
 export function recordDefinition(formTitle: string): ReportDefinition {

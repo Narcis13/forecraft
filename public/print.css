@@ -139,8 +139,10 @@
 }
 [data-report-sender] { font-family: var(--doc-heading-font); font-size: 13pt; font-weight: var(--weight-semibold); line-height: 1.2; }
 [data-report-sender-block] { display: flex; align-items: flex-start; gap: 4mm; }
-[data-report-logo] { margin: 0; flex: none; }
-[data-report-logo] img { block-size: 11mm; inline-size: auto; max-inline-size: 40mm; object-fit: contain; object-position: left top; }
+/* The image primitive's contain variant sizes the img from its figure; a logo's
+   figure has no size of its own in this row, so the logo states its height. */
+[data-report-logo] { margin: 0; flex: none; display: block; block-size: 11mm; }
+[data-report-logo] img { display: block; block-size: 11mm !important; inline-size: auto !important; max-block-size: none !important; max-inline-size: 40mm !important; object-fit: contain; object-position: left top; }
 [data-report-letterhead] [data-ui="key-value"] { grid-template-columns: auto auto; column-gap: 3mm; row-gap: 0.6mm; align-items: baseline; }
 [data-report-letterhead] [data-ui="key-value"] [data-part="value"] { text-align: end; font-size: 8.5pt; }
 [data-report-letterhead] p[data-ui="text"] { font-size: 9pt; line-height: 1.38; }

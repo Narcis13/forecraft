@@ -101,6 +101,32 @@ block body
                       template(l-for="f in forms" l-key="f.id")
                         option(:value="f.id" l-text="f.title")
                   p(data-part="description") The schema becomes the form's, the sample its latest submission, and the source its submissions.
+                h3(data-ui="text" data-weight="semibold") Money
+                p(data-ui="text" data-size="sm" data-variant="muted") Which lines a totals block adds up, exactly, per tax rate.
+                div(data-ui="grid" data-cols="2" data-gap="3")
+                  div(data-ui="stack" data-gap="1")
+                    span(data-ui="text" data-size="sm" data-weight="medium") Lines
+                    select(data-ui="select" aria-label="Money: the lines" @change="setMoney('lines', $event.target.value)")
+                      option(value="") None
+                      template(l-for="a in moneyArrays" l-key="a")
+                        option(:value="a" :selected="money.lines === a" l-text="a")
+                  template(l-for="k in moneyKeys" l-key="k.key")
+                    div(data-ui="stack" data-gap="1")
+                      span(data-ui="text" data-size="sm" data-weight="medium" l-text="k.label")
+                      select(data-ui="select" :aria-label="'Money: ' + k.label" @change="setMoney(k.key, $event.target.value)")
+                        option(value="") —
+                        template(l-for="p in moneyItemProps" l-key="p")
+                          option(:value="p" :selected="money[k.key] === p" l-text="p")
+                  div(data-ui="stack" data-gap="1")
+                    span(data-ui="text" data-size="sm" data-weight="medium") Unit prices
+                    select(data-ui="select" aria-label="Money: unit prices" @change="setMoney('prices', $event.target.value)")
+                      option(value="net" :selected="money.prices !== 'gross'") Net (tax added)
+                      option(value="gross" :selected="money.prices === 'gross'") Gross (tax included)
+                  div(data-ui="stack" data-gap="1")
+                    span(data-ui="text" data-size="sm" data-weight="medium") Tax rounding
+                    select(data-ui="select" aria-label="Money: rounding" @change="setMoney('rounding', $event.target.value)")
+                      option(value="line" :selected="money.rounding !== 'total'") Per line
+                      option(value="total" :selected="money.rounding === 'total'") Per rate, once
               div(data-ui="stack" data-gap="3")
                 h3(data-ui="text" data-weight="semibold") Sample data
                 p(data-ui="text" data-size="sm" data-variant="muted") What the canvas, previews and the shelf render. It must be valid against the schema.

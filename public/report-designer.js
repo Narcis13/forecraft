@@ -141,6 +141,20 @@
     return out;
   }
 
+  /** Money keys guessed from a lines array's property names (qty, price, vat, …). */
+  function guessMoney(schema, lines) {
+    var p = (schema.properties[lines] && schema.properties[lines].items && schema.properties[lines].items.properties) || {};
+    var names = Object.keys(p);
+    var find = function (re) { return names.find(function (n) { return re.test(n); }); };
+    var out = { lines: lines };
+    var q = find(/^(qty|quantity|count|units?|hours)$/i), u = find(/^(price|unitPrice|unit_price|rate|amount)$/i), t = find(/^(vat|tax|taxRate|tax_rate|vatRate)$/i), dsc = find(/^discount/i);
+    if (q) out.quantity = q;
+    if (u) out.unitPrice = u;
+    if (t) out.taxRate = t;
+    if (dsc) out.discount = dsc;
+    return out;
+  }
+
   function get(obj, path) {
     return path.split(".").reduce(function (o, k) { return o === undefined || o === null ? undefined : o[k]; }, obj);
   }
@@ -185,6 +199,10 @@
         jsonError: "",
         bindForm: "",
         themeThumbs: {},
+        money: {},
+        moneyArrays: [],
+        moneyItemProps: [],
+        moneyKeys: [{ key: "quantity", label: "Quantity" }, { key: "unitPrice", label: "Unit price" }, { key: "taxRate", label: "Tax rate %" }, { key: "discount", label: "Discount %" }],
         look: {},
         busy: false,
         history: [],
@@ -269,6 +287,11 @@
             currency: a.currency || d.currency, logo: a.logo || "", window: Boolean(letter.window), foldMarks: Boolean(letter.foldMarks),
           };
           this.schemaFields = schemaPaths(def.schema);
+          this.money = def.money || {};
+          var props = def.schema.properties || {};
+          this.moneyArrays = Object.keys(props).filter(function (k) { return props[k].type === "array" && props[k].items && props[k].items.properties; });
+          var lines = this.money.lines && props[this.money.lines];
+          this.moneyItemProps = lines ? Object.keys(lines.items.properties) : [];
           var paths = this.schemaFields.filter(function (f) { return f.type !== "array"; }).map(function (f) { return f.path; });
           this.paths = paths.concat(["doc.number", "doc.issuedAt", "doc.money.total", "doc.money.due", "doc.money.subtotal", "line.net", "line.tax", "i"]);
           if (!opts.fromSample) this.sampleText = JSON.stringify(def.sample, null, 2);
@@ -388,6 +411,12 @@
           var self = this;
           var b = newBlock(name, self.vocabulary, self.def.layout);
           self.apply(function (d) {
+            // A totals block needs money: guess it from the first array of priced lines.
+            if (name === "totals" && !d.money) {
+              var props = d.schema.properties || {};
+              var arr = Object.keys(props).find(function (k) { return props[k].type === "array" && props[k].items && props[k].items.properties; });
+              if (arr) d.money = guessMoney(d.schema, arr);
+            }
             var at = self.selected ? locate(d.layout, self.selected) : null;
             if (at) at.list.splice(at.index + 1, 0, b);
             else {
@@ -450,6 +479,14 @@
             });
             self.toast("Bound to the form: its fields, its latest answers, its submissions.", "success");
           }, function (err) { self.toast(err.message, "error"); });
+        },
+        setMoney: function (k, v) {
+          this.apply(function (d) {
+            if (k === "lines" && !v) { delete d.money; return; }
+            d.money = d.money || {};
+            if (v) d.money[k] = v; else delete d.money[k];
+            if (k === "lines") Object.assign(d.money, guessMoney(d.schema, v));
+          });
         },
         setLook: function (k, v) {
           var self = this;

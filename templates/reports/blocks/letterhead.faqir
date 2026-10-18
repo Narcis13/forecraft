@@ -4,7 +4,7 @@ div(data-block=b.id data-report-block="letterhead" data-keep=b.keep)
     div(data-report-sender-block)
       if b.logo ?? false
         figure(data-ui="image" data-variant="contain" data-size="sm" data-report-logo data-report-vector=b.logo.vector)
-          img(data-part="img" src=b.logo.src alt=b.logo.alt)
+          img(data-part="img" src=b.logo.src alt=b.logo.alt width=b.logo.width height=b.logo.height)
       div(data-ui="stack" data-gap="1")
         p(data-report-sender) {{ b.name }}
         each line in b.lines

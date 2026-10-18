@@ -1,5 +1,5 @@
 div(data-block=b.id data-report-block="image" data-keep=b.keep)
   figure(data-ui="image" data-variant="responsive" data-size=b.size data-report-vector=b.vector)
-    img(data-part="img" src=b.src alt=b.alt loading="eager")
+    img(data-part="img" src=b.src alt=b.alt width=b.width height=b.height loading="eager")
     if b.caption ?? false
       figcaption(data-part="caption") {{ b.caption }}

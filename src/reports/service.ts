@@ -23,6 +23,8 @@ export const assetLookup = (db: DB, workspaceId: string): AssetLookup => (id) =>
   return a && a.workspace_id === workspaceId ? { bytes: a.bytes, type: a.type } : undefined;
 };
 const assetType = (db: DB) => (id: string) => getAsset(db, id)?.type;
+// An image without intrinsic size (an SVG with only a viewBox) prints at its stored dimensions.
+const assetSize = (db: DB) => (id: string) => { const a = getAsset(db, id); return a?.width && a.height ? { width: a.width, height: a.height } : undefined; };
 
 export function invalidData(errors: { pointer: string; detail: string }[]): Problem {
   return new Problem(422, "invalid-data", "The data does not match the report's schema", errors.map((e) => `${e.pointer}: ${e.detail}`).join("; "), { errors });
@@ -97,7 +99,7 @@ export function docMeta(db: DB, doc: DocumentRow): DocMeta {
 
 export function renderDocument(db: DB, doc: DocumentRow, mode: "print" | "share" | "canvas" = "print", share?: ShareView): Rendered {
   const report = compiledVersion(db, doc.report_id, doc.version);
-  return renderReport({ report, data: JSON.parse(doc.data), doc: docMeta(db, doc), mode, share, assetType: assetType(db) });
+  return renderReport({ report, data: JSON.parse(doc.data), doc: docMeta(db, doc), mode, share, assetType: assetType(db), assetSize: assetSize(db) });
 }
 
 /** The document's PDF: an issued (or void) document's bytes are printed once and kept. */
@@ -179,7 +181,7 @@ export async function preview(db: DB, workspaceId: string, report: CompiledRepor
     locale, currency: input.currency ?? report.appearance.currency,
     submission: submission ? submissionView(db, submission, locale) : null,
   };
-  const rendered = renderReport({ report, data, doc, assetType: assetType(db), mode: opts.mode });
+  const rendered = renderReport({ report, data, doc, assetType: assetType(db), assetSize: assetSize(db), mode: opts.mode });
   if (!opts.pdf) return { rendered, preflight: null };
   const pf = await preflight(report, rendered, { assets: assetLookup(db, workspaceId), images: opts.images });
   return { rendered, preflight: pf };
@@ -207,7 +209,7 @@ export async function createDocument(db: DB, workspaceId: string, row: ReportRow
   if (shape.length) throw invalidData(shape);
   const locale = input.locale ?? report.appearance.locale;
   const currency = input.currency ?? report.appearance.currency;
-  const provisional = renderReport({ report, data, doc: { number: null, status: "draft", issuedAt: new Date().toISOString(), locale, currency, submission: submission ? submissionView(db, submission, locale) : null }, assetType: assetType(db) });
+  const provisional = renderReport({ report, data, doc: { number: null, status: "draft", issuedAt: new Date().toISOString(), locale, currency, submission: submission ? submissionView(db, submission, locale) : null }, assetType: assetType(db), assetSize: assetSize(db) });
   const draft = insertDraft(db, { workspaceId, reportId: row.id, version: row.published_version, data, locale, currency, submissionId: submission?.id ?? null, title: provisional.name });
   if (!input.issue) return { doc: draft, findings: provisional.findings };
   try {
@@ -230,12 +232,12 @@ export async function issueDocument(db: DB, draft: DocumentRow, manual: string |
   const meta = docMeta(db, draft);
   const numbering = report.definition.numbering ?? { pattern: "{seq}" };
   const probeNumber = numbering.manual ? (manual ?? "MANUAL") : sampleNumber(report);
-  const rendered = renderReport({ report, data: JSON.parse(draft.data), doc: { ...meta, number: probeNumber, status: "issued", issuedAt: new Date().toISOString() }, assetType: assetType(db) });
+  const rendered = renderReport({ report, data: JSON.parse(draft.data), doc: { ...meta, number: probeNumber, status: "issued", issuedAt: new Date().toISOString() }, assetType: assetType(db), assetSize: assetSize(db) });
   let findings = rendered.findings;
   if (!opts.deferPdf) findings = (await preflight(report, rendered, { assets: assetLookup(db, draft.workspace_id) })).findings;
   if (hasErrors(findings)) throw preflightProblem(findings);
   const issued = issueDraft(db, draft, numbering, manual, (number, issuedAt) =>
-    renderReport({ report, data: JSON.parse(draft.data), doc: { ...meta, number, status: "issued", issuedAt }, assetType: assetType(db) }).name);
+    renderReport({ report, data: JSON.parse(draft.data), doc: { ...meta, number, status: "issued", issuedAt }, assetType: assetType(db), assetSize: assetSize(db) }).name);
   if (!opts.deferPdf) await documentPdf(db, issued);
   return { doc: db.prepare("SELECT * FROM documents WHERE id = ?").get(issued.id) as unknown as DocumentRow, findings };
 }
@@ -248,7 +250,7 @@ export async function versionThumbnail(db: DB, row: ReportRow, version: number):
   if (!v) return null;
   if (v.thumbnail) return v.thumbnail;
   const report = compileReport(JSON.parse(v.definition));
-  const rendered = renderReport({ report, data: report.definition.sample, doc: { number: sampleNumber(report), status: "issued", issuedAt: "2026-10-01T09:00:00.000Z" }, assetType: assetType(db) });
+  const rendered = renderReport({ report, data: report.definition.sample, doc: { number: sampleNumber(report), status: "issued", issuedAt: "2026-10-01T09:00:00.000Z" }, assetType: assetType(db), assetSize: assetSize(db) });
   const printed = await printPdf(rendered.html, { assets: assetLookup(db, row.workspace_id), sheet: rendered.sheet });
   const [png] = await rasterize(printed.pdf, { dpi: 72, max: 1 });
   if (!png) return null;
