@@ -279,6 +279,21 @@
       };
     });
 
+    // A form's documents: its confirmation report, issue on submit, the thank-you link.
+    Faqir.data("formDocuments", function () {
+      return {
+        formId: "",
+        reportId: "",
+        issue: false,
+        link: false,
+        save: function () {
+          var self = this;
+          api("PATCH", "/forms/" + self.formId, { documents: { confirmation_report_id: self.reportId || null, issue_on_submit: Boolean(self.issue), thank_you_link: Boolean(self.link) } })
+            .then(function () { toast(self, "Documents saved.", "success"); }, function (err) { toast(self, err.message, "error"); });
+        },
+      };
+    });
+
     // Submissions: delete one (the rest of the table is server-rendered).
     Faqir.data("submissionsPage", function () {
       return {

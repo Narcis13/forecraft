@@ -222,7 +222,9 @@ class Evaluator {
     const t = (x: unknown) => this.text(b, x, scope);
     switch (b.block) {
       case "letterhead": {
-        const logo = typeof b.logo === "string" ? { src: this.assetUrl(b.logo.slice(6)), alt: t(b.name), vector: this.assetType(b.logo.slice(6)) === "image/svg+xml" } : null;
+        // The block's own logo, else the report's (appearance.logo).
+        const ref = typeof b.logo === "string" ? b.logo : this.report.appearance.logo;
+        const logo = ref ? { src: this.assetUrl(ref.slice(6)), alt: t(b.name), vector: this.assetType(ref.slice(6)) === "image/svg+xml" } : null;
         return { name: t(b.name), logo, lines: ((b.lines as string[]) ?? []).map(t).filter(Boolean), details: this.pairs(b, b.details, scope) };
       }
       case "title": {

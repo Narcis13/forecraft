@@ -273,6 +273,14 @@ export function pageRoutes(db: DB) {
     return c.html(page("pages/app/form-settings.faqir", {
       page: formPage(c, row, "settings", {
         settings: { formId: row.id, open: row.status === "open", limit: row.submission_limit === null ? "" : String(row.submission_limit), slug: row.slug },
+        documents: {
+          reportId: row.confirmation_report_id ?? "", issue: Boolean(row.issue_on_submit), link: Boolean(row.thank_you_link),
+          // Reports that print this form's submissions: the confirmations it can issue.
+          reports: (db.prepare("SELECT id, definition FROM reports WHERE workspace_id = ? ORDER BY updated_at DESC").all(row.workspace_id) as { id: string; definition: string }[])
+            .map((r) => ({ id: r.id, def: JSON.parse(r.definition) as { schema: { title: string }; source?: { kind: string; form?: string } } }))
+            .filter((r) => r.def.source?.kind === "submission" && r.def.source.form === row.id)
+            .map((r) => ({ id: r.id, title: r.def.schema.title, selected: r.id === row.confirmation_report_id })),
+        },
       }),
     }));
   });

@@ -16,6 +16,9 @@ export interface FormRow {
   published_version: number | null;
   created_at: string;
   updated_at: string;
+  confirmation_report_id?: string | null;
+  issue_on_submit?: number;
+  thank_you_link?: number;
 }
 
 export interface FormResource {
@@ -27,6 +30,8 @@ export interface FormResource {
   published_version: number | null;
   has_unpublished_changes: boolean;
   submission_count: number;
+  /** The confirmation report this form issues, and whether it does so on submit. */
+  documents: { confirmation_report_id: string | null; issue_on_submit: boolean; thank_you_link: boolean };
   created_at: string;
   updated_at: string;
   definition: FormDefinition;
@@ -49,6 +54,7 @@ export function toResource(db: DB, row: FormRow): FormResource {
     published_version: row.published_version,
     has_unpublished_changes: !published || published.definition !== row.definition,
     submission_count: countSubmissions(db, row.id),
+    documents: { confirmation_report_id: row.confirmation_report_id ?? null, issue_on_submit: Boolean(row.issue_on_submit), thank_you_link: Boolean(row.thank_you_link) },
     created_at: row.created_at,
     updated_at: row.updated_at,
     definition,
@@ -108,6 +114,11 @@ export function updateForm(db: DB, row: FormRow, patch: FormPatch): FormRow {
   db.prepare("UPDATE forms SET definition = ?, status = ?, submission_limit = ?, slug = ?, updated_at = ? WHERE id = ?")
     .run(next.definition, next.status, next.submission_limit, next.slug, next.updated_at, row.id);
   return next;
+}
+
+export function setFormDocuments(db: DB, id: string, d: { confirmation_report_id: string | null; issue_on_submit: boolean; thank_you_link: boolean }): void {
+  db.prepare("UPDATE forms SET confirmation_report_id = ?, issue_on_submit = ?, thank_you_link = ?, updated_at = ? WHERE id = ?")
+    .run(d.confirmation_report_id, d.issue_on_submit ? 1 : 0, d.thank_you_link ? 1 : 0, now(), id);
 }
 
 export function deleteForm(db: DB, id: string): void {

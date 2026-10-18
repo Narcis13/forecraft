@@ -183,7 +183,7 @@ export function reportPageRoutes(app: Hono<PageEnv>, db: DB, shell: Shell) {
         title: (JSON.parse(row.definition) as ReportDefinition).schema.title,
         groups,
         vocabulary: {
-          blocks: Object.fromEntries(Object.entries(BLOCKS).map(([k, s]) => [k, { group: s.group, does: s.does, example: s.example, props: Object.keys(s.props) }])),
+          blocks: Object.fromEntries(Object.entries(BLOCKS).map(([k, s]) => [k, { group: s.group, does: s.does, example: s.example, props: s.props }])),
           themes: PRINT_THEMES, pairings: Object.entries(TYPE_PAIRINGS).map(([id, p]) => ({ id, label: p.label, note: p.note })),
           papers: PAPERS, orientations: ORIENTATIONS, margins: MARGINS, densities: DENSITIES, locales: LOCALES, defaults: DEFAULT_APPEARANCE,
           helpers: HELPER_DOCS.map((h) => ({ name: h.name, signature: h.signature })),

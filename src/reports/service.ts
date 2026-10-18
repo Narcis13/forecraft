@@ -166,7 +166,7 @@ export function checkOverrides(locale: unknown, currency: unknown): { locale?: s
 export interface Preview { rendered: Rendered; preflight: PreflightResult | null }
 
 /** Render a definition with data (or its sample), and preflight it unless only HTML is asked for. */
-export async function preview(db: DB, workspaceId: string, report: CompiledReport, input: DataInput & { locale?: string; currency?: string; status?: "draft" | "issued" }, opts: { pdf: boolean; images?: { dpi: number; max: number } }): Promise<Preview> {
+export async function preview(db: DB, workspaceId: string, report: CompiledReport, input: DataInput & { locale?: string; currency?: string; status?: "draft" | "issued" }, opts: { pdf: boolean; images?: { dpi: number; max: number }; mode?: "print" | "canvas" }): Promise<Preview> {
   const { data, submission } = resolveData(db, workspaceId, report, input, true);
   const shape = dataErrors(report.rules, data);
   if (shape.length) throw invalidData(shape);
@@ -179,7 +179,7 @@ export async function preview(db: DB, workspaceId: string, report: CompiledRepor
     locale, currency: input.currency ?? report.appearance.currency,
     submission: submission ? submissionView(db, submission, locale) : null,
   };
-  const rendered = renderReport({ report, data, doc, assetType: assetType(db) });
+  const rendered = renderReport({ report, data, doc, assetType: assetType(db), mode: opts.mode });
   if (!opts.pdf) return { rendered, preflight: null };
   const pf = await preflight(report, rendered, { assets: assetLookup(db, workspaceId), images: opts.images });
   return { rendered, preflight: pf };

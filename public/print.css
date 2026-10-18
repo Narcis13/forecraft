@@ -365,3 +365,16 @@
 [data-report-block="quote"] [data-ui="quote"] { margin: 0; --quote-accent: var(--color-fg-muted); }
 [data-report-block="quote"] blockquote { margin: 0; }
 [data-report-block="quote"] figcaption { display: flex; flex-wrap: wrap; gap: 0 2mm; font-size: 8pt; }
+
+/* ── The designer's canvas (screen only): hover, selection, drop indicators.
+   Tool chrome on the page the designer frames; never on paper. ──────────── */
+@media screen {
+  [data-report-view="canvas"] { background: transparent; }
+  [data-report-view="canvas"] [data-ui="document"] { margin-block: 0; }
+  [data-report-view="canvas"] [data-block] { cursor: pointer; }
+  [data-report-view="canvas"] [data-designer-hover] { outline: 1px dashed oklch(0.62 0.12 250); outline-offset: 2px; }
+  [data-report-view="canvas"] [data-designer-selected] { outline: 2px solid oklch(0.52 0.18 255); outline-offset: 2px; }
+  [data-report-view="canvas"] [data-designer-drop="before"] { box-shadow: 0 -3px 0 0 oklch(0.52 0.18 255); }
+  [data-report-view="canvas"] [data-designer-drop="after"] { box-shadow: 0 3px 0 0 oklch(0.52 0.18 255); }
+  [data-report-view="canvas"] [data-report-block="section"]:has(> [data-report-block]:only-of-type) { min-block-size: 8mm; }
+}

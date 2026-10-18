@@ -11,7 +11,7 @@ import { checkSubmission, compileForm, DEFAULT_APPEARANCE, THEMES, ACCENTS, LAYO
 import { auditHtml, renderFormPage } from "../forms/page.ts";
 import {
   countSubmissions, createForm, deleteForm, deleteSubmission, getForm, getFormBySlug, getSubmission, getVersion,
-  insertSubmission, listForms, listSubmissions, listVersions, publishForm, toCsv, toResource, updateForm, exportSubmissions,
+  insertSubmission, listForms, setFormDocuments, listSubmissions, listVersions, publishForm, toCsv, toResource, updateForm, exportSubmissions,
   type FormPatch, type FormRow, type SubmissionQuery,
 } from "../forms/store.ts";
 import { reportRoutes } from "./reports-api.ts";
@@ -177,10 +177,34 @@ export function apiRoutes(db: DB) {
         if (other && other.id !== row.id) throw new Problem(409, "slug-taken", "Slug taken", `The slug "${patch.slug}" is in use.`);
       }
     }
-    const known = new Set(["definition", "status", "submission_limit", "slug"]);
-    for (const k of Object.keys(body)) if (!known.has(k)) errors.push({ pointer: `/${k}`, detail: "Unknown key. PATCH takes definition, status, submission_limit, slug." });
+    let documents: { confirmation_report_id: string | null; issue_on_submit: boolean; thank_you_link: boolean } | null = null;
+    if ("documents" in body) {
+      const d = body.documents as Record<string, unknown>;
+      if (typeof d !== "object" || d === null || Array.isArray(d)) errors.push({ pointer: "/documents", detail: "An object { confirmation_report_id, issue_on_submit, thank_you_link }." });
+      else {
+        const current = toResource(db, row).documents;
+        const id = d.confirmation_report_id === undefined ? current.confirmation_report_id : d.confirmation_report_id;
+        if (id !== null && typeof id !== "string") errors.push({ pointer: "/documents/confirmation_report_id", detail: "A report id (rpt_…) or null." });
+        else if (typeof id === "string") {
+          const rep = db.prepare("SELECT definition FROM reports WHERE id = ? AND workspace_id = ?").get(id, c.var.principal.workspaceId) as { definition: string } | undefined;
+          const source = rep ? (JSON.parse(rep.definition) as { source?: { kind: string; form?: string } }).source : undefined;
+          if (!rep) errors.push({ pointer: "/documents/confirmation_report_id", detail: "No report with that id in this workspace." });
+          else if (source?.kind !== "submission" || source.form !== row.id) errors.push({ pointer: "/documents/confirmation_report_id", detail: "The report must print submissions of this form (source { kind: \"submission\", form: \"" + row.id + "\" })." });
+        }
+        for (const k of ["issue_on_submit", "thank_you_link"] as const) if (d[k] !== undefined && typeof d[k] !== "boolean") errors.push({ pointer: `/documents/${k}`, detail: "true or false." });
+        documents = {
+          confirmation_report_id: (id as string | null) ?? null,
+          issue_on_submit: (d.issue_on_submit as boolean | undefined) ?? current.issue_on_submit,
+          thank_you_link: (d.thank_you_link as boolean | undefined) ?? current.thank_you_link,
+        };
+      }
+    }
+    const known = new Set(["definition", "status", "submission_limit", "slug", "documents"]);
+    for (const k of Object.keys(body)) if (!known.has(k)) errors.push({ pointer: `/${k}`, detail: "Unknown key. PATCH takes definition, status, submission_limit, slug, documents." });
     if (errors.length) throw invalid(errors);
-    return c.json(formOut(c, updateForm(db, row, patch)));
+    const next = updateForm(db, row, patch);
+    if (documents) setFormDocuments(db, row.id, documents);
+    return c.json(formOut(c, getForm(db, c.var.principal.workspaceId, row.id) ?? next));
   });
 
   api.delete("/forms/:id", (c) => {

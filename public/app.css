@@ -525,3 +525,62 @@ body {
   white-space: pre;
 }
 [data-ui="description-list"] code { overflow-wrap: anywhere; }
+
+/* ── Report designer: the page is the canvas ──────────────────────────────
+   The desk scrolls; the sheet is the server's own HTML in an iframe at the
+   paper's width, scaled by --canvas-zoom (fit, 100 %, 150 %). */
+[data-rd-desk] {
+  overflow: auto;
+  max-block-size: calc(100dvh - 9rem);
+  padding: var(--space-4) var(--space-2);
+  border-radius: var(--radius-lg);
+  background: oklch(0.90 0.004 85);
+}
+[data-rd-sheet] {
+  zoom: var(--canvas-zoom, 1);
+  inline-size: max-content;
+  margin-inline: auto;
+}
+[data-rd-sheet] iframe {
+  display: block;
+  border: 0;
+  background: transparent;
+}
+[data-rd-row] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)) auto;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+[data-rd-theme] {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  cursor: pointer;
+  text-align: start;
+}
+[data-rd-theme][aria-pressed="true"] {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--color-primary-subtle);
+}
+[data-rd-theme] img { inline-size: 100%; }
+[data-rd-strip] {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  gap: var(--space-4);
+}
+[data-rd-finding] {
+  inline-size: 100%;
+  justify-content: flex-start;
+  gap: var(--space-2);
+  white-space: normal;
+  text-align: start;
+  block-size: auto;
+  padding-block: var(--space-2);
+}
+[data-designer-props] [data-ui="field-group"] textarea { font-family: var(--font-mono); font-size: var(--text-xs); }

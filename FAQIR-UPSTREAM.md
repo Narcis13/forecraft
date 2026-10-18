@@ -712,6 +712,20 @@ the case it would add to Faqir's own print matrix (`tests/visual/print/matrix.ts
   that paged engines fill and Chromium fills from the margin box, or document the
   composition. Matrix case: footer text and counter on one baseline.
 
+### 48. Three of the five print themes differ only in their primary hue
+
+- **Seen:** `editorial-document`, `ink-document` and `swiss-document` set identical document
+  tokens (`--doc-font`, sizes, gaps, table tokens, all Arial at 10 pt); a diff of two of them
+  is the palette ramp and `--color-fg-muted`. Once a report sets its accent, the three print
+  the same page, and the designer's five theme thumbnails show three near-identical sheets.
+- **Where:** `registry/themes/{editorial,ink,swiss}-document.css`.
+- **Why:** they look generated from one template with a hue swapped in.
+- **Here:** nothing; forecraft's character per document comes from its type pairings (#38).
+- **Suggested fix:** give each print theme a typographic identity in doc tokens (editorial:
+  a serif heading voice and a wider measure; swiss: a tight grotesk, flush rules, larger
+  numerals; ink: heavier rules). Matrix case: the five themes printing the invoice scaffold
+  produce five pairwise-different page-1 PNGs.
+
 ---
 
 ## What worked unusually well (do not break)

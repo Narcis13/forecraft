@@ -153,7 +153,7 @@ export function reportRoutes(api: Hono<Env>, db: DB) {
     const row = mustReport(c);
     const text = (await c.req.raw.clone().text()).trim();
     const body = text ? await readJson(c) : {};
-    const known = ["definition", "data", "submission", "period", "format", "locale", "currency", "status", "pages", "dpi"];
+    const known = ["definition", "data", "submission", "period", "format", "locale", "currency", "status", "pages", "dpi", "view"];
     const extra = Object.keys(body).filter((k) => !known.includes(k));
     if (extra.length) throw invalid(extra.map((k) => ({ pointer: `/${k}`, detail: `Unknown key. Preview takes ${known.join(", ")}.` })));
     const format = body.format ?? "png";
@@ -166,7 +166,7 @@ export function reportRoutes(api: Hono<Env>, db: DB) {
     const p = await guard(() => preview(db, c.var.principal.workspaceId, report, {
       data: body.data, submissionId: typeof body.submission === "string" ? body.submission : null, period: body.period as { since?: string; until?: string } | undefined,
       ...overrides, status,
-    }, { pdf: format !== "html", images: format === "png" ? { dpi, max: pagesMax } : undefined }));
+    }, { pdf: format !== "html", images: format === "png" ? { dpi, max: pagesMax } : undefined, mode: format === "html" && body.view === "canvas" ? "canvas" : "print" }));
     if (format === "html") return c.json({ html: p.rendered.html, findings: p.rendered.findings, title: p.rendered.title });
     const pf = p.preflight!;
     if (format === "pdf") {

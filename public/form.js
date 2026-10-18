@@ -80,7 +80,9 @@
           window.location.assign(config.dataset.redirect);
           return;
         }
-        form.dispatchEvent(new CustomEvent("fc-sent", { bubbles: true }));
+        // A form that issues its confirmation links to the PDF on the thank-you state.
+        var doc = r.body && r.body.document;
+        form.dispatchEvent(new CustomEvent("fc-sent", { bubbles: true, detail: doc && doc.link ? doc.pdf_url : null }));
         var main = document.getElementById("main");
         if (main) main.scrollIntoView({ block: "start" });
       })
