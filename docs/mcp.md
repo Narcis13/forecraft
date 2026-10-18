@@ -145,7 +145,7 @@ forecraft_list_report_starters {}
 forecraft_create_report {
   "starter": "invoice", "title": "Invoice",
   "appearance": { "accent": "#7c2d12" },
-  "sample": { "seller": { "name": "Quayside Logistics Ltd", "iban": "…" } }
+  "sample": { "seller": { "name": "Quayside Logistics Ltd", "street": "4 Harbour Row", "city": "Leith EH6 6LX", "iban": "GB29NWBK60161331926819" } }
 }
   -> { "id": "rpt_…", "starter": "invoice", "published_version": null, "definition": { "schema": …, "sample": …, "layout": […] }, … }
 

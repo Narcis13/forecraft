@@ -91,7 +91,7 @@ curl -s $API/report-starters -H "Authorization: Bearer $FORECRAFT_API_KEY"
 
 # 2. create from invoice with your company and accent (returns the report, id rpt_…, with its definition)
 curl -sX POST $API/reports -H "Authorization: Bearer $FORECRAFT_API_KEY" -H "Content-Type: application/json" \\
-  -d '{"starter":"invoice","title":"Invoice","appearance":{"accent":"#7c2d12"},"sample":{"seller":{"name":"Quayside Logistics Ltd"}}}'
+  -d '{"starter":"invoice","title":"Invoice","appearance":{"accent":"#7c2d12"},"sample":{"seller":{"name":"Quayside Logistics Ltd","street":"4 Harbour Row","city":"Leith EH6 6LX","iban":"GB29NWBK60161331926819"}}}'
 
 # 3. preview: read findings[] (fix every severity "error"), then look at images[] (base64 PNG pages)
 curl -sX POST $API/reports/rpt_…/preview -H "Authorization: Bearer $FORECRAFT_API_KEY"
