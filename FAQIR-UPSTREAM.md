@@ -285,6 +285,17 @@ prioritised shortlist.
   and `margin`, and `> legend[data-part="title"]` is floated (or `display: contents` on a
   wrapper) and padded like `[data-part="header"]`; a visual test of a grouped form.
 
+### 31. Visually hidden text exists only as a class
+
+- **Seen:** the designer needs labels that only assistive tech reads (the form title
+  input in the toolbar, section titles, a live region). `base/reset.css` ships the
+  pattern as `.sr-only`, but the protocol forbids `class` (`no-class-attribute`
+  warns), so the one sanctioned helper cannot be used.
+- **Where:** `registry/base/reset.css` (`.sr-only`).
+- **Here:** `public/app.css` re-implements it as `[data-designer-sr]`.
+- **Suggested fix:** a base-layer `data-ui="visually-hidden"` (or a `hidden-until-focus`
+  variant that also covers #8's skip link), with `.sr-only` kept as an alias.
+
 ---
 
 ## Recipes

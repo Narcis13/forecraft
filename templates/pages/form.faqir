@@ -38,6 +38,8 @@ block body
                 div(hidden)
                   label(for="fc-hp") Leave this field empty
                   input#fc-hp(name="_fc_hp" form="fc-form" tabindex="-1" autocomplete="off")
+                  if page.version ?? false
+                    input(type="hidden" name="_fc_v" form="fc-form" value=page.version)
           template(l-if="status === 'sent'")
             section(aria-live="polite" data-form-thanks)
               div(data-ui="reveal" data-variant="zoom")

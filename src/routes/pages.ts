@@ -9,8 +9,8 @@ import {
   listApiKeys, type Principal, SESSION_COOKIE, sessionPrincipal, verifyPassword,
 } from "../auth/index.ts";
 import type { DB } from "../db/index.ts";
-import { type Env, sameOrigin } from "../api/http.ts";
-import { ACCENTS, compileForm, THEMES } from "../forms/model.ts";
+import { clientIp, type Env, ipHash, sameOrigin, take } from "../api/http.ts";
+import { ACCENTS, compileForm, DEFAULT_APPEARANCE, THEMES } from "../forms/model.ts";
 import { renderFormPage } from "../forms/page.ts";
 import {
   countSubmissions, getForm, getVersion, listForms, listSubmissions, listVersions, toResource, type FormRow,
@@ -29,6 +29,11 @@ export function pageRoutes(db: DB) {
   };
 
   // ── Auth ────────────────────────────────────────────────────────────────
+  /** Password attempts: 30 a minute per address (offices share one), 10 per email; each runs scrypt. */
+  const throttled = (c: Context, email: string) =>
+    !take(`auth-ip:${ipHash(db, clientIp(c))}`, 30).ok || !take(`auth-email:${email.trim().toLowerCase()}`, 10).ok;
+  const TOO_MANY = "Too many attempts. Wait a minute and try again.";
+
   const authPage = (mode: "login" | "register", extra: Record<string, unknown> = {}) =>
     page("pages/auth.faqir", {
       page: {
@@ -52,6 +57,7 @@ export function pageRoutes(db: DB) {
     if (!sameOrigin(c)) return c.text("Cross-origin form post refused", 403);
     const form = await c.req.parseBody();
     const email = String(form.email ?? "");
+    if (throttled(c, email)) return c.html(authPage("login", { error: TOO_MANY, email }), 429);
     const user = findUserByEmail(db, email);
     if (!user || !(await verifyPassword(String(form.password ?? ""), user.password_hash))) {
       return c.html(authPage("login", { error: "That email and password do not match an account.", email }), 401);
@@ -66,6 +72,7 @@ export function pageRoutes(db: DB) {
     const email = String(form.email ?? "").trim();
     const name = String(form.name ?? "").trim();
     const password = String(form.password ?? "");
+    if (throttled(c, email)) return c.html(authPage("register", { error: TOO_MANY, email, name }), 429);
     const error = !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) ? "Enter a valid email address."
       : password.length < 8 ? "Use a password of at least 8 characters."
       : findUserByEmail(db, email) ? "An account with that email already exists. Sign in instead."
@@ -99,8 +106,10 @@ export function pageRoutes(db: DB) {
     const inv = findInvite(db, c.req.param("token"));
     if (!inv) return c.html(page("pages/not-found.faqir", { page: {} }), 404);
     const form = await c.req.parseBody();
-    const email = String(form.email ?? "").trim();
+    // An invite is for the address it was sent to.
+    const email = inv.email;
     const password = String(form.password ?? "");
+    if (throttled(c, email)) return c.html(authPage("register", { error: TOO_MANY, email }), 429);
     const again = (error: string) => c.html(authPage("register", {
       heading: `Join ${inv.workspace_name}`, lede: "You were invited to this workspace.", action: `/invite/${c.req.param("token")}`,
       submit: "Join workspace", email, error, invite: inv.workspace_name,
@@ -131,13 +140,16 @@ export function pageRoutes(db: DB) {
 
   const shell = (c: Context<PageEnv>, nav: string, heading: string, extra: Record<string, unknown>) => {
     const forms = listForms(db, c.var.principal.workspaceId);
+    const titles = forms.map((f) => (JSON.parse(f.definition) as { schema: { title: string } }).schema.title);
+    // The palette routes by label, so two forms with one title get their address added.
+    const label = (i: number) => titles.indexOf(titles[i]!) !== titles.lastIndexOf(titles[i]!) ? `${titles[i]} (/f/${forms[i]!.slug})` : titles[i]!;
     const groups = [
       { label: "Go to", items: [
         { label: "Forms", href: "/app" }, { label: "API keys", href: "/app/keys" }, { label: "Workspace settings", href: "/app/settings" },
         { label: "Docs", href: "/docs" }, { label: "For agents", href: "/for-agents" },
       ] },
-      { label: "Forms", items: forms.map((f) => ({ label: (JSON.parse(f.definition) as { schema: { title: string } }).schema.title, href: `/app/forms/${f.id}` })) },
-      { label: "Design", items: forms.map((f) => ({ label: `Design: ${(JSON.parse(f.definition) as { schema: { title: string } }).schema.title}`, href: `/app/forms/${f.id}/design` })) },
+      { label: "Forms", items: forms.map((f, i) => ({ label: label(i), href: `/app/forms/${f.id}` })) },
+      { label: "Design", items: forms.map((f, i) => ({ label: `Design: ${label(i)}`, href: `/app/forms/${f.id}/design` })) },
     ].filter((g) => g.items.length > 0);
     return {
       nav,
@@ -230,7 +242,7 @@ export function pageRoutes(db: DB) {
       cells: columns.map((col) => s.data[col.name] ?? null),
       answers: compiled.fields.filter((f) => s.data[f.name] !== undefined).map((f) => ({ label: f.title, value: s.data[f.name] })),
     }));
-    const exportQuery = q ? `&q=${encodeURIComponent(q)}` : "";
+    const exportQuery = (q ? `&q=${encodeURIComponent(q)}` : "") + (version ? `&version=${encodeURIComponent(version)}` : "");
     return c.html(page("pages/app/form-submissions.faqir", {
       page: formPage(c, row, "submissions", {
         columns, rows, total, q, version,
@@ -286,6 +298,7 @@ export function pageRoutes(db: DB) {
         title: (JSON.parse(row.definition) as { schema: { title: string } }).schema.title,
         themes: THEMES,
         accents: ACCENTS,
+        defaults: DEFAULT_APPEARANCE,
       },
     }));
   });

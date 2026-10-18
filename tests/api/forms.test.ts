@@ -1,6 +1,7 @@
 import { after, before, describe, test } from "node:test";
 import assert from "node:assert/strict";
 import { startServer, type TestServer } from "../helpers.ts";
+import { createSession } from "../../src/auth/index.ts";
 
 const definition = {
   schema: {
@@ -121,14 +122,50 @@ describe("forms API", () => {
     assert.match(await (await fetch(`${s.url}/f/contact`)).text(), /all the responses it can take/);
   });
 
-  test("keys: create, use, revoke", async () => {
-    const res = await s.api("/api/v1/keys", { method: "POST", json: { name: "ci" } });
+  test("keys: a person creates and revokes them; a key cannot", async () => {
+    assert.equal((await s.api("/api/v1/keys", { method: "POST", json: { name: "by a key" } })).status, 403);
+    const cookie = `fc_session=${createSession(s.db, s.demo!.userId, s.demo!.workspaceId)}`;
+    const asPerson = { cookie, origin: s.url };
+    const res = await s.api("/api/v1/keys", { method: "POST", json: { name: "ci" }, key: null, headers: asPerson });
+    assert.equal(res.status, 201);
     const key = await res.json();
     assert.match(key.secret, /^fc_live_/);
     assert.equal((await s.api("/api/v1/forms", { key: key.secret })).status, 200);
-    assert.equal((await s.api(`/api/v1/keys/${key.id}`, { method: "DELETE" })).status, 204);
+    assert.equal((await s.api(`/api/v1/keys/${key.id}`, { method: "DELETE", key: key.secret })).status, 403);
+    assert.equal((await s.api(`/api/v1/keys/${key.id}`, { method: "DELETE", key: null, headers: asPerson })).status, 204);
     assert.equal((await s.api("/api/v1/forms", { key: key.secret })).status, 401);
     const listed = (await (await s.api("/api/v1/keys")).json()).items;
     assert.ok(listed.every((k: Record<string, unknown>) => !("secret" in k) && !("key_hash" in k)));
+  });
+
+  test("hostile input is refused cleanly", async () => {
+    const post = (body: unknown, headers: Record<string, string> = {}) => fetch(`${s.url}/api/v1/f/customer-pulse/submissions`, {
+      method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body),
+    });
+    assert.equal((await post({ data: [1, 2] })).status, 422);
+    const forms = (await (await s.api("/api/v1/forms")).json()).items;
+    assert.equal((await s.api(`/api/v1/forms/${forms[0].id}/submissions?limit=abc`)).status, 422);
+    // A honeypot at the top level is honoured too; nothing is stored.
+    const before = (await (await s.api(`/api/v1/forms/${forms.find((f: { slug: string }) => f.slug === "customer-pulse").id}/submissions`)).json()).total;
+    assert.equal((await post({ _fc_hp: "x", data: { recommend: "9", easy: "Agree", agents: "Agree" } })).status, 202);
+    const after = (await (await s.api(`/api/v1/forms/${forms.find((f: { slug: string }) => f.slug === "customer-pulse").id}/submissions`)).json()).total;
+    assert.equal(after, before);
+  });
+
+  test("the per-address limit ignores a forged X-Forwarded-For", async () => {
+    const statuses: number[] = [];
+    for (let i = 0; i < 14; i++) {
+      const res = await fetch(`${s.url}/api/v1/f/contact/submissions`, {
+        method: "POST", headers: { "content-type": "application/json", "x-forwarded-for": `10.0.0.${i}` },
+        body: JSON.stringify({ data: {} }),
+      });
+      statuses.push(res.status);
+    }
+    assert.ok(statuses.includes(429), statuses.join(","));
+    // Last in the file: the server answers 413 without reading the body, which closes the socket.
+    const big = await fetch(`${s.url}/api/v1/f/contact/submissions`, {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ data: { message: "x".repeat(300_000) } }),
+    });
+    assert.equal(big.status, 413);
   });
 });

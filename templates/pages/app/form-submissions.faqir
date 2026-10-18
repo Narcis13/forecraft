@@ -36,7 +36,7 @@ block content
           a(data-ui="button" data-variant="ghost" href=page.jsonHref download)
             span(data-ui="icon" data-icon="download" aria-hidden="true")
             | JSON
-    p(data-ui="text" data-size="sm" data-variant="muted") {{ plural(page.total, "response") }}
+    p(data-ui="text" data-size="sm" data-variant="muted") {{ plural(page.total, "response") }}{{ page.total > page.rows.length ? " · showing the newest " + page.rows.length + "; the exports hold all of them" : "" }}
     if page.rows.length == 0
       div(data-ui="card")
         div(data-part="body")

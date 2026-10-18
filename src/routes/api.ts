@@ -2,53 +2,53 @@
 // same routes (through the session cookie); agents use a bearer API key.
 
 import { Hono, type Context } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import {
   createApiKey, createInvite, listApiKeys, revokeApiKey,
 } from "../auth/index.ts";
 import type { DB } from "../db/index.ts";
-import { checkSubmission, compileForm, DEFAULT_APPEARANCE, THEMES, ACCENTS, LAYOUTS } from "../forms/model.ts";
+import { checkSubmission, compileForm, DEFAULT_APPEARANCE, THEMES, ACCENTS, LAYOUTS, SCHEMES } from "../forms/model.ts";
 import { auditHtml, renderFormPage } from "../forms/page.ts";
 import {
   countSubmissions, createForm, deleteForm, deleteSubmission, getForm, getFormBySlug, getSubmission, getVersion,
-  insertSubmission, listForms, listSubmissions, listVersions, publishForm, toCsv, toResource, updateForm,
-  type FormPatch, type FormRow,
+  insertSubmission, listForms, listSubmissions, listVersions, publishForm, toCsv, toResource, updateForm, exportSubmissions,
+  type FormPatch, type FormRow, type SubmissionQuery,
 } from "../forms/store.ts";
 import {
-  absoluteUrl, authenticate, clientIp, type Env, ipHash, notFound, Problem, rateLimit, readJson, take,
+  absoluteUrl, authenticate, clientIp, type Env, ipHash, notFound, Problem, rateLimit, readJson,
 } from "../api/http.ts";
 
 export function apiRoutes(db: DB) {
   const api = new Hono<Env>();
 
   // ── Public submission endpoint (no auth) ────────────────────────────────
-  api.post("/f/:slug/submissions", async (c) => {
-    const row = getFormBySlug(db, c.req.param("slug"));
-    if (!row) throw new Problem(404, "not-found", "Not found", "No form with that slug.");
-    const ip = ipHash(db, clientIp(c));
-    const limited = take(`submit:${ip}`, 10);
-    if (!limited.ok) {
-      c.header("Retry-After", String(limited.retryAfter));
-      throw new Problem(429, "rate-limited", "Too many submissions", "Too many submissions from this address. Try again in a minute.");
-    }
-    const live = liveVersion(row);
-    if (!live) throw new Problem(409, "form-unpublished", "Form not published", "This form has no published version yet.");
+  api.post("/f/:slug/submissions", bodyLimit({ maxSize: 256 * 1024, onError: tooLarge }),
+    rateLimit(10, (c) => `submit:${ipHash(db, clientIp(c))}`), async (c) => {
+    const slug = c.req.param("slug");
+    if (!getFormBySlug(db, slug)) throw new Problem(404, "not-found", "Not found", "No form with that slug.");
+    const body = await readSubmissionBody(c);
+    if (body.honeypot) return c.json({ id: null, received: true }, 202); // a bot: say thanks, keep nothing
+
+    // Everything from here to the insert is synchronous, so the open/full checks
+    // and the insert cannot interleave with another submission.
+    const row = getFormBySlug(db, slug)!;
+    if (row.published_version === null) throw new Problem(409, "form-unpublished", "Form not published", "This form has no published version yet.");
     if (row.status === "closed") throw new Problem(409, "form-closed", "Form closed", "This form is no longer accepting responses.");
     if (row.submission_limit !== null && countSubmissions(db, row.id) >= row.submission_limit) {
       throw new Problem(409, "form-full", "Form full", "This form has reached its submission limit.");
     }
-
-    const raw = await readSubmissionBody(c);
-    const honeypot = raw instanceof URLSearchParams ? raw.get("_fc_hp") : (raw as Record<string, unknown>)._fc_hp;
-    if (raw instanceof URLSearchParams) raw.delete("_fc_hp");
-    else delete (raw as Record<string, unknown>)._fc_hp;
-    if (honeypot) return c.json({ id: null, received: true }, 202); // a bot: say thanks, keep nothing
-
-    const verdict = checkSubmission(live.form, raw);
+    // The version the visitor was shown (the page sends it), else the live one.
+    const asked = body.version && body.version <= row.published_version ? getVersion(db, row.id, body.version) : undefined;
+    const version = asked ?? getVersion(db, row.id, row.published_version)!;
+    const form = compileForm(JSON.parse(version.definition));
+    const verdict = checkSubmission(form, body.answers);
     if (!verdict.valid) throw invalidSubmission(verdict.findings);
-    const sub = insertSubmission(db, row.id, live.version, verdict.data, ip);
-    const a = live.form.appearance;
+    const sub = insertSubmission(db, row.id, version.version, verdict.data, ipHash(db, clientIp(c)));
+    const a = form.appearance;
     return c.json({ id: sub.id, created_at: sub.created_at, thank_you: a.thankYou, redirect: a.redirect }, 201);
   });
+
+  api.use("*", bodyLimit({ maxSize: 1024 * 1024, onError: tooLarge }));
 
   // Everything below needs a key or a session.
   api.use("*", authenticate(db, { allowSession: true }));
@@ -94,13 +94,20 @@ export function apiRoutes(db: DB) {
 
   api.get("/keys", (c) => c.json({ items: listApiKeys(db, c.var.principal.workspaceId) }));
 
+  // Keys are managed by a person: a leaked key must not be able to mint
+  // successors or revoke the workspace's other keys.
+  const personOnly = (c: Context<Env>) => {
+    if (!c.var.principal.userId) throw new Problem(403, "session-required", "Sign in to manage keys", "API keys are created and revoked from the dashboard, by a person.");
+  };
   api.post("/keys", async (c) => {
+    personOnly(c);
     const body = await readJson(c).catch(() => ({}) as Record<string, unknown>);
     const { key, secret } = createApiKey(db, c.var.principal.workspaceId, typeof body.name === "string" ? body.name : "API key");
     return c.json({ ...key, secret, note: "This is the only time the secret is shown. Store it now." }, 201);
   });
 
   api.delete("/keys/:id", (c) => {
+    personOnly(c);
     if (!revokeApiKey(db, c.var.principal.workspaceId, c.req.param("id"))) throw notFound("active key");
     return c.body(null, 204);
   });
@@ -189,7 +196,7 @@ export function apiRoutes(db: DB) {
     return c.json({
       items: listVersions(db, row.id).map((v) => ({
         version: v.version, published_at: v.published_at, live: v.version === row.published_version,
-        submission_count: (db.prepare("SELECT COUNT(*) AS n FROM submissions WHERE form_id = ? AND version = ?").get(row.id, v.version) as { n: number }).n,
+        submission_count: listSubmissions(db, row.id, { version: v.version, limit: 1 }).total,
       })),
     });
   });
@@ -214,11 +221,8 @@ export function apiRoutes(db: DB) {
   });
   api.post("/forms/:id/preview", async (c) => {
     const row = mustForm(c);
-    const text = (await c.req.text()).trim();
-    let body: { definition?: unknown } = {};
-    if (text) {
-      try { body = JSON.parse(text); } catch { throw new Problem(400, "bad-json", "Malformed JSON", "The request body is not valid JSON."); }
-    }
+    const empty = !(await c.req.raw.clone().text()).trim();
+    const body = empty ? {} : await readJson(c);
     return preview(c, body.definition ?? JSON.parse(row.definition));
   });
 
@@ -226,7 +230,9 @@ export function apiRoutes(db: DB) {
   api.post("/forms/:id/validate", async (c) => {
     const row = mustForm(c);
     const body = await readJson(c);
-    const verdict = checkSubmission(compileForm(JSON.parse(row.definition)), (body.data ?? {}) as Record<string, unknown>);
+    const data = body.data ?? {};
+    if (typeof data !== "object" || data === null || Array.isArray(data)) throw invalid([{ pointer: "/data", detail: "An object of answers, keyed by field name." }]);
+    const verdict = checkSubmission(compileForm(JSON.parse(row.definition)), data as Record<string, unknown>);
     return c.json(verdict);
   });
 
@@ -235,8 +241,7 @@ export function apiRoutes(db: DB) {
     const row = mustForm(c);
     const q = c.req.query();
     const { items, total } = listSubmissions(db, row.id, {
-      q: q.q, version: q.version ? Number(q.version) : undefined, since: q.since, until: q.until,
-      limit: q.limit ? Number(q.limit) : 50, offset: q.offset ? Number(q.offset) : 0,
+      ...filters(q), limit: int(q, "limit") ?? 50, offset: int(q, "offset") ?? 0,
     });
     return c.json({ items, total });
   });
@@ -244,7 +249,8 @@ export function apiRoutes(db: DB) {
   api.get("/forms/:id/submissions/export", (c) => {
     const row = mustForm(c);
     const format = c.req.query("format") ?? "csv";
-    const { items } = listSubmissions(db, row.id, { q: c.req.query("q"), limit: 1000 });
+    // Every matching row, with the same filters as the list.
+    const items = exportSubmissions(db, row.id, filters(c.req.query()));
     const name = `${row.slug}-submissions`;
     if (format === "json") {
       c.header("Content-Disposition", `attachment; filename="${name}.json"`);
@@ -272,15 +278,22 @@ export function apiRoutes(db: DB) {
   });
 
   // ── Vocabulary an agent needs to write a definition ──────────────────────
-  api.get("/vocabulary", (c) => c.json({ themes: THEMES, accents: ACCENTS, layouts: LAYOUTS, appearance_defaults: DEFAULT_APPEARANCE }));
+  api.get("/vocabulary", (c) => c.json({ themes: THEMES, accents: ACCENTS, layouts: LAYOUTS, schemes: SCHEMES, appearance_defaults: DEFAULT_APPEARANCE }));
 
-  function liveVersion(row: FormRow) {
-    if (row.published_version === null) return null;
-    const v = getVersion(db, row.id, row.published_version)!;
-    return { version: v.version, form: compileForm(JSON.parse(v.definition)) };
-  }
 
   return api;
+}
+
+/** A non-negative integer query parameter, or a 422 that names it. */
+function int(q: Record<string, string>, name: string): number | undefined {
+  if (q[name] === undefined || q[name] === "") return undefined;
+  const n = Number(q[name]);
+  if (!Number.isInteger(n) || n < 0) throw invalid([{ pointer: `/${name}`, detail: "A non-negative integer." }]);
+  return n;
+}
+
+function filters(q: Record<string, string>): SubmissionQuery {
+  return { q: q.q || undefined, version: int(q, "version"), since: q.since || undefined, until: q.until || undefined };
 }
 
 function checkSlug(slug: string): string {
@@ -300,18 +313,40 @@ export function invalidSubmission(findings: { path: string; rule: string; messag
     { errors: findings.map((f) => ({ pointer: `/${f.path.replace(/\./g, "/").replace(/\[(\d+)\]/g, "/$1")}`, field: f.path, rule: f.rule, detail: f.message })) });
 }
 
-async function readSubmissionBody(c: Context): Promise<Record<string, unknown> | URLSearchParams> {
+interface SubmissionBody { answers: Record<string, unknown> | URLSearchParams; honeypot: boolean; version: number | null }
+
+/** JSON `{ data: {…} }` (or the answers themselves), or a form encoding as the page sends it. */
+async function readSubmissionBody(c: Context): Promise<SubmissionBody> {
   const type = c.req.header("content-type") ?? "";
+  const meta = (hp: unknown, v: unknown) => ({ honeypot: Boolean(hp), version: Number.isInteger(Number(v)) && Number(v) > 0 ? Number(v) : null });
   if (type.includes("application/json")) {
     const body = await readJson(c);
-    return (typeof body.data === "object" && body.data !== null ? body.data : body) as Record<string, unknown>;
+    const wrapped = "data" in body;
+    const answers = wrapped ? body.data : body;
+    if (typeof answers !== "object" || answers === null || Array.isArray(answers)) {
+      throw new Problem(422, "invalid-request", "Invalid request", "data must be an object of answers, keyed by field name.");
+    }
+    const a = { ...(answers as Record<string, unknown>) };
+    const out = { answers: a, ...meta(a._fc_hp ?? body._fc_hp, a._fc_v ?? body._fc_v) };
+    delete a._fc_hp;
+    delete a._fc_v;
+    return out;
   }
-  if (type.includes("application/x-www-form-urlencoded")) return new URLSearchParams(await c.req.text());
-  if (type.includes("multipart/form-data")) {
+  let params: URLSearchParams;
+  if (type.includes("application/x-www-form-urlencoded")) params = new URLSearchParams(await c.req.text());
+  else if (type.includes("multipart/form-data")) {
     const fd = await c.req.formData();
-    const params = new URLSearchParams();
+    params = new URLSearchParams();
     fd.forEach((v, k) => { if (typeof v === "string") params.append(k, v); });
-    return params;
+  } else {
+    throw new Problem(415, "unsupported-media-type", "Unsupported media type", "Send application/json ({ \"data\": { … } }) or a form encoding.");
   }
-  throw new Problem(415, "unsupported-media-type", "Unsupported media type", "Send application/json ({ \"data\": { … } }) or a form encoding.");
+  const out = { answers: params, ...meta(params.get("_fc_hp"), params.get("_fc_v")) };
+  params.delete("_fc_hp");
+  params.delete("_fc_v");
+  return out;
+}
+
+function tooLarge(): never {
+  throw new Problem(413, "too-large", "Request too large", "The body is larger than this endpoint accepts (256 KB for a submission, 1 MB elsewhere).");
 }

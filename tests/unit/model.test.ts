@@ -76,3 +76,20 @@ test("CSV flattens nested answers and defuses formulas", () => {
   const csv = toCsv([{ id: "s1", form_id: "f", version: 1, created_at: "2026-01-01T00:00:00Z", data: { name: "=HYPERLINK(1)", note: 'say "hi", ok' } }], ["name", "note"]);
   assert.equal(csv.split("\r\n")[1], `s1,2026-01-01T00:00:00Z,1,'=HYPERLINK(1),"say ""hi"", ok"`);
 });
+
+test("nested answers: hidden paths and undeclared keys are not stored", () => {
+  const form = compileForm({
+    schema: {
+      title: "Nested", type: "object",
+      properties: {
+        kind: { type: "string", enum: ["a", "b"] },
+        addr: { type: "object", title: "Address", properties: { city: { type: "string" }, zip: { type: "string" } } },
+        rows: { type: "array", items: { type: "object", properties: { n: { type: "string" } } } },
+      },
+    },
+    rules: { rules: [{ id: "zip-for-b", show: "addr.zip", when: { "==": [{ var: "kind" }, "b"] } }] },
+  });
+  const v = checkSubmission(form, { kind: "a", addr: { city: "Oslo", zip: "HIDDEN", extra: "UNDECLARED" }, rows: [{ n: "1", x: "no" }], stray: 1 });
+  assert.equal(v.valid, true);
+  assert.deepEqual(v.data, { kind: "a", addr: { city: "Oslo" }, rows: [{ n: "1" }] });
+});

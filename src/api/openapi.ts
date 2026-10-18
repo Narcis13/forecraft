@@ -118,7 +118,7 @@ export function openapi(baseUrl: string): Obj {
         },
         post: {
           operationId: "createKey", tags: ["workspace"], summary: "Create an API key",
-          description: "The secret (`fc_live_…`) is in this response only. Store it now.",
+          description: "Signed-in people only (session cookie): an API key gets 403, so a leaked key cannot mint successors. The secret (`fc_live_…`) is in this response only. Store it now.",
           requestBody: jsonBody({ type: "object", properties: { name: { type: "string", default: "API key" } } }, false),
           responses: { "201": jsonResponse("The key and its secret.", ref("ApiKeyCreated")), ...AUTH_ERRORS },
         },
@@ -126,6 +126,7 @@ export function openapi(baseUrl: string): Obj {
       "/keys/{id}": {
         delete: {
           operationId: "revokeKey", tags: ["workspace"], summary: "Revoke an API key",
+          description: "Signed-in people only (session cookie): an API key gets 403.",
           parameters: [idParam("id", "Key id (key_…).")],
           responses: { "204": { description: "Revoked." }, "404": problemRef("NotFound"), ...AUTH_ERRORS },
         },
@@ -513,9 +514,10 @@ export function openapi(baseUrl: string): Obj {
             themes: { type: "array", items: { type: "string" } },
             accents: { type: "array", items: { type: "string" } },
             layouts: { type: "array", items: { type: "string" } },
+            schemes: { type: "array", items: { type: "string" } },
             appearance_defaults: { type: "object", additionalProperties: true },
           },
-          required: ["themes", "accents", "layouts", "appearance_defaults"],
+          required: ["themes", "accents", "layouts", "schemes", "appearance_defaults"],
         },
       },
     },

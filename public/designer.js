@@ -66,6 +66,41 @@
     return name;
   }
 
+  // ── Field references in rules ─────────────────────────────────────────────
+  // A rule names fields as its target (show, require, compute, path) and inside
+  // its logic: {var: n}, {var: [n, default]}, {missing: [n…]}, {missing_some: [k, [n…]]}.
+  // "addr.city" and "rows[0].n" refer to the fields addr and rows.
+  var TARGETS = ["show", "require", "compute", "path"];
+  function refersTo(ref, name) {
+    return ref === name || (typeof ref === "string" && (ref.indexOf(name + ".") === 0 || ref.indexOf(name + "[") === 0));
+  }
+  function mapLogic(node, fn) {
+    if (Array.isArray(node)) return node.map(function (n) { return mapLogic(n, fn); });
+    if (!node || typeof node !== "object") return node;
+    var out = {};
+    Object.keys(node).forEach(function (op) {
+      var arg = node[op];
+      if (op === "var") out.var = Array.isArray(arg) ? [typeof arg[0] === "string" ? fn(arg[0]) : arg[0]].concat(arg.slice(1)) : typeof arg === "string" ? fn(arg) : arg;
+      else if (op === "missing" && Array.isArray(arg)) out.missing = arg.map(function (n) { return typeof n === "string" ? fn(n) : mapLogic(n, fn); });
+      else if (op === "missing_some" && Array.isArray(arg)) out.missing_some = [arg[0], (arg[1] || []).map(fn)];
+      else out[op] = mapLogic(arg, fn);
+    });
+    return out;
+  }
+  /** Rewrite every field a rule names: fn(name) → new name. */
+  function mapRule(rule, fn) {
+    var out = {};
+    Object.keys(rule).forEach(function (k) {
+      out[k] = TARGETS.indexOf(k) >= 0 && typeof rule[k] === "string" ? fn(rule[k]) : k === "id" || k === "message" ? rule[k] : mapLogic(rule[k], fn);
+    });
+    return out;
+  }
+  function ruleUses(rule, name) {
+    var hit = false;
+    mapRule(rule, function (n) { if (refersTo(n, name)) hit = true; return n; });
+    return hit;
+  }
+
   function api(method, path, body) {
     return fetch("/api/v1" + path, {
       method: method,
@@ -147,6 +182,8 @@
         lastEdit: { key: "", at: 0 },
         saveTimer: 0,
         previewTimer: 0,
+        previewSeq: 0,
+        defaults: {},
         ruleDraft: { verb: "show", target: "", field: "", op: "eq", value: "" },
 
         init: function () {
@@ -164,7 +201,7 @@
             self.statusText = "Could not load the form: " + err.message;
           });
           window.addEventListener("beforeunload", function (e) {
-            if (self.status === "dirty" || self.status === "saving") { e.preventDefault(); e.returnValue = ""; }
+            if (self.status !== "saved") { e.preventDefault(); e.returnValue = ""; } // dirty, saving, or refused by the API
           });
         },
 
@@ -359,10 +396,14 @@
             if (d.ui) {
               delete d.ui[name];
               var list = d.ui["ui:wizard"] ? d.ui["ui:wizard"].steps : d.ui["ui:groups"];
-              if (list) list.forEach(function (s) { s.fields = s.fields.filter(function (n) { return n !== name; }); });
+              if (list) list.forEach(function (s) {
+                s.fields = s.fields.filter(function (n) { return n !== name; });
+                if (s.when && ruleUses({ when: s.when }, name)) delete s.when;
+              });
             }
             if (d.rules && d.rules.rules) {
-              d.rules.rules = d.rules.rules.filter(function (r) { return JSON.stringify(r).indexOf('"' + name + '"') < 0; });
+              d.rules.rules = d.rules.rules.filter(function (r) { return !ruleUses(r, name); });
+              if (!d.rules.rules.length) delete d.rules.rules;
             }
           });
           if (this.selected === name) this.selected = "";
@@ -488,14 +529,9 @@
               var list = d.ui["ui:wizard"] ? d.ui["ui:wizard"].steps : d.ui["ui:groups"];
               if (list) list.forEach(function (s) { s.fields = s.fields.map(function (n) { return n === from ? to : n; }); });
             }
-            if (d.rules && d.rules.rules) {
-              d.rules.rules = JSON.parse(JSON.stringify(d.rules.rules)
-                .split('{"var":"' + from + '"}').join('{"var":"' + to + '"}')
-                .split('"show":"' + from + '"').join('"show":"' + to + '"')
-                .split('"require":"' + from + '"').join('"require":"' + to + '"')
-                .split('"path":"' + from + '"').join('"path":"' + to + '"')
-                .split('"missing":["' + from + '"]').join('"missing":["' + to + '"]'));
-            }
+            var swap = function (n) { return refersTo(n, from) ? to + n.slice(from.length) : n; };
+            if (d.rules && d.rules.rules) d.rules.rules = d.rules.rules.map(function (r) { return mapRule(r, swap); });
+            if (d.ui && d.ui["ui:wizard"]) d.ui["ui:wizard"].steps.forEach(function (st) { if (st.when) st.when = mapLogic(st.when, swap); });
           });
           this.selected = to;
         },
@@ -620,12 +656,13 @@
           var a = (this.def && this.def.appearance) || {};
           if (key === "coverImage") return (a.cover && a.cover.image) || "";
           if (key === "eyebrow") return (a.cover && a.cover.eyebrow) || "";
-          if (key === "thanksTitle") return (a.thankYou && a.thankYou.title) || "Thank you!";
-          if (key === "thanksMessage") return (a.thankYou && a.thankYou.message) || "Your answers are in. You can close this page.";
-          var defaults = { theme: "default", accent: "theme", scheme: "auto", layout: "card", submitLabel: "Submit", redirect: "" };
-          return a[key] === undefined || a[key] === null ? defaults[key] : a[key];
+          var def = this.defaults; // the server's DEFAULT_APPEARANCE, passed as data-prop-defaults
+          if (key === "thanksTitle") return (a.thankYou && a.thankYou.title) || def.thankYou.title;
+          if (key === "thanksMessage") return (a.thankYou && a.thankYou.message) || def.thankYou.message;
+          return a[key] === undefined || a[key] === null ? def[key] || "" : a[key];
         },
         setLook: function (key, value) {
+          var thanks = this.defaults.thankYou;
           this.apply(function (d) {
             var a = d.appearance = d.appearance || {};
             if (key === "coverImage" || key === "eyebrow") {
@@ -633,7 +670,7 @@
               a.cover[key === "coverImage" ? "image" : "eyebrow"] = value;
               if (!a.cover.image && !a.cover.eyebrow) delete a.cover;
             } else if (key === "thanksTitle" || key === "thanksMessage") {
-              a.thankYou = a.thankYou || { title: "Thank you!", message: "Your answers are in. You can close this page." };
+              a.thankYou = a.thankYou || { title: thanks.title, message: thanks.message };
               a.thankYou[key === "thanksTitle" ? "title" : "message"] = value;
             } else if (key === "redirect") {
               if (value) a.redirect = value; else delete a.redirect;
@@ -691,7 +728,9 @@
           var self = this;
           clearTimeout(self.previewTimer);
           self.previewTimer = setTimeout(function () {
+            var seq = ++self.previewSeq;
             api("POST", "/preview", { definition: self.def }).then(function (res) {
+              if (seq !== self.previewSeq) return; // a newer preview is on its way
               var frame = document.getElementById("designer-preview");
               if (frame) frame.srcdoc = res.html;
               self.audit = res.audit;

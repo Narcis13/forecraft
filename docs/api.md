@@ -38,11 +38,12 @@ Every error is `application/problem+json` (RFC 9457):
 | 409 | `slug-taken`, `form-unpublished`, `form-closed`, `form-full` | a slug in use; a form that cannot take submissions |
 | 415 | `unsupported-media-type` | a submission that is neither JSON nor a form encoding |
 | 422 | `invalid-definition`, `invalid-request`, `invalid-submission` | a definition that does not render, a bad field, a broken rule |
+| 413 | `too-large` | the body is over the limit |
 | 429 | `rate-limited` | too many requests; wait `Retry-After` seconds |
 
 ## Rate limits
 
-240 requests a minute per key (per person, for the session cookie). Each response carries `RateLimit-Limit` and `RateLimit-Remaining`; a `429` carries `Retry-After`. The public submission endpoint allows 10 submissions a minute per address.
+240 requests a minute per key (per person, for the session cookie). Each response carries `RateLimit-Limit` and `RateLimit-Remaining`; a `429` carries `Retry-After`. The public submission endpoint allows 10 submissions a minute per address (the socket's address; `X-Forwarded-For` is trusted only when the server runs with `TRUST_PROXY=1`). Bodies are capped: 256 KB for a submission, 1 MB elsewhere, `413 too-large` beyond.
 
 ## Forms
 
@@ -122,9 +123,9 @@ It takes JSON `{ "data": { … } }` or `application/x-www-form-urlencoded` / `mu
 | `GET /api/v1/workspace/members` | — | `{ members, invites }` |
 | `POST /api/v1/workspace/invites` | `{ email }` | `201 { id, email, url }`; signed-in people only, not keys |
 | `GET /api/v1/keys` | — | `{ items }` (never the secret) |
-| `POST /api/v1/keys` | `{ name? }` | `201` the key with its `secret`, shown this once |
-| `DELETE /api/v1/keys/:id` | — | `204`; the key stops working at once |
-| `GET /api/v1/vocabulary` | — | `{ themes, accents, layouts, appearance_defaults }` |
+| `POST /api/v1/keys` | `{ name? }` | `201` the key with its `secret`, shown this once; signed-in people only, not keys |
+| `DELETE /api/v1/keys/:id` | — | `204`; the key stops working at once; signed-in people only, not keys |
+| `GET /api/v1/vocabulary` | — | `{ themes, accents, layouts, schemes, appearance_defaults }` |
 
 ## Outside `/api/v1`
 

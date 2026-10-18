@@ -25,7 +25,7 @@ block body
                       input#auth-name(data-ui="input" type="text" name="name" autocomplete="name" value=page.name)
                   div(data-part="email-field")
                     label(data-ui="label" for="auth-email") Email
-                    input#auth-email(data-ui="input" type="email" name="email" autocomplete="email" required value=page.email aria-invalid=page.error ? "true" : false)
+                    input#auth-email(data-ui="input" type="email" name="email" autocomplete="email" required value=page.email readonly=page.invite ? true : false aria-invalid=page.error ? "true" : false)
                   div(data-part="password-field")
                     label(data-ui="label" for="auth-password") Password
                     input#auth-password(data-ui="input" type="password" name="password" required minlength="8" autocomplete=page.mode == "login" ? "current-password" : "new-password")

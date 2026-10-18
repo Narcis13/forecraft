@@ -7,7 +7,7 @@ body > a[href="#main"]:first-child {
   position: absolute;
   inset-inline-start: var(--space-4);
   inset-block-start: var(--space-4);
-  z-index: 100;
+  z-index: var(--z-max);
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-md);
   background: var(--color-primary);
@@ -118,7 +118,7 @@ body > a[href="#main"]:first-child:focus-visible {
   font-size: var(--text-2xl);
   color: var(--color-fg);
   text-decoration: none;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--heading-tracking);
 }
 
 /* The staggered entrance on the form page holds header, cover, form and footer;
@@ -157,7 +157,10 @@ body > a[href="#main"]:first-child:focus-visible {
 
 /* ── Designer ─────────────────────────────────────────────────────────────────
    A three-pane tool: palette, canvas, properties. Wide screens only; a phone
-   gets a note instead (the panes need ~1024px). */
+   gets a note instead (the panes need ~1024px). The pane widths (15rem, 22rem),
+   the title input (18rem) and the phone preview frame (24rem) are layout
+   decisions of this tool, not design tokens. [data-designer-sr] is the reset's
+   visually-hidden pattern, which Faqir ships only as a class (.sr-only). */
 [data-designer] {
   min-block-size: 100dvh;
   display: grid;
@@ -167,7 +170,7 @@ body > a[href="#main"]:first-child:focus-visible {
 [data-designer-bar] {
   position: sticky;
   inset-block-start: 0;
-  z-index: 10;
+  z-index: var(--z-sticky);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -333,9 +336,7 @@ main[data-site="marketing"],
 [data-ui="site-header"],
 [data-ui="site-footer"] {
   --heading-weight: var(--weight-normal);
-  /* Card titles and stat values ask for their own weights in the heading face:
-     never fake a bold the font does not have. Inter is variable and unaffected. */
-  font-synthesis-weight: none;
+  /* No synthesised bold anywhere: see the body rule at the end of this file. */
 }
 
 /* The brand: the mark beside the word, set in the UI face. */
