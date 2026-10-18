@@ -286,7 +286,7 @@ describe("MCP server (stdio)", () => {
       const created = await mcp.tool("forecraft_create_report", {
         starter: "invoice", title: "Invoice",
         appearance: { accent: "#7c2d12", logo },
-        sample: { seller: { name: "Quayside Logistics Ltd" } },
+        sample: { seller: { name: "Quayside Logistics Ltd", street: "4 Harbour Row", city: "Leith EH6 6LX", iban: "GB29NWBK60161331926819" } },
       });
       assert.ok(!created.isError, created.content[0]!.text);
       const report = JSON.parse(created.content[0]!.text);

@@ -512,7 +512,7 @@ const TOOLS = [
         starter: { type: "string", description: "A starter id from forecraft_list_report_starters, e.g. invoice." },
         title: { type: "string", description: "Name for the report (starter only)." },
         appearance: REPORT_APPEARANCE_SCHEMA,
-        sample: { type: "object", description: "Starter only: example data merged into the starter's sample, e.g. { seller: { name: \"Acme Ltd\", iban: \"…\" } }." },
+        sample: { type: "object", description: "Starter only: your example data; each top-level key replaces the starter's (send a whole seller: name, street, city, iban…)." },
         form: { type: "string", description: "Starter only: the form id (frm_…) a confirmation or survey-summary report reads." },
         definition: REPORT_DEFINITION_SCHEMA,
       },

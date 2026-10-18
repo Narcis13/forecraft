@@ -909,7 +909,7 @@ export function openapi(baseUrl: string): Obj {
             starter: { type: "string", description: "A starter id from GET /report-starters." },
             title: { type: "string" },
             appearance: ref("ReportAppearance"),
-            sample: { type: "object", description: "Merged over the starter's sample, e.g. { seller: { name: … } }.", additionalProperties: true },
+            sample: { type: "object", description: "Each top-level key replaces the starter's sample key, e.g. a whole { seller: { … } }.", additionalProperties: true },
             form: { type: "string", description: "frm_… for the confirmation and survey-summary starters." },
           },
           required: ["starter"],
