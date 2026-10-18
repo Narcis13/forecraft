@@ -1,0 +1,28 @@
+<!-- @ui:component qr-code -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots svg caption -->
+<!-- @ui:variants size=sm|md|lg ecl=L|M|Q|H -->
+<!-- @ui:controller qr-code.js -->
+
+<!-- Default (medium, ECL-M) -->
+<div data-ui="qr-code" data-value="https://example.com/invoice/INV-2024-0042" role="img" aria-label="QR code: Invoice INV-2024-0042">
+</div>
+
+<!-- With caption -->
+<div data-ui="qr-code" data-value="https://example.com/pay/INV-2024-0042" data-size="md" role="img" aria-label="QR code: Payment link">
+  <span data-part="caption">Scan to pay</span>
+</div>
+
+<!-- Small size -->
+<div data-ui="qr-code" data-value="https://example.com" data-size="sm" role="img" aria-label="QR code: example.com">
+</div>
+
+<!-- Large size, high error correction -->
+<div data-ui="qr-code" data-value="https://efactura.mfinante.gov.ro/verify/ABC123" data-size="lg" data-ecl="H" role="img" aria-label="QR code: e-Factura verification">
+  <span data-part="caption">Verificare e-Factura</span>
+</div>
+
+<!-- Romanian payment QR (common pattern) -->
+<div data-ui="qr-code" data-value="RO49AAAA1B31007593840000|SC ACME SRL|19040.00|RON" data-size="md" data-ecl="M" role="img" aria-label="QR code: Payment details for SC ACME SRL">
+  <span data-part="caption">Date plata</span>
+</div>

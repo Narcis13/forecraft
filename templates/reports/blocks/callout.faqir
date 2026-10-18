@@ -1,0 +1,6 @@
+div(data-block=b.id data-report-block="callout" data-keep=b.keep)
+  div(data-ui="callout" data-variant=b.tone role="note" aria-label=b.aria)
+    div(data-part="content")
+      if b.title ?? false
+        strong(data-part="title") {{ b.title }}
+      include "reports/md.faqir" (md=b.md)

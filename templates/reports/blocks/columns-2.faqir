@@ -1,0 +1,7 @@
+//- Two or three columns of child blocks (level 2).
+div(data-block=b.id data-report-block="columns" data-keep=b.keep)
+  div(data-ui="grid" data-cols=b.cols data-gap="6")
+    each col in b.columns
+      div(data-ui="stack" data-gap="4")
+        each c in col
+          include "reports/dispatch-2.faqir" (b=c)

@@ -1,0 +1,27 @@
+//- Rows bound to an array. The header repeats on every page; rows never split.
+div(data-block=b.id data-report-block="table" data-keep=b.keep)
+  div(data-ui="table" data-size="sm" data-print="compact")
+    table(data-part="table")
+      if b.caption ?? false
+        caption {{ b.caption }}
+      thead(data-part="thead")
+        tr(data-part="tr")
+          each c in b.columns
+            th(data-part="th" scope="col" data-align=c.align data-format=c.format data-width=c.width) {{ c.label }}
+      tbody(data-part="tbody")
+        each r in b.rows
+          tr(data-part="tr")
+            each cell, j in r
+              td(data-part="td" data-align=b.columns[j].align data-format=b.columns[j].format)
+                | {{ cell.text }}
+                if cell.note ?? false
+                  small(data-report-note) {{ cell.note }}
+        else
+          tr(data-part="tr")
+            td(data-part="td" colspan=b.span) {{ b.empty }}
+      if b.footer.length > 0
+        tbody(data-part="tbody" data-report-table-footer)
+          each f in b.footer
+            tr(data-part="tr")
+              td(data-part="td" colspan=b.span - 1 data-align="right") {{ f.label }}
+              td(data-part="td" data-align="right" data-format="number") {{ f.value }}

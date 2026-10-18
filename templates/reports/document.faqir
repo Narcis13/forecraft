@@ -1,0 +1,49 @@
+//- A report document: one `document` pattern page in a print theme. The same
+//- markup is the PDF (mode "print"), the share view (mode "share": a toolbar
+//- outside the sheet, the sheet on a desk) and the designer canvas ("canvas").
+//- The renderer adds one <style> with what only a document knows: its paper,
+//- margins, accent and localised page counter (FAQIR-UPSTREAM.md #32, #33).
+doctype html
+html(lang=view.lang data-theme="light" data-report-view=view.mode)
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="color-scheme" content="light")
+    if view.mode != "print"
+      meta(name="robots" content="noindex, nofollow")
+    title {{ view.title }}
+    link(rel="icon" href="/favicon.svg" type="image/svg+xml")
+    link(rel="stylesheet" href="/ui/faqir.bundle.css")
+    link(rel="stylesheet" href="/ui/themes/{{ view.skin }}.scoped.css")
+    link(rel="stylesheet" href="/ui/print/fonts.css")
+    link(rel="stylesheet" href="/print.css")
+  body(data-skin=view.skin data-report-type=view.type data-density=view.density data-paper=view.paper data-orientation=view.orientation data-fold-marks=view.foldMarks data-letter-window=view.window data-status=view.status)
+    if view.mode == "share"
+      include "reports/share-toolbar.faqir" (share=view.share)
+    main#main(data-report-desk)
+      article(data-ui="document" data-variant=view.variant data-format=view.paper data-orientation=view.orientation aria-label=view.title lang=view.lang)
+        header(data-part="doc-header")
+          span(data-ui="text" data-variant="eyebrow") {{ view.running.left }}
+          span(data-ui="text" data-size="xs" data-variant="muted" data-tabular) {{ view.running.right }}
+        //- Page 1 carries the letterhead, not the running header: this paper
+        //- strip hides the fixed header there (Chromium has no running()).
+        div(data-report-mask aria-hidden="true")
+        if view.foldMarks
+          div(data-report-fold="105" aria-hidden="true")
+          div(data-report-fold="148" aria-hidden="true")
+          div(data-report-fold="210" aria-hidden="true")
+        each wm in view.watermarks
+          div(data-ui="watermark" data-pattern="single" data-size="lg" aria-hidden="true")
+            span(data-part="mark" data-text=wm)
+        div(data-part="body")
+          each b in view.blocks
+            include "reports/dispatch.faqir" (b=b)
+        if view.footer ?? false
+          footer(data-part="doc-footer")
+            each line in view.footer
+              p {{ line }}
+    if view.scripts
+      script(src="/ui/core/faqir-core.js" defer data-manual)
+      script(src="/boot.js" defer)
+    if view.mode == "share"
+      script(src="/document.js" defer)

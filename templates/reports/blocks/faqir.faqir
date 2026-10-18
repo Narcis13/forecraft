@@ -1,0 +1,5 @@
+//- The escape hatch. b.html is the output of the template engine itself on a
+//- fragment compiled with raw: false and linted (src/reports/fragment.ts), so
+//- it is engine-escaped markup, never author HTML. The one `raw` in a report.
+div(data-block=b.id data-report-block="faqir" data-keep=b.keep)
+  raw b.html

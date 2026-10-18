@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "theme": "document",
+  "output_dir": "../ui/print",
+  "tokens_split": false,
+  "include_core": false,
+  "installed": {
+    "primitives": [],
+    "recipes": [],
+    "patterns": []
+  },
+  "bundle": {
+    "output": "../ui/print/unused.bundle.css",
+    "auto": false,
+    "minify": false
+  },
+  "fonts": [
+    {
+      "id": "ibm-plex-sans",
+      "roles": [
+        "body"
+      ]
+    },
+    {
+      "id": "ibm-plex-serif",
+      "roles": [
+        "heading"
+      ]
+    },
+    {
+      "id": "ibm-plex-mono",
+      "roles": [
+        "mono"
+      ]
+    },
+    {
+      "id": "source-serif-4",
+      "roles": [
+        "ui"
+      ]
+    }
+  ]
+}

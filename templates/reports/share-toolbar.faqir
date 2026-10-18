@@ -1,0 +1,11 @@
+//- Outside the sheet, hidden in print: download, print, copy link.
+nav(data-report-toolbar aria-label="Document")
+  div(data-ui="cluster" data-gap="2" data-justify="between")
+    div(data-ui="cluster" data-gap="2")
+      span(data-ui="text" data-weight="semibold") {{ share.title }}
+      if share.badge ?? false
+        span(data-ui="badge" data-variant=share.badgeVariant) {{ share.badge }}
+    div(data-ui="cluster" data-gap="2")
+      a(data-ui="button" data-variant="primary" data-size="sm" href=share.pdf download=share.filename) Download PDF
+      button(type="button" data-ui="button" data-variant="outline" data-size="sm" data-report-print) Print
+      button(type="button" data-ui="button" data-variant="ghost" data-size="sm" data-report-copy=share.link) Copy link

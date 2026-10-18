@@ -4,6 +4,7 @@
 
 import { createAccordion } from "../recipes/accordion/accordion.js";
 import { createAlertDialog } from "../recipes/alert-dialog/alert-dialog.js";
+import { createBarcode } from "../recipes/barcode/barcode.js";
 import { createCalendar } from "../recipes/calendar/calendar.js";
 import { createCombobox } from "../recipes/combobox/combobox.js";
 import { createCommandPalette } from "../recipes/command-palette/command-palette.js";
@@ -13,6 +14,7 @@ import { createDrawer } from "../recipes/drawer/drawer.js";
 import { createDropdown } from "../recipes/dropdown/dropdown.js";
 import { createPagination } from "../recipes/pagination/pagination.js";
 import { createPopover } from "../recipes/popover/popover.js";
+import { createQRCode } from "../recipes/qr-code/qr-code.js";
 import { createSheet } from "../recipes/sheet/sheet.js";
 import { createSidebar } from "../recipes/sidebar/sidebar.js";
 import { createSlider } from "../recipes/slider/slider.js";
@@ -26,6 +28,7 @@ import { createTooltip } from "../recipes/tooltip/tooltip.js";
 const controllers = {
   "accordion": createAccordion,
   "alert-dialog": createAlertDialog,
+  "barcode": createBarcode,
   "calendar": createCalendar,
   "combobox": createCombobox,
   "command-palette": createCommandPalette,
@@ -35,6 +38,7 @@ const controllers = {
   "dropdown": createDropdown,
   "pagination": createPagination,
   "popover": createPopover,
+  "qr-code": createQRCode,
   "sheet": createSheet,
   "sidebar": createSidebar,
   "slider": createSlider,

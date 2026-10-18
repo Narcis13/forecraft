@@ -1,0 +1,181 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "document",
+  "version": "1.2.0",
+  "kind": "pattern",
+  "category": "composite",
+  "description": "Full-page document container with repeatable print headers, footers, and page counters",
+
+  "changes": [
+    {
+      "version": "1.2.0",
+      "note": "The responsive ladder moves onto the breakpoint canon, mobile-first (task 0.8-09). The sheet's max-width media blocks became min-width floors on canon tiers (sm 40rem/640px, md 48rem/768px, lg 64rem/1024px), so every unconditional rule is now the PHONE case and a tier block only ever widens it. The sheet fills a phone edge to edge and gets its margin, padding and rounded corners back at md — the same 768px floor as before. The tier block is declared BEFORE @media print, because a min-width query is true on paper (a Letter page box is 8.5in ≈ 816px) and print must still win. The floors keep their values, so the only behavioural shift is at exactly a floor: 1024px now gets the wide layout rather than the narrow one.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "Added canonical doc-header and doc-footer parts, fixed-position browser fallbacks, running-element margin boxes, page counters, and a three-page print reference; legacy header/footer parts remain styled as aliases.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "article",
+    "selector": "[data-ui='document']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "doc-header": {
+      "selector": "[data-part='doc-header']",
+      "required": false,
+      "tag_hint": "header",
+      "description": "Canonical running document header; repeats on every printed page"
+    },
+    "body": {
+      "selector": "[data-part='body']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Main document content area"
+    },
+    "doc-footer": {
+      "selector": "[data-part='doc-footer']",
+      "required": false,
+      "tag_hint": "footer",
+      "description": "Canonical running document footer; repeats on every printed page"
+    },
+    "header": {
+      "selector": "[data-part='header']",
+      "required": false,
+      "tag_hint": "header",
+      "description": "Legacy alias for doc-header; supported for non-breaking upgrades"
+    },
+    "footer": {
+      "selector": "[data-part='footer']",
+      "required": false,
+      "tag_hint": "footer",
+      "description": "Legacy alias for doc-footer; supported for non-breaking upgrades"
+    }
+  },
+
+  "variants": {
+    "variant": {
+      "values": ["invoice", "form", "report"],
+      "default": "",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "format": {
+      "values": ["a4", "letter"],
+      "default": "a4",
+      "attr": "data-format",
+      "applied_to": "root"
+    },
+    "orientation": {
+      "values": ["portrait", "landscape"],
+      "default": "portrait",
+      "attr": "data-orientation",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {
+    "theme": { "type": "string", "default": "", "description": "Theme name applied via data-theme attribute" }
+  },
+
+  "renderer_support": {
+    "chromium": {
+      "mechanism": "position: fixed repetition for full DOM header/footer plus @page margin-box page counters",
+      "notes": "Chrome 131+ supports page-margin generated content and page counters; unsupported running()/element() declarations fall back to fixed positioning. Disable browser-supplied print headers and footers.",
+      "documentation": "https://developer.chrome.com/blog/print-margins"
+    },
+    "prince": {
+      "mechanism": "position: running() with content: element() in @page margin boxes",
+      "notes": "Native running elements preserve the authored header/footer markup; page and pages counters render in the bottom-right margin box.",
+      "documentation": "https://www.princexml.com/doc/styling/"
+    },
+    "weasyprint": {
+      "mechanism": "position: running() with content: element() in @page margin boxes",
+      "notes": "Native running elements, page-margin boxes, and page counters are supported; the optional element() start parameter is not used.",
+      "documentation": "https://doc.courtbouillon.org/weasyprint/stable/api_reference.html"
+    }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "article element for document semantics",
+      "aria-label describing the document type and title"
+    ],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-bg", "color-fg", "color-fg-muted", "color-border", "space-2", "space-4", "space-6",
+    "space-8", "space-12", "shadow-lg", "radius-md", "font-body", "text-xs", "text-sm",
+    "weight-semibold", "weight-bold", "leading-normal", "page-format", "page-orientation",
+    "page-margin-top", "page-margin-right", "page-margin-bottom", "page-margin-left",
+    "doc-running-header-height", "doc-running-footer-height", "doc-running-gap",
+    "doc-print-border-color", "doc-heading-font", "doc-heading-weight", "doc-font",
+    "doc-legal-size", "doc-legal-color", "doc-max-width", "doc-font-size", "doc-line-height",
+    "doc-section-gap", "doc-component-gap", "doc-table-cell-pad-y", "doc-table-cell-pad-x",
+    "doc-table-font-size", "doc-table-header-weight", "doc-table-header-fg", "doc-table-header-bg",
+    "doc-table-border", "doc-table-num-font", "doc-table-footer-weight", "doc-table-footer-bg",
+    "doc-table-stripe-bg", "doc-bg", "doc-fg", "z-raised", "border-width", "texture-page"
+  ],
+
+  "templates": {
+    "html": "<article data-ui=\"document\" data-format=\"a4\" aria-label=\"{title}\">\n  <header data-part=\"doc-header\">{header}</header>\n  <div data-part=\"body\">{body}</div>\n  <footer data-part=\"doc-footer\">{footer}</footer>\n</article>",
+    "html_invoice": "<article data-ui=\"document\" data-variant=\"invoice\" data-format=\"a4\" aria-label=\"Invoice {number}\">\n  <header data-part=\"doc-header\">{company_info}</header>\n  <div data-part=\"body\">{invoice_content}</div>\n  <footer data-part=\"doc-footer\">{legal_text}</footer>\n</article>"
+  },
+
+  "safe_transforms": [
+    "change-variant",
+    "change-format",
+    "change-orientation",
+    "add-doc-header",
+    "remove-doc-header",
+    "add-doc-footer",
+    "remove-doc-footer",
+    "change-theme"
+  ],
+
+  "unsafe_transforms": [
+    "remove-body",
+    "remove-article-semantics",
+    "remove-aria-label"
+  ],
+
+  "composition": {
+    "contains": ["key-value", "table", "image", "signature", "callout", "page-break", "text", "separator", "field-group"],
+    "used_in": []
+  },
+
+  "files": {
+    "html": "document.html",
+    "css": "document.css",
+    "manifest": "document.manifest.json",
+    "print_reference": "document-print.html"
+  },
+
+  "tests": [
+    "renders-as-article-element",
+    "body-slot-is-required",
+    "doc-header-slot-is-optional",
+    "doc-footer-slot-is-optional",
+    "screen-has-paper-shadow",
+    "screen-has-max-width",
+    "screen-is-centered",
+    "a4-format-sets-210mm-width",
+    "letter-format-sets-8-5in-width",
+    "print-page-rules-applied",
+    "print-header-repeats-via-running-or-fixed",
+    "print-footer-repeats-via-running-or-fixed",
+    "print-page-counter-uses-page-and-pages",
+    "three-page-print-reference-is-audit-clean",
+    "invoice-variant-adjusts-spacing",
+    "form-variant-adjusts-spacing",
+    "report-variant-adjusts-typography"
+  ]
+}

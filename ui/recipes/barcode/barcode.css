@@ -1,0 +1,46 @@
+/* @ui:component barcode */
+/* @ui:tokens color-fg-muted doc-font doc-legal-color doc-legal-size font-mono font-body leading-normal space-2 space-12 space-16 space-20 mono-ligatures */
+
+[data-ui="barcode"] {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  max-inline-size: 100%;
+  gap: var(--space-2);
+}
+
+[data-ui="barcode"] > [data-part="svg"] {
+  display: block;
+  inline-size: auto;
+  max-inline-size: 100%;
+  block-size: var(--space-16);
+}
+
+[data-ui="barcode"][data-size="sm"] > [data-part="svg"] {
+  block-size: var(--space-12);
+}
+
+[data-ui="barcode"][data-size="lg"] > [data-part="svg"] {
+  block-size: var(--space-20);
+}
+
+[data-ui="barcode"] > [data-part="caption"] {
+  color: var(--doc-legal-color, var(--color-fg-muted));
+  font-family: var(--font-mono, var(--doc-font, var(--font-body)));
+  font-variant-ligatures: var(--mono-ligatures);
+  font-size: var(--doc-legal-size);
+  line-height: var(--leading-normal);
+  text-align: center;
+}
+
+@media print {
+  [data-ui="barcode"] {
+    break-inside: avoid;
+  }
+
+  [data-ui="barcode"] > [data-part="svg"] {
+    color-adjust: exact;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

@@ -1,0 +1,7 @@
+//- Subtotal, discount, tax per rate, total, paid, due. Never leaves the last rows.
+div(data-block=b.id data-report-block="totals" data-keep=b.keep)
+  dl(data-ui="key-value" data-variant="horizontal" data-report-totals)
+    each r in b.rows
+      div(data-report-row=r.kind)
+        dt(data-part="label") {{ r.label }}
+        dd(data-part="value") {{ r.value }}

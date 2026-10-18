@@ -1,0 +1,31 @@
+//- The one drawing Faqir does not do (src/reports/chart.ts lays it out). Shapes
+//- carry data-series / data-role; print.css colours them from Faqir tokens.
+div(data-block=b.id data-report-block="chart" data-keep=b.keep)
+  figure(data-report-chart=b.kind)
+    if b.title ?? false
+      p(data-ui="text" data-variant="eyebrow") {{ b.title }}
+    svg(viewBox=b.svg.viewBox role="img" aria-label=b.svg.label)
+      each g in b.svg.grid
+        line(x1=g.x1 y1=g.y1 x2=g.x2 y2=g.y2 data-role=g.role)
+      each r in b.svg.rects
+        rect(x=r.x y=r.y width=r.w height=r.h data-series=r.series)
+      each p in b.svg.paths
+        path(d=p.d data-series=p.series data-role="line")
+      each d in b.svg.dots
+        circle(cx=d.x cy=d.y r=d.r data-series=d.series)
+      each t in b.svg.texts
+        text(x=t.x y=t.y text-anchor=t.anchor data-role=t.role) {{ t.text }}
+    if b.caption ?? false
+      figcaption(data-ui="text" data-size="xs" data-variant="muted") {{ b.caption }}
+    div(data-ui="table" data-size="sm" data-print="compact" data-report-chart-data)
+      table(data-part="table")
+        caption {{ b.tableCaption }}
+        thead(data-part="thead")
+          tr(data-part="tr")
+            each h in b.table.head
+              th(data-part="th" scope="col" data-align=h.align) {{ h.text }}
+        tbody(data-part="tbody")
+          each r in b.table.rows
+            tr(data-part="tr")
+              each cell, j in r
+                td(data-part="td" data-align=j == 0 ? "left" : "right" data-format=j == 0 ? false : "number") {{ cell }}

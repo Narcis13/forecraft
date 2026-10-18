@@ -1,0 +1,213 @@
+<!-- @ui:component document -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots doc-header body doc-footer -->
+<!-- @ui:variants variant=invoice|form|report format=a4|letter orientation=portrait|landscape -->
+<!-- @ui:composition key-value table image signature callout page-break text separator field-group -->
+
+<!-- Default document -->
+<article data-ui="document" data-format="a4" aria-label="Sample Document">
+  <header data-part="doc-header">
+    <h1 data-ui="text" data-weight="bold" data-size="xl">Document Title</h1>
+    <p data-ui="text" data-variant="muted">Generated on 2024-03-15</p>
+  </header>
+
+  <div data-part="body">
+    <p>Document body content goes here.</p>
+  </div>
+
+  <footer data-part="doc-footer">
+    <p>Page footer with legal text or page numbers.</p>
+  </footer>
+</article>
+
+<!-- Invoice variant -->
+<article data-ui="document" data-variant="invoice" data-format="a4" aria-label="Invoice INV-2024-0042">
+  <header data-part="doc-header">
+    <!-- Supplier info (left) -->
+    <div>
+      <h2 data-ui="text" data-weight="bold" data-size="lg">SC ACME SRL</h2>
+      <dl data-ui="key-value" data-size="sm">
+        <dt data-part="label">CIF</dt>
+        <dd data-part="value">RO12345678</dd>
+        <dt data-part="label">Reg. Com.</dt>
+        <dd data-part="value">J40/1234/2020</dd>
+        <dt data-part="label">Address</dt>
+        <dd data-part="value">Str. Exemplu Nr. 1, Bucuresti</dd>
+        <dt data-part="label">IBAN</dt>
+        <dd data-part="value">RO49AAAA1B31007593840000</dd>
+      </dl>
+    </div>
+
+    <!-- Invoice details (right) -->
+    <div>
+      <h1 data-ui="text" data-weight="bold" data-size="xl">FACTURA</h1>
+      <dl data-ui="key-value" data-size="sm">
+        <dt data-part="label">Numar</dt>
+        <dd data-part="value">INV-2024-0042</dd>
+        <dt data-part="label">Data</dt>
+        <dd data-part="value">15.03.2024</dd>
+        <dt data-part="label">Scadenta</dt>
+        <dd data-part="value">14.04.2024</dd>
+      </dl>
+    </div>
+  </header>
+
+  <div data-part="body">
+    <!-- Client info -->
+    <dl data-ui="key-value" data-cols="2" data-size="sm">
+      <dt data-part="label">Client</dt>
+      <dd data-part="value">SC Client SRL</dd>
+      <dt data-part="label">CIF</dt>
+      <dd data-part="value">RO87654321</dd>
+      <dt data-part="label">Address</dt>
+      <dd data-part="value">Str. Alta Nr. 5, Cluj-Napoca</dd>
+      <dt data-part="label">IBAN</dt>
+      <dd data-part="value">RO49BBBB1B31007593840000</dd>
+    </dl>
+
+    <!-- Line items -->
+    <div data-ui="table" data-variant="bordered" data-size="sm" tabindex="0">
+      <table data-part="table">
+        <thead data-part="thead">
+          <tr data-part="tr">
+            <th data-part="th" scope="col">Nr.</th>
+            <th data-part="th" scope="col">Descriere</th>
+            <th data-part="th" scope="col" data-align="center">UM</th>
+            <th data-part="th" scope="col" data-align="right" data-format="number">Cant.</th>
+            <th data-part="th" scope="col" data-align="right" data-format="currency">Pret unitar</th>
+            <th data-part="th" scope="col" data-align="right" data-format="currency">Valoare</th>
+          </tr>
+        </thead>
+        <tbody data-part="tbody">
+          <tr data-part="tr">
+            <td data-part="td">1</td>
+            <td data-part="td">Servicii dezvoltare web</td>
+            <td data-part="td" data-align="center">ore</td>
+            <td data-part="td" data-align="right" data-format="number">80</td>
+            <td data-part="td" data-align="right" data-format="currency">150.00</td>
+            <td data-part="td" data-align="right" data-format="currency">12,000.00</td>
+          </tr>
+          <tr data-part="tr">
+            <td data-part="td">2</td>
+            <td data-part="td">Servicii design</td>
+            <td data-part="td" data-align="center">ore</td>
+            <td data-part="td" data-align="right" data-format="number">20</td>
+            <td data-part="td" data-align="right" data-format="currency">200.00</td>
+            <td data-part="td" data-align="right" data-format="currency">4,000.00</td>
+          </tr>
+        </tbody>
+        <tfoot data-part="tfoot">
+          <tr data-part="tr">
+            <td data-part="td" colspan="5" data-align="right">Subtotal</td>
+            <td data-part="td" data-align="right" data-format="currency">16,000.00</td>
+          </tr>
+          <tr data-part="tr">
+            <td data-part="td" colspan="5" data-align="right">TVA (19%)</td>
+            <td data-part="td" data-align="right" data-format="currency">3,040.00</td>
+          </tr>
+          <tr data-part="tr">
+            <td data-part="td" colspan="5" data-align="right">Total</td>
+            <td data-part="td" data-align="right" data-format="currency">19,040.00</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Signatures -->
+    <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+      <div data-ui="signature" role="img" aria-label="Signature: Furnizor">
+        <div data-part="line"></div>
+        <span data-part="label">Furnizor</span>
+      </div>
+      <div data-ui="signature" role="img" aria-label="Signature: Client">
+        <div data-part="line"></div>
+        <span data-part="label">Client</span>
+      </div>
+    </div>
+  </div>
+
+  <footer data-part="doc-footer">
+    <div data-ui="callout" data-variant="muted" role="note">
+      <div data-part="content">
+        <p>Factura este valabila fara semnatura si stampila conform art. 319 alin. 29 din Legea 227/2015.</p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+<!-- Form variant -->
+<article data-ui="document" data-variant="form" data-format="a4" aria-label="Client Registration Form">
+  <header data-part="doc-header">
+    <h1 data-ui="text" data-weight="bold" data-size="xl">Formular Inregistrare Client</h1>
+    <p data-ui="text" data-variant="muted">Completati toate campurile obligatorii</p>
+  </header>
+
+  <div data-part="body">
+    <div data-ui="field-group" data-required>
+      <label data-part="label" for="company-name">Denumire Societate</label>
+      <div data-part="input">
+        <input data-ui="input" id="company-name" name="company_name" required aria-required="true">
+      </div>
+    </div>
+
+    <div data-ui="field-group" data-required>
+      <label data-part="label" for="company-cui">CIF / CUI</label>
+      <div data-part="input">
+        <input data-ui="input" id="company-cui" name="cui" required aria-required="true" placeholder="RO12345678">
+      </div>
+      <p data-part="description">Include prefixul RO daca este platitor de TVA</p>
+    </div>
+
+    <div data-ui="field-group">
+      <label data-part="label" for="company-address">Adresa</label>
+      <div data-part="input">
+        <textarea data-ui="textarea" id="company-address" name="address" rows="2"></textarea>
+      </div>
+    </div>
+
+    <div data-ui="signature" data-size="md" role="img" aria-label="Signature: Reprezentant Legal">
+      <div data-part="line"></div>
+      <span data-part="label">Semnatura Reprezentant Legal</span>
+    </div>
+  </div>
+
+  <footer data-part="doc-footer">
+    <p>Datele personale sunt prelucrate conform GDPR (Regulamentul UE 2016/679).</p>
+  </footer>
+</article>
+
+<!-- Report variant -->
+<article data-ui="document" data-variant="report" data-format="a4" aria-label="Monthly Report - March 2024">
+  <header data-part="doc-header">
+    <h1 data-ui="text" data-weight="bold" data-size="2xl">Raport Lunar</h1>
+    <p data-ui="text" data-variant="muted">Martie 2024</p>
+  </header>
+
+  <div data-part="body">
+    <h2 data-ui="text" data-weight="bold" data-size="lg">Rezumat Executiv</h2>
+    <p>Rezultatele perioadei analizate arata o crestere semnificativa a veniturilor.</p>
+
+    <div data-ui="callout" data-variant="success" role="note">
+      <div data-part="content">
+        <strong data-part="title">Rezultat Pozitiv</strong>
+        <p>Veniturile au crescut cu 15% fata de luna precedenta.</p>
+      </div>
+    </div>
+
+    <div data-ui="page-break" role="separator" aria-label="Page break">page break</div>
+
+    <h2 data-ui="text" data-weight="bold" data-size="lg">Detalii</h2>
+    <p>Continuare raport pe pagina urmatoare...</p>
+  </div>
+
+  <footer data-part="doc-footer">
+    <p>Document confidential. Distributia neautorizata este interzisa.</p>
+  </footer>
+</article>
+
+<!-- Letter format -->
+<article data-ui="document" data-format="letter" aria-label="US Format Document">
+  <div data-part="body">
+    <p>Document using US Letter format (8.5 x 11 inches).</p>
+  </div>
+</article>

@@ -1,0 +1,17 @@
+//- From, bill to, ship to. In a window letter the first party is the envelope window (DIN 5008 B).
+div(data-block=b.id data-report-block="parties" data-keep=b.keep)
+  if b.window ?? false
+    div(data-report-window)
+      each line in b.window
+        p {{ line }}
+  if b.parties.length > 0
+    div(data-ui="grid" data-cols="1" data-cols-sm=b.cols data-gap="6" data-report-parties)
+      each p in b.parties
+        div(data-report-address)
+          if p.label ?? false
+            p(data-ui="text" data-variant="eyebrow") {{ p.label }}
+          p(data-report-party) {{ p.name }}
+          each line in p.lines
+            p {{ line }}
+          if p.details.length > 0
+            include "reports/pairs.faqir" (items=p.details variant="horizontal")

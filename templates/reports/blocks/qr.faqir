@@ -1,0 +1,5 @@
+//- Drawn by Faqir's qr-code controller before printing.
+div(data-block=b.id data-report-block="qr" data-keep=b.keep)
+  div(data-ui="qr-code" data-value=b.value data-size=b.size data-ecl="M" role="img" aria-label=b.aria)
+    if b.caption ?? false
+      span(data-part="caption") {{ b.caption }}

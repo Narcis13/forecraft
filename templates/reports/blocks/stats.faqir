@@ -1,0 +1,8 @@
+div(data-block=b.id data-report-block="stats" data-keep=b.keep)
+  div(data-ui="grid" data-cols=b.cols data-gap="4")
+    each s in b.items
+      div(data-ui="stat" data-size="sm" aria-label="{{ s.label }}: {{ s.value }}")
+        span(data-part="label") {{ s.label }}
+        span(data-part="value") {{ s.value }}
+        if s.change ?? false
+          span(data-part="change" data-trend=s.trend) {{ s.change }}

@@ -1,0 +1,12 @@
+//- Sender identity, page 1 only: logo, name, address; registration details to the right.
+div(data-block=b.id data-report-block="letterhead" data-keep=b.keep)
+  div(data-report-letterhead)
+    div(data-ui="stack" data-gap="1")
+      if b.logo ?? false
+        figure(data-ui="image" data-variant="contain" data-size="sm" data-report-logo)
+          img(data-part="img" src=b.logo.src alt=b.logo.alt)
+      p(data-report-sender) {{ b.name }}
+      each line in b.lines
+        p(data-ui="text" data-size="sm" data-variant="muted") {{ line }}
+    if b.details.length > 0
+      include "reports/pairs.faqir" (items=b.details variant="horizontal")

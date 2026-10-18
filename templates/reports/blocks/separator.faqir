@@ -1,0 +1,2 @@
+div(data-block=b.id data-report-block="separator")
+  hr(data-ui="separator")

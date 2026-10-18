@@ -1,0 +1,12 @@
+//- Signing lines. A signature never separates from its labels.
+div(data-block=b.id data-report-block="signature" data-keep=b.keep)
+  div(data-ui="grid" data-cols=b.cols data-gap="8")
+    each s in b.signatures
+      div(data-ui="stack" data-gap="1" data-report-signature)
+        div(data-ui="signature" data-size="md" role="img" aria-label="Signature: {{ s.name }}")
+          div(data-part="line")
+          span(data-part="label") {{ s.name }}
+        if s.role ?? false
+          p(data-ui="text" data-size="xs" data-variant="muted") {{ s.role }}
+        if s.date ?? false
+          p(data-ui="text" data-size="xs" data-variant="muted") {{ s.date }}
