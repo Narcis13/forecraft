@@ -1,0 +1,67 @@
+layout "layouts/app.faqir"
+
+block title
+  | Settings · {{ page.report.title }} — forecraft
+
+block header
+  h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.report.title }}
+  span(data-ui="badge" data-variant=page.report.statusVariant) {{ page.report.statusLabel }}
+
+block actions
+  include "partials/report-actions.faqir" (id=page.report.id draft=page.report.draft published=page.report.published)
+
+block content
+  div(data-ui="stack" data-gap="6" l-data="reportSettings" data-prop-report-id=tojson(page.report.id) data-prop-pattern=tojson(page.settings.pattern) data-prop-manual=tojson(page.settings.manual) data-prop-source=tojson(page.settings.source) data-prop-form=tojson(page.settings.form))
+    include "partials/report-tabs.faqir" (tabs=page.tabs tab=page.tab)
+    form(aria-label="Report settings" @submit.prevent="save()")
+      div(data-ui="stack" data-gap="6")
+        div(data-ui="card")
+          div(data-part="header")
+            h2(data-part="title") Numbering
+            p(data-part="description") A number is assigned only when a document is issued, in the same transaction, so the sequence never has a gap. Drafts print DRAFT and no number.
+          div(data-part="body")
+            div(data-ui="stack" data-gap="4")
+              div(data-ui="field-group")
+                label(data-part="label" for="set-manual") Numbers typed by hand
+                div(data-part="input")
+                  input#set-manual(data-ui="switch" type="checkbox" role="switch" l-model="manual" aria-describedby="set-manual-hint")
+                p#set-manual-hint(data-part="description") Each issue then carries its own number, unique for this report.
+              div(data-ui="field-group" l-show="!manual")
+                label(data-part="label" for="set-pattern") Pattern
+                div(data-part="input")
+                  input#set-pattern(data-ui="input" type="text" l-model="pattern" aria-describedby="set-pattern-hint")
+                p#set-pattern-hint(data-part="description") {YYYY} restarts the sequence every year; {seq:4} pads it to four digits, e.g. INV-{YYYY}-{seq:4}.
+        div(data-ui="card")
+          div(data-part="header")
+            h2(data-part="title") Source
+            p(data-part="description") Where a document's data comes from: sent with the request, a form's submission, or a summary of a form's submissions over a period.
+          div(data-part="body")
+            div(data-ui="stack" data-gap="4")
+              div(data-ui="field-group")
+                label(data-part="label" for="set-source") Data
+                div(data-part="input")
+                  select#set-source(data-ui="select" l-model="source")
+                    option(value="data") Sent with each document
+                    option(value="submission") A submission of a form
+                    option(value="summary") A summary of a form
+              div(data-ui="field-group" l-show="source !== 'data'")
+                label(data-part="label" for="set-form") Form
+                div(data-part="input")
+                  select#set-form(data-ui="select" l-model="form")
+                    option(value="") Choose a form…
+                    each f in page.forms
+                      option(value=f.id) {{ f.title }}
+        div(data-ui="card")
+          div(data-part="header")
+            h2(data-part="title") Sharing
+          div(data-part="body")
+            p(data-ui="text" data-variant="muted") Every document gets a private link with a random 128-bit token, marked noindex. Rotating a document's link from its page revokes the old one at once.
+          div(data-part="footer")
+            button(type="submit" data-ui="button" data-variant="primary") Save settings
+    div(data-ui="card" data-variant="outlined")
+      div(data-part="header")
+        h2(data-part="title") Delete this report
+      div(data-part="body")
+        p(data-ui="text" data-variant="muted") The report, its versions and every document it issued are deleted.
+      div(data-part="footer")
+        button(type="button" data-ui="button" data-variant="destructive" @click="remove()") Delete report

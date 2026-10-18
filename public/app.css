@@ -471,3 +471,57 @@ body {
 @media (min-width: 40rem) {
   [data-palette-button] { display: inline-flex; }
 }
+
+/* ── Reports: the shelf of real paper, the framed sheet ───────────────────── */
+
+/* A thumbnail is page 1 of the PDF itself, so it is shown as paper: the sheet's
+   own proportions, a hairline edge and a soft shadow on the page background. */
+[data-report-shelf] { align-items: start; }
+[data-report-spine] {
+  display: grid;
+  gap: var(--space-3);
+  color: inherit;
+  text-decoration: none;
+}
+[data-report-paper] {
+  margin: 0;
+  aspect-ratio: 210 / 297;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: white;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.06), 0 6px 18px oklch(0 0 0 / 0.07);
+  transition: transform var(--duration-fast) var(--ease-default), box-shadow var(--duration-fast) var(--ease-default);
+}
+[data-report-paper] img { inline-size: 100%; block-size: 100%; object-fit: cover; object-position: top; }
+[data-report-spine]:hover [data-report-paper],
+[data-report-spine]:focus-visible [data-report-paper] {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px oklch(0 0 0 / 0.08), 0 12px 28px oklch(0 0 0 / 0.10);
+}
+[data-report-unpublished] {
+  padding: var(--space-4);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+}
+[data-report-frame] iframe {
+  display: block;
+  inline-size: 100%;
+  block-size: min(88vh, 1180px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: oklch(0.94 0.004 85);
+}
+[data-report-link] {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: var(--text-xs);
+}
+[data-report-json] {
+  max-block-size: 24rem;
+  overflow: auto;
+  white-space: pre;
+}
+[data-ui="description-list"] code { overflow-wrap: anywhere; }

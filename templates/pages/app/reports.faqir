@@ -1,0 +1,54 @@
+layout "layouts/app.faqir"
+
+block title
+  | Reports — forecraft
+
+block actions
+  a(data-ui="button" data-variant="primary" data-size="sm" href="#starters")
+    span(data-ui="icon" data-icon="plus" aria-hidden="true")
+    | New report
+
+block content
+  div(data-ui="stack" data-gap="6")
+    if page.reports.length == 0
+      div(data-ui="card" data-size="lg")
+        div(data-part="body")
+          div(data-ui="empty-state")
+            span(data-part="icon")
+              span(data-ui="icon" data-icon="file-text" aria-hidden="true")
+            h2(data-part="title") Start from an invoice, or ask your agent to
+            p(data-part="description") A report is one JSON definition — data, layout, appearance — that prints as a PDF a good accountant would send. Pick a starter below; nobody should start from blank.
+      section#starters(aria-label="Starters")
+        include "partials/starter-shelf.faqir" (starters=page.starters forms=page.forms)
+    else
+      div(data-ui="grid" data-cols="1" data-cols-sm="3" data-gap="4")
+        div(data-ui="stat" data-variant="card" data-size="lg" aria-label="{{ page.totals.reports }} reports")
+          span(data-part="label") Reports
+          span(data-part="value") {{ page.totals.reports }}
+        div(data-ui="stat" data-variant="card" data-size="lg" aria-label="{{ page.totals.issued }} documents issued")
+          span(data-part="label") Issued
+          span(data-part="value") {{ page.totals.issued }}
+        div(data-ui="stat" data-variant="card" data-size="lg" aria-label="{{ page.totals.drafts }} drafts")
+          span(data-part="label") Drafts
+          span(data-part="value") {{ page.totals.drafts }}
+      section(aria-labelledby="shelf-title")
+        div(data-ui="stack" data-gap="4")
+          h2#shelf-title(data-ui="text" data-size="lg" data-weight="semibold") The shelf
+          div(data-ui="grid" data-cols="2" data-cols-sm="3" data-cols-lg="4" data-gap="6" data-report-shelf)
+            each r in page.reports
+              a(href="/app/reports/{{ r.id }}" data-report-spine aria-label="{{ r.title }}, {{ r.statusLabel }}")
+                figure(data-ui="image" data-variant="contain" data-size="full" data-report-paper)
+                  if r.thumbnail ?? false
+                    img(data-part="img" src=r.thumbnail alt="Page 1 of {{ r.title }}" loading="lazy" width="397" height="561")
+                  else
+                    span(data-report-unpublished) Not published yet
+                div(data-ui="stack" data-gap="1")
+                  span(data-ui="text" data-weight="semibold") {{ r.title }}
+                  div(data-ui="cluster" data-gap="1")
+                    span(data-ui="badge" data-variant=r.statusVariant data-size="sm") {{ r.statusLabel }}
+                    span(data-ui="text" data-size="xs" data-variant="muted") {{ plural(r.documents, "document") }}
+      section#starters(aria-labelledby="starters-title")
+        div(data-ui="stack" data-gap="4")
+          h2#starters-title(data-ui="text" data-size="lg" data-weight="semibold") Start another
+          include "partials/starter-shelf.faqir" (starters=page.starters forms=page.forms)
+

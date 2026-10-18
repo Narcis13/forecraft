@@ -397,7 +397,8 @@
             "block": "qr",
             "size": "md",
             "value": "{{ epc(seller.name, seller.iban, doc.money.due, doc.number ?? \"DRAFT\", seller.bic ?? \"\") }}",
-            "caption": "{{ label(\"scanToPay\") }} · EPC"
+            "caption": "{{ label(\"scanToPay\") }} · EPC",
+            "when": "doc.currency == \"EUR\""
           }
         ]
       ],

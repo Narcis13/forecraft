@@ -21,6 +21,14 @@ html(lang="en")
             span(data-part="nav-icon")
               span(data-ui="icon" data-icon="layers" aria-hidden="true")
             span(data-part="nav-label") Forms
+          a(data-part="nav-item" href="/app/reports" aria-current=page.nav == "reports" ? "page" : false)
+            span(data-part="nav-icon")
+              span(data-ui="icon" data-icon="file-text" aria-hidden="true")
+            span(data-part="nav-label") Reports
+          a(data-part="nav-item" href="/app/documents" aria-current=page.nav == "documents" ? "page" : false)
+            span(data-part="nav-icon")
+              span(data-ui="icon" data-icon="folder-open" aria-hidden="true")
+            span(data-part="nav-label") Documents
           a(data-part="nav-item" href="/app/keys" aria-current=page.nav == "keys" ? "page" : false)
             span(data-part="nav-icon")
               span(data-ui="icon" data-icon="key" aria-hidden="true")

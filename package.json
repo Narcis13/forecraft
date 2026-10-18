@@ -32,6 +32,8 @@
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "audit": "node scripts/audit.ts",
-    "check": "npm run typecheck && npm run audit && npm test"
+    "check": "npm run typecheck && npm run audit && npm test && npm run test:print",
+    "samples": "node scripts/samples.ts",
+    "test:print": "node --test \"tests/print/**/*.test.ts\""
   }
 }

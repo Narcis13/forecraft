@@ -168,6 +168,8 @@ export function makeHelpers(ctx: HelperContext): Record<string, (...args: unknow
       return String(text ?? "").toLocaleUpperCase(ctx.locale);
     },
     epc(name, iban, amount, reference, bic) {
+      // EPC069-12 is a SEPA credit transfer in euros: a RON or GBP invoice gets no EPC code.
+      if (ctx.currency !== "EUR") throw new HelperError(`epc() is for EUR documents; this one is in ${ctx.currency}. Add when: "doc.currency == \"EUR\"" to the qr block.`);
       return epcPayload(name, iban, amount, reference, bic);
     },
   };

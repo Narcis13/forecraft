@@ -250,7 +250,7 @@ export async function versionThumbnail(db: DB, row: ReportRow, version: number):
   const report = compileReport(JSON.parse(v.definition));
   const rendered = renderReport({ report, data: report.definition.sample, doc: { number: sampleNumber(report), status: "issued", issuedAt: "2026-10-01T09:00:00.000Z" }, assetType: assetType(db) });
   const printed = await printPdf(rendered.html, { assets: assetLookup(db, row.workspace_id), sheet: rendered.sheet });
-  const [png] = await rasterize(printed.pdf, { dpi: 48, max: 1 });
+  const [png] = await rasterize(printed.pdf, { dpi: 72, max: 1 });
   if (!png) return null;
   setThumbnail(db, row.id, version, png);
   return png;

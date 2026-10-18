@@ -1,0 +1,31 @@
+layout "layouts/app.faqir"
+
+block title
+  | Documents — forecraft
+
+block content
+  div(data-ui="stack" data-gap="6")
+    form(method="get" role="search" aria-label="Filter documents")
+      div(data-ui="cluster" data-gap="3")
+        div(data-ui="field-group")
+          label(data-part="label" for="docs-q") Search
+          div(data-part="input")
+            input#docs-q(data-ui="input" type="search" name="q" value=page.filters.q placeholder="A number or a name")
+        div(data-ui="field-group")
+          label(data-part="label" for="docs-report") Report
+          div(data-part="input")
+            select#docs-report(data-ui="select" name="report")
+              option(value="") All reports
+              each r in page.reportOptions
+                option(value=r.id selected=r.selected) {{ r.title }}
+        div(data-ui="field-group")
+          label(data-part="label" for="docs-status") Status
+          div(data-part="input")
+            select#docs-status(data-ui="select" name="status")
+              each s in page.statuses
+                option(value=s.value selected=s.selected) {{ s.label }}
+        button(type="submit" data-ui="button" data-variant="outline")
+          span(data-ui="icon" data-icon="funnel" aria-hidden="true")
+          | Filter
+    p(data-ui="text" data-size="sm" data-variant="muted") {{ plural(page.total, "document") }}
+    include "partials/documents-table.faqir" (documents=page.documents showReport=true)

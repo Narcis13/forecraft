@@ -1,0 +1,8 @@
+layout "layouts/base.faqir"
+
+block title
+  | Designer
+
+block body
+  main#main
+    p Designer

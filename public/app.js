@@ -177,6 +177,108 @@
       };
     });
 
+    // A report from a starter; a confirmation or a summary needs its form first.
+    Faqir.data("newReport", function () {
+      return {
+        starter: "",
+        form: "",
+        busy: false,
+        create: function () {
+          var self = this;
+          if (self.busy) return;
+          var body = { starter: self.starter };
+          if (self.form) body.form = self.form;
+          self.busy = true;
+          api("POST", "/reports", body).then(function (r) {
+            window.location.assign("/app/reports/" + r.id + "/design");
+          }, function (err) {
+            self.busy = false;
+            toast(self, err.message, "error");
+          });
+        },
+      };
+    });
+
+    // A report's header actions: publish, and issue a document from its sample.
+    Faqir.data("reportActions", function () {
+      return {
+        reportId: "",
+        published: false,
+        busy: false,
+        publish: function () {
+          var self = this;
+          self.busy = true;
+          api("POST", "/reports/" + self.reportId + "/publish").then(function (v) {
+            toast(self, "Published version " + v.version + ".", "success");
+            setTimeout(function () { window.location.reload(); }, 600);
+          }, function (err) { self.busy = false; toast(self, err.message, "error"); });
+        },
+        issueSample: function () {
+          var self = this;
+          self.busy = true;
+          api("GET", "/reports/" + self.reportId).then(function (r) {
+            return api("POST", "/reports/" + self.reportId + "/documents", { data: r.definition.sample, issue: true });
+          }).then(function (d) {
+            window.location.assign("/app/documents/" + d.id);
+          }, function (err) { self.busy = false; toast(self, err.message, "error"); });
+        },
+      };
+    });
+
+    // A report's settings: numbering and source live in the definition; delete.
+    Faqir.data("reportSettings", function () {
+      return {
+        reportId: "",
+        pattern: "",
+        manual: false,
+        source: "data",
+        form: "",
+        save: function () {
+          var self = this;
+          api("GET", "/reports/" + self.reportId).then(function (r) {
+            var def = r.definition;
+            def.numbering = self.manual ? { manual: true } : { pattern: self.pattern };
+            def.source = self.source === "data" ? { kind: "data" } : { kind: self.source, form: self.form };
+            return api("PATCH", "/reports/" + self.reportId, { definition: def });
+          }).then(function () { toast(self, "Settings saved. Publish to use them for new documents.", "success"); }, function (err) { toast(self, err.message, "error"); });
+        },
+        remove: function () {
+          var self = this;
+          if (!window.confirm("Delete this report and every document it issued?")) return;
+          api("DELETE", "/reports/" + self.reportId).then(function () { window.location.assign("/app/reports"); }, function (err) { toast(self, err.message, "error"); });
+        },
+      };
+    });
+
+    // A document's page: print the framed sheet, copy or rotate its link, issue a draft, void.
+    Faqir.data("documentActions", function () {
+      return {
+        docId: "",
+        link: "",
+        reason: "",
+        print: function () {
+          var frame = document.getElementById("doc-sheet");
+          if (frame && frame.contentWindow) frame.contentWindow.print();
+        },
+        copyLink: function () { copy(this, this.link, "Link copied"); },
+        rotate: function () {
+          var self = this;
+          api("POST", "/documents/" + self.docId + "/share/rotate").then(function () {
+            toast(self, "New link made; the old one no longer works.", "success");
+            setTimeout(function () { window.location.reload(); }, 700);
+          }, function (err) { toast(self, err.message, "error"); });
+        },
+        issue: function () {
+          var self = this;
+          api("POST", "/documents/" + self.docId + "/issue", {}).then(function () { window.location.reload(); }, function (err) { toast(self, err.message, "error"); });
+        },
+        voidIt: function () {
+          var self = this;
+          api("POST", "/documents/" + self.docId + "/void", { reason: self.reason }).then(function () { window.location.reload(); }, function (err) { toast(self, err.message, "error"); });
+        },
+      };
+    });
+
     // Submissions: delete one (the rest of the table is server-rendered).
     Faqir.data("submissionsPage", function () {
       return {

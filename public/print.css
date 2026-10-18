@@ -138,7 +138,9 @@
   border-block-start: 1.5pt solid var(--report-accent);
 }
 [data-report-sender] { font-family: var(--doc-heading-font); font-size: 13pt; font-weight: var(--weight-semibold); line-height: 1.2; }
-[data-report-logo] img { block-size: 12mm; inline-size: auto; max-inline-size: 60mm; object-fit: contain; object-position: left; }
+[data-report-sender-block] { display: flex; align-items: flex-start; gap: 4mm; }
+[data-report-logo] { margin: 0; flex: none; }
+[data-report-logo] img { block-size: 11mm; inline-size: auto; max-inline-size: 40mm; object-fit: contain; object-position: left top; }
 [data-report-letterhead] [data-ui="key-value"] { grid-template-columns: auto auto; column-gap: 3mm; row-gap: 0.6mm; align-items: baseline; }
 [data-report-letterhead] [data-ui="key-value"] [data-part="value"] { text-align: end; font-size: 8.5pt; }
 [data-report-letterhead] p[data-ui="text"] { font-size: 9pt; line-height: 1.38; }

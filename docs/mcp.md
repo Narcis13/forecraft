@@ -1,6 +1,6 @@
 # forecraft MCP server
 
-`packages/mcp/index.mjs` is a [Model Context Protocol](https://modelcontextprotocol.io) server that lets an agent build and run forms through the forecraft REST API. It speaks JSON-RPC 2.0 over **stdio** (newline-delimited JSON), is plain Node with **no dependencies**, and logs to stderr only. Protocol version `2025-06-18` (it also answers `2025-03-26` and `2024-11-05` clients in kind).
+`packages/mcp/index.mjs` is a [Model Context Protocol](https://modelcontextprotocol.io) server that lets an agent build and run forms, and design and issue PDF reports and documents (invoices, letters, confirmations), through the forecraft REST API. It speaks JSON-RPC 2.0 over **stdio** (newline-delimited JSON), is plain Node with **no dependencies**, and logs to stderr only. Protocol version `2025-06-18` (it also answers `2025-03-26` and `2024-11-05` clients in kind).
 
 ## Install
 
@@ -49,7 +49,7 @@ A definition that breaks the format is refused with a `422` problem whose `error
 
 ## Tools
 
-Results are text content holding pretty-printed JSON. When the API answers 400 or above, the result has `isError: true` and its text is the problem-details JSON (`type`, `title`, `status`, `detail`, `errors[]`; `retry_after_seconds` on 429). Invalid arguments are reported the same way, before any request.
+Results are text content holding pretty-printed JSON (`forecraft_preview_report` also returns the pages as images, and resources can carry a PDF; see below). When the API answers 400 or above, the result has `isError: true` and its text is the problem-details JSON (`type`, `title`, `status`, `detail`, `errors[]`; `retry_after_seconds` on 429). Invalid arguments are reported the same way, before any request.
 
 | Tool | Arguments | What it does |
 | --- | --- | --- |
@@ -65,10 +65,34 @@ Results are text content holding pretty-printed JSON. When the API answers 400 o
 | `forecraft_validate_submission` | `id`, `data` | Dry-run answers against the draft's rules. Returns `{ valid, findings, data }`; nothing is stored. |
 | `forecraft_get_vocabulary` | none | Valid `themes`, `accents`, `layouts` and the appearance defaults. |
 
+### Reports and documents
+
+A **report** is one JSON definition (`{ schema, sample, layout, appearance, … }`) printed as an A4 or Letter PDF; a **document** is one issued PDF of it, with a gapless number. Start from a starter, choose the look from curated values (theme, one dark accent hex, paper, type pairing; never sizes or colours), preview, publish, then issue. See [reports](/docs/reports) and the [style guide](/docs/report-style).
+
+| Tool | Arguments | When to use it |
+| --- | --- | --- |
+| `forecraft_get_report_vocabulary` | none | Before writing or editing a definition: every block with an example, helpers, print themes, type pairings, locales, papers and preflight codes. |
+| `forecraft_list_report_starters` | none | First step of every new report: invoice, letter, business-report, confirmation, survey-summary, blank. |
+| `forecraft_create_report` | `starter`, `title?`, `appearance?`, `sample?`, `form?` — or `definition` (exactly one of `starter` / `definition`) | Create a draft report. From a starter the result includes the definition so you can edit it; `form` (`frm_…`) is required for the confirmation and survey-summary starters. |
+| `forecraft_update_report` | `id`, `definition` | Replace the whole draft definition (read it with `forecraft_get_report` first). Publish again afterwards. |
+| `forecraft_get_report` | `id` | One report with its draft definition, `published_version` and `has_unpublished_changes`. |
+| `forecraft_list_reports` | none | All reports (no definitions) with `document_count`. |
+| `forecraft_preview_report` | `id`, `definition?`, `data?`, `submission?`, `period?`, `locale?`, `currency?`, `pages?` (1-4, default 4), `dpi?` (36-150, default 100) | Render and run preflight; nothing is stored. Returns a text item `{ verdict, ok, pages, pages_shown, findings, title }` followed by one `image` item (PNG) per page, so you can look at the result. |
+| `forecraft_publish_report` | `id` | Snapshot the draft as the next immutable version; documents are issued from it. Returns `version`, `published_at`, `documents_url`. |
+| `forecraft_issue_document` | `report`, `data?` / `submission?` / `period?`, `number?`, `locale?`, `currency?`, `draft?` (default `false`) | Make a document: issued now (number, PDF, `pdf_url`, `share_url`), or an editable draft with `draft: true`. 409 if the report is unpublished; 422 `invalid-data` (pointers) or `preflight-failed` (`findings`). |
+| `forecraft_list_documents` | `report?`, `status?` (`draft`\|`issued`\|`void`), `number?`, `q?`, `since?`, `until?`, `limit?`, `offset?` | Find documents, newest first, with `total`. |
+| `forecraft_get_document` | `id` | One document with its `data`, status, number, `pdf_url` and `share_url`. The PDF itself is a resource. |
+| `forecraft_void_document` | `id`, `reason` (3-500 characters) | Cancel an issued document: it keeps its number and prints VOID. Issued documents cannot be edited, so correct a mistake by voiding and issuing again. |
+| `forecraft_upload_asset` | `path` (local file) or `base64` (+ `type?`), `name?` | Upload a logo or image (PNG, JPEG, WebP, SVG; about 1 MB at most). Use the returned `ref` (`asset:ast_…`) as `appearance.logo` or in an image block. The type is checked from the bytes, not the name. |
+
+`forecraft_preview_report` is the one tool whose result is not all text. Its `content` is the summary text item and then up to four `{ "type": "image", "data": "<base64>", "mimeType": "image/png" }` items, about 100 dpi. A busy renderer is a tool error with the API's 503 `renderer-busy` problem and `retry_after_seconds`; wait that long and call again.
+
 ## Resources
 
 - Template `forecraft://form/{id}` (`application/json`): the form's draft definition.
-- `resources/list` lists the workspace's forms as `forecraft://form/<id>`.
+- Template `forecraft://report/{id}` (`application/json`): the report's draft definition.
+- Template `forecraft://document/{id}`: two content items, the document's metadata and data (`application/json`, as `text`) and its PDF (`application/pdf`, as a base64 `blob`).
+- `resources/list` lists the workspace's forms and reports, and its 20 most recent documents, as `forecraft://form/<id>`, `forecraft://report/<id>` and `forecraft://document/<id>`.
 - Reading an unknown id answers JSON-RPC error `-32002` (resource not found).
 
 ## Example session
@@ -110,6 +134,48 @@ People now fill in `http://localhost:3000/f/pizza-night`. Later:
 ```text
 forecraft_list_submissions { "id": "frm_…", "limit": 20 }
   -> { "items": [ { "id": "sub_…", "version": 1, "created_at": "…", "data": { "name": "Grace Hopper", "size": "Large" } } ], "total": 1 }
+```
+
+### Example: your first invoice (preview, fix, publish, issue)
+
+```text
+forecraft_list_report_starters {}
+  -> { "items": [ { "id": "invoice", "theme": "document", "paper": "a4", "source": "data", … }, { "id": "letter", … }, … ] }
+
+forecraft_create_report {
+  "starter": "invoice", "title": "Invoice",
+  "appearance": { "accent": "#7c2d12" },
+  "sample": { "seller": { "name": "Quayside Logistics Ltd", "iban": "…" } }
+}
+  -> { "id": "rpt_…", "starter": "invoice", "published_version": null, "definition": { "schema": …, "sample": …, "layout": […] }, … }
+
+forecraft_preview_report { "id": "rpt_…" }
+  -> [ { "type": "text", "text": "{ \"verdict\": \"Preflight FAILED: 1 error; fix the findings before publishing. 1 page in total, 1 shown as images below.\",
+          \"ok\": false, \"pages\": 1, \"pages_shown\": 1,
+          \"findings\": [ { \"severity\": \"error\", \"code\": \"overflow\", \"block\": \"payment\", \"message\": \"…\" } ], \"title\": \"…\" }" },
+       { "type": "image", "data": "<base64 PNG>", "mimeType": "image/png" } ]
+```
+
+Read the findings and look at the page. Fix what they name (here, a block's text is too wide) by sending the whole definition back, and preview again until `ok` is `true`:
+
+```text
+forecraft_update_report { "id": "rpt_…", "definition": { …the edited definition… } }
+forecraft_preview_report { "id": "rpt_…" }
+  -> verdict "Preflight passed with no findings. 1 page in total, 1 shown as images below." + the page image
+
+forecraft_publish_report { "id": "rpt_…" }
+  -> { "version": 1, "published_at": "…", "documents_url": "http://localhost:3000/api/v1/reports/rpt_…/documents" }
+
+forecraft_issue_document { "report": "rpt_…", "data": { "seller": { … }, "customer": { … }, "reference": "…", "period": "…", "due": "2026-11-18", "items": [ { "description": "Pallet transport", "qty": 2, "unit": "pallet", "price": 450, "vat": 19 } ] } }
+  -> { "id": "doc_…", "status": "issued", "number": "INV-2026-0001", "pages": 1,
+       "pdf_url": "http://localhost:3000/api/v1/documents/doc_…/pdf", "share_url": "http://localhost:3000/d/…", "findings": [] }
+```
+
+`data` follows the report's `schema` (start from the definition's `sample`); a mistake comes back as a 422 `invalid-data` whose `errors[]` give a JSON pointer into `data`. The PDF is the resource `forecraft://document/doc_…`. If the invoice went to the wrong customer, void it and issue a new one; the number is kept and never reused:
+
+```text
+forecraft_void_document { "id": "doc_…", "reason": "Issued to the wrong entity" }
+  -> { "id": "doc_…", "status": "void", "number": "INV-2026-0001", "void_reason": "Issued to the wrong entity", … }
 ```
 
 On the wire, one tool call is a single line each way:

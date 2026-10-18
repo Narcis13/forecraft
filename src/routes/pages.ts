@@ -16,8 +16,9 @@ import {
   countSubmissions, getForm, getVersion, listForms, listSubmissions, listVersions, toResource, type FormRow,
 } from "../forms/store.ts";
 import { page } from "../render/index.ts";
+import { reportPageRoutes } from "./report-pages.ts";
 
-type PageEnv = Env & { Variables: { user: { id: string; email: string; name: string } } };
+export type PageEnv = Env & { Variables: { user: { id: string; email: string; name: string } } };
 
 export function pageRoutes(db: DB) {
   const app = new Hono<PageEnv>();
@@ -145,7 +146,7 @@ export function pageRoutes(db: DB) {
     const label = (i: number) => titles.indexOf(titles[i]!) !== titles.lastIndexOf(titles[i]!) ? `${titles[i]} (/f/${forms[i]!.slug})` : titles[i]!;
     const groups = [
       { label: "Go to", items: [
-        { label: "Forms", href: "/app" }, { label: "API keys", href: "/app/keys" }, { label: "Workspace settings", href: "/app/settings" },
+        { label: "Forms", href: "/app" }, { label: "Reports", href: "/app/reports" }, { label: "Documents", href: "/app/documents" }, { label: "API keys", href: "/app/keys" }, { label: "Workspace settings", href: "/app/settings" },
         { label: "Docs", href: "/docs" }, { label: "For agents", href: "/for-agents" },
       ] },
       { label: "Forms", items: forms.map((f, i) => ({ label: label(i), href: `/app/forms/${f.id}` })) },
@@ -312,6 +313,8 @@ export function pageRoutes(db: DB) {
     if (!def) return c.notFound();
     return c.html(renderFormPage(compileForm(JSON.parse(def)), { action: "#", preview: true }));
   });
+
+  reportPageRoutes(app, db, shell);
 
   app.get("/app/keys", (c) => {
     const keys = listApiKeys(db, c.var.principal.workspaceId).map((k) => ({ ...k, active: !k.revoked_at }));
