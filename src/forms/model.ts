@@ -243,7 +243,7 @@ export interface SubmissionVerdict {
  * `raw` is a JSON object of answers, or form pairs (`URLSearchParams`, `[k, v][]`).
  */
 export function checkSubmission(form: CompiledForm, raw: Record<string, unknown> | URLSearchParams | [string, string][]): SubmissionVerdict {
-  const record = isRecord(raw) ? raw : fromFormData(raw as URLSearchParams);
+  const record = raw instanceof URLSearchParams || Array.isArray(raw) ? fromFormData(raw as URLSearchParams) : raw;
   const coerced = coerce(form.rules, record) as Record<string, unknown>;
   const verdict = validate(form.rules, coerced);
   const data: Record<string, unknown> = {};

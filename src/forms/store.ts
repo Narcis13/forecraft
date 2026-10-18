@@ -47,7 +47,7 @@ export function toResource(db: DB, row: FormRow): FormResource {
     status: row.status,
     submission_limit: row.submission_limit,
     published_version: row.published_version,
-    has_unpublished_changes: published === null || published.definition !== row.definition,
+    has_unpublished_changes: !published || published.definition !== row.definition,
     submission_count: countSubmissions(db, row.id),
     created_at: row.created_at,
     updated_at: row.updated_at,
