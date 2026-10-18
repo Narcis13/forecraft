@@ -3,12 +3,10 @@ layout "layouts/base.faqir"
 block title
   | {{ page.title }}
 
-block head
-  link(rel="stylesheet" href="/marketing.css")
 
 block body
   include "partials/site-header.faqir" (current="/")
-  main#main(data-site="marketing" data-gap="16")
+  main#main(data-site="marketing" data-gap="12")
     //- ── Hero: the promise on the left, an agent's first call on the right ──
     div(data-ui="backdrop" data-variant="aurora" data-intensity="subtle")
       div(data-ui="container" data-measure="wide" data-gutter="4")
@@ -28,7 +26,7 @@ block body
             p(data-part="note") Free while it is a prototype. Or run it locally: npm run seed prints a key.
           figure(data-part="media")
             div(data-ui="glow" data-variant="beam")
-              div(data-ui="card" data-variant="outlined")
+              div(data-ui="card" data-variant="outlined" data-size="sm")
                 div(data-part="body")
                   div(data-ui="tabs" data-variant="pill" data-size="sm")
                     div(data-part="list" role="tablist" aria-label="An agent's first call")
@@ -93,7 +91,7 @@ block body
           ul(data-part="items")
             li(data-part="item" data-span="large")
               div(data-part="media" aria-hidden="true")
-                img(src="/images/marketing/faces.svg" alt="" width="520" height="400")
+                img(src="/images/marketing/faces.svg" alt="")
               h3(data-part="title") API and MCP first
               p(data-part="description") A REST API with problem details that name the field, and an MCP server with eight tools. The dashboard is just one more client of the same routes.
             li(data-part="item" data-span="wide")

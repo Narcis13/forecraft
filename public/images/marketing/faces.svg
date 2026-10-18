@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 400" width="520" height="400">
+  <!-- One JSON definition (left) feeding three faces (right): the API, the designer, the public form. -->
+  <defs>
+    <linearGradient id="wire" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c2140"/>
+      <stop offset="1" stop-color="#12152a"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.3" cy="0.5" r="0.7">
+      <stop offset="0" stop-color="#8b5cf6" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="520" height="400" fill="url(#halo)"/>
+
+  <!-- dotted ground -->
+  <g fill="#3a4170" fill-opacity="0.55"><circle cx="20" cy="24" r="1.2"/><circle cx="60" cy="24" r="1.2"/><circle cx="100" cy="24" r="1.2"/><circle cx="140" cy="24" r="1.2"/><circle cx="180" cy="24" r="1.2"/><circle cx="220" cy="24" r="1.2"/><circle cx="260" cy="24" r="1.2"/><circle cx="300" cy="24" r="1.2"/><circle cx="340" cy="24" r="1.2"/><circle cx="380" cy="24" r="1.2"/><circle cx="420" cy="24" r="1.2"/><circle cx="460" cy="24" r="1.2"/><circle cx="500" cy="24" r="1.2"/><circle cx="20" cy="376" r="1.2"/><circle cx="60" cy="376" r="1.2"/><circle cx="100" cy="376" r="1.2"/><circle cx="140" cy="376" r="1.2"/><circle cx="180" cy="376" r="1.2"/><circle cx="220" cy="376" r="1.2"/><circle cx="260" cy="376" r="1.2"/><circle cx="300" cy="376" r="1.2"/><circle cx="340" cy="376" r="1.2"/><circle cx="380" cy="376" r="1.2"/><circle cx="420" cy="376" r="1.2"/><circle cx="460" cy="376" r="1.2"/><circle cx="500" cy="376" r="1.2"/></g>
+
+  <!-- the definition -->
+  <g transform="translate(16 90)">
+    <rect width="200" height="220" rx="16" fill="url(#glass)" stroke="#353c6b"/>
+    <circle cx="20" cy="20" r="4" fill="#ff6b8b"/><circle cx="34" cy="20" r="4" fill="#ffc861"/><circle cx="48" cy="20" r="4" fill="#4ade80"/>
+    <text x="184" y="24" text-anchor="end" font-family="'JetBrains Mono', Consolas, monospace" font-size="10" fill="#8189b3">form.json</text>
+    <g font-family="'JetBrains Mono', Consolas, monospace" font-size="12">
+      <text x="18" y="58" fill="#c4b5fd">{</text>
+      <text x="30" y="80" fill="#7dd3fc">"schema"<tspan fill="#8189b3">: {…},</tspan></text>
+      <text x="30" y="102" fill="#7dd3fc">"ui"<tspan fill="#8189b3">: {…},</tspan></text>
+      <text x="30" y="124" fill="#7dd3fc">"rules"<tspan fill="#8189b3">: {…},</tspan></text>
+      <text x="30" y="146" fill="#7dd3fc">"appearance"<tspan fill="#8189b3">: {</tspan></text>
+      <text x="44" y="168" fill="#a5b4fc">"theme"<tspan fill="#8189b3">: </tspan><tspan fill="#86efac">"aurora"</tspan></text>
+      <text x="30" y="190" fill="#8189b3">}</text>
+      <text x="18" y="208" fill="#c4b5fd">}</text>
+    </g>
+  </g>
+
+  <!-- wires -->
+  <g fill="none" stroke="url(#wire)" stroke-width="2" stroke-linecap="round"><path d="M216 170 C 260 170, 252 86, 296 86"/><path d="M216 200 C 260 200, 252 200, 296 200"/><path d="M216 230 C 260 230, 252 314, 296 314"/></g><g fill="#22d3ee"><circle cx="296" cy="86" r="4"/><circle cx="296" cy="200" r="4"/><circle cx="296" cy="314" r="4"/></g><g fill="#8b5cf6"><circle cx="216" cy="170" r="3.5"/><circle cx="216" cy="200" r="3.5"/><circle cx="216" cy="230" r="3.5"/></g>
+
+  <!-- face 1: the API -->
+  <g transform="translate(304 50)">
+    <rect width="200" height="72" rx="12" fill="url(#glass)" stroke="#353c6b"/>
+    <text x="16" y="26" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="600" fill="#e4e7f5">API + MCP</text>
+    <g font-family="'JetBrains Mono', Consolas, monospace" font-size="10">
+      <text x="16" y="46" fill="#4ade80">POST<tspan fill="#8189b3"> /api/v1/forms</tspan></text>
+      <text x="16" y="61" fill="#22d3ee">201<tspan fill="#8189b3"> Created</tspan></text>
+    </g>
+  </g>
+
+  <!-- face 2: the designer -->
+  <g transform="translate(304 164)">
+    <rect width="200" height="72" rx="12" fill="url(#glass)" stroke="#353c6b"/>
+    <text x="16" y="26" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="600" fill="#e4e7f5">Designer</text>
+    <rect x="16" y="38" width="36" height="22" rx="5" fill="#2a2f55"/>
+    <rect x="58" y="38" width="76" height="9" rx="4" fill="#8b5cf6"/>
+    <rect x="58" y="51" width="56" height="9" rx="4" fill="#3a4170"/>
+    <rect x="142" y="38" width="42" height="22" rx="5" fill="none" stroke="#6366f1" stroke-dasharray="3 3"/>
+  </g>
+
+  <!-- face 3: the public form -->
+  <g transform="translate(304 278)">
+    <rect width="200" height="72" rx="12" fill="url(#glass)" stroke="#353c6b"/>
+    <text x="16" y="26" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="600" fill="#e4e7f5">Public form</text>
+    <rect x="16" y="38" width="112" height="20" rx="6" fill="#0d1022" stroke="#3a4170"/>
+    <rect x="24" y="45" width="56" height="6" rx="3" fill="#3a4170"/>
+    <rect x="136" y="38" width="48" height="20" rx="6" fill="#8b5cf6"/>
+    <rect x="148" y="45" width="24" height="6" rx="3" fill="#ffffff" fill-opacity="0.85"/>
+  </g>
+</svg>

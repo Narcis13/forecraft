@@ -3,8 +3,6 @@ layout "layouts/base.faqir"
 block title
   | {{ page.title }}
 
-block head
-  link(rel="stylesheet" href="/marketing.css")
   link(rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt")
   link(rel="alternate" type="application/json" href="/openapi.json" title="OpenAPI")
 

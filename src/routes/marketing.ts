@@ -70,6 +70,9 @@ Location: /api/v1/forms/frm_8xQm2kVb0aTz
   "definition": { "schema": { … }, "appearance": { "theme": "aurora" } }
 }`;
 
+/** The same call without a slug, so an agent can run it twice. */
+const CURL_CREATE_NO_SLUG = CURL_CREATE.replace(/^ {4}"slug": "beta-waitlist",\n/m, "");
+
 const MCP_JSON = `{
   "mcpServers": {
     "forecraft": {
@@ -158,6 +161,11 @@ export function renderMarkdown(md: string): string {
         return `<pre${language ? ` data-lang="${escapeHtml(language)}"` : ""}><code>${escapeHtml(text)}</code></pre>\n`;
       },
       heading({ tokens, depth, text }: Tokens.Heading) {
+        if (depth === 1 && !used.has("doc-title")) {
+          used.add("doc-title");
+          return `<h1 id="doc-title">${this.parser.parseInline(tokens)}</h1>
+`;
+        }
         let id = text.toLowerCase().replace(/<[^>]+>/g, "").replace(/[`*_]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "section";
         let n = 2;
         const base = id;
@@ -203,7 +211,7 @@ export function marketingRoutes() {
   app.get("/for-agents", (c) => c.html(page("pages/marketing/for-agents.faqir", base(
     "For agents — forecraft",
     "How an agent gets a forecraft API key, installs the MCP server and ships its first form.",
-    { code: { env: ENV, seed: SEED, mcp: MCP_JSON, first: FIRST_CALL, create: CURL_CREATE }, tools: MCP_TOOLS },
+    { code: { env: ENV, seed: SEED, mcp: MCP_JSON, first: FIRST_CALL, create: CURL_CREATE_NO_SLUG }, tools: MCP_TOOLS },
   ))));
 
   app.get("/docs", (c) => c.html(page("pages/marketing/docs-index.faqir", base(

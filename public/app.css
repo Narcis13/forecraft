@@ -323,3 +323,120 @@ body > a[href="#main"]:first-child:focus-visible {
   [data-designer-field],
   [data-designer-frame] iframe { transition: none; }
 }
+
+/* ── Marketing site (/, /pricing, /for-agents, /docs) ─────────────────────── */
+
+/* Instrument Serif, the project's heading face, ships one weight (400). A theme
+   asking for semibold headings gets a synthesised bold, which smears the serif.
+   The marketing pages set their headings as the face was cut. */
+main[data-site="marketing"],
+[data-ui="site-header"],
+[data-ui="site-footer"] {
+  --heading-weight: var(--weight-normal);
+  /* Card titles and stat values ask for their own weights in the heading face:
+     never fake a bold the font does not have. Inter is variable and unaffected. */
+  font-synthesis-weight: none;
+}
+
+/* The brand: the mark beside the word, set in the UI face. */
+[data-ui="site-header"] > [data-part="brand"] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-weight: var(--weight-semibold);
+  letter-spacing: normal;
+}
+
+/* A hero inside a backdrop lets the light through (hero manifest: --hero-bg). */
+[data-ui="backdrop"] > [data-ui="container"] > [data-ui="hero"] {
+  --hero-bg: transparent;
+}
+
+/* The split hero's code window: code at the small step so a JSON line fits. */
+main[data-site="marketing"] [data-ui="hero"] pre {
+  font-size: var(--text-xs);
+}
+
+/* The hero headline starts a step up on a phone too. */
+main[data-site="marketing"] [data-ui="hero"] [data-part="headline"] {
+  font-size: var(--text-4xl);
+}
+
+main[data-site="marketing"] [data-ui="hero"] figcaption {
+  margin-block-start: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+}
+
+@media (min-width: 64rem) {
+  /* The split hero's headline at display size: the theme's largest step is
+     a body-copy theme's idea of large, not a launch page's. */
+  main[data-site="marketing"] [data-ui="hero"] [data-part="headline"] {
+    font-size: calc(var(--text-4xl) * 1.75);
+    line-height: var(--leading-tight);
+  }
+}
+
+/* The page runs straight under the bar: no rhythm gap between header and main
+   (body's flow-space would put one there, and the hero's backdrop would start
+   below a band of plain ground). */
+main[data-site="marketing"] {
+  margin-block-start: 0;
+}
+
+/* feature-grid sets its heading in the body face at bold, where every sibling
+   pattern (bento, faq, testimonials, cta, pricing) reads the heading voice.
+   Bring it in line so the page's section headings match. */
+main[data-site="marketing"] [data-ui="feature-grid"] [data-part="heading"] {
+  font-family: var(--font-heading);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+}
+
+@media (min-width: 64rem) {
+  /* Section headings one step up from the patterns' 3xl: a launch page talks
+     in headlines. */
+  main[data-site="marketing"] :is([data-ui="bento"], [data-ui="testimonials"], [data-ui="pricing"]) > [data-part="heading"],
+  main[data-site="marketing"] :is([data-ui="feature-grid"], [data-ui="faq"]) [data-part="heading"],
+  main[data-site="marketing"] [data-ui="cta"] > [data-part="headline"] {
+    font-size: var(--text-4xl);
+  }
+}
+
+/* A copyable snippet: its label-and-button row sits right on top of the block. */
+main[data-site="marketing"] [data-ui="prose"] [l-data] > pre {
+  margin-block-start: var(--space-2);
+}
+
+/* A docs page: air under the bar, and the docs list stays in view beside a
+   long article (the article itself is capped at the prose measure). */
+main[data-doc] {
+  padding-block: var(--space-12) var(--space-16);
+}
+
+@media (min-width: 64rem) {
+  main[data-doc] aside {
+    position: sticky;
+    inset-block-start: var(--space-20);
+    min-inline-size: var(--space-48);
+  }
+}
+
+/* A wide docs table scrolls inside its own focusable region on a phone
+   instead of widening the page. */
+[data-ui="prose"] [role="region"] {
+  overflow-x: auto;
+}
+
+/* Card titles in the heading face read small at the card's own step. */
+main[data-site="marketing"] [data-ui="card"] > [data-part="header"] > [data-part="title"],
+main[data-site="marketing"] [data-ui="bento"] [data-part="item"] > [data-part="title"] {
+  font-size: var(--text-xl);
+}
+
+/* Instrument Serif ships one weight: never synthesise a bold it does not have,
+   on any page (FAQIR-UPSTREAM.md #18). */
+body {
+  font-synthesis-weight: none;
+}

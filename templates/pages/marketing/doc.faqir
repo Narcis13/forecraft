@@ -3,15 +3,13 @@ layout "layouts/base.faqir"
 block title
   | {{ page.title }}
 
-block head
-  link(rel="stylesheet" href="/marketing.css")
 
 block body
   include "partials/site-header.faqir" (current="/docs")
   main#main(data-site="marketing" data-doc=page.doc.slug)
     div(data-ui="container" data-measure="wide" data-gutter="4")
-      div(data-ui="stack" data-gap="12" data-direction-lg="horizontal" data-align-lg="start")
-        article(data-ui="prose" aria-labelledby=page.doc.slug + "-title")
+      div(data-ui="stack" data-gap="12" data-direction-lg="horizontal" data-align-lg="start" data-justify-lg="center")
+        article(data-ui="prose" aria-labelledby="doc-title")
           p(data-ui="text" data-variant="eyebrow")
             a(href="/docs") Docs
           raw page.doc.html

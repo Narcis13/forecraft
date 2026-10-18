@@ -3,12 +3,10 @@ layout "layouts/base.faqir"
 block title
   | {{ page.title }}
 
-block head
-  link(rel="stylesheet" href="/marketing.css")
 
 block body
   include "partials/site-header.faqir" (current="/pricing")
-  main#main(data-site="marketing" data-gap="16")
+  main#main(data-site="marketing" data-gap="12")
     div(data-ui="backdrop" data-variant="dots" data-intensity="subtle")
       div(data-ui="container" data-measure="wide" data-gutter="4")
         section(data-ui="hero" data-variant="center" data-animate aria-labelledby="pricing-headline")

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" width="160" height="40">
+  <path d="M8 14l10-5 10 5v12l-10 5-10-5z" fill="none" stroke="#b8c0d4" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M8 14l10 5 10-5M18 19v12" fill="none" stroke="#b8c0d4" stroke-width="2.4" stroke-linejoin="round"/>
+  <text x="36" y="26" font-family="'JetBrains Mono', Consolas, monospace" font-size="17" font-weight="700" fill="#b8c0d4">parcelbot</text>
+</svg>

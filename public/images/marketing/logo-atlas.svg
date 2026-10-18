@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" width="160" height="40">
+  <path d="M6 30L17 9l11 21z" fill="none" stroke="#b8c0d4" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M11 22h12" stroke="#b8c0d4" stroke-width="2.6"/>
+  <text x="34" y="25" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="800" letter-spacing="2.4" fill="#b8c0d4">ATLAS</text>
+  <text x="88" y="25" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" letter-spacing="2.4" fill="#b8c0d4">FREIGHT</text>
+</svg>

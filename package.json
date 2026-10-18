@@ -12,7 +12,8 @@
     "@faqir-ui/rules": "1.2.5",
     "@faqir-ui/template": "1.2.5",
     "@hono/node-server": "2.1.5",
-    "hono": "4.13.13"
+    "hono": "4.13.13",
+    "marked": "18.1.1"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",
