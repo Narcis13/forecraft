@@ -1,0 +1,248 @@
+layout "layouts/base.faqir"
+
+block title
+  | {{ page.title }}
+
+block head
+  link(rel="stylesheet" href="/marketing.css")
+
+block body
+  include "partials/site-header.faqir" (current="/")
+  main#main(data-site="marketing" data-gap="16")
+    //- ── Hero: the promise on the left, an agent's first call on the right ──
+    div(data-ui="backdrop" data-variant="aurora" data-intensity="subtle")
+      div(data-ui="container" data-measure="wide" data-gutter="4")
+        section(data-ui="hero" data-variant="split" data-animate aria-labelledby="hero-headline")
+          div(data-part="content")
+            span(data-ui="badge" data-part="eyebrow" data-variant="primary") Prototype · REST API + MCP server
+            h1(data-part="headline" id="hero-headline")
+              | Forms your
+              span(data-ui="highlight" data-variant="gradient" data-animate) agent
+              | can build.
+            p(data-part="description") forecraft is a form platform whose first user is an agent. It creates the form, previews it, publishes it and reads the answers, through one API. People fill it in.
+            div(data-part="actions")
+              a(data-ui="button" data-variant="primary" data-size="lg" data-effect="arrow" href="/signup")
+                | Get an API key
+                span(data-ui="icon" data-icon="arrow-right" data-part="icon" aria-hidden="true")
+              a(data-ui="button" data-variant="outline" data-size="lg" href="/for-agents") Read /for-agents
+            p(data-part="note") Free while it is a prototype. Or run it locally: npm run seed prints a key.
+          figure(data-part="media")
+            div(data-ui="glow" data-variant="beam")
+              div(data-ui="card" data-variant="outlined")
+                div(data-part="body")
+                  div(data-ui="tabs" data-variant="pill" data-size="sm")
+                    div(data-part="list" role="tablist" aria-label="An agent's first call")
+                      button(data-part="trigger" type="button" role="tab" id="code-tab-curl" aria-controls="code-panel-curl" aria-selected="true") curl
+                      button(data-part="trigger" type="button" role="tab" id="code-tab-mcp" aria-controls="code-panel-mcp" aria-selected="false" tabindex="-1") MCP
+                      button(data-part="trigger" type="button" role="tab" id="code-tab-response" aria-controls="code-panel-response" aria-selected="false" tabindex="-1") Response
+                    div(data-part="panel" role="tabpanel" id="code-panel-curl" aria-labelledby="code-tab-curl")
+                      div(data-ui="prose")
+                        pre
+                          code {{ page.code.curl }}
+                    div(data-part="panel" role="tabpanel" id="code-panel-mcp" aria-labelledby="code-tab-mcp" hidden)
+                      div(data-ui="prose")
+                        pre
+                          code {{ page.code.mcp }}
+                    div(data-part="panel" role="tabpanel" id="code-panel-response" aria-labelledby="code-tab-response" hidden)
+                      div(data-ui="prose")
+                        pre
+                          code {{ page.code.response }}
+            figcaption One request creates a form. The same definition is what the designer edits and what people see.
+
+    //- ── Who builds with it (fictional) ──
+    section(data-ui="logo-cloud" data-variant="marquee" aria-labelledby="logos-heading")
+      p(data-part="heading" id="logos-heading") Agents at these (fictional) teams ship forms with forecraft
+      div(data-ui="marquee" data-fade data-speed="slow" role="group" aria-label="Customer wordmarks")
+        ul(data-part="track")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-halden.svg" alt="Halden Studio" width="160" height="40")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-quayside.svg" alt="Quayside" width="160" height="40")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-parcelbot.svg" alt="Parcelbot" width="160" height="40")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-lumen.svg" alt="Lumen Labs" width="160" height="40")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-atlas.svg" alt="Atlas Freight" width="160" height="40")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-orbitkit.svg" alt="Orbitkit" width="160" height="40")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-tessellate.svg" alt="Tessellate" width="160" height="40")
+        ul(data-part="track" aria-hidden="true")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-halden.svg" alt="" width="160" height="40")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-quayside.svg" alt="" width="160" height="40")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-parcelbot.svg" alt="" width="160" height="40")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-lumen.svg" alt="" width="160" height="40")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-atlas.svg" alt="" width="160" height="40")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-orbitkit.svg" alt="" width="160" height="40")
+          li(data-part="item")
+            img(data-part="logo" src="/images/marketing/logo-tessellate.svg" alt="" width="160" height="40")
+
+    //- ── Capabilities ──
+    div#product(data-ui="container" data-measure="wide" data-gutter="4")
+      div(data-ui="spotlight" l-data="{}" @pointermove="const r = $this.getBoundingClientRect(); $this.style.setProperty('--spotlight-x', ($event.clientX - r.left) + 'px'); $this.style.setProperty('--spotlight-y', ($event.clientY - r.top) + 'px')")
+        section(data-ui="bento" data-animate aria-labelledby="bento-heading")
+          h2(data-part="heading" id="bento-heading") One definition. Three faces. Any client.
+          p(data-part="description") A form is one JSON document. Your agent sends it over the API, a person edits it in the designer, and the public page renders it. Nothing is translated, so nothing drifts.
+          ul(data-part="items")
+            li(data-part="item" data-span="large")
+              div(data-part="media" aria-hidden="true")
+                img(src="/images/marketing/faces.svg" alt="" width="520" height="400")
+              h3(data-part="title") API and MCP first
+              p(data-part="description") A REST API with problem details that name the field, and an MCP server with eight tools. The dashboard is just one more client of the same routes.
+            li(data-part="item" data-span="wide")
+              span(data-part="icon" aria-hidden="true")
+                span(data-ui="icon" data-icon="shield-check")
+              h3(data-part="title") The server re-checks the browser's verdict
+              p(data-part="description") The rules the page enforces are the rules the server runs: same definition, same evaluator. A 422 names the field and the rule.
+            li(data-part="item")
+              span(data-part="icon" aria-hidden="true")
+                span(data-ui="icon" data-icon="sparkles")
+              h3(data-part="title") 31 themes
+              p(data-part="description") A theme, an accent, a layout and a cover. Every form looks designed.
+            li(data-part="item")
+              span(data-part="icon" aria-hidden="true")
+                span(data-ui="icon" data-icon="check-check")
+              h3(data-part="title") Audit-clean
+              p(data-part="description") Preview returns the HTML and its accessibility audit, so the agent checks its own work.
+            li(data-part="item" data-span="wide")
+              span(data-part="icon" aria-hidden="true")
+                span(data-ui="icon" data-icon="git-branch")
+              h3(data-part="title") Drafts and versions
+              p(data-part="description") Edit freely; publish snapshots a version. The public URL always serves the latest one, and every answer remembers which version it saw.
+            li(data-part="item" data-span="wide")
+              span(data-part="icon" aria-hidden="true")
+                span(data-ui="icon" data-icon="download")
+              h3(data-part="title") Submissions out, any way
+              p(data-part="description") List, search and filter by version or date. Export CSV or JSON in one call.
+
+    //- ── The loop an agent runs ──
+    div(data-ui="container" data-measure="wide" data-gutter="4")
+      div(data-ui="reveal" data-trigger="scroll")
+        section(data-ui="feature-grid" data-cols="4" aria-labelledby="loop-heading")
+          h2(data-part="heading" id="loop-heading") From prompt to published in four calls
+          p(data-part="description") Each step answers in JSON an agent can act on. No browser, no screenshots, no guessing.
+          ul(data-part="items")
+            li(data-part="item")
+              span(data-part="icon" aria-hidden="true")
+                span(data-ui="icon" data-icon="plus")
+              h3(data-part="item-title") Create
+              p(data-part="item-description")
+                code POST /forms
+                |  with a JSON Schema, a UI schema and an appearance.
+            li(data-part="item")
+              span(data-part="icon" aria-hidden="true")
+                span(data-ui="icon" data-icon="eye")
+              h3(data-part="item-title") Preview
+              p(data-part="item-description")
+                code POST /forms/:id/preview
+                |  returns the HTML and its audit.
+            li(data-part="item")
+              span(data-part="icon" aria-hidden="true")
+                span(data-ui="icon" data-icon="send")
+              h3(data-part="item-title") Publish
+              p(data-part="item-description")
+                code POST /forms/:id/publish
+                |  returns the public URL.
+            li(data-part="item")
+              span(data-part="icon" aria-hidden="true")
+                span(data-ui="icon" data-icon="database")
+              h3(data-part="item-title") Read
+              p(data-part="item-description")
+                code GET /forms/:id/submissions
+                |  or export them as CSV.
+
+    //- ── What people (and agents) say — all fictional ──
+    div(data-ui="container" data-measure="wide" data-gutter="4")
+      section(data-ui="testimonials" data-variant="columns" data-animate aria-labelledby="quotes-heading")
+        h2(data-part="heading" id="quotes-heading") Reviewed by its first users
+        p(data-part="description") Some of them are agents. All of them are fictional.
+        ul(data-part="items")
+          li(data-part="item")
+            figure(data-ui="quote" data-variant="card")
+              blockquote(data-part="text")
+                p I created the onboarding survey, previewed it, read zero errors in the audit and published it. Three calls. My operator found out from the first submission.
+              figcaption(data-part="author")
+                span(data-part="name") Support agent
+                span(data-part="role") Runs on Claude, Quayside
+          li(data-part="item")
+            figure(data-ui="quote" data-variant="card")
+              blockquote(data-part="text")
+                p We stopped writing forms. We write one sentence to our agent and review the preview link it sends back.
+              figcaption(data-part="author")
+                span(data-part="name") Ines Okafor
+                span(data-part="role") Head of operations, Halden Studio
+          li(data-part="item")
+            figure(data-ui="quote" data-variant="card")
+              blockquote(data-part="text")
+                p The 422 told me the field and the rule. I fixed the payload without asking anyone.
+              figcaption(data-part="author")
+                span(data-part="name") Intake agent
+                span(data-part="role") MCP client, Parcelbot
+          li(data-part="item")
+            figure(data-ui="quote" data-variant="card")
+              blockquote(data-part="text")
+                p Our agent builds the form, our designer tweaks the spacing in the drag-and-drop editor, and neither overwrites the other. It is the same JSON.
+              figcaption(data-part="author")
+                span(data-part="name") Tomás Reyes
+                span(data-part="role") Product lead, Lumen Labs
+          li(data-part="item")
+            figure(data-ui="quote" data-variant="card")
+              blockquote(data-part="text")
+                p A nightly job exports every submission as CSV to our warehouse. One GET, no scraping.
+              figcaption(data-part="author")
+                span(data-part="name") Data agent
+                span(data-part="role") Scheduled task, Atlas Freight
+
+    //- ── Questions ──
+    div(data-ui="container" data-measure="wide" data-gutter="4")
+      section(data-ui="faq" data-variant="split" aria-labelledby="faq-heading")
+        div(data-part="intro")
+          h2(data-part="heading" id="faq-heading") Questions, answered
+          p(data-part="description") The short version. The docs have the long one.
+          p(data-part="footer")
+            | Still unsure?
+            a(data-ui="link" href="/docs/getting-started") Start with the getting-started guide
+        div(data-part="items")
+          details(data-ui="collapsible" data-variant="bordered" open)
+            summary(data-part="trigger") What does my agent need to start?
+            div(data-part="content") An API key and the base URL. Sign up, open API keys in the dashboard and create one; it is shown once. Locally, npm run seed prints a demo key.
+          details(data-ui="collapsible" data-variant="bordered")
+            summary(data-part="trigger") Which agents can use it?
+            div(data-part="content") Anything that speaks HTTP, and any MCP host: Claude Code, Claude Desktop, or your own client over stdio. The MCP server wraps the same REST API.
+          details(data-ui="collapsible" data-variant="bordered")
+            summary(data-part="trigger") Does the server trust what the browser checked?
+            div(data-part="content") No. Every submission is validated again on the server with the same rules definition the page enforced. A broken rule is a 422 that names the field and the rule.
+          details(data-ui="collapsible" data-variant="bordered")
+            summary(data-part="trigger") Can a person do everything an agent can?
+            div(data-part="content") Yes. The dashboard and the drag-and-drop designer are clients of the same API. The designer's JSON tab shows the exact definition the API returns.
+          details(data-ui="collapsible" data-variant="bordered")
+            summary(data-part="trigger") How do forms look?
+            div(data-part="content") Like you chose a designer: 31 themes, an accent, card, split or page layouts, an optional cover, and a thank-you screen or redirect. Every public form is audited for accessibility.
+          details(data-ui="collapsible" data-variant="bordered")
+            summary(data-part="trigger") What does it cost?
+            div(data-part="content") Nothing. forecraft is a prototype with one free tier and no billing. See pricing for what might come later.
+
+    //- ── Closing ask ──
+    div(data-ui="container" data-measure="wide" data-gutter="4")
+      div(data-ui="backdrop" data-variant="grid" data-intensity="subtle")
+        section(data-ui="cta" data-variant="center" data-tone="surface" data-transparent aria-labelledby="cta-headline")
+          p(data-part="eyebrow")
+            span(data-ui="stamp" data-variant="primary" data-size="sm") Prototype
+          h2(data-part="headline" id="cta-headline")
+            | Hand your agent
+            span(data-ui="highlight" data-variant="underline" data-animate) a key.
+          p(data-part="description") It can have its first form live before you finish reading the docs.
+          div(data-part="actions")
+            a(data-ui="button" data-variant="primary" data-size="lg" data-effect="arrow" href="/signup")
+              | Get an API key
+              span(data-ui="icon" data-icon="arrow-right" data-part="icon" aria-hidden="true")
+            a(data-ui="button" data-variant="outline" data-size="lg" href="/for-agents") Read /for-agents
+          p(data-part="note") No card. No billing. 240 requests a minute per key.
+  include "partials/site-footer.faqir"

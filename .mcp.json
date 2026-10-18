@@ -3,6 +3,14 @@
     "faqir": {
       "command": "npx",
       "args": ["-y", "@faqir-ui/mcp@1.2.5"]
+    },
+    "forecraft": {
+      "command": "node",
+      "args": ["packages/mcp/index.mjs"],
+      "env": {
+        "FORECRAFT_URL": "http://localhost:3000",
+        "FORECRAFT_API_KEY": "${FORECRAFT_API_KEY}"
+      }
     }
   }
 }

@@ -1,0 +1,71 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title
+      block title
+        | forecraft
+    link(rel="icon" href="/favicon.svg" type="image/svg+xml")
+    link(rel="stylesheet" href="/ui/faqir.bundle.css")
+    link(rel="stylesheet" href="/app.css")
+  body
+    a(href="#main") Skip to content
+    div(data-ui="dashboard-shell" data-app)
+      aside(data-part="sidebar" data-state="expanded")
+        div(data-part="logo")
+          a(href="/app" data-app-brand) forecraft
+        nav(data-part="nav" role="navigation" aria-label="Main navigation")
+          a(data-part="nav-item" href="/app" aria-current=page.nav == "forms" ? "page" : false)
+            span(data-part="nav-icon")
+              span(data-ui="icon" data-icon="layers" aria-hidden="true")
+            span(data-part="nav-label") Forms
+          a(data-part="nav-item" href="/app/keys" aria-current=page.nav == "keys" ? "page" : false)
+            span(data-part="nav-icon")
+              span(data-ui="icon" data-icon="key" aria-hidden="true")
+            span(data-part="nav-label") API keys
+          a(data-part="nav-item" href="/app/settings" aria-current=page.nav == "settings" ? "page" : false)
+            span(data-part="nav-icon")
+              span(data-ui="icon" data-icon="settings" aria-hidden="true")
+            span(data-part="nav-label") Workspace
+          a(data-part="nav-item" href="/docs")
+            span(data-part="nav-icon")
+              span(data-ui="icon" data-icon="book" aria-hidden="true")
+            span(data-part="nav-label") Docs
+        div(data-part="sidebar-user")
+          span(data-part="sidebar-user-name") {{ page.user.email }}
+          form(method="post" action="/signout")
+            button(type="submit" data-ui="button" data-variant="ghost" data-size="sm")
+              span(data-ui="icon" data-icon="log-out" aria-hidden="true")
+              | Sign out
+      header(data-part="header" role="banner")
+        div(data-ui="cluster" data-gap="3")
+          block header
+            h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.heading }}
+        div(data-part="header-actions")
+          button(type="button" data-ui="button" data-variant="outline" data-size="sm" aria-label="Open the command palette" @click="$ui('#palette').open()")
+            span(data-ui="icon" data-icon="search" aria-hidden="true")
+            kbd(data-ui="kbd") Ctrl K
+          block actions
+      main#main(data-part="content" role="main")
+        block content
+    //- Items declare no target, so selection is routed by label (FAQIR-UPSTREAM.md #13).
+    div(l-data="palette" data-prop-routes=tojson(page.paletteRoutes) @command-select="go($event.detail.label)")
+      div#palette(data-ui="command-palette" data-state="closed")
+        div(data-part="overlay" hidden)
+        div(data-part="panel" role="dialog" aria-modal="true" aria-label="Command palette" hidden)
+          div(data-part="search-wrapper")
+            input(data-part="search" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="palette-list" placeholder="Jump to a form, a page, an action…")
+          div#palette-list(data-part="list" role="listbox")
+            each group in page.paletteGroups
+              div(data-part="group")
+                div(data-part="group-label") {{ group.label }}
+                each item in group.items
+                  div(data-part="item" role="option" aria-selected="false")
+                    span(data-part="item-label") {{ item.label }}
+            div(data-part="empty" hidden) Nothing matches.
+    div#toasts(data-ui="toast" data-variant="bottom-right" data-part="container" role="region" aria-label="Notifications")
+    block dialogs
+    script(src="/ui/core/faqir-core.js" defer)
+    script(src="/app.js" defer)
+    block scripts

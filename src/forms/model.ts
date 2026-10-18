@@ -104,7 +104,8 @@ export function compileForm(input: unknown): CompiledForm {
       // Always pass rules, so the form always carries its definition — the one
       // the server validates with. See FAQIR-UPSTREAM.md #1.
       rules: definition.rules ?? {},
-      i18n: { submitLabel: appearance.submitLabel },
+      // "Select {title}" reads badly when titles are questions ("Select What do you do?").
+      i18n: { submitLabel: appearance.submitLabel, selectPlaceholder: "Choose one…" },
     });
   } catch (err) {
     throw new DefinitionProblem([{ pointer: "/schema", detail: cleanMessage(err) }]);

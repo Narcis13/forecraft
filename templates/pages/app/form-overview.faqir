@@ -1,0 +1,70 @@
+layout "layouts/app.faqir"
+
+block title
+  | {{ page.form.title }} — forecraft
+
+block header
+  h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.form.title }}
+  span(data-ui="badge" data-variant=page.form.statusVariant) {{ page.form.statusLabel }}
+
+block actions
+  include "partials/form-actions.faqir" (id=page.form.id draft=page.form.draft)
+
+block content
+  div(data-ui="stack" data-gap="6")
+    include "partials/form-tabs.faqir" (tabs=page.tabs tab=page.tab)
+    if page.form.draft
+      div(data-ui="callout" data-variant=page.form.version ? "warning" : "info" role="note")
+        span(data-part="icon")
+          span(data-ui="icon" data-icon="info" aria-hidden="true")
+        div(data-part="content")
+          if page.form.version
+            | The draft has changes the public form does not show yet. Publish to make them live.
+          else
+            | This form is a draft. Nobody can fill it in until you publish it.
+    div(data-ui="grid" data-cols="2" data-cols-md="4" data-gap="4")
+      div(data-ui="stat" data-variant="card" aria-label="{{ page.stats.total }} responses in total")
+        span(data-part="label") Responses
+        span(data-part="value") {{ page.stats.total }}
+      div(data-ui="stat" data-variant="card" aria-label="{{ page.stats.week }} responses in the last 7 days")
+        span(data-part="label") Last 7 days
+        span(data-part="value") {{ page.stats.week }}
+      div(data-ui="stat" data-variant="card" aria-label="{{ page.stats.fields }} fields")
+        span(data-part="label") Fields
+        span(data-part="value") {{ page.stats.fields }}
+      div(data-ui="stat" data-variant="card" aria-label="{{ page.stats.versions }} published versions")
+        span(data-part="label") Versions
+        span(data-part="value") {{ page.stats.versions }}
+    div(data-ui="grid" data-cols="1" data-cols-lg="2" data-gap="4")
+      div(data-ui="card")
+        div(data-part="header")
+          h2(data-part="title") Latest responses
+          p(data-part="description") The five newest, with their first answers.
+        div(data-part="body")
+          if page.recent.length == 0
+            div(data-ui="empty-state" data-size="sm")
+              h3(data-part="title") No responses yet
+              p(data-part="description") Share the link, or ask your agent to fill it in once to see the round trip.
+              div(data-part="actions")
+                a(data-ui="button" data-variant="outline" data-size="sm" href="/app/forms/{{ page.form.id }}/share") Share this form
+          else
+            ul(data-ui="stack" data-gap="3" role="list")
+              each r in page.recent
+                li(data-ui="cluster" data-gap="3")
+                  span(data-ui="text" data-weight="medium") {{ answer(r.summary) }}
+                  span(data-ui="text" data-size="sm" data-variant="muted") {{ datetime(r.created) }}
+        div(data-part="footer")
+          a(data-ui="button" data-variant="ghost" data-size="sm" href="/app/forms/{{ page.form.id }}/submissions") All responses
+      div(data-ui="card")
+        div(data-part="header")
+          h2(data-part="title") Look and feel
+          p(data-part="description") Change it in the designer's Appearance tab.
+        div(data-part="body")
+          dl(data-ui="description-list")
+            dt(data-part="term") Theme
+            dd(data-part="details") {{ page.appearance.theme }}
+            dt(data-part="term") Layout
+            dd(data-part="details") {{ page.appearance.layout }}{{ page.wizard ? " · wizard" : "" }}
+            dt(data-part="term") Public link
+            dd(data-part="details")
+              a(data-ui="link" href=page.form.url target="_blank" rel="noopener") /f/{{ page.form.slug }}

@@ -1,0 +1,156 @@
+/* forecraft — page-level composition that Faqir's tokens and primitives do not
+   express. Every value is a token. Each block names the upstream entry that
+   would make it unnecessary (FAQIR-UPSTREAM.md). */
+
+/* ── Skip link (FAQIR-UPSTREAM.md #8) ─────────────────────────────────────── */
+body > a[href="#main"]:first-child {
+  position: absolute;
+  inset-inline-start: var(--space-4);
+  inset-block-start: var(--space-4);
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  transform: translateY(-200%);
+}
+body > a[href="#main"]:first-child:focus-visible {
+  transform: none;
+}
+
+/* ── Accent hues (FAQIR-UPSTREAM.md #9) ───────────────────────────────────────
+   The theme's primary is captured on <html>, then re-pointed on <body> to the
+   chosen hue at the theme's own lightness and chroma, so every theme keeps its
+   contrast. (A custom property cannot read its own old value on one element.) */
+[data-accent] {
+  --fc-theme-primary: var(--color-primary);
+}
+[data-accent] > body {
+  --color-primary: oklch(from var(--fc-theme-primary) l max(c, 0.12) var(--fc-hue));
+  --color-primary-hover: oklch(from var(--fc-theme-primary) calc(l - 0.05) max(c, 0.12) var(--fc-hue));
+  --color-primary-active: oklch(from var(--fc-theme-primary) calc(l - 0.09) max(c, 0.12) var(--fc-hue));
+  --color-primary-subtle: oklch(from var(--fc-theme-primary) 0.94 0.04 var(--fc-hue));
+  --color-ring: var(--color-primary);
+}
+[data-accent="indigo"] { --fc-hue: 268; }
+[data-accent="violet"] { --fc-hue: 300; }
+[data-accent="rose"] { --fc-hue: 12; }
+[data-accent="orange"] { --fc-hue: 48; }
+[data-accent="amber"] { --fc-hue: 75; }
+[data-accent="emerald"] { --fc-hue: 160; }
+[data-accent="teal"] { --fc-hue: 190; }
+[data-accent="sky"] { --fc-hue: 235; }
+
+/* ── Public form page ─────────────────────────────────────────────────────── */
+[data-form-page] {
+  min-block-size: 100dvh;
+  padding-block: var(--section-gap-sm) var(--section-gap-md);
+  padding-inline: var(--content-gutter);
+}
+[data-form-head] {
+  display: grid;
+  gap: var(--space-3);
+}
+[data-form-cover] {
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+[data-form-cover] img {
+  display: block;
+  inline-size: 100%;
+  aspect-ratio: 16 / 7;
+  object-fit: cover;
+}
+[data-form-actions] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-start: var(--space-6);
+}
+[data-form-actions]:empty {
+  display: none;
+}
+[data-form-thanks] [data-part="body"] {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-4);
+}
+[data-form-foot] {
+  text-align: center;
+}
+[data-form-page="split"] > [data-form-cover] {
+  margin-block-end: var(--space-6);
+}
+/* The split layout: the cover takes the left half from the lg tier, pinned while
+   the form scrolls beside it. */
+@media (min-width: 64rem) {
+  [data-form-page="split"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-16);
+    padding-block-start: var(--space-8);
+  }
+  [data-form-page="split"] > [data-form-cover] {
+    margin-block-end: 0;
+    position: sticky;
+    inset-block-start: var(--space-8);
+    block-size: calc(100dvh - 2 * var(--space-8));
+  }
+  [data-form-page="split"] > [data-form-cover] img {
+    block-size: 100%;
+    aspect-ratio: auto;
+  }
+}
+
+/* ── Auth and dashboard brand ─────────────────────────────────────────────── */
+[data-auth-page] {
+  min-block-size: 100dvh;
+  display: grid;
+  align-content: center;
+  padding: var(--section-gap-sm) var(--content-gutter);
+}
+[data-app-brand] {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  color: var(--color-fg);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+/* The staggered entrance on the form page holds header, cover, form and footer;
+   reveal lays out nothing itself, so the page gives the group its rhythm. */
+[data-form-page] [data-ui="reveal"][data-stagger] {
+  display: grid;
+  gap: var(--space-8);
+}
+
+/* ── Inside a generated form (FAQIR-UPSTREAM.md #16, #17) ─────────────────────
+   @faqir-ui/forms renders group and wizard-step bodies as a card body, which is
+   not a flow root, so their field-groups touch. Give them the form's rhythm. */
+[data-form-page] form [data-ui="card"] > [data-part="body"] {
+  display: grid;
+  gap: var(--space-6);
+}
+/* A long run of short options (a 0–10 scale) reads as a scale, not a list:
+   radio-group has no horizontal orientation, and renderForm no scale widget. */
+[data-form-page] [data-ui="radio-group"]:has(> [data-ui="radio-label"]:nth-child(7)) {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+[data-form-page] [data-ui="radio-group"]:has(> [data-ui="radio-label"]:nth-child(7)) > [data-ui="radio-label"] {
+  min-inline-size: var(--control-height-md);
+  justify-content: center;
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+[data-form-page] [data-ui="radio-group"]:has(> [data-ui="radio-label"]:nth-child(7)) > [data-ui="radio-label"]:has(:checked) {
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}

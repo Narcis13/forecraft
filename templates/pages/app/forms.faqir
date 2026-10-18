@@ -1,0 +1,92 @@
+layout "layouts/app.faqir"
+
+block title
+  | Forms — forecraft
+
+block actions
+  div(l-data="newForm")
+    button(type="button" data-ui="button" data-variant="primary" data-size="sm" :disabled="busy" @click="create()")
+      span(data-ui="icon" data-icon="plus" aria-hidden="true")
+      | New form
+
+block content
+  div(data-ui="stack" data-gap="6")
+    if page.forms.length == 0
+      div(data-ui="reveal" data-variant="rise")
+        div(data-ui="card" data-size="lg")
+          div(data-part="body")
+            div(data-ui="empty-state")
+              span(data-part="icon")
+                span(data-ui="icon" data-icon="sparkles" aria-hidden="true")
+              h2(data-part="title") Create your first form, or ask your agent to
+              p(data-part="description") Drag fields onto a canvas yourself, or give your agent an API key and one sentence. Either way you get the same form, the same public page and the same submissions table.
+              div(data-part="actions" l-data="newForm")
+                button(type="button" data-ui="button" data-variant="primary" :disabled="busy" @click="create()")
+                  span(data-ui="icon" data-icon="plus" aria-hidden="true")
+                  | Open the designer
+                a(data-ui="button" data-variant="outline" href="/app/keys")
+                  span(data-ui="icon" data-icon="key" aria-hidden="true")
+                  | Get an API key
+        div(data-ui="grid" data-cols="1" data-cols-md="2" data-gap="4")
+          div(data-ui="card")
+            div(data-part="header")
+              h3(data-part="title") From Claude, Cursor or any MCP host
+              p(data-part="description") Add forecraft to the host's .mcp.json, then ask: “Make me a waitlist form with name, email and team size, and publish it.”
+            div(data-part="body")
+              pre(data-ui="text" data-variant="mono" data-size="sm")
+                | "forecraft": { "command": "node",
+                |   "args": ["packages/mcp/index.mjs"],
+                |   "env": { "FORECRAFT_API_KEY": "fc_live_…" } }
+          div(data-ui="card")
+            div(data-part="header")
+              h3(data-part="title") From a terminal
+              p(data-part="description") One POST with a JSON Schema. The response carries the public URL once you publish.
+            div(data-part="body")
+              pre(data-ui="text" data-variant="mono" data-size="sm")
+                | curl -X POST {{ page.origin }}/api/v1/forms \
+                |   -H "Authorization: Bearer $FORECRAFT_API_KEY" \
+                |   -H "content-type: application/json" \
+                |   -d @definition.json
+    else
+      div(data-ui="grid" data-cols="1" data-cols-sm="3" data-gap="4")
+        div(data-ui="stat" data-variant="card" aria-label="{{ page.totals.forms }} forms in {{ page.workspace }}")
+          span(data-part="label") Forms
+          span(data-part="value") {{ page.totals.forms }}
+        div(data-ui="stat" data-variant="card" aria-label="{{ page.totals.live }} forms accepting responses")
+          span(data-part="label") Live now
+          span(data-part="value") {{ page.totals.live }}
+        div(data-ui="stat" data-variant="card" aria-label="{{ page.totals.responses }} responses in total")
+          span(data-part="label") Responses
+          span(data-part="value") {{ page.totals.responses }}
+      div(data-ui="table" data-size="md")
+        div(data-ui="cluster" data-gap="3")
+          input(data-part="filter" type="search" placeholder="Filter forms…" aria-label="Filter forms")
+        table(data-part="table")
+          thead(data-part="thead")
+            tr(data-part="tr")
+              th(data-part="th" scope="col" data-sortable aria-sort="none") Form
+              th(data-part="th" scope="col" data-sortable aria-sort="none") Status
+              th(data-part="th" scope="col" data-sortable aria-sort="none" data-align="end") Responses
+              th(data-part="th" scope="col" data-sortable aria-sort="none" data-hide-below="md") Updated
+              th(data-part="th" scope="col" data-align="end")
+                span(data-ui="text" data-size="sm" data-variant="muted") Actions
+          tbody(data-part="tbody")
+            each f in page.forms
+              tr(data-part="tr")
+                td(data-part="td")
+                  div(data-ui="stack" data-gap="1")
+                    a(data-ui="link" href="/app/forms/{{ f.id }}") {{ f.title }}
+                    span(data-ui="text" data-size="xs" data-variant="muted") /f/{{ f.slug }}
+                td(data-part="td")
+                  div(data-ui="cluster" data-gap="1")
+                    span(data-ui="badge" data-variant=f.statusVariant) {{ f.statusLabel }}
+                    if f.draft && f.version
+                      span(data-ui="badge" data-variant="warning" data-size="sm") Unpublished edits
+                td(data-part="td" data-align="end" data-value=f.responses) {{ f.responses }}
+                td(data-part="td" data-sort-value=f.updated) {{ datetime(f.updated) }}
+                td(data-part="td" data-align="end")
+                  div(data-ui="cluster" data-gap="1")
+                    a(data-ui="button" data-variant="ghost" data-size="sm" href="/app/forms/{{ f.id }}/design") Design
+                    a(data-ui="button" data-variant="ghost" data-size="sm" href="/app/forms/{{ f.id }}/submissions") Responses
+            tr(data-part="empty" hidden)
+              td(data-part="td" colspan="5") No form matches that filter.

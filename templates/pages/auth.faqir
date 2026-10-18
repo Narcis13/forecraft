@@ -1,0 +1,43 @@
+layout "layouts/base.faqir"
+
+block title
+  | {{ page.heading }} — forecraft
+
+block body
+  div(data-ui="backdrop" data-variant="aurora" data-intensity="subtle")
+    main#main(data-auth-page)
+      div(data-ui="container" data-measure="narrow")
+        div(data-ui="reveal" data-variant="rise" data-stagger)
+          a(href="/" data-app-brand) forecraft
+          div(data-ui="auth-form" data-variant=page.mode data-size="md")
+            div(data-ui="card")
+              div(data-part="header")
+                h1(data-part="title") {{ page.heading }}
+                p(data-part="description") {{ page.lede }}
+              //- auth-form's canonical card has no body part, which card requires (FAQIR-UPSTREAM.md #12).
+              div(data-part="body")
+                if page.error ?? false
+                  div#auth-error(data-part="error" role="alert") {{ page.error }}
+                form(data-part="form" method="post" action=page.action aria-label=page.heading aria-describedby=page.error ? "auth-error" : false)
+                  if page.mode == "register"
+                    div(data-part="name-field")
+                      label(data-ui="label" for="auth-name") Your name
+                      input#auth-name(data-ui="input" type="text" name="name" autocomplete="name" value=page.name)
+                  div(data-part="email-field")
+                    label(data-ui="label" for="auth-email") Email
+                    input#auth-email(data-ui="input" type="email" name="email" autocomplete="email" required value=page.email aria-invalid=page.error ? "true" : false)
+                  div(data-part="password-field")
+                    label(data-ui="label" for="auth-password") Password
+                    input#auth-password(data-ui="input" type="password" name="password" required minlength="8" autocomplete=page.mode == "login" ? "current-password" : "new-password")
+                  button(data-ui="button" data-variant="primary" data-part="submit" type="submit") {{ page.submit }}
+              div(data-part="footer")
+                if page.invite ?? false
+                  p(data-ui="text" data-size="sm" data-variant="muted") Joining {{ page.invite }}. Already have an account? Use its email and password.
+                else if page.mode == "login"
+                  p(data-ui="text" data-size="sm" data-variant="muted")
+                    | New here?
+                    a(data-ui="link" href="/signup") Create a workspace
+                else
+                  p(data-ui="text" data-size="sm" data-variant="muted")
+                    | Already have an account?
+                    a(data-ui="link" href="/signin") Sign in

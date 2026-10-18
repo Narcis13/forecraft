@@ -1,0 +1,120 @@
+layout "layouts/app.faqir"
+
+block title
+  | API keys — forecraft
+
+block content
+  div(data-ui="stack" data-gap="6")
+    div(data-ui="grid" data-cols="1" data-cols-lg="3" data-gap="4")
+      div(data-ui="card" data-keys-intro)
+        div(data-part="header")
+          h2(data-part="title") Keys for agents and scripts
+          p(data-part="description") A key acts for this whole workspace: it can create, publish and read every form. The secret is shown once; we only keep its hash.
+        div(data-part="body")
+          pre(data-ui="text" data-variant="mono" data-size="sm")
+            | curl {{ page.origin }}/api/v1/forms \
+            |   -H "Authorization: Bearer fc_live_…"
+        div(data-part="footer")
+          button(type="button" data-ui="button" data-variant="primary" @click="$ui('#new-key').open()")
+            span(data-ui="icon" data-icon="plus" aria-hidden="true")
+            | Create a key
+      div(data-ui="card" data-keys-mcp)
+        div(data-part="header")
+          h2(data-part="title") Use it from an MCP host
+          p(data-part="description") Point any MCP host at the forecraft server with your key in the environment.
+        div(data-part="body")
+          pre(data-ui="text" data-variant="mono" data-size="sm")
+            | {
+            |   "mcpServers": {
+            |     "forecraft": {
+            |       "command": "node",
+            |       "args": ["packages/mcp/index.mjs"],
+            |       "env": {
+            |         "FORECRAFT_URL": "{{ page.origin }}",
+            |         "FORECRAFT_API_KEY": "fc_live_…"
+            |       }
+            |     }
+            |   }
+            | }
+        div(data-part="footer")
+          a(data-ui="link" href="/docs/mcp") Read the MCP guide
+    if page.keys.length == 0
+      div(data-ui="card")
+        div(data-part="body")
+          div(data-ui="empty-state")
+            span(data-part="icon")
+              span(data-ui="icon" data-icon="key" aria-hidden="true")
+            h2(data-part="title") No keys yet
+            p(data-part="description") Create one for each agent or script, so you can revoke one without breaking the others.
+    else
+      div(data-ui="table" data-size="md")
+        table(data-part="table")
+          thead(data-part="thead")
+            tr(data-part="tr")
+              th(data-part="th" scope="col") Name
+              th(data-part="th" scope="col") Key
+              th(data-part="th" scope="col" data-hide-below="md") Created
+              th(data-part="th" scope="col" data-hide-below="md") Last used
+              th(data-part="th" scope="col") Status
+              th(data-part="th" scope="col" data-align="end")
+                span(data-ui="text" data-size="sm" data-variant="muted") Actions
+          tbody(data-part="tbody")
+            each k in page.keys
+              tr(data-part="tr")
+                td(data-part="td") {{ k.name }}
+                td(data-part="td")
+                  code {{ k.prefix }}…
+                td(data-part="td") {{ date(k.created_at) }}
+                td(data-part="td") {{ k.last_used_at ? datetime(k.last_used_at) : "Never" }}
+                td(data-part="td")
+                  span(data-ui="badge" data-variant=k.active ? "success" : "secondary") {{ k.active ? "Active" : "Revoked" }}
+                td(data-part="td" data-align="end")
+                  if k.active
+                    button(type="button" data-ui="button" data-variant="ghost" data-size="sm" value=k.id name=k.name @click="$dispatch('revoke-key', { id: $this.value, name: $this.name }); $ui('#revoke-dialog').open()") Revoke
+
+block dialogs
+  div#new-key(data-ui="dialog" data-state="closed" l-data="keysPage")
+    div(data-part="overlay" hidden)
+    div(data-part="panel" role="dialog" aria-modal="true" aria-labelledby="new-key-title" data-size="md" hidden)
+      div(data-part="header")
+        h2#new-key-title(data-part="title") Create an API key
+        button(type="button" data-part="close" aria-label="Close dialog") ✕
+      div(data-part="body")
+        template(l-if="!secret")
+          form#new-key-form(aria-label="New key" @submit.prevent="create()")
+            div(data-ui="field-group")
+              label(data-part="label" for="key-name") Name
+              div(data-part="input")
+                input#key-name(data-ui="input" type="text" l-model="name" placeholder="e.g. Claude on my laptop" aria-describedby="key-name-hint")
+              p#key-name-hint(data-part="description") So you know which key to revoke later.
+        template(l-if="secret")
+          div(data-ui="stack" data-gap="3")
+            div(data-ui="callout" data-variant="warning" role="note")
+              div(data-part="content") Copy it now. This is the only time the secret is shown.
+            div(data-ui="field-group")
+              label(data-part="label" for="key-secret") Your new key
+              div(data-part="input")
+                input#key-secret(data-ui="input" type="text" readonly :value="secret")
+      div(data-part="footer")
+        template(l-if="!secret")
+          button(type="submit" form="new-key-form" data-ui="button" data-variant="primary" :disabled="busy") Create key
+        template(l-if="secret")
+          div(data-ui="cluster" data-gap="2")
+            button(type="button" data-ui="button" data-variant="outline" @click="copySecret()")
+              span(data-ui="icon" data-icon="copy" aria-hidden="true")
+              | Copy
+            button(type="button" data-ui="button" data-variant="primary" @click="done()") Done
+  div#revoke-dialog(data-ui="dialog" data-state="closed" l-data="keysPage" @revoke-key.window="revokeId = $event.detail.id; revokeName = $event.detail.name")
+    div(data-part="overlay" hidden)
+    div(data-part="panel" role="dialog" aria-modal="true" aria-labelledby="revoke-title" aria-describedby="revoke-desc" data-size="sm" data-variant="danger" hidden)
+      div(data-part="header")
+        h2#revoke-title(data-part="title") Revoke this key?
+        button(type="button" data-part="close" aria-label="Close dialog") ✕
+      div(data-part="body")
+        p#revoke-desc(data-part="description")
+          | Anything using
+          strong(l-text="revokeName")
+          | stops working at once. This cannot be undone.
+      div(data-part="footer")
+        button(type="button" data-ui="button" data-variant="outline" @click="$ui('#revoke-dialog').close()") Keep it
+        button(type="button" data-ui="button" data-variant="destructive" @click="revoke()") Revoke key

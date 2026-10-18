@@ -18,16 +18,16 @@ block body
                 span(data-ui="badge" data-variant="primary") {{ page.eyebrow }}
               if page.preview
                 span(data-ui="stamp" data-variant="primary" data-size="sm") Preview
-            h1(data-form-title) {{ page.title }}
+            h1(data-ui="heading" data-size=page.titleSize) {{ page.title }}
             if page.description ?? false
               p(data-ui="text" data-size="lg" data-variant="muted") {{ page.description }}
           if page.coverImage ?? false
             if page.layout != "split"
               figure(data-form-cover)
                 img(src=page.coverImage alt="")
-          section(aria-label="Form" l-show="status !== 'sent'")
-            div(data-ui=page.layout == "page" ? false : "card" data-size="lg")
-              div(data-part=page.layout == "page" ? false : "body")
+          section(aria-label="Form" data-gap="6" l-show="status !== 'sent'")
+            div(data-ui=page.framed ? "card" : false data-size=page.framed ? "lg" : false)
+              div(data-part=page.framed ? "body" : false)
                 raw page.formHtml
                 div(data-form-actions)
                   if !page.wizard
