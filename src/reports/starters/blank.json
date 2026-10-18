@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "type": "object",
+    "title": "Untitled report",
+    "description": "A blank page with a running footer: add blocks from the palette.",
+    "properties": {
+      "title": { "type": "string", "title": "Title" },
+      "body": { "type": "string", "title": "Body" }
+    }
+  },
+  "sample": { "title": "A new document", "body": "Write here, or bind blocks to your own data." },
+  "layout": [
+    { "id": "title", "block": "title", "text": "{{ title }}" },
+    { "id": "body", "block": "text", "markdown": "{{ body }}" },
+    { "id": "footer", "block": "footer", "lines": ["{{ title }}"] }
+  ],
+  "appearance": { "theme": "document", "accent": "#1f3a8a", "paper": "a4", "type": "plex-sans", "locale": "en-GB", "currency": "EUR" },
+  "numbering": { "pattern": "DOC-{YYYY}-{seq:3}" },
+  "source": { "kind": "data" }
+}

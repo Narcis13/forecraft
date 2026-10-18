@@ -234,6 +234,22 @@ prioritised shortlist.
 - **Suggested fix:** a "glue" marker (for example a piped line starting with `|<`)
   that joins to the previous node without whitespace, documented beside §12.1.
 
+### 34. No recursion means one dispatcher per nesting level
+
+- **Seen:** report blocks nest (a section holds blocks; columns hold blocks). A partial
+  that includes itself is `include-cycle` at compile time, so a block tree cannot be
+  drawn by one recursive "draw a block" partial.
+- **Where:** `packages/template/src/compile.js` (include-cycle detection), §10.3 of
+  `docs/template.md`. Deliberate (decision 9), and right for untrusted templates.
+- **Why:** bounded recursion is safe — the engine already bounds steps and output —
+  but the cycle check is structural, not depth-based.
+- **Here:** `templates/reports/dispatch.faqir`, `dispatch-1.faqir`, `dispatch-2.faqir`
+  and `blocks/section-1|2`, `columns-1|2`: the same dispatch three times, and the
+  model refuses containers deeper than two levels.
+- **Suggested fix:** allow a self-include with an explicit depth budget
+  (`include "x.faqir" (…) depth=3`), counted against `include-depth`; test: a
+  three-level tree renders, a four-level one is `include-depth` at render.
+
 ---
 
 ## Primitives and base styles
@@ -490,6 +506,211 @@ prioritised shortlist.
   (`@faqir-ui/audit`, or an export of `@faqir-ui/mcp`), the same code the MCP tool
   `faqir_audit_html` runs. Test: the package and `faqir audit --stdin --json` give the
   same findings for the audit fixtures.
+
+---
+
+## Print and documents
+
+Found while building forecraft's reports: invoices, letters, reports, confirmations and
+survey summaries printed by headless Chromium (playwright-core 1.64.1, Chromium 149) from
+the `document` pattern, the doc tokens and the five print themes. Each suggested fix names
+the case it would add to Faqir's own print matrix (`tests/visual/print/matrix.ts`).
+
+### 32. A document's paper, margins and accent need per-document CSS
+
+- **Seen:** `@page { size: var(--page-format) … }` reads tokens, but `@page` cannot be
+  scoped to an element, so two documents on different paper (an A4 invoice, a Letter
+  report) cannot be told apart by an attribute; and a print accent from a brand hex is
+  #9 again, now on paper.
+- **Where:** `registry/patterns/document/document.css` (`@page` at the top);
+  `registry/tokens/document.css` (`--page-format` and margins at `:root` only).
+- **Why:** page boxes are not elements; only named pages (`page: name`) select them.
+- **Here:** the renderer writes one `<style data-report-page>` per document with the
+  paper, margins, accent and page counter, built from validated enums and one checked
+  hex (`src/reports/render.ts`, `documentCss`).
+- **Suggested fix:** ship named pages per format and orientation (`@page faqir-a4-portrait`,
+  …) selected by `[data-ui="document"][data-format][data-orientation] { page: … }`, and a
+  `--doc-accent` token the print themes read for their one accent. Matrix case: one HTML
+  page with an A4 and a Letter document prints 595.28 × 841.89 then 612 × 792.
+
+### 33. The page counter is an English literal
+
+- **Seen:** every printed page says `Page 1 / 2`, in English, in a Romanian invoice.
+  There is no token or attribute for the words.
+- **Where:** `registry/patterns/document/document.css`, `@bottom-right { content: "Page "
+  counter(page) " / " counter(pages); }`.
+- **Here:** the per-document style (#32) replaces the margin box with the document's
+  label ("Pagina 2 din 3", "Seite 2 von 3").
+- **Suggested fix:** `content: var(--doc-page-label-before) counter(page)
+  var(--doc-page-label-between) counter(pages)` is not valid CSS, so ship it as named
+  pages per language or as `data-page-label` on the document read through `attr()` where
+  supported. Matrix case: `lang="ro"` document prints "Pagina 1 din 3".
+
+### 35. Installing a print family takes a role from the app
+
+- **Seen:** `faqir fonts add ibm-plex-sans` must assign a role, and each role has one
+  family, so adding a document face silently replaces `--font-body` (or heading, ui, mono)
+  for every app page.
+- **Where:** `src/fonts/install.ts` (`assignRoles`: "a role has exactly ONE family").
+- **Here:** a second Faqir project, `print/faqir.config.json` (output `ui/print/`), owns
+  IBM Plex Sans, Serif, Mono and Source Serif 4; documents load `ui/print/fonts.css` and
+  name families through the doc tokens. Newsreader did not fit (four roles per project).
+  The phase 1 pages are unchanged.
+- **Suggested fix:** `faqir fonts add <family> --role none` (install the faces, emit the
+  `@font-face` rules, set no role), or a `document` role that sets `--doc-font`. Test:
+  adding a role-less family leaves `fonts.css`'s role block byte-identical.
+
+### 36. No `chart` primitive
+
+- **Seen:** a business report and a survey summary need a bar, column or line chart; the
+  report scaffold ships a placeholder image ("REPLACE REPORT IMAGE").
+- **Where:** `src/scaffolds/documents.ts` (`REPORT_IMAGE`); no chart in the registry.
+- **Here:** `src/reports/chart.ts` lays out bar / column / line as plain geometry and
+  `templates/reports/blocks/chart.faqir` draws inline SVG with `data-series` /
+  `data-role` attributes that `public/print.css` fills from tokens.
+- **Suggested fix:** a `chart` primitive with exactly these semantics: `data-kind="bar|column|line"`;
+  colours, type and rules from custom properties only (no literal colour); value axes
+  start at zero for bars and columns; direct labels on marks instead of a legend where
+  they fit; series distinguished by lightness and, for lines, dash pattern, so they
+  survive greyscale; `role="img"` with an `aria-label` that reads the numbers; and the
+  same numbers available as a `table` (a `data-part="data"` table, visually hidden on
+  paper). Matrix case: a three-series column chart printed in greyscale keeps three
+  distinct lightness bands.
+
+### 37. The font catalogue has no italics
+
+- **Seen:** markdown emphasis in a document comes out as a browser-slanted oblique: the
+  catalogue installs `normal` styles only (`…-wght-normal.woff2`, `…-400-normal.woff2`).
+- **Where:** `src/fonts/catalog.ts` (the curated list; "a project that needs … a true
+  italic is past what a curated list" — line 41).
+- **Here:** `font-synthesis: none` on documents, so emphasis stays upright rather than
+  fake; strong still works (every weight used is installed).
+- **Suggested fix:** offer the italic files for the editorial and document families
+  (Plex Sans/Serif, Source Serif 4, Newsreader), opt-in (`--italic`). Matrix case: an
+  `<em>` in the report reference embeds a font whose name ends in `-Italic`.
+
+### 38. The print themes name system fonts
+
+- **Seen:** `document`, `editorial-document`, `ink-document` and `swiss-document` set
+  `--doc-font: 'Arial', 'Helvetica Neue'`; `document-serif` sets Georgia and Times New
+  Roman; the `report` variant forces `--doc-font: Georgia, 'Times New Roman', serif`. The
+  same document prints in different faces on Windows and Linux, and with fallback glyphs
+  for ș ț on some.
+- **Where:** `registry/themes/*-document.css` (`--doc-font`, `--doc-heading-font`,
+  `--font-sans`, `--font-mono`); `registry/patterns/document/document.css`, variant `report`.
+- **Here:** `public/print.css` re-points `--doc-font`, `--doc-heading-font`, `--font-*`
+  per type pairing to self-hosted families, and documents use no pattern variant.
+  Preflight's `font-fallback` reads the PDF's font list to prove it.
+- **Suggested fix:** print themes default to the project's role families (`var(--font-body)`)
+  and name system faces only as fallbacks; the `report` variant reads `--doc-serif` instead
+  of a literal. Matrix case: the report reference's PDF embeds only fonts from `fonts.css`.
+
+### 39. The running header repeats on page 1
+
+- **Seen:** in Chromium the `doc-header` is `position: fixed` (no `running()`), so it
+  prints on every page, including page 1 above the letterhead.
+- **Where:** `registry/patterns/document/document.css`, `@media print` doc-header block.
+- **Here:** `[data-report-mask]`, an absolutely positioned strip of paper over the header
+  area on page 1 only (`public/print.css`).
+- **Suggested fix:** a `data-header="from-page-2"` option on the pattern that ships this
+  mask (Chromium) and `@page :first { @top-center { content: none } }` (paged engines).
+  Matrix case: the three-page reference shows no header text on page 1.
+
+### 40. Nothing paints in the page margins
+
+- **Seen:** DIN 5008 fold marks (105 mm, 210 mm) and the punch mark (148.5 mm) belong in
+  the left margin. An element positioned there is clipped; a root or `@page` background
+  is not painted in the margins either.
+- **Where:** Chromium's page box; the pattern's geometry assumes all margins are `@page`
+  margins (`registry/patterns/document/document.css`).
+- **Here:** the renderer sets the left page margin to 0 and `print.css` rebuilds it as
+  padding on the document, so marks and the envelope window sit at exact sheet
+  coordinates.
+- **Suggested fix:** a `letter` variant of the pattern with fold marks, punch mark and a
+  Form A/B address window as tokens (`--doc-window-top`, …). Matrix case: a letter
+  reference with marks at 105 / 148.5 / 210 mm, measured on the PNG.
+
+### 41. key-value's grid variants misplace grouped pairs
+
+- **Seen:** the manifest allows `dl > div > dt + dd` grouping, but in the horizontal and
+  `data-cols` variants the `<div>` is one grid cell, so a list of three grouped pairs lays
+  out as two pairs per row; and `data-cols` right-aligns every value.
+- **Where:** `registry/primitives/key-value/key-value.css` (`grid-template-columns: auto
+  1fr`; `[data-cols] > … [data-part="value"] { text-align: end }`).
+- **Here:** `templates/reports/pairs.faqir` writes flat `dt`/`dd`; a grid of single-pair
+  vertical lists (`cells.faqir`) draws "label over value" cells; totals use a subgrid row.
+- **Suggested fix:** `[data-ui="key-value"] > div:not([data-ui]) { display: contents }` in
+  the grid variants (or `grid-column: 1 / -1; display: grid; grid-template-columns:
+  subgrid`). Matrix case: an invoice header with grouped pairs aligns label/value columns.
+
+### 42. A table footer repeats on every printed page
+
+- **Seen:** `tfoot` is `display: table-footer-group` in print, which Chromium repeats at
+  the foot of every page the table spans — an invoice's "Total" printed on page 1 of 3.
+- **Where:** `registry/recipes/table/table.css`, `@media print` (`[data-part="tfoot"]`).
+- **Here:** totals are their own block (key-value) after the table; table footer rows are
+  a second `tbody`.
+- **Suggested fix:** a `data-print-footer="last"` option that sets the tfoot to
+  `table-row-group`, documented beside the repeating header. Matrix case: a 60-row
+  invoice prints its total once.
+
+### 43. The pattern's `@page` rules become global once bundled
+
+- **Seen:** after `faqir add document` the bundle's `@page` sets every page's margins and
+  a "Page N / M" counter, so printing any app page (a submissions table) now carries the
+  document's counter and 15 mm margins.
+- **Where:** `registry/patterns/document/document.css` (top-level `@page`), copied into
+  `ui/faqir.bundle.css` by `faqir bundle`.
+- **Here:** nothing; documents override with their own `@page` (#32).
+- **Suggested fix:** a named page (`@page faqir-document`) applied by
+  `[data-ui="document"] { page: faqir-document }`. Matrix case: a non-document page printed
+  with the bundle has no counter.
+
+### 44. The QR encoder stops at version 10 and keeps a two-module quiet zone
+
+- **Seen:** `encodeQR` throws "Data too long for QR versions 1–10" past about 213 bytes at
+  ECL M, and only logs a warning: the element stays empty. Its SVG has a 2-module quiet
+  zone where ISO/IEC 18004 asks for 4.
+- **Where:** `registry/recipes/qr-code/qr-code.js` (`selectVersion`, `matrixToSVG` `quiet = 2`).
+- **Here:** preflight's `qr-capacity` finds an empty `qr-code` after the controllers ran;
+  print.css pads the element with paper. EPC payloads (≤ 331 bytes by spec) fit in practice.
+- **Suggested fix:** versions up to 40, a `data-state="error"` (and an `error` event) when
+  encoding fails, and a 4-module quiet zone. Matrix case: a 300-byte payload renders.
+
+### 45. A progress bar's value cannot come from a server template
+
+- **Seen:** `progress`'s fill width is `style="width: {value}%"`; `@faqir-ui/template` refuses
+  data in `style` (`unsafe-attr`), rightly, so a server-rendered distribution cannot set it.
+- **Where:** `registry/primitives/progress/progress.manifest.json` (`templates.html`).
+- **Here:** `templates/reports/blocks/bars.faqir` passes the value through an `l-data`
+  island and sets the width with faqir-core's `:style`, so the renderer runs faqir-core
+  before printing.
+- **Suggested fix:** read the width from `aria-valuenow` with typed `attr()` where supported,
+  or `data-value` steps (`data-value="0..100"` in 5 % steps) in pure CSS. Matrix case: a
+  printed progress at 40 % without JavaScript.
+
+### 46. `table` is not callable from a template
+
+- **Seen:** `+table` is `unknown-component`: the registry table lists it as unavailable
+  ("boolean prop `no-resize` declares an attr but is not a valid prop name").
+- **Where:** `registry/recipes/table/table.manifest.json` (prop `no-resize`);
+  `@faqir-ui/template/registry` `unavailable`.
+- **Here:** document tables are plain canonical markup (`data-ui="table"` …).
+- **Suggested fix:** rename the prop `noResize` with `attr: "data-no-resize"`; the
+  registry test should fail on any recipe listed as unavailable for a naming reason.
+
+### 47. The running footer and the page counter cannot share a line
+
+- **Seen:** the footer is a fixed element inside the page area and the counter is the
+  bottom-right margin box, so "Page 1 of 2" always sits a line below the footer's text.
+  Moving the fixed footer into the margin (a negative inset) breaks pagination: Chromium
+  moves it to the top of the next page.
+- **Where:** `registry/patterns/document/document.css` (doc-footer fixed block and
+  `@bottom-right`).
+- **Here:** accepted: the counter prints right-aligned just under the footer rule's last line.
+- **Suggested fix:** carry the counter inside the footer as a `data-part="page-counter"`
+  that paged engines fill and Chromium fills from the margin box, or document the
+  composition. Matrix case: footer text and counter on one baseline.
 
 ---
 

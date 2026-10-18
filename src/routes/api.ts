@@ -14,6 +14,8 @@ import {
   insertSubmission, listForms, listSubmissions, listVersions, publishForm, toCsv, toResource, updateForm, exportSubmissions,
   type FormPatch, type FormRow, type SubmissionQuery,
 } from "../forms/store.ts";
+import { reportRoutes } from "./reports-api.ts";
+import { issueOnSubmit } from "./documents.ts";
 import {
   absoluteUrl, authenticate, clientIp, type Env, ipHash, notFound, Problem, rateLimit, readJson,
 } from "../api/http.ts";
@@ -45,7 +47,9 @@ export function apiRoutes(db: DB) {
     if (!verdict.valid) throw invalidSubmission(verdict.findings);
     const sub = insertSubmission(db, row.id, version.version, verdict.data, ipHash(db, clientIp(c)));
     const a = form.appearance;
-    return c.json({ id: sub.id, created_at: sub.created_at, thank_you: a.thankYou, redirect: a.redirect }, 201);
+    // A form may issue its own confirmation; the PDF is printed on first download.
+    const document = await issueOnSubmit(db, row.id, sub.id, absoluteUrl(c, "/"));
+    return c.json({ id: sub.id, created_at: sub.created_at, thank_you: a.thankYou, redirect: a.redirect, ...(document ? { document } : {}) }, 201);
   });
 
   api.use("*", bodyLimit({ maxSize: 1024 * 1024, onError: tooLarge }));
@@ -279,6 +283,8 @@ export function apiRoutes(db: DB) {
 
   // ── Vocabulary an agent needs to write a definition ──────────────────────
   api.get("/vocabulary", (c) => c.json({ themes: THEMES, accents: ACCENTS, layouts: LAYOUTS, schemes: SCHEMES, appearance_defaults: DEFAULT_APPEARANCE }));
+
+  reportRoutes(api, db);
 
 
   return api;

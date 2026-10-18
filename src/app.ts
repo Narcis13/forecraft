@@ -4,6 +4,8 @@ import { join, relative } from "node:path";
 import type { DB } from "./db/index.ts";
 import { type Env, Problem, problemResponse } from "./api/http.ts";
 import { DefinitionProblem } from "./forms/model.ts";
+import { ReportProblem } from "./reports/model.ts";
+import { documentRoutes } from "./routes/documents.ts";
 import { apiRoutes } from "./routes/api.ts";
 import { publicRoutes } from "./routes/public.ts";
 import { pageRoutes } from "./routes/pages.ts";
@@ -28,6 +30,7 @@ export function createApp(db: DB) {
 
   app.route("/api/v1", apiRoutes(db));
   app.route("/", publicRoutes(db));
+  app.route("/", documentRoutes(db));
   app.route("/", agentRoutes());
   app.route("/", marketingRoutes());
   app.route("/", pageRoutes(db));
@@ -38,7 +41,13 @@ export function createApp(db: DB) {
   });
 
   app.onError((err, c) => {
-    if (err instanceof Problem) return problemResponse(c, err);
+    if (err instanceof Problem) {
+      if (typeof err.extra.retry_after === "number") c.header("Retry-After", String(err.extra.retry_after));
+      return problemResponse(c, err);
+    }
+    if (err instanceof ReportProblem) {
+      return problemResponse(c, new Problem(422, "invalid-definition", "Invalid report definition", err.message, { errors: err.errors }));
+    }
     if (err instanceof DefinitionProblem) {
       return problemResponse(c, new Problem(422, "invalid-definition", "Invalid form definition", err.message, { errors: err.errors }));
     }

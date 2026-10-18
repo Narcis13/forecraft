@@ -196,7 +196,7 @@ import * as pdfjs from "/vendor/pdfjs/pdf.min.mjs";
 pdfjs.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs";
 window.rasterize = async (b64, dpi, max) => {
   const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-  const doc = await pdfjs.getDocument({ data: bytes, isEvalSupported: false, disableFontFace: false }).promise;
+  const doc = await pdfjs.getDocument({ data: bytes }).promise;
   const out = [];
   for (let n = 1; n <= Math.min(doc.numPages, max); n++) {
     const page = await doc.getPage(n);

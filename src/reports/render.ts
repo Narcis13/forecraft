@@ -46,6 +46,10 @@ export interface RenderInput {
   doc: DocMeta;
   mode?: "print" | "share" | "canvas";
   share?: ShareView;
+  /** An asset's media type, so a vector logo is not judged by its pixels. */
+  assetType?: (id: string) => string | undefined;
+  /** The document pattern's variant; the submission record uses "form". */
+  variant?: "form" | "invoice";
 }
 
 export interface Rendered {
@@ -126,6 +130,7 @@ class Evaluator {
   labels: Labels;
   money: DocMoney | null;
   assetUrl: (id: string) => string;
+  assetType: (id: string) => string | undefined = () => undefined;
   constructor(report: CompiledReport, helpers: Helpers, labels: Labels, money: DocMoney | null, assetUrl: (id: string) => string) {
     this.report = report;
     this.helpers = helpers;
@@ -199,7 +204,7 @@ class Evaluator {
     const t = (x: unknown) => this.text(b, x, scope);
     switch (b.block) {
       case "letterhead": {
-        const logo = typeof b.logo === "string" ? { src: this.assetUrl(b.logo.slice(6)), alt: t(b.name) } : null;
+        const logo = typeof b.logo === "string" ? { src: this.assetUrl(b.logo.slice(6)), alt: t(b.name), vector: this.assetType(b.logo.slice(6)) === "image/svg+xml" } : null;
         return { name: t(b.name), logo, lines: ((b.lines as string[]) ?? []).map(t).filter(Boolean), details: this.pairs(b, b.details, scope) };
       }
       case "title": {
@@ -269,7 +274,7 @@ class Evaluator {
         const value = t(b.value);
         return { value, caption: b.caption ? t(b.caption) : false, size: (b.size as string) ?? (b.block === "qr" ? "md" : "sm"), aria: `${b.block === "qr" ? "QR code" : "Barcode"}: ${b.caption ? t(b.caption) : value.split("\n")[0]}` };
       }
-      case "image": return { src: this.assetUrl(String(b.src).slice(6)), alt: t(b.alt), caption: b.caption ? t(b.caption) : false, size: (b.size as string) ?? "full" };
+      case "image": return { src: this.assetUrl(String(b.src).slice(6)), vector: this.assetType(String(b.src).slice(6)) === "image/svg+xml", alt: t(b.alt), caption: b.caption ? t(b.caption) : false, size: (b.size as string) ?? "full" };
       case "stamp": return { text: t(b.text), tone: (b.tone as string) ?? "default" };
       case "separator": case "page-break": return {};
       case "answers": {
@@ -373,7 +378,7 @@ function translateRender(err: unknown): EvalError {
 
 /**
  * Runs render one per line, and a line break between inline siblings reads as
- * a space (the engine's whitespace rule, FAQIR-UPSTREAM.md #35). So trim each
+ * a space (the engine's whitespace rule, FAQIR-UPSTREAM.md #26). So trim each
  * run's edges, and give closing punctuation to the run before it — "us." not
  * "us ." after a link.
  */
@@ -431,6 +436,7 @@ export function renderReport(input: RenderInput): Rendered {
   const scope: View = { ...data, doc: docScope };
   const ev = new Evaluator(report, helpers, labels, money, (id) => `/assets/${id}`);
   ev.locale = locale;
+  if (input.assetType) ev.assetType = input.assetType;
   ev.currency = currency;
   const blocks = ev.blocks(def.layout, scope, 0, []);
 
@@ -461,7 +467,7 @@ export function renderReport(input: RenderInput): Rendered {
     density: a.density,
     paper: a.paper,
     orientation: a.orientation,
-    variant: false,
+    variant: input.variant ?? false,
     foldMarks: a.letter.foldMarks,
     window: a.letter.window,
     status: doc.status,
