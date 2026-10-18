@@ -83,7 +83,12 @@ export function layoutChart(
     out.texts.push({ x: x0 - 8, y: r1(sy(v) + 3.5), text: tick(v), anchor: "end", role: "tick" });
   }
   const band = (x1 - x0) / n;
-  labels.forEach((l, i) => out.texts.push({ x: r1(x0 + band * (i + 0.5)), y: y0 + 16, text: l, anchor: "middle", role: "category" }));
+  // Category labels that would collide are thinned to every k-th, always keeping the last.
+  const widest = Math.max(...labels.map((l) => l.length), 1) * 6.4 + 6;
+  const every = Math.max(1, Math.ceil(widest / band));
+  labels.forEach((l, i) => { if (i % every === 0 || i === n - 1) out.texts.push({ x: r1(x0 + band * (i + 0.5)), y: y0 + 16, text: l, anchor: "middle", role: "category" }); });
+  // Direct labels only where they fit: a column needs room for its figure.
+  const labelled = band >= 26;
 
   if (kind === "column") {
     const groupW = Math.min(band * 0.7, 28 * series.length + 12);
@@ -93,7 +98,7 @@ export function layoutChart(
       const x = x0 + band * (i + 0.5) - groupW / 2 + j * colW;
       const a = sy(Math.max(0, v)), b = sy(Math.min(0, v));
       out.rects.push({ x: r1(x + 1), y: r1(a), w: r1(colW - 2), h: r1(Math.max(b - a, 0.5)), series: String(j + 1) });
-      if (series.length <= 2 || n <= 6) out.texts.push({ x: r1(x + colW / 2), y: r1(v >= 0 ? a - 4 : b + 11), text: fmt(v), anchor: "middle", role: "value" });
+      if (labelled && (series.length <= 2 || n <= 6)) out.texts.push({ x: r1(x + colW / 2), y: r1(v >= 0 ? a - 4 : b + 11), text: fmt(v), anchor: "middle", role: "value" });
     }));
     if (legend) addLegend(out, series, 12);
   } else {

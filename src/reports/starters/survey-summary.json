@@ -1,0 +1,877 @@
+{
+  "schema": {
+    "type": "object",
+    "title": "Survey summary",
+    "description": "What a form's respondents said over a period: response counts, Net Promoter Score, distributions, responses over time and verbatims — computed by forecraft from the submissions.",
+    "properties": {
+      "form": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "period": {
+        "type": "object",
+        "properties": {
+          "since": {
+            "type": "string"
+          },
+          "until": {
+            "type": "string"
+          }
+        }
+      },
+      "responses": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "first": {
+            "type": "string"
+          },
+          "last": {
+            "type": "string"
+          }
+        }
+      },
+      "nps": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "integer"
+          },
+          "promoters": {
+            "type": "integer"
+          },
+          "passives": {
+            "type": "integer"
+          },
+          "detractors": {
+            "type": "integer"
+          },
+          "answered": {
+            "type": "integer"
+          },
+          "question": {
+            "type": "string"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer"
+                },
+                "share": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "verbatims": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "at": {
+              "type": "string"
+            },
+            "question": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "questions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "answered": {
+              "type": "integer"
+            },
+            "skipped": {
+              "type": "integer"
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "count": {
+                    "type": "integer"
+                  },
+                  "share": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "mean": {
+              "type": "number"
+            },
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "median": {
+              "type": "number"
+            },
+            "top": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer"
+                },
+                "share": {
+                  "type": "number"
+                }
+              }
+            },
+            "samples": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "at": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "overTime": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "start": {
+              "type": "string"
+            },
+            "count": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "sample": {
+    "form": {
+      "id": "frm_example",
+      "title": "How was your month with forecraft?",
+      "description": "Six questions, two minutes. Every answer is read by the people who build the product."
+    },
+    "period": {
+      "since": "2026-09-01",
+      "until": "2026-09-30"
+    },
+    "responses": {
+      "total": 120,
+      "first": "2026-09-01",
+      "last": "2026-09-30"
+    },
+    "nps": {
+      "score": 31,
+      "promoters": 62,
+      "passives": 33,
+      "detractors": 25,
+      "answered": 120,
+      "question": "How likely are you to recommend forecraft to a colleague?",
+      "groups": [
+        {
+          "label": "Promoters (9–10)",
+          "count": 62,
+          "share": 51.7
+        },
+        {
+          "label": "Passives (7–8)",
+          "count": 33,
+          "share": 27.5
+        },
+        {
+          "label": "Detractors (0–6)",
+          "count": 25,
+          "share": 20.8
+        }
+      ]
+    },
+    "questions": [
+      {
+        "name": "recommend",
+        "title": "How likely are you to recommend forecraft to a colleague?",
+        "answered": 120,
+        "skipped": 0,
+        "kind": "nps",
+        "options": [
+          {
+            "label": "0",
+            "count": 2,
+            "share": 1.7
+          },
+          {
+            "label": "1",
+            "count": 1,
+            "share": 0.8
+          },
+          {
+            "label": "2",
+            "count": 2,
+            "share": 1.7
+          },
+          {
+            "label": "3",
+            "count": 2,
+            "share": 1.7
+          },
+          {
+            "label": "4",
+            "count": 4,
+            "share": 3.3
+          },
+          {
+            "label": "5",
+            "count": 7,
+            "share": 5.8
+          },
+          {
+            "label": "6",
+            "count": 7,
+            "share": 5.8
+          },
+          {
+            "label": "7",
+            "count": 11,
+            "share": 9.2
+          },
+          {
+            "label": "8",
+            "count": 22,
+            "share": 18.3
+          },
+          {
+            "label": "9",
+            "count": 30,
+            "share": 25
+          },
+          {
+            "label": "10",
+            "count": 32,
+            "share": 26.7
+          }
+        ],
+        "mean": 7.9,
+        "min": 0,
+        "max": 10,
+        "median": 9,
+        "top": {
+          "label": "10",
+          "count": 32,
+          "share": 26.7
+        }
+      },
+      {
+        "name": "easy",
+        "title": "Building a form takes me less time than it used to.",
+        "answered": 120,
+        "skipped": 0,
+        "kind": "choice",
+        "options": [
+          {
+            "label": "Strongly disagree",
+            "count": 4,
+            "share": 3.3
+          },
+          {
+            "label": "Disagree",
+            "count": 7,
+            "share": 5.8
+          },
+          {
+            "label": "Neutral",
+            "count": 16,
+            "share": 13.3
+          },
+          {
+            "label": "Agree",
+            "count": 49,
+            "share": 40.8
+          },
+          {
+            "label": "Strongly agree",
+            "count": 44,
+            "share": 36.7
+          }
+        ],
+        "mean": 4,
+        "min": 1,
+        "max": 5,
+        "median": 4,
+        "top": {
+          "label": "Agree",
+          "count": 49,
+          "share": 40.8
+        }
+      },
+      {
+        "name": "agents",
+        "title": "My agent creates forms without my help.",
+        "answered": 120,
+        "skipped": 0,
+        "kind": "choice",
+        "options": [
+          {
+            "label": "Strongly disagree",
+            "count": 5,
+            "share": 4.2
+          },
+          {
+            "label": "Disagree",
+            "count": 20,
+            "share": 16.7
+          },
+          {
+            "label": "Neutral",
+            "count": 29,
+            "share": 24.2
+          },
+          {
+            "label": "Agree",
+            "count": 39,
+            "share": 32.5
+          },
+          {
+            "label": "Strongly agree",
+            "count": 27,
+            "share": 22.5
+          }
+        ],
+        "mean": 3.5,
+        "min": 1,
+        "max": 5,
+        "median": 4,
+        "top": {
+          "label": "Agree",
+          "count": 39,
+          "share": 32.5
+        }
+      },
+      {
+        "name": "features",
+        "title": "What did you use this month?",
+        "answered": 115,
+        "skipped": 5,
+        "kind": "multi",
+        "options": [
+          {
+            "label": "The MCP server, from Claude or another agent host",
+            "count": 75,
+            "share": 65.2
+          },
+          {
+            "label": "The REST API directly, from my own code",
+            "count": 60,
+            "share": 52.2
+          },
+          {
+            "label": "The drag-and-drop designer in the dashboard",
+            "count": 60,
+            "share": 52.2
+          },
+          {
+            "label": "CSV or JSON exports of submissions",
+            "count": 48,
+            "share": 41.7
+          },
+          {
+            "label": "Wizard forms with conditional steps",
+            "count": 33,
+            "share": 28.7
+          }
+        ],
+        "top": {
+          "label": "The MCP server, from Claude or another agent host",
+          "count": 75,
+          "share": 65.2
+        }
+      },
+      {
+        "name": "next",
+        "title": "What should we build next?",
+        "answered": 97,
+        "skipped": 23,
+        "kind": "choice",
+        "options": [
+          {
+            "label": "File uploads that land in my own storage bucket",
+            "count": 28,
+            "share": 28.9
+          },
+          {
+            "label": "Signatures and consent records an auditor would accept",
+            "count": 15,
+            "share": 15.5
+          },
+          {
+            "label": "Payments inside a form, with receipts",
+            "count": 16,
+            "share": 16.5
+          },
+          {
+            "label": "Webhooks that retry until my server answers",
+            "count": 23,
+            "share": 23.7
+          },
+          {
+            "label": "Team roles with per-form permissions",
+            "count": 15,
+            "share": 15.5
+          }
+        ],
+        "mean": 2.8,
+        "min": 1,
+        "max": 5,
+        "median": 3,
+        "top": {
+          "label": "File uploads that land in my own storage bucket",
+          "count": 28,
+          "share": 28.9
+        }
+      },
+      {
+        "name": "comments",
+        "title": "Anything else?",
+        "answered": 30,
+        "skipped": 90,
+        "kind": "text",
+        "samples": [
+          {
+            "text": "I want the confirmation emails to carry our own letterhead.",
+            "at": "2026-09-30"
+          },
+          {
+            "text": "Rules are powerful but I needed the docs for the second one. Examples of 'require when' would help.",
+            "at": "2026-09-29"
+          },
+          {
+            "text": "Please add file uploads. We still email PDFs around for the onboarding packet.",
+            "at": "2026-09-28"
+          },
+          {
+            "text": "Exports are great, but I would love a scheduled weekly CSV to our shared drive.",
+            "at": "2026-09-28"
+          },
+          {
+            "text": "Our support agent now builds the intake forms itself; I only review them. Huge time saver.",
+            "at": "2026-09-23"
+          },
+          {
+            "text": "Stable, quick, and the API errors tell me exactly which field is wrong.",
+            "at": "2026-09-19"
+          }
+        ]
+      }
+    ],
+    "verbatims": [
+      {
+        "text": "I want the confirmation emails to carry our own letterhead.",
+        "at": "2026-09-30",
+        "question": "Anything else?"
+      },
+      {
+        "text": "Rules are powerful but I needed the docs for the second one. Examples of 'require when' would help.",
+        "at": "2026-09-29",
+        "question": "Anything else?"
+      },
+      {
+        "text": "Exports are great, but I would love a scheduled weekly CSV to our shared drive.",
+        "at": "2026-09-28",
+        "question": "Anything else?"
+      },
+      {
+        "text": "Please add file uploads. We still email PDFs around for the onboarding packet.",
+        "at": "2026-09-28",
+        "question": "Anything else?"
+      },
+      {
+        "text": "Our support agent now builds the intake forms itself; I only review them. Huge time saver.",
+        "at": "2026-09-23",
+        "question": "Anything else?"
+      },
+      {
+        "text": "Stable, quick, and the API errors tell me exactly which field is wrong.",
+        "at": "2026-09-19",
+        "question": "Anything else?"
+      }
+    ],
+    "overTime": [
+      {
+        "label": "1",
+        "start": "2026-09-01",
+        "count": 3
+      },
+      {
+        "label": "2",
+        "start": "2026-09-02",
+        "count": 2
+      },
+      {
+        "label": "3",
+        "start": "2026-09-03",
+        "count": 2
+      },
+      {
+        "label": "4",
+        "start": "2026-09-04",
+        "count": 4
+      },
+      {
+        "label": "5",
+        "start": "2026-09-05",
+        "count": 3
+      },
+      {
+        "label": "6",
+        "start": "2026-09-06",
+        "count": 4
+      },
+      {
+        "label": "7",
+        "start": "2026-09-07",
+        "count": 7
+      },
+      {
+        "label": "8",
+        "start": "2026-09-08",
+        "count": 3
+      },
+      {
+        "label": "9",
+        "start": "2026-09-09",
+        "count": 4
+      },
+      {
+        "label": "10",
+        "start": "2026-09-10",
+        "count": 5
+      },
+      {
+        "label": "11",
+        "start": "2026-09-11",
+        "count": 2
+      },
+      {
+        "label": "12",
+        "start": "2026-09-12",
+        "count": 2
+      },
+      {
+        "label": "13",
+        "start": "2026-09-13",
+        "count": 4
+      },
+      {
+        "label": "14",
+        "start": "2026-09-14",
+        "count": 11
+      },
+      {
+        "label": "15",
+        "start": "2026-09-15",
+        "count": 4
+      },
+      {
+        "label": "16",
+        "start": "2026-09-16",
+        "count": 7
+      },
+      {
+        "label": "17",
+        "start": "2026-09-17",
+        "count": 6
+      },
+      {
+        "label": "18",
+        "start": "2026-09-18",
+        "count": 5
+      },
+      {
+        "label": "19",
+        "start": "2026-09-19",
+        "count": 1
+      },
+      {
+        "label": "20",
+        "start": "2026-09-20",
+        "count": 0
+      },
+      {
+        "label": "21",
+        "start": "2026-09-21",
+        "count": 9
+      },
+      {
+        "label": "22",
+        "start": "2026-09-22",
+        "count": 1
+      },
+      {
+        "label": "23",
+        "start": "2026-09-23",
+        "count": 4
+      },
+      {
+        "label": "24",
+        "start": "2026-09-24",
+        "count": 4
+      },
+      {
+        "label": "25",
+        "start": "2026-09-25",
+        "count": 5
+      },
+      {
+        "label": "26",
+        "start": "2026-09-26",
+        "count": 2
+      },
+      {
+        "label": "27",
+        "start": "2026-09-27",
+        "count": 2
+      },
+      {
+        "label": "28",
+        "start": "2026-09-28",
+        "count": 7
+      },
+      {
+        "label": "29",
+        "start": "2026-09-29",
+        "count": 2
+      },
+      {
+        "label": "30",
+        "start": "2026-09-30",
+        "count": 5
+      }
+    ]
+  },
+  "layout": [
+    {
+      "id": "title",
+      "block": "title",
+      "eyebrow": "{{ label(\"summary\") }} · {{ date(period.since, \"medium\") }} – {{ date(period.until, \"medium\") }}",
+      "text": "{{ form.title }}",
+      "details": [
+        {
+          "label": "{{ label(\"responses\") }}",
+          "value": "{{ number(responses.total) }}"
+        },
+        {
+          "label": "{{ label(\"period\") }}",
+          "value": "{{ date(period.since, \"medium\") }} – {{ date(period.until, \"medium\") }}"
+        },
+        {
+          "label": "Questions",
+          "value": "{{ count(questions) }}"
+        }
+      ]
+    },
+    {
+      "id": "headline",
+      "block": "stats",
+      "when": "nps != null",
+      "items": [
+        {
+          "label": "NPS",
+          "value": "{{ nps.score > 0 ? \"+\" : \"\" }}{{ nps.score }}",
+          "change": "{{ nps.answered }} answers"
+        },
+        {
+          "label": "{{ label(\"promoters\") }}",
+          "value": "{{ percent(nps.groups[0].share) }}",
+          "change": "{{ nps.promoters }} people, 9–10"
+        },
+        {
+          "label": "{{ label(\"passives\") }}",
+          "value": "{{ percent(nps.groups[1].share) }}",
+          "change": "{{ nps.passives }} people, 7–8"
+        },
+        {
+          "label": "{{ label(\"detractors\") }}",
+          "value": "{{ percent(nps.groups[2].share) }}",
+          "change": "{{ nps.detractors }} people, 0–6"
+        }
+      ]
+    },
+    {
+      "id": "nps",
+      "block": "section",
+      "numbered": true,
+      "title": "{{ label(\"nps\") }}",
+      "when": "nps != null",
+      "blocks": [
+        {
+          "id": "nps-text",
+          "block": "text",
+          "markdown": "The share of promoters minus the share of detractors, from the answers to “{{ nps.question }}”."
+        },
+        {
+          "id": "nps-bars",
+          "block": "bars",
+          "rows": "nps.groups",
+          "label": "{{ row.label }}",
+          "value": "row.share",
+          "max": "100",
+          "display": "{{ percent(row.share) }} · {{ row.count }}"
+        }
+      ]
+    },
+    {
+      "id": "over-time",
+      "block": "section",
+      "numbered": true,
+      "title": "Responses over time",
+      "blocks": [
+        {
+          "id": "over-time-chart",
+          "block": "chart",
+          "kind": "column",
+          "rows": "overTime",
+          "label": "{{ row.label }}",
+          "series": [
+            {
+              "name": "{{ label(\"responses\") }}",
+              "value": "row.count"
+            }
+          ],
+          "title": "Responses per period",
+          "format": "number"
+        }
+      ]
+    },
+    {
+      "id": "questions",
+      "block": "section",
+      "numbered": true,
+      "title": "Every question",
+      "blocks": [
+        {
+          "id": "questions-table",
+          "block": "table",
+          "rows": "questions",
+          "columns": [
+            {
+              "label": "Question",
+              "value": "{{ row.title }}",
+              "width": "wide"
+            },
+            {
+              "label": "Answered",
+              "value": "{{ number(row.answered) }}",
+              "format": "number"
+            },
+            {
+              "label": "Most chosen",
+              "value": "{{ row.top.label ?? \"—\" }}"
+            },
+            {
+              "label": "Share",
+              "value": "{{ (row.top ?? false) ? percent(row.top.share) : \"—\" }}",
+              "format": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "voices",
+      "block": "section",
+      "numbered": true,
+      "title": "In their words",
+      "when": "count(verbatims) > 0",
+      "blocks": [
+        {
+          "id": "verbatims",
+          "block": "quote",
+          "rows": "verbatims",
+          "text": "{{ row.text }}",
+          "name": "{{ row.question }}",
+          "role": "{{ date(row.at) }}"
+        }
+      ]
+    },
+    {
+      "id": "footer",
+      "block": "footer",
+      "lines": [
+        "{{ form.title }} · {{ number(responses.total) }} {{ label(\"responses\") }} · {{ date(period.since) }} – {{ date(period.until) }}",
+        "Computed by forecraft from the stored answers; shares are of the people who answered each question."
+      ]
+    }
+  ],
+  "appearance": {
+    "theme": "swiss-document",
+    "accent": "#b42318",
+    "paper": "a4",
+    "orientation": "portrait",
+    "margins": "normal",
+    "type": "inter",
+    "density": "comfortable",
+    "locale": "en-GB",
+    "currency": "EUR"
+  },
+  "numbering": {
+    "pattern": "SUM-{YYYY}-{seq:3}"
+  },
+  "documentTitle": "{{ form.title }} · {{ date(period.since, \"medium\") }} – {{ date(period.until, \"medium\") }}",
+  "runningHeader": "{{ label(\"summary\") }} · {{ form.title }}",
+  "source": {
+    "kind": "summary",
+    "form": "frm_example"
+  }
+}

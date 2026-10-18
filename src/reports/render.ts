@@ -184,7 +184,25 @@ class Evaluator {
   md(block: Block, source: unknown, scope: View): View[] {
     const blocks = this.report.markdown.get(String(source)) ?? [];
     const runs = (rs: Run[]) => tidyRuns(rs.map((r) => ({ ...r, text: this.text(block, r.text, scope), ...(r.href ? { href: this.text(block, r.href, scope) } : {}) })));
-    return blocks.map((m: MdBlock) => ("items" in m ? { t: m.t, items: m.items.map(runs) } : { t: m.t, runs: runs(m.runs) }));
+    const out: View[] = [];
+    for (const m of blocks as MdBlock[]) {
+      if ("items" in m) { out.push({ t: m.t, items: m.items.map(runs) }); continue; }
+      // Data is text, never markdown: but a value with blank lines is paragraphs,
+      // and a single line break is a line break.
+      const paragraphs: Run[][] = [[]];
+      for (const r of runs(m.runs)) {
+        if (r.br || !/\n/.test(r.text)) { paragraphs.at(-1)!.push(r); continue; }
+        r.text.split(/\n\s*\n/).forEach((para, i) => {
+          if (i > 0 && m.t === "p") paragraphs.push([]);
+          para.split("\n").forEach((line, j) => {
+            if (j > 0) paragraphs.at(-1)!.push({ text: "", br: true });
+            if (line.trim()) paragraphs.at(-1)!.push({ ...r, text: line.trim() });
+          });
+        });
+      }
+      for (const p of paragraphs) if (p.length) out.push({ t: m.t, runs: p });
+    }
+    return out;
   }
 
   blocks(list: Block[], scope: View, depth: number, numbering: number[]): View[] {
@@ -209,7 +227,7 @@ class Evaluator {
       }
       case "title": {
         const details = this.pairs(b, b.details, scope);
-        return { eyebrow: b.eyebrow ? t(b.eyebrow) : false, text: t(b.text), details, cols: String(Math.min(4, Math.max(2, details.length))) };
+        return { eyebrow: b.eyebrow ? t(b.eyebrow) : false, text: t(b.text), details, cols: String(Math.min(4, Math.max(2, details.length))), cover: depth === 0 && this.isCover(b) };
       }
       case "parties": {
         const parties = ((b.parties as Block[]) ?? []).map((p) => ({
@@ -248,16 +266,23 @@ class Evaluator {
         const series = (b.series as { name: string; value: string }[]).map((se) => ({ name: t(se.name), values: rows.map((row, i) => Number(this.value(b, se.value, { ...scope, row, i }, 0)) || 0) }));
         const labels = rows.map((row, i) => this.text(b, b.label, { ...scope, row, i }));
         const format = (b.format as string) ?? "number";
-        const fmt = (v: number) => (format === "currency" ? this.helpers.money!(v) : format === "percent" ? this.helpers.percent!(v) : this.helpers.number!(v)) as string;
+        // One number of decimals for every figure in the chart (7.4, 8.0, 8.7 — not 8).
+        const digits = Math.min(2, Math.max(0, ...series.flatMap((s) => s.values).map((v) => (String(v).split(".")[1] ?? "").length)));
+        const fmt = (v: number) => (format === "currency" ? this.helpers.money!(v) : format === "percent" ? this.helpers.percent!(v, digits) : this.helpers.number!(v, digits)) as string;
         const title = b.title ? t(b.title) : "";
         return {
           kind: b.kind, title: title || false, caption: b.caption ? t(b.caption) : false,
-          svg: layoutChart(b.kind as "bar" | "column" | "line", labels, series, fmt, title || this.labels.table, this.tick(format)),
+          // Marks carry compact figures (the title names the unit); the table under the chart carries them in full.
+          svg: layoutChart(b.kind as "bar" | "column" | "line", labels, series, format === "currency" ? this.tick(format) : fmt, title || this.labels.table, this.tick(format)),
           tableCaption: `${title || this.labels.table}`,
           table: { head: [{ text: "", align: "left" }, ...series.map((s) => ({ text: s.name, align: "right" }))], rows: labels.map((l, i) => [l, ...series.map((s) => fmt(s.values[i]!))]) },
         };
       }
-      case "quote": return { text: t(b.text), name: b.name ? t(b.name) : false, role: b.role ? t(b.role) : false };
+      case "quote": {
+        // With rows, one quote per row (verbatims); `row` is in scope.
+        const scopes = b.rows !== undefined ? this.array(b, b.rows, scope).map((row, i) => ({ ...scope, row, i })) : [scope];
+        return { quotes: scopes.map((s) => ({ text: this.text(b, b.text, s), name: b.name ? this.text(b, b.name, s) || false : false, role: b.role ? this.text(b, b.role, s) || false : false })) };
+      }
       case "section": {
         const number = b.numbered ? `${numbering.join(".")}${numbering.length === 1 ? "." : ""}` : false;
         return { title: t(b.title), number, blocks: this.blocks((b.blocks as Block[]) ?? [], scope, depth + 1, b.numbered ? numbering : []) };
@@ -308,6 +333,14 @@ class Evaluator {
 
   locale: string | null = null;
   currency: string | null = null;
+
+  /** A title before the first page break, with no table or parties in between, is a cover. */
+  private isCover(b: Block): boolean {
+    const layout = this.report.definition.layout;
+    const at = layout.indexOf(b);
+    const brk = layout.findIndex((x) => x.block === "page-break");
+    return at >= 0 && brk > at && !layout.slice(0, brk).some((x) => x.block === "table" || x.block === "parties" || x.block === "letterhead");
+  }
 
   private isFirstParties(b: Block): boolean {
     return this.report.definition.layout.find((x) => x.block === "parties") === b;

@@ -195,8 +195,8 @@ export const BLOCKS: Record<string, BlockSpec> = {
     example: { id: "revenue", block: "chart", kind: "column", rows: "quarters", label: "{{ row.name }}", series: [{ name: "Revenue", value: "row.revenue" }], format: "currency", title: "Revenue by quarter" },
   },
   quote: {
-    group: "content", does: "A verbatim or testimonial with its attribution.",
-    props: { text: req(text), name: text, role: text },
+    group: "content", does: "A verbatim or testimonial with its attribution; with `rows`, one per row (`row` in scope).",
+    props: { text: req(text), name: text, role: text, rows: expr },
     example: { id: "voice", block: "quote", text: "{{ comment.text }}", name: "{{ comment.who ?? \"\" }}" },
   },
   section: {

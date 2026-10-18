@@ -1,0 +1,97 @@
+{
+  "schema": {
+    "type": "object",
+    "title": "Confirmation",
+    "description": "A form confirms its own submissions: the answers, a check-in QR code and a barcode. Bind it to a form when you create it.",
+    "properties": {}
+  },
+  "sample": {},
+  "layout": [
+    {
+      "id": "title",
+      "block": "title",
+      "eyebrow": "{{ label(\"confirmation\") }}",
+      "text": "{{ doc.submission.form.title }}",
+      "details": [
+        {
+          "label": "{{ label(\"number\") }}",
+          "value": "{{ doc.number ?? label(\"draft\") }}",
+          "mono": true
+        },
+        {
+          "label": "{{ label(\"submitted\") }}",
+          "value": "{{ datetime(doc.submission.created_at) }}"
+        },
+        {
+          "label": "{{ label(\"reference\") }}",
+          "value": "{{ doc.submission.id }}",
+          "mono": true
+        }
+      ]
+    },
+    {
+      "id": "checkin",
+      "block": "columns",
+      "keep": "together",
+      "columns": [
+        [
+          {
+            "id": "checkin-text",
+            "block": "callout",
+            "title": "Keep this page",
+            "tone": "muted",
+            "markdown": "Show this page, on paper or on your phone, when you arrive. The code identifies your registration; it holds no other personal data."
+          },
+          {
+            "id": "ticket-barcode",
+            "block": "barcode",
+            "value": "{{ doc.number ?? \"DRAFT\" }}",
+            "caption": "{{ doc.number ?? label(\"draft\") }}",
+            "size": "md"
+          }
+        ],
+        [
+          {
+            "id": "checkin-qr",
+            "block": "qr",
+            "value": "FORECRAFT-CHECKIN:{{ doc.number ?? \"DRAFT\" }}:{{ doc.submission.id }}",
+            "caption": "Check-in code",
+            "size": "lg"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "answers",
+      "block": "answers",
+      "title": "Your answers"
+    },
+    {
+      "id": "footer",
+      "block": "footer",
+      "lines": [
+        "{{ doc.submission.form.title }} · {{ label(\"confirmation\") }} {{ doc.number ?? label(\"draft\") }} · {{ datetime(doc.submission.created_at) }}"
+      ]
+    }
+  ],
+  "appearance": {
+    "theme": "ink-document",
+    "accent": "#14532d",
+    "paper": "a4",
+    "orientation": "portrait",
+    "margins": "normal",
+    "type": "plex-sans",
+    "density": "comfortable",
+    "locale": "en-GB",
+    "currency": "EUR"
+  },
+  "numbering": {
+    "pattern": "CNF-{YYYY}-{seq:4}"
+  },
+  "documentTitle": "{{ doc.submission.form.title }} · {{ doc.submission.id }}",
+  "runningHeader": "{{ label(\"confirmation\") }} {{ doc.number ?? label(\"draft\") }} · {{ doc.submission.form.title }}",
+  "source": {
+    "kind": "submission",
+    "form": "frm_example"
+  }
+}

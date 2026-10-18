@@ -129,7 +129,8 @@ export function resolveData(db: DB, workspaceId: string, report: CompiledReport,
   const source = report.definition.source ?? { kind: "data" };
   if (source.kind === "submission") {
     if (!input.submissionId) {
-      if (fallbackToSample) return { data: report.definition.sample, submission: null };
+      // A preview without a submission prints the sample as if it had been submitted.
+      if (fallbackToSample) return { data: report.definition.sample, submission: { id: "sub_preview", form_id: source.form, version: 1, created_at: new Date().toISOString().slice(0, 10) + "T09:00:00.000Z", data: report.definition.sample } };
       throw new Problem(422, "submission-required", "Submission required", "This report prints a form's submission: send `submission` (sub_…).", { errors: [{ pointer: "/submission", detail: "Required for a submission source." }] });
     }
     const sub = getSubmission(db, workspaceId, input.submissionId);

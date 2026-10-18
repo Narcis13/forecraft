@@ -246,7 +246,7 @@
 [data-report-block="totals"] + :is([data-report-block="callout"], [data-report-block="qr"]) { break-before: avoid; }
 [data-report-block] :is(p, li) { orphans: 2; widows: 2; }
 [data-keep="together"], [data-report-block="signature"], [data-report-block="stats"], [data-report-block="chart"],
-[data-report-block="callout"], [data-report-block="qr"], [data-report-block="barcode"], [data-report-block="quote"],
+[data-report-block="callout"], [data-report-block="qr"], [data-report-block="barcode"], [data-report-block="quote"] [data-ui="quote"],
 [data-report-block="letterhead"], [data-report-block="parties"], [data-report-block="title"], [data-report-block="facts"] { break-inside: avoid; }
 [data-keep="with-next"] { break-after: avoid; }
 [data-report-block="text"] p { hyphens: auto; }
@@ -349,3 +349,17 @@
 /* Lists of labelled values (facts with cols "1", party details): labels left, values after. */
 [data-report-block="facts"] > [data-ui="key-value"] { grid-template-columns: auto 1fr; column-gap: 4mm; row-gap: 0.9mm; }
 [data-report-block="facts"] > [data-ui="key-value"] [data-part="value"] { text-align: start; }
+
+/* A cover: a title alone before the first page break gets the page to itself. */
+[data-report-cover] { padding-block-start: 38mm; gap: 6mm; }
+[data-report-cover] h1 { font-size: 34pt; line-height: 1.05; letter-spacing: -0.02em; max-inline-size: 150mm; }
+[data-report-cover] [data-ui="text"][data-variant="eyebrow"] { font-size: 8pt; }
+[data-report-cover] ~ [data-report-block="facts"] { padding-block-start: 4mm; border-block-start: 0.75pt solid var(--color-fg); }
+
+/* Sections: a heading and its blocks, on the document's component rhythm. */
+[data-report-block="section"] { display: flex; flex-direction: column; gap: 4.5mm; }
+[data-report-block="section"] > :is(h2, h3) { margin: 0; }
+[data-report-block="section"] [data-report-block="section"] { gap: 3.5mm; }
+[data-report-block="quote"] [data-ui="quote"] { margin: 0; --quote-accent: var(--color-fg-muted); }
+[data-report-block="quote"] blockquote { margin: 0; }
+[data-report-block="quote"] figcaption { display: flex; flex-wrap: wrap; gap: 0 2mm; font-size: 8pt; }
