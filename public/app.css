@@ -584,3 +584,12 @@ body {
   padding-block: var(--space-2);
 }
 [data-designer-props] [data-ui="field-group"] textarea { font-family: var(--font-mono); font-size: var(--text-xs); }
+
+/* Landing: the documents section shows a real printed page as paper. */
+[data-landing-documents] { padding-block: var(--space-16); }
+[data-landing-paper] img {
+  background: white;
+  border: 1px solid oklch(0.85 0 0);
+  box-shadow: 0 2px 6px oklch(0 0 0 / 0.12), 0 18px 40px oklch(0 0 0 / 0.18);
+  rotate: 1.2deg;
+}

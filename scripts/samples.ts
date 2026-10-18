@@ -26,6 +26,7 @@ try {
     writeFileSync(join(OUT, `${name}.pdf`), pdf);
     const pages = await rasterize(pdf, { dpi: 150 });
     pages.forEach((png, i) => writeFileSync(join(OUT, `${name}-p${i + 1}.png`), png));
+    if (name === "invoice") writeFileSync(join(import.meta.dirname, "../public/images/marketing/document-invoice.png"), (await rasterize(pdf, { dpi: 96, max: 1 }))[0]!);
     const read = await readPdf(pdf);
     const fonts = [...new Set(read.fonts.map((f) => f.replace(/^[A-Z]{6}\+/, "").replace(/-(Regular|Bold|SemiBold|Medium|Semibold|Light)$/i, "")))];
     console.log(`✓ ${name}.pdf — ${document.number}, ${pages.length} page${pages.length === 1 ? "" : "s"}, ${read.pages[0]!.width.toFixed(2)} × ${read.pages[0]!.height.toFixed(2)} pt, fonts: ${fonts.join(", ")}`);
