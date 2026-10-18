@@ -5,7 +5,7 @@ block title
 
 block body
   div(data-designer l-data="designer" data-prop-form-id=tojson(page.formId) data-prop-themes=tojson(page.themes) data-prop-accents=tojson(page.accents) l-init="init()" @keydown.window="keys($event)")
-    header(data-designer-bar)
+    header(data-designer-bar data-gap="0")
       div(data-ui="cluster" data-gap="3")
         a(data-ui="button" data-variant="ghost" data-size="sm" href="/app/forms/{{ page.formId }}" aria-label="Back to the form")
           span(data-ui="icon" data-icon="arrow-left" aria-hidden="true")

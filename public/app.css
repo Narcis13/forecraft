@@ -440,3 +440,18 @@ main[data-site="marketing"] [data-ui="bento"] [data-part="item"] > [data-part="t
 body {
   font-synthesis-weight: none;
 }
+
+/* A ui:groups fieldset is a card whose title is a <legend>; card does not style
+   a fieldset root, so the legend notches the border (FAQIR-UPSTREAM.md #27).
+   Floated, the legend leaves the border and sits in the card like a title. */
+[data-form-page] fieldset[data-ui="card"] > legend[data-part="title"] {
+  float: inline-start;
+  inline-size: 100%;
+  margin: 0;
+  padding: var(--card-padding, var(--space-6)) var(--card-padding, var(--space-6)) var(--space-2);
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+}
+[data-form-page] fieldset[data-ui="card"] > legend[data-part="title"] + * {
+  clear: both;
+}

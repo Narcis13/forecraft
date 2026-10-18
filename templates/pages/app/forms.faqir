@@ -49,13 +49,13 @@ block content
                 |   -d @definition.json
     else
       div(data-ui="grid" data-cols="1" data-cols-sm="3" data-gap="4")
-        div(data-ui="stat" data-variant="card" aria-label="{{ page.totals.forms }} forms in {{ page.workspace }}")
+        div(data-ui="stat" data-variant="card" data-size="lg" aria-label="{{ page.totals.forms }} forms in {{ page.workspace }}")
           span(data-part="label") Forms
           span(data-part="value") {{ page.totals.forms }}
-        div(data-ui="stat" data-variant="card" aria-label="{{ page.totals.live }} forms accepting responses")
+        div(data-ui="stat" data-variant="card" data-size="lg" aria-label="{{ page.totals.live }} forms accepting responses")
           span(data-part="label") Live now
           span(data-part="value") {{ page.totals.live }}
-        div(data-ui="stat" data-variant="card" aria-label="{{ page.totals.responses }} responses in total")
+        div(data-ui="stat" data-variant="card" data-size="lg" aria-label="{{ page.totals.responses }} responses in total")
           span(data-part="label") Responses
           span(data-part="value") {{ page.totals.responses }}
       div(data-ui="table" data-size="md")

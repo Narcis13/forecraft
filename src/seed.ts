@@ -233,7 +233,7 @@ export const SEED_FORMS: { slug: string; definition: FormDefinition; answers: Re
         ],
       },
       appearance: {
-        theme: "editorial", accent: "theme", layout: "card",
+        theme: "paper", accent: "theme", layout: "page",
         cover: { image: "/images/cover-careers.svg", eyebrow: "Careers · Engineering" },
         submitLabel: "Send application",
         thankYou: { title: "Application received", message: "Thank you for applying. You will hear from a person, not a template, within ten days." },

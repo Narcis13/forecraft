@@ -23,16 +23,16 @@ block content
           else
             | This form is a draft. Nobody can fill it in until you publish it.
     div(data-ui="grid" data-cols="2" data-cols-md="4" data-gap="4")
-      div(data-ui="stat" data-variant="card" aria-label="{{ page.stats.total }} responses in total")
+      div(data-ui="stat" data-variant="card" data-size="lg" aria-label="{{ page.stats.total }} responses in total")
         span(data-part="label") Responses
         span(data-part="value") {{ page.stats.total }}
-      div(data-ui="stat" data-variant="card" aria-label="{{ page.stats.week }} responses in the last 7 days")
+      div(data-ui="stat" data-variant="card" data-size="lg" aria-label="{{ page.stats.week }} responses in the last 7 days")
         span(data-part="label") Last 7 days
         span(data-part="value") {{ page.stats.week }}
-      div(data-ui="stat" data-variant="card" aria-label="{{ page.stats.fields }} fields")
+      div(data-ui="stat" data-variant="card" data-size="lg" aria-label="{{ page.stats.fields }} fields")
         span(data-part="label") Fields
         span(data-part="value") {{ page.stats.fields }}
-      div(data-ui="stat" data-variant="card" aria-label="{{ page.stats.versions }} published versions")
+      div(data-ui="stat" data-variant="card" data-size="lg" aria-label="{{ page.stats.versions }} published versions")
         span(data-part="label") Versions
         span(data-part="value") {{ page.stats.versions }}
     div(data-ui="grid" data-cols="1" data-cols-lg="2" data-gap="4")

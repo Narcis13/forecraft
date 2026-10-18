@@ -33,11 +33,12 @@ html(lang="en")
               span(data-ui="icon" data-icon="book" aria-hidden="true")
             span(data-part="nav-label") Docs
         div(data-part="sidebar-user")
-          span(data-part="sidebar-user-name") {{ page.user.email }}
-          form(method="post" action="/signout")
-            button(type="submit" data-ui="button" data-variant="ghost" data-size="sm")
-              span(data-ui="icon" data-icon="log-out" aria-hidden="true")
-              | Sign out
+          div(data-ui="stack" data-gap="2")
+            span(data-part="sidebar-user-name") {{ page.user.email }}
+            form(method="post" action="/signout")
+              button(type="submit" data-ui="button" data-variant="ghost" data-size="sm")
+                span(data-ui="icon" data-icon="log-out" aria-hidden="true")
+                | Sign out
       header(data-part="header" role="banner")
         div(data-ui="cluster" data-gap="3")
           block header

@@ -294,3 +294,124 @@ prioritised shortlist.
   `public/app.js` holds a label → URL map passed as `data-prop-routes`.
 - **Suggested fix:** declare `data-value` on items and pass it as `detail.value`; and
   let an item be an `<a href>` that the controller follows on Enter.
+
+---
+
+## Themes and fonts (continued)
+
+### 18. A one-weight heading font gets a synthesised bold
+
+- **Seen:** `faqir fonts add instrument-serif --role heading` installs one weight
+  (400). Most themes ask for `--heading-weight: var(--weight-semibold)` or bold, and
+  card titles and stat values ask for their own weights in the heading face; the browser
+  fakes the bold, which smears the serif on every heading (marketing site, dashboard
+  card titles).
+- **Where:** `src/commands/fonts.ts` (the catalog knows the family is static) and
+  `tokens/` (nothing clamps `--heading-weight` to the installed weights).
+- **Here:** `public/app.css` sets `font-synthesis-weight: none` on `body`, and the
+  marketing pages set `--heading-weight: var(--weight-normal)`.
+- **Suggested fix:** `faqir fonts add` writes the family's available weights into
+  `fonts.css` and, for a static single-weight family, `font-synthesis-weight: none`
+  on the role it fills (or warns that the active theme's heading weight is not
+  available).
+
+---
+
+## Patterns
+
+### 19. `feature-grid` headings ignore the heading voice
+
+- **Seen:** `feature-grid` titles use `--font-body` at `--weight-bold`, while `bento`,
+  `faq`, `testimonials`, `cta` and `pricing` use `--font-heading` and
+  `--heading-weight`. On a page with a serif heading face the feature titles are the
+  only sans-serif bold headings.
+- **Where:** `registry/patterns/feature-grid/feature-grid.css`, the title rule
+  (`font-family: var(--font-body)` around line 12, `font-weight: var(--weight-bold)`
+  around line 21).
+- **Here:** the marketing block in `public/app.css` re-points the title to the heading
+  voice.
+- **Suggested fix:** use `--font-heading` / `--heading-weight` as the other patterns
+  do; a test that every pattern's title rule reads the heading tokens.
+
+### 20. A hero inside a backdrop hides the backdrop
+
+- **Seen:** `hero` paints `background-color: var(--hero-bg, var(--color-bg))`, so a
+  hero wrapped in `backdrop` covers the backdrop's light unless the page sets
+  `--hero-bg: transparent` by hand (the CSS comment says so; the manifest does not).
+- **Where:** `registry/patterns/hero/hero.css` line ~20.
+- **Here:** the marketing block in `public/app.css` sets `--hero-bg: transparent` on the
+  landing hero.
+- **Suggested fix:** `[data-ui="backdrop"] [data-ui="hero"] { --hero-bg: transparent }`
+  in the hero's own CSS, or document it in the manifest's safe transforms.
+
+### 21. The split hero's headline stops at `--text-4xl`
+
+- **Seen:** only the cover layout of `hero` has a display-size knob
+  (`--hero-display-size`); the split layout's headline is capped at `--text-4xl`, small
+  for a launch page at 1440px.
+- **Where:** `registry/patterns/hero/hero.css`.
+- **Here:** the marketing block in `public/app.css` overrides it from the `lg` tier.
+- **Suggested fix:** honour `--hero-display-size` in every layout.
+
+### 22. The body's rhythm opens a gap between a sticky header and `main`
+
+- **Seen:** `body` is a flow root, so `--flow-space` (3rem) separates `site-header`
+  from `main`, leaving a band of plain background above a full-bleed hero backdrop.
+- **Where:** `registry/base/rhythm.css` (flow roots include `body`);
+  `registry/patterns/site-header/`.
+- **Here:** marketing pages set `margin-block-start: 0` on their `main`.
+- **Suggested fix:** exclude `[data-ui="site-header"] + *` (or any sticky/fixed
+  header) from the flow margin.
+
+---
+
+## Primitives and base (continued)
+
+### 23. `nav` never wraps
+
+- **Seen:** a horizontal `nav` of six links overflows a phone viewport: the root is
+  `display: flex` with no `flex-wrap`, and no variant wraps or scrolls.
+- **Where:** `registry/primitives/nav/nav.css` line ~6.
+- **Here:** the docs pages use the `vertical` variant in a sidebar.
+- **Suggested fix:** `flex-wrap: wrap` on the horizontal and pill variants (or an
+  `overflow-x: auto` scroller with scroll-snap for the underline variant).
+
+### 24. Prose tables widen the page on a phone
+
+- **Seen:** a wide markdown table inside `data-ui="prose"` pushes the page into
+  horizontal scroll at 375px.
+- **Where:** `registry/base/prose.css` `[data-ui="prose"] table` (line ~143): no
+  overflow handling.
+- **Here:** `src/routes/marketing.ts`'s markdown renderer wraps each table in a
+  focusable `role="region"` with an `aria-label`; `public/app.css` gives it
+  `overflow-x: auto`.
+- **Suggested fix:** style a `[data-ui="prose"] [data-part="table-wrap"]` (or
+  `figure > table`) scroller in `prose.css` and document the wrapper.
+
+### 25. `toggle-group` items keep `data-state="off"` when a binding checks them
+
+- **Seen:** in the designer the mode switch is a segmented `toggle-group` whose radios
+  carry `:checked="mode === 'wizard'"`. The right radio is checked and the segmented
+  thumb follows it (the CSS reads `:checked`), but every item keeps
+  `data-state="off"`: the controller only syncs `data-state` on `change` events, which a
+  programmatic `checked` does not fire.
+- **Where:** `registry/recipes/toggle-group/toggle-group.js` (state sync in the change
+  listener).
+- **Here:** nothing; the visible state is right because the CSS reads `:checked`.
+- **Suggested fix:** sync `data-state` from `checked` on `faqir:model` and on a
+  `MutationObserver`/effect pass, or derive it in CSS only.
+
+---
+
+## Template (`@faqir-ui/template`)
+
+### 26. Inline text before punctuation gets a stray space
+
+- **Seen:** every node renders on its own line, and HTML renders a line break as a
+  space, so `code` followed by piped `| .` renders "`x` ." — inline-rich sentences
+  (a code span, then a comma) cannot be written without `raw`.
+- **Where:** `packages/template/src/render.js` (the one-node-per-line rule, §12.1 of
+  `docs/template.md`).
+- **Here:** `/for-agents` writes that list with `raw`; other copy was reworded.
+- **Suggested fix:** a "glue" marker (for example a piped line starting with `|<`)
+  that joins to the previous node without whitespace, documented beside §12.1.

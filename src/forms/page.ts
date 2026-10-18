@@ -24,7 +24,7 @@ export function renderFormPage(form: CompiledForm, opts: FormPageOptions): strin
       accent: a.accent === "theme" ? null : a.accent,
       scheme: a.scheme === "auto" ? null : a.scheme,
       layout: a.layout,
-      measure: a.layout === "page" ? "content" : "narrow",
+      measure: "narrow",
       titleSize: a.layout === "split" ? "3xl" : "display",
       // A wizard draws its own card per step; anything else sits on one card unless the layout is "page".
       framed: !form.wizard && a.layout !== "page",
