@@ -86,7 +86,8 @@ export function geometry(a: Appearance, footerLines: number) {
   // The running footer lives in the bottom margin, which grows with its lines
   // (7.5 pt on 1.35 leading ≈ 3.6 mm a line, plus the rule and its gap).
   const footer = Math.round((5 + Math.max(1, footerLines) * 3.6) * 10) / 10;
-  const margins = { ...m, bottom: Math.max(m.bottom, footer + 3) };
+  // The footer's last line keeps ~10 mm of paper below it: most lasers cannot print the outer 5 mm.
+  const margins = { ...m, bottom: Math.max(m.bottom, footer + 9) };
   return { margins, paperCss: paper.css, width: w, height: h, footer };
 }
 
@@ -255,7 +256,7 @@ class Evaluator {
       }
       case "title": {
         const details = this.pairs(b, b.details, scope);
-        return { eyebrow: b.eyebrow ? t(b.eyebrow) : false, text: t(b.text), details, cols: String(Math.min(4, Math.max(2, details.length))), cover: depth === 0 && this.isCover(b) };
+        return { eyebrow: b.eyebrow ? t(b.eyebrow) : false, text: t(b.text), details, cols: details.length > 2 ? "4" : "2", cover: depth === 0 && this.isCover(b) };
       }
       case "parties": {
         const parties = ((b.parties as Block[]) ?? []).map((p) => ({
@@ -264,6 +265,8 @@ class Evaluator {
         const window = this.report.appearance.letter.window && depth === 0 && this.isFirstParties(b) ? parties.shift() : undefined;
         return {
           window: window ? [window.name, ...window.lines] : false,
+          // DIN 5008 B: one line of sender above the address, inside the window.
+          returnLine: window ? this.returnLine(scope) : false,
           parties,
           cols: String(Math.max(1, Math.min(3, parties.length))),
         };
@@ -370,6 +373,14 @@ class Evaluator {
     return at >= 0 && brk > at && !layout.slice(0, brk).some((x) => x.block === "table" || x.block === "parties" || x.block === "letterhead");
   }
 
+  /** The sender in one line (name · first address line), from the letterhead. */
+  private returnLine(scope: View): string | false {
+    const lh = this.report.definition.layout.find((x) => x.block === "letterhead");
+    if (!lh) return false;
+    const first = ((lh.lines as string[] | undefined) ?? [])[0];
+    return [this.text(lh, lh.name, scope), first ? this.text(lh, first, scope) : ""].filter(Boolean).join(" · ");
+  }
+
   private isFirstParties(b: Block): boolean {
     return this.report.definition.layout.find((x) => x.block === "parties") === b;
   }
@@ -397,7 +408,11 @@ class Evaluator {
       rows: out,
       span: columns.length,
       empty: b.empty ? this.text(b, b.empty, scope) : this.labels.none,
-      footer: this.pairs(b, b.footer, scope),
+      // A footer row's label sits in the first column, its value under the first numeric one.
+      footer: this.pairs(b, b.footer, scope).map((f) => {
+        const at = Math.max(1, columns.findIndex((c) => c.format === "number" || c.format === "currency" || c.format === "percent"));
+        return { ...f, cells: columns.map((c, j) => (j === 0 ? f.label : j === at ? f.value : "")), formats: columns.map((c, j) => (j === at ? "number" : false)) };
+      }),
     };
   }
 
@@ -413,20 +428,23 @@ class Evaluator {
     const L = this.labels;
     const money = (v: string) => this.helpers.money!(v) as string;
     const pct = (r: string) => this.helpers.percent!(r) as string;
-    const rows: View[] = [{ label: L.subtotal, value: money(m.subtotal), kind: "subtotal" }];
-    if (m.discount !== (0).toFixed(m.digits)) rows.unshift({ label: L.discount, value: money(`-${m.discount}`), kind: "item" });
+    const rows: View[] = [{ label: L.subtotal, note: false, value: money(m.subtotal), kind: "subtotal" }];
+    if (m.discount !== (0).toFixed(m.digits)) rows.unshift({ label: L.discount, note: false, value: money(`-${m.discount}`), kind: "item" });
     for (const tx of m.taxes) {
       if (m.taxes.length === 1 && tx.rate === "0") continue;
-      rows.push({ label: `${L.vat} ${pct(tx.rate)} · ${money(tx.base)}`, value: money(tx.tax), kind: "tax" });
+      // The base is a quiet note beside the rate, not part of the label.
+      rows.push({ label: `${L.vat} ${pct(tx.rate)}`, note: money(tx.base), value: money(tx.tax), kind: "tax" });
     }
     const zero = (0).toFixed(m.digits);
     if (m.paid !== zero) {
-      rows.push({ label: L.total, value: money(m.total), kind: "total" });
-      rows.push({ label: L.paid, value: money(`-${m.paid}`), kind: "paid" });
-      rows.push({ label: L.amountDue, value: money(m.due), kind: "due" });
+      // Settled in full: the total is the figure that matters; nothing due is said plainly.
+      const settled = m.due === zero;
+      rows.push({ label: L.total, note: false, value: money(m.total), kind: "total" });
+      rows.push({ label: L.paid, note: false, value: money(`-${m.paid}`), kind: "paid" });
+      rows.push({ label: L.amountDue, note: false, value: money(m.due), kind: settled ? "item" : "due" });
     } else {
       // Nothing paid: the total is what is due; one row, not two of the same figure.
-      rows.push({ label: b.due === false ? L.total : L.amountDue, value: money(m.total), kind: b.due === false ? "total" : "due" });
+      rows.push({ label: b.due === false ? L.total : L.amountDue, note: false, value: money(m.total), kind: b.due === false ? "total" : "due" });
     }
     return { rows };
   }

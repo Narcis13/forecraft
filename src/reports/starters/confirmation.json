@@ -20,12 +20,7 @@
         },
         {
           "label": "{{ label(\"submitted\") }}",
-          "value": "{{ datetime(doc.submission.created_at) }}"
-        },
-        {
-          "label": "{{ label(\"reference\") }}",
-          "value": "{{ doc.submission.id }}",
-          "mono": true
+          "value": "{{ date(doc.submission.created_at) }}"
         }
       ]
     },
@@ -40,7 +35,7 @@
             "block": "callout",
             "title": "Keep this page",
             "tone": "muted",
-            "markdown": "Show this page, on paper or on your phone, when you arrive. The code identifies your registration; it holds no other personal data."
+            "markdown": "Show this page, on paper or on your phone, at the entrance: either code identifies your registration and holds no other personal data."
           },
           {
             "id": "ticket-barcode",

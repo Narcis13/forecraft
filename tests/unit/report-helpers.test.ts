@@ -15,7 +15,11 @@ function helpers(locale: Locale, currency = locale === "ro-RO" ? "RON" : "EUR") 
   return makeHelpers({ locale, currency, labels: labelsFor(locale) });
 }
 
-const call = (h: ReturnType<typeof makeHelpers>, name: string, ...args: unknown[]) => h[name]!(...args);
+/** A helper's result, with no-break spaces (dates keep their parts together) read as spaces. */
+const call = (h: ReturnType<typeof makeHelpers>, name: string, ...args: unknown[]) => {
+  const v = h[name]!(...args);
+  return typeof v === "string" ? v.replace(/ /g, " ") : v;
+};
 
 // What each locale prints for the same inputs.
 const EXPECT: Record<Locale, {
@@ -189,8 +193,9 @@ test("date(): a day that does not exist is refused, not rolled into the next mon
   assert.throws(() => call(h, "date", "2026-04-31"), /impossible date/);
 });
 
-test("date styles in en-GB", () => {
+test("date styles in en-GB (spaces are non-breaking, so a date never splits across lines)", () => {
   const h = helpers("en-GB");
+  assert.ok(String(h.date!("2026-10-19")).includes(" "));
   assert.equal(call(h, "date", "2026-10-19"), "19 October 2026");
   assert.equal(call(h, "date", "2026-10-19", "medium"), "19 Oct 2026");
   assert.equal(call(h, "date", "2026-10-19", "short"), "19/10/2026");

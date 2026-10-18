@@ -2,6 +2,8 @@
 div(data-block=b.id data-report-block="parties" data-keep=b.keep)
   if b.window ?? false
     div(data-report-window)
+      if b.returnLine
+        p(data-report-return) {{ b.returnLine }}
       each line in b.window
         p {{ line }}
   if b.parties.length > 0

@@ -49,12 +49,19 @@ function romanianLines(n = 60) {
     { d: "Cursuri online pentru șoferi și dispeceri", u: "loc", p: [180, 240], v: 11 },
   ];
   const sites = ["Cluj-Napoca", "București", "Timișoara", "Iași", "Constanța", "Brașov", "Oradea", "Sibiu"];
+  // Romanian plurals for the units (1 oră, 15 ore; 1 zi, 4 zile; 1 lună, 3 luni; 1 loc, 2 locuri).
+  const plural: Record<string, string> = { oră: "ore", zi: "zile", lună: "luni", buc: "buc", loc: "locuri" };
+  let previous = -1;
   return Array.from({ length: n }, (_, i) => {
-    const k = kinds[Math.floor(r() * kinds.length)]!;
+    // Never the same kind of line twice in a row: real invoices are not that repetitive.
+    let at = Math.floor(r() * kinds.length);
+    if (at === previous) at = (at + 1 + Math.floor(r() * (kinds.length - 1))) % kinds.length;
+    previous = at;
+    const k = kinds[at]!;
     const site = sites[Math.floor(r() * sites.length)]!;
     const price = Math.round((k.p[0] + r() * (k.p[1] - k.p[0])) * 100) / 100;
     const qty = k.u === "oră" ? 4 + Math.floor(r() * 36) : k.u === "buc" || k.u === "loc" ? 1 + Math.floor(r() * (k.p[1] < 100 ? 120 : 3)) : 1 + Math.floor(r() * 4);
-    return { description: `${k.d}`, ...(i % 7 === 0 ? { detail: `Lucrarea ${String(i + 1).padStart(2, "0")} · ${site}` } : {}), qty, unit: k.u, price, vat: k.v };
+    return { description: `${k.d}`, ...(i % 7 === 0 ? { detail: `Lucrarea ${String(i + 1).padStart(2, "0")} · ${site}` } : {}), qty, unit: qty === 1 ? k.u : plural[k.u]!, price, vat: k.v };
   });
 }
 
@@ -90,7 +97,7 @@ export async function seedReports(db: DB, workspaceId: string, opts: { quiet?: b
     ["VAT ID", "CUI"],
     ["Delivered under the master services agreement of 4 March 2025.", "Conform contractului-cadru de servicii din 4 martie 2025."],
     ["Payment", "Plata"], ["Please transfer", "Vă rugăm să transferați"], ["quoting", "cu mențiunea"],
-    ["Payable within 30 days, net. Late payments accrue statutory interest (§ 288 BGB). Questions:", "Termen de plată: 30 de zile de la emitere. Întârzierile atrag penalități conform Legii nr. 72/2013. Întrebări:"],
+    ["Payable within 30 days, net. Late payments accrue statutory interest (§ 288 BGB). Questions about this invoice:", "Termen de plată: 30 de zile de la emitere. Întârzierile atrag penalități conform Legii nr. 72/2013. Întrebări despre această factură:"], ["EPC payment code · settled", "Cod de plată EPC · achitat"],
     [" by {{ date(due) }}", " până la {{ date(due) }}"],
   ]) as ReportDefinition;
   ro.schema.title = "Factură";
@@ -101,7 +108,7 @@ export async function seedReports(db: DB, workspaceId: string, opts: { quiet?: b
     seller: {
       name: "Carpatica Software SRL", street: "Str. Republicii nr. 24", city: "400015 Cluj-Napoca", country: "România",
       vat: "RO 38412907", register: "J12/4471/2017", email: "facturare@carpatica.example", phone: "+40 264 555 120",
-      bank: "Banca Exemplu SA", iban: "RO49AAAA1B31007593840000", bic: "AAAARO22",
+      bank: "Banca Carpatină SA", iban: "RO49AAAA1B31007593840000", bic: "AAAARO22",
     },
     customer: { name: "Dunărea Logistic SA", street: "Bd. Unirii nr. 15, et. 4", city: "030823 București", country: "România", vat: "RO 14327755" },
     reference: "Comanda 2026/0912", period: "1–30 septembrie 2026", due: "2026-11-14",
@@ -124,7 +131,8 @@ export async function seedReports(db: DB, workspaceId: string, opts: { quiet?: b
   if (event) {
     const def = fromStarter(db, workspaceId, "confirmation", { form: event.id });
     def.schema.title = "Summit confirmation";
-    def.layout.splice(1, 0, {
+    def.layout.unshift({ id: "organiser", block: "letterhead", name: "Agents & Interfaces Summit 2026", lines: ["Organised by Halden Studio · Rua da Boavista 84 · 1200-066 Lisbon"], details: [{ label: "Tickets", value: "tickets@summit.example" }] });
+    def.layout.splice(2, 0, {
       id: "attendee", block: "parties", parties: [
         { label: "Attendee", name: "{{ fullName ?? \"\" }}", lines: ["{{ company ?? \"\" }}", "{{ email ?? \"\" }}"] },
         { label: "Ticket", name: "{{ ticket ?? \"—\" }}", lines: ["Agents & Interfaces Summit 2026", "LX Factory, Rua Rodrigues de Faria 103, Lisbon", "14–15 May 2026 · doors open 08:30"] },

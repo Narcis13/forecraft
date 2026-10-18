@@ -76,22 +76,26 @@ export function layoutChart(
   const H = 260;
   const top = legend ? 34 : 16;
   const y0 = H - 30, y1 = top;
-  const x0 = 64, x1 = W - (kind === "line" ? 96 : 8);
+  // Direct labels only where they fit (a column needs room for its figure). When the
+  // marks carry their figures, the scale is redundant: no ticks, no gridlines, only
+  // the zero line, and the plot runs the full measure.
+  const direct = kind === "column" && (W - 16) / n >= 26 && (series.length <= 2 || n <= 6);
+  const x0 = direct ? 4 : 64, x1 = W - (kind === "line" ? 96 : 4);
   const sy = (v: number) => y0 - ((v - scale.bottom) / (scale.top - scale.bottom)) * (y0 - y1);
   for (let v = scale.bottom; v <= scale.top + 1e-9; v += scale.step) {
+    if (direct && v !== 0) continue;
     out.grid.push({ x1: x0, y1: r1(sy(v)), x2: x1, y2: r1(sy(v)), role: v === 0 ? "axis" : "grid" });
-    out.texts.push({ x: x0 - 8, y: r1(sy(v) + 3.5), text: tick(v), anchor: "end", role: "tick" });
+    if (!direct) out.texts.push({ x: x0 - 8, y: r1(sy(v) + 3.5), text: tick(v), anchor: "end", role: "tick" });
   }
   const band = (x1 - x0) / n;
   // Category labels that would collide are thinned to every k-th, always keeping the last.
   const widest = Math.max(...labels.map((l) => l.length), 1) * 6.4 + 6;
   const every = Math.max(1, Math.ceil(widest / band));
   labels.forEach((l, i) => { if (i % every === 0 || i === n - 1) out.texts.push({ x: r1(x0 + band * (i + 0.5)), y: y0 + 16, text: l, anchor: "middle", role: "category" }); });
-  // Direct labels only where they fit: a column needs room for its figure.
-  const labelled = band >= 26;
+  const labelled = direct;
 
   if (kind === "column") {
-    const groupW = Math.min(band * 0.7, 28 * series.length + 12);
+    const groupW = Math.min(band * 0.5, 22 * series.length + 10);
     const colW = groupW / series.length;
     labels.forEach((_l, i) => series.forEach((s, j) => {
       const v = s.values[i] ?? 0;

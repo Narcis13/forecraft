@@ -37,11 +37,13 @@ export function preflightProblem(findings: Finding[]): Problem {
 
 // ── Submissions as data ─────────────────────────────────────────────────────
 
-const fmtAnswer = (v: unknown, labels: ReturnType<typeof labelsFor>): string => {
+const fmtAnswer = (v: unknown, labels: ReturnType<typeof labelsFor>, locale = "en-GB"): string => {
   if (v === undefined || v === null || v === "") return labels.none;
   if (typeof v === "boolean") return v ? labels.yes : labels.no;
-  if (Array.isArray(v)) return v.map((x) => fmtAnswer(x, labels)).join(", ");
-  if (typeof v === "object") return Object.entries(v as object).map(([k, x]) => `${k}: ${fmtAnswer(x, labels)}`).join("; ");
+  if (Array.isArray(v)) return v.map((x) => fmtAnswer(x, labels, locale)).join(", ");
+  if (typeof v === "object") return Object.entries(v as object).map(([k, x]) => `${k}: ${fmtAnswer(x, labels, locale)}`).join("; ");
+  // An ISO date answer reads as a date, the way the document writes dates.
+  if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v)) return new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${v}T00:00:00Z`)).replace(/ /g, " ");
   return String(v);
 };
 
@@ -63,10 +65,10 @@ export function submissionView(db: DB, sub: Submission, locale: string): Submiss
         flush(def.schema.title);
         const cols = Object.entries(field.items.properties);
         const rows = Array.isArray(v) ? v : [];
-        groups.push({ label: `${prefix}${title}`, table: { head: cols.map(([k, c]) => c.title ?? k), rows: rows.map((r) => cols.map(([k]) => fmtAnswer((r as Record<string, unknown>)?.[k], labels))) } });
+        groups.push({ label: `${prefix}${title}`, table: { head: cols.map(([k, c]) => c.title ?? k), rows: rows.map((r) => cols.map(([k]) => fmtAnswer((r as Record<string, unknown>)?.[k], labels, locale))) } });
         continue;
       }
-      scalars.push({ label: `${prefix}${title}`, value: fmtAnswer(v, labels), mono: false });
+      scalars.push({ label: `${prefix}${title}`, value: fmtAnswer(v, labels, locale), mono: false });
     }
   };
   walk(def.schema.properties, sub.data, "");

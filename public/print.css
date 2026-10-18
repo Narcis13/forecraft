@@ -79,8 +79,8 @@
   --doc-font: "IBM Plex Serif"; --doc-heading-font: "IBM Plex Serif"; --report-label-font: "IBM Plex Sans";
 }
 [data-report-type="source-serif"] {
-  --doc-font: "Source Serif 4"; --doc-heading-font: "Source Serif 4"; --report-label-font: "IBM Plex Sans";
-  --doc-font-size: 10.5pt;
+  --doc-font: "Source Serif 4"; --doc-heading-font: "Source Serif 4"; --report-label-font: "Source Serif 4";
+  --doc-font-size: 11pt;
 }
 [data-report-type="editorial"] {
   --doc-font: "IBM Plex Sans"; --doc-heading-font: "Source Serif 4"; --report-label-font: "IBM Plex Sans";
@@ -144,7 +144,7 @@
 [data-report-logo] { margin: 0; flex: none; display: block; block-size: 11mm; }
 [data-report-logo] img { display: block; block-size: 11mm !important; inline-size: auto !important; max-block-size: none !important; max-inline-size: 40mm !important; object-fit: contain; object-position: left top; }
 [data-report-letterhead] [data-ui="key-value"] { grid-template-columns: auto auto; column-gap: 3mm; row-gap: 0.6mm; align-items: baseline; }
-[data-report-letterhead] [data-ui="key-value"] [data-part="value"] { text-align: end; font-size: 8.5pt; }
+[data-report-letterhead] [data-ui="key-value"] [data-part="value"] { text-align: start; font-size: 8.5pt; }
 [data-report-letterhead] p[data-ui="text"] { font-size: 9pt; line-height: 1.38; }
 [data-report-party] { font-weight: var(--weight-semibold); }
 
@@ -166,7 +166,8 @@
    rule, by weight and size; the amount due in the accent. */
 [data-ui="key-value"][data-report-totals] {
   margin-inline-start: auto;
-  inline-size: min(100%, 92mm);
+  /* The totals start on the half line, where the second column of everything else starts. */
+  inline-size: calc(50% - var(--space-6) / 2);
   grid-template-columns: 1fr auto !important;
   row-gap: 1.1mm;
   column-gap: 0;
@@ -184,7 +185,8 @@
 
 /* Facts and parties: a quiet grid; values carry the weight, labels whisper. */
 [data-report-block="title"] { display: grid; gap: var(--doc-component-gap); }
-[data-report-cells] { row-gap: 3mm; column-gap: 5mm; }
+/* One column grid: cells share the parties' gap, so quarters fall on the halves. */
+[data-report-cells] { row-gap: 3mm; }
 [data-report-cells] [data-ui="key-value"] { gap: var(--doc-label-gap); }
 [data-report-address] p { line-height: 1.38; }
 [data-report-address] [data-ui="text"][data-variant="eyebrow"] { margin-block-end: 1.2mm; }
@@ -194,14 +196,19 @@
 [data-ui="document"] [data-ui="text"][data-variant="mono"] { font-family: "IBM Plex Mono"; font-size: 0.92em; letter-spacing: 0.01em; }
 
 /* Callouts: a rule at the start edge, no box. */
-[data-ui="document"] [data-ui="callout"] { border-inline-start-color: var(--color-fg); }
-[data-ui="document"] [data-ui="callout"] [data-part="title"] { display: block; margin-block-end: 1mm; }
+/* Callouts are notes on paper: no bar, no box — a hairline above, a small-caps title, body text. */
+[data-ui="document"] [data-ui="callout"] { border: 0; border-block-start: var(--border-width) solid var(--color-border-strong); padding: 2mm 0 0; color: var(--color-fg); }
+[data-ui="document"] [data-ui="callout"] [data-part="content"] { color: var(--color-fg); font-size: var(--doc-font-size); }
+[data-ui="document"] [data-ui="callout"] [data-part="icon"] { display: none; }
+[data-ui="document"] [data-ui="callout"] [data-part="title"] { display: block; margin-block-end: 1.2mm; font-family: var(--report-label-font); font-size: 7pt; font-weight: var(--weight-semibold); text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-fg); }
 
 /* Stamps and signatures. */
 [data-report-block="stamp"] { display: flex; justify-content: flex-start; padding-block: 1mm; }
 [data-ui="document"] [data-ui="stamp"] { --stamp-rotate: -4deg; }
 [data-report-signature] { break-inside: avoid; }
-[data-ui="document"] [data-ui="signature"] { inline-size: 100%; margin-block-start: 12mm; }
+[data-ui="document"] [data-ui="signature"] { inline-size: 100%; margin-block-start: 14mm; --doc-signature-line-color: oklch(0.62 0 0); }
+[data-ui="document"] [data-ui="signature"] [data-part="line"] { border-block-start-width: 0.5pt; }
+[data-ui="document"] [data-ui="signature"] [data-part="label"] { color: var(--color-fg); font-size: 9pt; }
 
 /* QR and barcode keep a quiet zone of paper. */
 [data-report-block="qr"], [data-report-block="barcode"] { display: flex; }
@@ -221,12 +228,12 @@
 /* Charts (#36): Faqir ink, greys that survive a monochrome printer, no colour literal. */
 [data-report-chart] { margin: 0; display: grid; gap: 2mm; }
 [data-report-chart] svg { inline-size: 100%; block-size: auto; overflow: visible; font-family: var(--report-label-font); }
-[data-report-chart] [data-role="grid"] { stroke: var(--color-border); stroke-width: 0.6; }
+[data-report-chart] [data-role="grid"] { stroke: oklch(0.88 0 0); stroke-width: 0.5; }
 [data-report-chart] [data-role="axis"] { stroke: var(--color-fg); stroke-width: 1; }
 [data-report-chart] text { font-size: 10.5px; fill: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
 [data-report-chart] text[data-role="value"] { fill: var(--color-fg); font-weight: var(--weight-semibold); }
 [data-report-chart] text[data-role="category"] { fill: var(--color-fg); }
-[data-report-chart] [data-series="1"] { fill: var(--color-fg); stroke: var(--color-fg); }
+[data-report-chart] [data-series="1"] { fill: oklch(0.32 0 0); stroke: oklch(0.32 0 0); }
 [data-report-chart] [data-series="2"] { fill: oklch(0.58 0 0); stroke: oklch(0.58 0 0); }
 [data-report-chart] [data-series="3"] { fill: oklch(0.82 0 0); stroke: oklch(0.45 0 0); }
 [data-report-chart] [data-series="4"] { fill: white; stroke: var(--color-fg); }
@@ -253,7 +260,9 @@
 [data-report-block="callout"], [data-report-block="qr"], [data-report-block="barcode"], [data-report-block="quote"] [data-ui="quote"],
 [data-report-block="letterhead"], [data-report-block="parties"], [data-report-block="title"], [data-report-block="facts"] { break-inside: avoid; }
 [data-keep="with-next"] { break-after: avoid; }
-[data-report-block="text"] p { hyphens: auto; }
+/* Ragged-right prose is not hyphenated: a split word costs more than a short line. */
+[data-report-block] :is(p, li) { hyphens: manual; }
+[data-ui="document"] a { color: inherit; text-decoration-color: oklch(0.6 0 0); text-decoration-thickness: 0.5pt; text-underline-offset: 0.15em; }
 
 /* ── Screen: the sheet on a desk, true scale; edge to edge on a phone ───── */
 
@@ -291,7 +300,7 @@
   /* On paper the running header and footer are the renderer's margin boxes
      (#39, #47): the pattern's fixed fallback is not drawn and reserves nothing. */
   [data-ui="document"] > :is([data-part="doc-header"], [data-part="doc-footer"]) { display: none !important; }
-  [data-ui="document"] { --doc-running-header-height: 0mm; --doc-running-footer-height: 0mm; --doc-running-gap: 0mm; }
+  [data-ui="document"] { --doc-running-header-height: 0mm; --doc-running-footer-height: 0mm; --doc-running-gap: 4mm; }
 
   /* DIN 5008 fold marks (105 mm, 210 mm) and punch mark (148.5 mm), page 1. */
   [data-report-fold] {
@@ -373,4 +382,46 @@
 @media screen and (max-width: 40rem) {
   [data-report-letterhead] { grid-template-columns: 1fr; }
   [data-report-toolbar] [data-ui="text"][data-weight="semibold"] { font-size: var(--text-sm); }
+}
+
+/* ── After the art director's first pass ─────────────────────────────────── */
+[data-report-totals] [data-report-note] { display: inline; margin-inline-start: 1.5mm; font-size: 8pt; color: var(--color-fg-muted); }
+[data-ui="document"] [data-ui="stat"] [data-part="change"] { font-weight: var(--weight-normal); color: var(--color-fg-muted); }
+[data-report-bar] { grid-template-columns: minmax(0, 40%) 1fr 20mm; }
+[data-report-block="bars"] > [data-ui="text"][data-variant="eyebrow"] { display: block; margin-block-end: 3mm; }
+[data-report-bar] [data-ui="progress"] [data-part="track"] { background: oklch(0.86 0 0); block-size: 2.2mm; }
+[data-report-bar] [data-ui="progress"] [data-part="fill"] { background: oklch(0.32 0 0); }
+[data-report-figure] { text-align: start; }
+/* QR and barcode sit flush-left with their captions, on one bottom line. */
+[data-ui="document"] [data-ui="qr-code"], [data-ui="document"] [data-ui="barcode"] { align-items: flex-start; padding: 0; }
+[data-ui="document"] :is([data-ui="qr-code"], [data-ui="barcode"]) [data-part="caption"] { text-align: start; }
+[data-report-block="barcode"] [data-ui="barcode"] svg { max-inline-size: 70mm; }
+/* A numeric column followed by a text column needs a gutter, or "120 Agree" reads as one figure. */
+[data-ui="document"] [data-ui="table"] [data-format] + :not([data-format]) { padding-inline-start: 6mm; }
+/* Never leave a table's last row alone at the top of a page. */
+[data-ui="document"] [data-ui="table"] [data-part="tbody"] > [data-part="tr"]:last-child { break-before: avoid; }
+/* Quotes at body size; the attribution small and grey. */
+[data-report-block="quote"] [data-ui="quote"] blockquote p { font-size: var(--doc-font-size); }
+[data-report-block="quote"] [data-ui="quote"] [data-part="name"] { font-weight: var(--weight-normal); color: var(--color-fg-muted); }
+/* Answers: questions in sentence case on the left, answers flush-left on the half line, hairlines between. */
+[data-report-block="answers"] [data-ui="key-value"] { grid-template-columns: 1fr 1fr !important; column-gap: var(--space-6); row-gap: 0; }
+[data-report-block="answers"] [data-ui="key-value"] > * { padding-block: 1.6mm; border-block-start: var(--border-width) solid var(--color-border); }
+[data-report-block="answers"] [data-part="label"] { text-transform: none !important; letter-spacing: 0 !important; font-size: 9pt !important; font-family: var(--doc-font) !important; color: var(--color-fg-muted); }
+[data-report-block="answers"] [data-part="value"] { text-align: start !important; }
+[data-report-block="answers"] h2 { margin-block-end: 1mm; }
+/* A window letter: the info block and the letterhead's details share the 125 mm line. */
+@media print {
+  [data-letter-window] [data-report-letterhead] { grid-template-columns: calc(125mm - var(--page-margin-left) - 8mm) 1fr; }
+  [data-letter-window] [data-report-parties] [data-report-party] { font-weight: var(--weight-normal); }
+  [data-report-return] { font-size: 6.25pt; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-fg-muted); border-block-end: var(--border-width) solid var(--color-border); padding-block-end: 0.8mm; margin-block-end: 2.5mm; }
+  [data-letter-window] [data-report-window] { padding-top: 2.5mm; }
+}
+@media screen { [data-report-return] { display: none; } }
+
+/* Figures never break inside a number; on a phone a wide table scrolls inside itself. */
+[data-report-totals] [data-part="value"] { white-space: nowrap; }
+@media screen and (max-width: 40rem) {
+  [data-report-view] [data-ui="document"] [data-ui="table"] { overflow-x: auto; }
+  [data-report-view] [data-ui="document"] [data-ui="table"] > [data-part="table"] { min-inline-size: 34rem; }
+  [data-report-totals] { inline-size: 100%; }
 }

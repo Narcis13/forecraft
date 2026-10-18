@@ -174,7 +174,7 @@
       "register": "Amtsgericht Charlottenburg HRB 214 873 B",
       "email": "billing@northfield.example",
       "phone": "+49 30 5557 4120",
-      "bank": "Example Commercial Bank",
+      "bank": "Hanse Kontor Bank AG",
       "iban": "DE89370400440532013000",
       "bic": "COBADEFFXXX"
     },
@@ -201,7 +201,7 @@
         "description": "Analyst days on site, Amsterdam",
         "detail": "8, 9, 22 and 23 September",
         "qty": 4,
-        "unit": "day",
+        "unit": "days",
         "price": 1150,
         "vat": 19
       },
@@ -214,16 +214,15 @@
       },
       {
         "description": "Workshop materials, printed",
-        "detail": "120 copies",
         "qty": 120,
-        "unit": "copy",
+        "unit": "copies",
         "price": 3.85,
         "vat": 7
       },
       {
         "description": "Travel, Berlin–Amsterdam return",
         "qty": 2,
-        "unit": "trip",
+        "unit": "trips",
         "price": 214.6,
         "vat": 0
       }
@@ -323,9 +322,9 @@
           "format": "number"
         },
         {
-          "label": "{{ label(\"unitPrice\") }}",
-          "value": "{{ money(row.price) }}",
-          "format": "currency"
+          "label": "{{ label(\"unitPrice\") }} ({{ doc.currency }})",
+          "value": "{{ number(row.price, 2) }}",
+          "format": "number"
         },
         {
           "label": "{{ label(\"vat\") }}",
@@ -333,9 +332,9 @@
           "format": "percent"
         },
         {
-          "label": "{{ label(\"amount\") }}",
-          "value": "{{ money(line.net) }}",
-          "format": "currency"
+          "label": "{{ label(\"amount\") }} ({{ doc.currency }})",
+          "value": "{{ number(line.net, 2) }}",
+          "format": "number"
         }
       ]
     },
@@ -352,7 +351,7 @@
             "id": "paid",
             "block": "stamp",
             "text": "{{ label(\"paidStamp\") }}",
-            "tone": "success",
+            "tone": "primary",
             "when": "doc.money.due == \"0.00\" && doc.number != null"
           },
           {
@@ -388,7 +387,8 @@
             "id": "terms",
             "block": "text",
             "size": "fine",
-            "markdown": "Payable within 30 days, net. Late payments accrue statutory interest (§ 288 BGB). Questions: [{{ seller.email ?? \"billing@example.com\" }}](mailto:{{ seller.email ?? \"billing@example.com\" }})."
+            "markdown": "Payable within 30 days, net. Late payments accrue statutory interest (§ 288 BGB). Questions about this invoice: [{{ seller.email ?? \"billing@example.com\" }}](mailto:{{ seller.email ?? \"billing@example.com\" }})",
+            "when": "doc.money.due != \"0.00\""
           }
         ],
         [
@@ -397,7 +397,7 @@
             "block": "qr",
             "size": "md",
             "value": "{{ epc(seller.name, seller.iban, doc.money.due, doc.number ?? \"DRAFT\", seller.bic ?? \"\") }}",
-            "caption": "{{ label(\"scanToPay\") }} · EPC",
+            "caption": "{{ doc.money.due != \"0.00\" ? label(\"scanToPay\") : \"EPC payment code · settled\" }}",
             "when": "doc.currency == \"EUR\""
           }
         ]
@@ -409,7 +409,7 @@
       "block": "footer",
       "lines": [
         "{{ seller.name }} · {{ seller.street }} · {{ seller.city }} · {{ seller.register ?? \"\" }}",
-        "{{ seller.bank ?? \"\" }} · IBAN {{ iban(seller.iban) }} · BIC {{ seller.bic ?? \"—\" }} · VAT ID {{ seller.vat ?? \"—\" }}"
+        "{{ seller.bank ?? \"\" }} · IBAN {{ iban(seller.iban) }} · BIC {{ seller.bic ?? \"—\" }}"
       ]
     }
   ],

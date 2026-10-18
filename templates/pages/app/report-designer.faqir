@@ -58,7 +58,7 @@ block body
             button#rt-json(data-part="trigger" role="tab" aria-controls="rp-json" aria-selected="false" tabindex="-1" @click="setTab('json')") JSON
             button#rt-preflight(data-part="trigger" role="tab" aria-controls="rp-preflight" aria-selected="false" tabindex="-1" @click="setTab('preflight')")
               | Preflight
-              span(data-ui="badge" data-size="sm" :data-variant="errorCount() ? 'destructive' : 'success'" l-text="errorCount() ? errorCount() + ' to fix' : 'clean'")
+              span(data-ui="badge" data-size="sm" :data-variant="!preflightRan ? 'secondary' : errorCount() ? 'destructive' : 'success'" l-text="!preflightRan ? '…' : errorCount() ? errorCount() + ' to fix' : 'clean'")
           div#rp-layout(data-part="panel" role="tabpanel" aria-labelledby="rt-layout")
             template(l-if="problems.length")
               div(data-ui="callout" data-variant="destructive" role="alert")

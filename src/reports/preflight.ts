@@ -56,7 +56,8 @@ const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
 for (let n = walker.nextNode(); n; n = walker.nextNode()) {
   const el = n.parentElement;
   if (!el || el.closest('[data-report-chart-data], svg, [data-ui="qr-code"], [data-ui="barcode"]')) continue;
-  const words = n.textContent.split(/\s+/).filter((w) => w.length >= 16);
+  // A line may break at a space, a hyphen, a dash or a slash: what lies between is unbreakable.
+  const words = n.textContent.split(/[\s\-‐-—\/]+/).filter((w) => w.length >= 16);
   if (!words.length) continue;
   const cs = getComputedStyle(el);
   canvas.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;

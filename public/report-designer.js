@@ -521,7 +521,9 @@
         setTab: function (t) {
           this.tab = t;
           if (t === "look") this.themeThumbnails();
-          if (t === "layout") this.fit();
+          // The Layout panel is unhidden after this handler: measure the desk once it shows.
+          var self = this;
+          if (t === "layout") requestAnimationFrame(function () { requestAnimationFrame(function () { self.fit(); }); });
         },
         themeThumbnails: function () {
           var self = this;

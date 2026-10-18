@@ -704,7 +704,7 @@
     {
       "id": "title",
       "block": "title",
-      "eyebrow": "{{ label(\"summary\") }} · {{ date(period.since, \"medium\") }} – {{ date(period.until, \"medium\") }}",
+      "eyebrow": "{{ label(\"summary\") }} · {{ period(period.since, period.until) }}",
       "text": "{{ form.title }}",
       "details": [
         {
@@ -713,7 +713,7 @@
         },
         {
           "label": "{{ label(\"period\") }}",
-          "value": "{{ date(period.since, \"medium\") }} – {{ date(period.until, \"medium\") }}"
+          "value": "{{ period(period.since, period.until) }}"
         },
         {
           "label": "Questions",
@@ -733,22 +733,12 @@
         {
           "label": "NPS",
           "value": "{{ nps.score > 0 ? \"+\" : \"\" }}{{ nps.score }}",
-          "change": "{{ nps.answered }} answers"
+          "change": "from {{ nps.answered }} answers"
         },
         {
-          "label": "{{ label(\"promoters\") }}",
-          "value": "{{ percent(nps.groups[0].share) }}",
-          "change": "{{ nps.promoters }} people, 9–10"
-        },
-        {
-          "label": "{{ label(\"passives\") }}",
-          "value": "{{ percent(nps.groups[1].share) }}",
-          "change": "{{ nps.passives }} people, 7–8"
-        },
-        {
-          "label": "{{ label(\"detractors\") }}",
-          "value": "{{ percent(nps.groups[2].share) }}",
-          "change": "{{ nps.detractors }} people, 0–6"
+          "label": "{{ label(\"responses\") }}",
+          "value": "{{ number(responses.total) }}",
+          "change": "{{ period(period.since, period.until) }}"
         }
       ]
     },
@@ -793,7 +783,7 @@
               "value": "row.count"
             }
           ],
-          "title": "Responses per period",
+          "title": "Responses by day, {{ period(period.since, period.until) }}",
           "format": "number"
         }
       ]
@@ -844,8 +834,7 @@
           "block": "quote",
           "rows": "verbatims",
           "text": "{{ row.text }}",
-          "name": "{{ row.question }}",
-          "role": "{{ date(row.at) }}"
+          "name": "{{ date(row.at) }}"
         }
       ]
     },
@@ -853,14 +842,13 @@
       "id": "footer",
       "block": "footer",
       "lines": [
-        "{{ form.title }} · {{ number(responses.total) }} {{ label(\"responses\") }} · {{ date(period.since) }} – {{ date(period.until) }}",
-        "Computed by forecraft from the stored answers; shares are of the people who answered each question."
+        "{{ form.title }} · {{ period(period.since, period.until) }} · {{ doc.number ?? label(\"draft\") }}"
       ]
     }
   ],
   "appearance": {
     "theme": "swiss-document",
-    "accent": "#b42318",
+    "accent": "#0f4c5c",
     "paper": "a4",
     "orientation": "portrait",
     "margins": "normal",

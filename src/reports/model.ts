@@ -31,7 +31,7 @@ export const DENSITIES = ["compact", "comfortable"] as const;
 export const TYPE_PAIRINGS = {
   "plex-sans": { label: "IBM Plex Sans", text: "IBM Plex Sans", headings: "IBM Plex Sans", mono: "IBM Plex Mono", note: "Neutral and exact. Invoices, statements, confirmations." },
   "plex-serif": { label: "IBM Plex Serif with Plex Sans", text: "IBM Plex Serif", headings: "IBM Plex Serif", labels: "IBM Plex Sans", mono: "IBM Plex Mono", note: "Formal correspondence and contracts." },
-  "source-serif": { label: "Source Serif 4 with Plex Sans", text: "Source Serif 4", headings: "Source Serif 4", labels: "IBM Plex Sans", mono: "IBM Plex Mono", note: "Letters and long reading." },
+  "source-serif": { label: "Source Serif 4", text: "Source Serif 4", headings: "Source Serif 4", labels: "Source Serif 4", mono: "IBM Plex Mono", note: "Letters and long reading; labels in the serif’s own capitals." },
   "editorial": { label: "Source Serif 4 headings over Plex Sans", text: "IBM Plex Sans", headings: "Source Serif 4", mono: "IBM Plex Mono", note: "Business reports with a voice." },
   "inter": { label: "Inter", text: "Inter", headings: "Inter", mono: "IBM Plex Mono", note: "Swiss, dense, numeric. Summaries and dashboards on paper." },
 } as const;

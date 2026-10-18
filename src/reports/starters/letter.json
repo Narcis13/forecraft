@@ -159,7 +159,6 @@
       "country": "United Kingdom"
     },
     "date": "2026-10-14",
-    "ours": "HV/2026/118",
     "yours": "BHT-EST-0931",
     "subject": "Retrofit programme 2027–2029: our proposal and next steps",
     "salutation": "Dear Ms Clarke,",
@@ -219,15 +218,11 @@
           "details": [
             {
               "label": "Our ref.",
-              "value": "{{ ours ?? \"—\" }}"
+              "value": "{{ doc.number ?? ours ?? \"—\" }}"
             },
             {
               "label": "Your ref.",
               "value": "{{ yours ?? \"—\" }}"
-            },
-            {
-              "label": "Letter",
-              "value": "{{ doc.number ?? label(\"draft\") }}"
             }
           ]
         }

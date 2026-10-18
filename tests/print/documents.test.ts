@@ -134,7 +134,8 @@ describe("seed documents print", () => {
     for (const h of ["Executive summary", "Financial performance", "Operations and people", "Risks and outlook"]) {
       assert.ok(br.outline.some((o) => o.includes(h)), `outline has ${h}: ${br.outline.join(" | ")}`);
     }
-    const inv = read.get("invoice")!.read;
+    // The unpaid invoice prints its terms with a mailto link; the paid one leaves them out.
+    const inv = read.get("invoice-ro")!.read;
     assert.ok(inv.links.flat().some((u) => u.startsWith("mailto:")), "the invoice's mailto link is clickable");
   });
 
@@ -146,7 +147,8 @@ describe("seed documents print", () => {
       const h = makeHelpers({ locale: row.locale, currency: m.currency, labels: labelsFor(row.locale) });
       const all = text(r);
       const fmt = (v: string) => norm(h.money!(v) as string);
-      for (const l of m.lines) assert.ok(all.includes(fmt(l.net)), `${name}: line net ${l.net}`);
+      // Line amounts print as figures under a header that names the currency.
+      for (const l of m.lines) assert.ok(all.includes(norm(h.number!(l.net, 2) as string)), `${name}: line net ${l.net}`);
       for (const t of m.taxes) if (t.tax !== "0.00") assert.ok(all.includes(fmt(t.tax)) && all.includes(fmt(t.base)), `${name}: tax ${t.rate}%`);
       assert.ok(all.includes(fmt(m.subtotal)) && all.includes(fmt(m.total)));
       const cents = (v: string) => BigInt(v.replace(".", ""));
@@ -159,7 +161,7 @@ describe("seed documents print", () => {
   test("the paid invoice carries the SEPA QR and the PAID stamp", () => {
     const all = text(read.get("invoice")!.read);
     assert.ok(/\bPAID\b/i.test(all));
-    assert.ok(all.includes("Scan to pay"));
+    assert.ok(all.includes("EPC payment code"));
   });
 
   test("re-rendering gives the same pages and text", async () => {

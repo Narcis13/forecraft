@@ -11,6 +11,10 @@ export const test = base;
 
 export const PASSWORD = "e2e-password-1";
 
+/** The demo workspace scripts/e2e-server.ts seeds (forms, reports, issued documents). */
+export const DEMO_EMAIL = "demo@forecraft.dev";
+export const DEMO_PASSWORD = "e2e-demo-password-1";
+
 let counter = 0;
 /** A unique value per call (per run, per test), safe to use in emails and slugs. */
 export function unique(prefix = "e2e"): string {
@@ -115,4 +119,45 @@ export async function pickDate(page: Page, name: string): Promise<string> {
   await expect(picker.locator('[data-part="calendar"]')).toBeHidden();
   expect(iso).toMatch(/^\d{4}-\d{2}-15$/);
   return iso!;
+}
+
+/** Sign in through the real form at /signin and wait for the dashboard. */
+export async function signIn(page: Page, email: string, password: string) {
+  await page.goto("/signin");
+  await page.locator("#auth-email").fill(email);
+  await page.locator("#auth-password").fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.waitForURL("**/app");
+}
+
+export interface PageErrors {
+  /** Uncaught exceptions in the page (always a failure). */
+  pageErrors: string[];
+  /** console.error messages (reported, not necessarily failures). */
+  consoleErrors: string[];
+}
+
+/** Collect `pageerror` and console errors on a page, for the test to assert on at the end. */
+export function watchErrors(page: Page): PageErrors {
+  const seen: PageErrors = { pageErrors: [], consoleErrors: [] };
+  page.on("pageerror", (err) => seen.pageErrors.push(err.message));
+  page.on("console", (msg) => {
+    if (msg.type() === "error") seen.consoleErrors.push(msg.text());
+  });
+  return seen;
+}
+
+/** What pdf.js reads from a PDF: its page count and the text of every page. */
+export async function readPdf(bytes: Buffer | Uint8Array): Promise<{ pages: number; text: string; pageTexts: string[] }> {
+  const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const task = getDocument({ data: new Uint8Array(bytes), useSystemFonts: true, verbosity: 0 });
+  const doc = await task.promise;
+  const pageTexts: string[] = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const content = await (await doc.getPage(i)).getTextContent();
+    pageTexts.push(content.items.map((it) => ("str" in it ? it.str : "")).join(" "));
+  }
+  const pages = doc.numPages;
+  await task.destroy();
+  return { pages, text: pageTexts.join("\n"), pageTexts };
 }

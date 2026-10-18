@@ -1,5 +1,5 @@
 //- Labelled values as a grid of cells, label over value: references, dates, terms.
-div(data-ui="grid" data-cols="2" data-cols-sm=cols data-gap="4" data-report-cells)
+div(data-ui="grid" data-cols="2" data-cols-sm=cols data-gap="6" data-report-cells)
   each d in items
     dl(data-ui="key-value" data-variant="vertical")
       dt(data-part="label") {{ d.label }}

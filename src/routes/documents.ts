@@ -57,7 +57,7 @@ function shareView(c: Context, doc: DocumentRow, labels: ReturnType<typeof label
   const origin = new URL(c.req.url).origin;
   const filename = `${(doc.number ?? `draft-${doc.id}`).replace(/[^\w.-]+/g, "-")}.pdf`;
   return {
-    title: doc.number ? `${doc.title} · ${doc.number}` : doc.title,
+    title: doc.number && !doc.title.includes(doc.number) ? `${doc.title} · ${doc.number}` : doc.title,
     pdf: `/d/${doc.share_token}.pdf?download=1`,
     link: `${origin}/d/${doc.share_token}`,
     filename,

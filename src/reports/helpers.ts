@@ -16,6 +16,7 @@ export const HELPER_DOCS: HelperDoc[] = [
   { name: "number", signature: "number(value, digits?)", does: "A number in the locale, with `digits` decimals when given.", example: "{{ number(row.qty) }} → 1,250" },
   { name: "percent", signature: "percent(value, digits?)", does: "A percentage: 19 prints as 19% (19 %, in de and fr).", example: "{{ percent(tax.rate) }}" },
   { name: "date", signature: "date(iso, style?)", does: "A date (ISO 8601) in the locale: style \"long\" (default), \"medium\" or \"short\". UTC.", example: "{{ date(doc.issuedAt) }} → 19 October 2026" },
+  { name: "period", signature: "period(since, until)", does: "A date range the way the locale writes it, without repeating what both ends share.", example: "{{ period(period.since, period.until) }} → 1–30 September 2026" },
   { name: "datetime", signature: "datetime(iso)", does: "A date and time, UTC.", example: "{{ datetime(doc.submission.created_at) }}" },
   { name: "label", signature: "label(key)", does: "A built-in word in the document's language (invoice, subtotal, vat, total, amountDue, dueDate, …), or the report's override.", example: "{{ label(\"invoice\") }} → Factură" },
   { name: "iban", signature: "iban(value)", does: "An IBAN grouped by four, upper case.", example: "{{ iban(bank.iban) }} → DE89 3704 0044 0532 0130 00" },
@@ -31,6 +32,11 @@ export const HELPER_DOCS: HelperDoc[] = [
 export const HELPER_NAMES = HELPER_DOCS.map((h) => h.name);
 
 class HelperError extends Error {}
+
+/** A negative amount gets a true minus (U+2212), unmistakable beside a hyphen. */
+const minus = (s: string) => s.replace(/-(?=[\d\p{Sc}\s])/u, "−");
+/** A date never breaks across a line: its spaces are non-breaking. */
+const keep = (s: string) => s.replace(/ /g, " ");
 
 function decimalText(v: unknown, name: string): string {
   const f = parseDecimal(v);
@@ -115,7 +121,7 @@ export function makeHelpers(ctx: HelperContext): Record<string, (...args: unknow
       const digits = currencyDigits(cur);
       const max = Math.max(digits, Math.min(decimals(text), 4));
       // Exact: Intl formats the decimal string, not a float.
-      return fmt({ style: "currency", currency: cur, minimumFractionDigits: digits, maximumFractionDigits: max }).format(text as unknown as number);
+      return minus(fmt({ style: "currency", currency: cur, minimumFractionDigits: digits, maximumFractionDigits: max }).format(text as unknown as number));
     },
     number(value, digits) {
       const text = decimalText(value, "number");
@@ -130,7 +136,10 @@ export function makeHelpers(ctx: HelperContext): Record<string, (...args: unknow
     },
     date(iso, style) {
       const s = style === "short" || style === "medium" ? style : "long";
-      return new Intl.DateTimeFormat(ctx.locale, { dateStyle: s, timeZone: "UTC" }).format(isoDate(iso, "date"));
+      return keep(new Intl.DateTimeFormat(ctx.locale, { dateStyle: s, timeZone: "UTC" }).format(isoDate(iso, "date")));
+    },
+    period(since, until) {
+      return keep(new Intl.DateTimeFormat(ctx.locale, { dateStyle: "long", timeZone: "UTC" }).formatRange(isoDate(since, "period"), isoDate(until, "period")));
     },
     datetime(iso) {
       return new Intl.DateTimeFormat(ctx.locale, { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }).format(isoDate(iso, "datetime"));

@@ -343,30 +343,8 @@
           "value": "{{ date(prepared ?? doc.issuedAt) }}"
         },
         {
-          "label": "Classification",
-          "value": "{{ classification ?? \"—\" }}"
-        },
-        {
           "label": "Reference",
           "value": "{{ doc.number ?? label(\"draft\") }}"
-        }
-      ]
-    },
-    {
-      "id": "cover-kpis",
-      "block": "stats",
-      "items": [
-        {
-          "label": "{{ kpis[0].label }}",
-          "value": "{{ kpis[0].value }}",
-          "change": "{{ kpis[0].change ?? \"\" }}",
-          "trend": "up"
-        },
-        {
-          "label": "{{ kpis[1].label }}",
-          "value": "{{ kpis[1].value }}",
-          "change": "{{ kpis[1].change ?? \"\" }}",
-          "trend": "up"
         }
       ]
     },
@@ -441,7 +419,7 @@
             }
           ],
           "title": "Revenue and adjusted EBITDA, $ million",
-          "caption": "Five quarters to 30 September 2026. Unaudited."
+          "caption": "Five quarters to 30 September 2026, unaudited. The figures are also in the table of segments below."
         },
         {
           "id": "segments",
@@ -517,20 +495,22 @@
           "columns": [
             {
               "label": "Risk",
-              "value": "{{ row.risk }}",
-              "width": "wide"
+              "value": "{{ row.risk }}"
             },
             {
               "label": "Likelihood",
-              "value": "{{ row.likelihood ?? \"—\" }}"
+              "value": "{{ row.likelihood ?? \"—\" }}",
+              "width": "narrow"
             },
             {
               "label": "Impact",
-              "value": "{{ row.impact ?? \"—\" }}"
+              "value": "{{ row.impact ?? \"—\" }}",
+              "width": "narrow"
             },
             {
               "label": "Mitigation",
-              "value": "{{ row.mitigation ?? \"—\" }}"
+              "value": "{{ row.mitigation ?? \"—\" }}",
+              "width": "wide"
             }
           ]
         },

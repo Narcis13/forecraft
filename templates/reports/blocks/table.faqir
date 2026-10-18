@@ -23,5 +23,5 @@ div(data-block=b.id data-report-block="table" data-keep=b.keep)
         tbody(data-part="tbody" data-report-table-footer)
           each f in b.footer
             tr(data-part="tr")
-              td(data-part="td" colspan=b.span - 1 data-align="right") {{ f.label }}
-              td(data-part="td" data-align="right" data-format="number") {{ f.value }}
+              each cell, j in f.cells
+                td(data-part="td" data-align=f.formats[j] ? "right" : false data-format=f.formats[j]) {{ cell }}
