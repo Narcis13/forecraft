@@ -11,8 +11,9 @@ html(lang="en")
     link(rel="stylesheet" href="/app.css")
   body
     a(href="#main") Skip to content
-    div(data-ui="dashboard-shell" data-app)
-      aside(data-part="sidebar" data-state="expanded")
+    //- Off-canvas on a phone until the toggle opens it; docked from the md tier.
+    div(data-ui="dashboard-shell" data-app l-data="{ nav: false }" @keydown.escape="nav = false")
+      aside#app-sidebar(data-part="sidebar" :data-state="nav ? 'expanded' : null")
         div(data-part="logo")
           a(href="/app" data-app-brand) forecraft
         nav(data-part="nav" role="navigation" aria-label="Main navigation")
@@ -40,11 +41,13 @@ html(lang="en")
                 span(data-ui="icon" data-icon="log-out" aria-hidden="true")
                 | Sign out
       header(data-part="header" role="banner")
+        button(type="button" data-ui="button" data-variant="ghost" data-part="sidebar-toggle" aria-label="Toggle navigation" aria-controls="app-sidebar" :aria-expanded="nav ? 'true' : 'false'" @click="nav = !nav")
+          span(data-ui="icon" data-icon="menu" aria-hidden="true")
         div(data-ui="cluster" data-gap="3")
           block header
             h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.heading }}
         div(data-part="header-actions")
-          button(type="button" data-ui="button" data-variant="outline" data-size="sm" aria-label="Open the command palette" @click="$ui('#palette').open()")
+          button(type="button" data-ui="button" data-variant="outline" data-size="sm" data-palette-button aria-label="Open the command palette" @click="$ui('#palette').open()")
             span(data-ui="icon" data-icon="search" aria-hidden="true")
             kbd(data-ui="kbd") Ctrl K
           block actions

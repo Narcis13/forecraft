@@ -19,6 +19,45 @@ prioritised shortlist.
 
 ---
 
+## Engine (`ui/core/faqir-core.js`)
+
+### 28. Auto-start can boot between two deferred scripts, and `l-rules` is then silently never bound
+
+- **Seen:** found by the e2e suite. A form page loads `faqir-core.js`, then
+  `faqir-validate.js`, `faqir-rules.js` and `form.js`, all `defer`. About 4 runs in 6,
+  a field a rule hides stayed visible and a rule-required field was not required — no
+  error, no warning. Delaying `faqir-rules.js` by 300 ms made it deterministic.
+- **Where:** `src/core-src/engine.js`, the "Auto-start logic" block (`ui/core/faqir-core.js`
+  ~line 11945): when the core runs with `readyState === "interactive"` — always, for a
+  `defer` script — it adds a `DOMContentLoaded` listener **and** `setTimeout(autoStart, 0)`.
+  The timer can run between two deferred scripts, so the engine boots before later plugins
+  and page `Faqir.data()` registrations exist, and a directive registered afterwards is
+  never applied to the already-bound tree.
+- **Why:** the timer exists for module imports (README: "boots one task after it is
+  imported, so registrations on the following lines are seen"); for a classic `defer`
+  script the `DOMContentLoaded` listener alone is correct.
+- **Here:** both layouts load the core with `data-manual`, and `public/boot.js`, the last
+  deferred script, calls `Faqir.start()`. `tests/e2e/faqir-boot.spec.ts` guards it.
+- **Suggested fix:** schedule the timer only for a module (no `currentScript`); for a
+  classic script rely on `DOMContentLoaded`. And make a directive registered after boot
+  (a late plugin) scan the bound tree once, or at least warn in the dev build. Test: a page
+  whose plugin script arrives 300 ms late still binds `l-rules`.
+
+### 10. Plain JavaScript cannot reach a component's controller
+
+- **Seen:** the dashboard shows a toast after an API call. From an expression,
+  `$ui('#toasts').add({…})` works; from plain JavaScript there is no public accessor —
+  the controller sits on a private `_faqir…` property of the element.
+- **Where:** `src/core-src/engine.js`, `getControllerApi` (private); the public
+  `Faqir` object has `data`, `store`, `directive`, `controller`, `inspect`, but no
+  `ui(el)`.
+- **Here:** every behaviour that needs a controller is a `Faqir.data` component in
+  `public/app.js`, whose methods reach `this.$ui(...)`.
+- **Suggested fix:** `Faqir.ui(elOrSelector)` returning the controller API (the same
+  function `$ui` calls).
+
+---
+
 ## Forms (`@faqir-ui/forms`)
 
 ### 1. The rules definition a form carries cannot be had without parsing the HTML
@@ -116,63 +155,6 @@ prioritised shortlist.
   `data-span` on the `field-group`, with `field-group` / `form-page` CSS placing groups
   on a two- or three-column grid from the `md` tier.
 
----
-
-## CLI / audit (`faqir-ui-cli`)
-
-### 7. No programmatic audit in any npm package
-
-- **Seen:** forecraft's API returns an audit with every preview, so an agent can
-  self-check what it built. The only audit 1.2.5 ships is the CLI, so each preview
-  spawns `node node_modules/faqir-ui-cli/dist/faqir.mjs audit --stdin --json`
-  (about one second, most of it start-up).
-- **Where:** `src/audit/html-audit.ts` (the auditor), `src/commands/audit.ts` (the
-  only caller that ships); `src/audit/browser.ts` is built for the docs site, not
-  published.
-- **Here:** `src/forms/page.ts` `auditHtml` spawns the CLI.
-- **Suggested fix:** publish `auditHtml(html, { components })` from a package
-  (`@faqir-ui/audit`, or an export of `@faqir-ui/mcp`), the same code the MCP tool
-  `faqir_audit_html` runs. Test: the package and `faqir audit --stdin --json` give the
-  same findings for the audit fixtures.
-
----
-
-## Primitives
-
-### 8. No skip link
-
-- **Seen:** every page needs a "Skip to content" link that is hidden until focused.
-  No primitive, base style or pattern provides it (`site-header` has none).
-- **Where:** `registry/base/reset.css`, `registry/patterns/site-header/`.
-- **Here:** `public/app.css` styles `body > a[href="#main"]:first-child`.
-- **Suggested fix:** a `skip-link` primitive (or a `data-part="skip"` on
-  `site-header`), visually hidden until `:focus-visible`, with an a11y test that it
-  is the first tab stop.
-
----
-
-## Themes
-
-### 9. No runtime accent: a brand colour needs the CLI
-
-- **Seen:** the form designer's appearance tab offers a theme and an accent. A
-  theme is one `data-skin` and one scoped stylesheet (`faqir theme bundle --scope`,
-  which works very well), but an accent has no runtime form: `faqir theme generate`
-  is a CLI that writes files, and `faqir-tweak` writes inline tokens from JS.
-- **Where:** `src/commands/theme.ts` (`generate`), `registry/core/plugins/faqir-tweak.js`
-  (`ACCENT`, which already lists the five tokens an accent moves).
-- **Here:** `public/app.css` defines eight `[data-accent="…"]` hues that re-point
-  `--color-primary`, `-hover`, `-active`, `-subtle` and `--color-ring` with relative
-  colour syntax over the theme's own primary lightness.
-- **Suggested fix:** a `data-accent` axis in `tokens/semantic.css` with a fixed set of
-  named hues (and `--accent-hue` for any other), computed with relative colour syntax
-  so every theme keeps its own lightness and chroma; `contrast-tokens` should check
-  each named hue against each theme.
-
----
-
-## Forms (continued)
-
 ### 14. `renderForm` emits `data-ui="checkbox-group"`, which is not a Faqir component
 
 - **Seen:** every enum-array field (`features` on `/f/customer-pulse`, `workshops`
@@ -239,20 +221,73 @@ prioritised shortlist.
 
 ---
 
-## Recipes and primitives
+## Template (`@faqir-ui/template`)
 
-### 10. Plain JavaScript cannot reach a component's controller
+### 26. Inline text before punctuation gets a stray space
 
-- **Seen:** the dashboard shows a toast after an API call. From an expression,
-  `$ui('#toasts').add({…})` works; from plain JavaScript there is no public accessor —
-  the controller sits on a private `_faqir…` property of the element.
-- **Where:** `src/core-src/engine.js`, `getControllerApi` (private); the public
-  `Faqir` object has `data`, `store`, `directive`, `controller`, `inspect`, but no
-  `ui(el)`.
-- **Here:** every behaviour that needs a controller is a `Faqir.data` component in
-  `public/app.js`, whose methods reach `this.$ui(...)`.
-- **Suggested fix:** `Faqir.ui(elOrSelector)` returning the controller API (the same
-  function `$ui` calls).
+- **Seen:** every node renders on its own line, and HTML renders a line break as a
+  space, so `code` followed by piped `| .` renders "`x` ." — inline-rich sentences
+  (a code span, then a comma) cannot be written without `raw`.
+- **Where:** `packages/template/src/render.js` (the one-node-per-line rule, §12.1 of
+  `docs/template.md`).
+- **Here:** `/for-agents` writes that list with `raw`; other copy was reworded.
+- **Suggested fix:** a "glue" marker (for example a piped line starting with `|<`)
+  that joins to the previous node without whitespace, documented beside §12.1.
+
+---
+
+## Primitives and base styles
+
+### 8. No skip link
+
+- **Seen:** every page needs a "Skip to content" link that is hidden until focused.
+  No primitive, base style or pattern provides it (`site-header` has none).
+- **Where:** `registry/base/reset.css`, `registry/patterns/site-header/`.
+- **Here:** `public/app.css` styles `body > a[href="#main"]:first-child`.
+- **Suggested fix:** a `skip-link` primitive (or a `data-part="skip"` on
+  `site-header`), visually hidden until `:focus-visible`, with an a11y test that it
+  is the first tab stop.
+
+### 23. `nav` never wraps
+
+- **Seen:** a horizontal `nav` of six links overflows a phone viewport: the root is
+  `display: flex` with no `flex-wrap`, and no variant wraps or scrolls.
+- **Where:** `registry/primitives/nav/nav.css` line ~6.
+- **Here:** the docs pages use the `vertical` variant in a sidebar.
+- **Suggested fix:** `flex-wrap: wrap` on the horizontal and pill variants (or an
+  `overflow-x: auto` scroller with scroll-snap for the underline variant).
+
+### 24. Prose tables widen the page on a phone
+
+- **Seen:** a wide markdown table inside `data-ui="prose"` pushes the page into
+  horizontal scroll at 375px.
+- **Where:** `registry/base/prose.css` `[data-ui="prose"] table` (line ~143): no
+  overflow handling.
+- **Here:** `src/routes/marketing.ts`'s markdown renderer wraps each table in a
+  focusable `role="region"` with an `aria-label`; `public/app.css` gives it
+  `overflow-x: auto`.
+- **Suggested fix:** style a `[data-ui="prose"] [data-part="table-wrap"]` (or
+  `figure > table`) scroller in `prose.css` and document the wrapper.
+
+### 27. A `ui:groups` fieldset card's `<legend>` notches the card border
+
+- **Seen:** `@faqir-ui/forms` renders each `ui:groups` group as
+  `<fieldset data-ui="card" data-variant="outlined"><legend data-part="title">…</legend>
+  <div data-part="body">…`. `card.css` styles a `div` card: on a fieldset the legend keeps
+  the browser's rendering, sitting on the top border with a gap cut into it, flush to
+  the edge while the body is inset by `--card-padding` (`/f/customer-pulse`,
+  `/f/senior-product-engineer`).
+- **Where:** `registry/primitives/card/card.css` (no `fieldset` / `legend` rules);
+  `packages/forms/src/index.js` `fieldsetCard`.
+- **Here:** `public/app.css` floats the legend full width with the card's part padding
+  and clears the body after it.
+- **Suggested fix:** in `card.css`, `fieldset[data-ui="card"]` resets `min-inline-size`
+  and `margin`, and `> legend[data-part="title"]` is floated (or `display: contents` on a
+  wrapper) and padded like `[data-part="header"]`; a visual test of a grouped form.
+
+---
+
+## Recipes
 
 ### 11. `alert-dialog` requires its own trigger, which keeps it inside `<main>`
 
@@ -269,6 +304,52 @@ prioritised shortlist.
 - **Suggested fix:** make the trigger optional as for `dialog` (the controller already
   has `open()`), so an alert-dialog can live at the end of `<body>`.
 
+### 13. `command-palette` items declare no target
+
+- **Seen:** a navigation palette needs each item to say where it goes. The item
+  declares no `data-value` / `href`, so `data-href` is an `unknown-attribute` warning,
+  and the `command-select` event carries only the element and its label.
+- **Where:** `registry/recipes/command-palette/command-palette.manifest.json`
+  (`slots.item`, no attributes); `command-palette.js` `selectItem`.
+- **Here:** `templates/layouts/app.faqir` routes by label: a `palette` component in
+  `public/app.js` holds a label → URL map passed as `data-prop-routes`.
+- **Suggested fix:** declare `data-value` on items and pass it as `detail.value`; and
+  let an item be an `<a href>` that the controller follows on Enter.
+
+### 25. `toggle-group` items keep `data-state="off"` when a binding checks them
+
+- **Seen:** in the designer the mode switch is a segmented `toggle-group` whose radios
+  carry `:checked="mode === 'wizard'"`. The right radio is checked and the segmented
+  thumb follows it (the CSS reads `:checked`), but every item keeps
+  `data-state="off"`: the controller only syncs `data-state` on `change` events, which a
+  programmatic `checked` does not fire.
+- **Where:** `registry/recipes/toggle-group/toggle-group.js` (state sync in the change
+  listener).
+- **Here:** nothing; the visible state is right because the CSS reads `:checked`.
+- **Suggested fix:** sync `data-state` from `checked` on `faqir:model` and on a
+  `MutationObserver`/effect pass, or derive it in CSS only.
+
+### 29. A date-picker's input holds display text, so `FormData` submits "October 15, 2026"
+
+- **Seen:** found by the e2e suite. A `format: "date"` field renders the `date-picker`
+  recipe; after picking a day the readonly input's `value` is "October 15, 2026" and the
+  ISO date is only in `input.dataset.value`. Anything that reads the form the standard way
+  (`new FormData(form)`, a native submit) sends the display text, which the same
+  definition's `format: "date"` then refuses on the server (422).
+- **Where:** `registry/recipes/date-picker/date-picker.js` (`input.dataset.value = dateStr`
+  beside a formatted `value`); `packages/forms/src/index.js` `renderDatePicker` gives the
+  readonly display input the field's `name`.
+- **Here:** `public/form.js` `pairs()` sends `dataset.value` for inputs inside a
+  `date-picker`. `tests/e2e/date-field.spec.ts` guards it.
+- **Suggested fix:** keep the display text in the visible input without a `name`, and put
+  the ISO value in a hidden `<input name>` the picker updates (the pattern native date
+  inputs follow), so `FormData` and native submits carry what the schema validates. Test:
+  `new FormData(form).get(name)` is ISO after a pick.
+
+---
+
+## Patterns
+
 ### 12. `auth-form`'s canonical card fails `card`'s required body
 
 - **Seen:** the `auth-form` pattern's reference HTML puts `header`, `error`, `form`,
@@ -282,42 +363,6 @@ prioritised shortlist.
 - **Suggested fix:** wrap them in the card body in the pattern's HTML, and audit every
   pattern's reference HTML in the registry test (`audit:registry`) so a pattern cannot
   ship markup its own components reject.
-
-### 13. `command-palette` items declare no target
-
-- **Seen:** a navigation palette needs each item to say where it goes. The item
-  declares no `data-value` / `href`, so `data-href` is an `unknown-attribute` warning,
-  and the `command-select` event carries only the element and its label.
-- **Where:** `registry/recipes/command-palette/command-palette.manifest.json`
-  (`slots.item`, no attributes); `command-palette.js` `selectItem`.
-- **Here:** `templates/layouts/app.faqir` routes by label: a `palette` component in
-  `public/app.js` holds a label → URL map passed as `data-prop-routes`.
-- **Suggested fix:** declare `data-value` on items and pass it as `detail.value`; and
-  let an item be an `<a href>` that the controller follows on Enter.
-
----
-
-## Themes and fonts (continued)
-
-### 18. A one-weight heading font gets a synthesised bold
-
-- **Seen:** `faqir fonts add instrument-serif --role heading` installs one weight
-  (400). Most themes ask for `--heading-weight: var(--weight-semibold)` or bold, and
-  card titles and stat values ask for their own weights in the heading face; the browser
-  fakes the bold, which smears the serif on every heading (marketing site, dashboard
-  card titles).
-- **Where:** `src/commands/fonts.ts` (the catalog knows the family is static) and
-  `tokens/` (nothing clamps `--heading-weight` to the installed weights).
-- **Here:** `public/app.css` sets `font-synthesis-weight: none` on `body`, and the
-  marketing pages set `--heading-weight: var(--weight-normal)`.
-- **Suggested fix:** `faqir fonts add` writes the family's available weights into
-  `fonts.css` and, for a static single-weight family, `font-synthesis-weight: none`
-  on the role it fills (or warns that the active theme's heading weight is not
-  available).
-
----
-
-## Patterns
 
 ### 19. `feature-grid` headings ignore the heading voice
 
@@ -363,116 +408,98 @@ prioritised shortlist.
 - **Suggested fix:** exclude `[data-ui="site-header"] + *` (or any sticky/fixed
   header) from the flow margin.
 
----
+### 30. `dashboard-shell`'s reference markup covers a phone with its sidebar
 
-## Primitives and base (continued)
-
-### 23. `nav` never wraps
-
-- **Seen:** a horizontal `nav` of six links overflows a phone viewport: the root is
-  `display: flex` with no `flex-wrap`, and no variant wraps or scrolls.
-- **Where:** `registry/primitives/nav/nav.css` line ~6.
-- **Here:** the docs pages use the `vertical` variant in a sidebar.
-- **Suggested fix:** `flex-wrap: wrap` on the horizontal and pill variants (or an
-  `overflow-x: auto` scroller with scroll-snap for the underline variant).
-
-### 24. Prose tables widen the page on a phone
-
-- **Seen:** a wide markdown table inside `data-ui="prose"` pushes the page into
-  horizontal scroll at 375px.
-- **Where:** `registry/base/prose.css` `[data-ui="prose"] table` (line ~143): no
-  overflow handling.
-- **Here:** `src/routes/marketing.ts`'s markdown renderer wraps each table in a
-  focusable `role="region"` with an `aria-label`; `public/app.css` gives it
-  `overflow-x: auto`.
-- **Suggested fix:** style a `[data-ui="prose"] [data-part="table-wrap"]` (or
-  `figure > table`) scroller in `prose.css` and document the wrapper.
-
-### 25. `toggle-group` items keep `data-state="off"` when a binding checks them
-
-- **Seen:** in the designer the mode switch is a segmented `toggle-group` whose radios
-  carry `:checked="mode === 'wizard'"`. The right radio is checked and the segmented
-  thumb follows it (the CSS reads `:checked`), but every item keeps
-  `data-state="off"`: the controller only syncs `data-state` on `change` events, which a
-  programmatic `checked` does not fire.
-- **Where:** `registry/recipes/toggle-group/toggle-group.js` (state sync in the change
-  listener).
-- **Here:** nothing; the visible state is right because the CSS reads `:checked`.
-- **Suggested fix:** sync `data-state` from `checked` on `faqir:model` and on a
-  `MutationObserver`/effect pass, or derive it in CSS only.
+- **Seen:** the pattern's canonical HTML (and the SKILL example) puts
+  `data-state="expanded"` on the sidebar. Copied as is, a 390px phone shows the sidebar
+  as a fixed overlay over the whole dashboard, with no way to close it: off-canvas is the
+  phone default only when the state is absent. And the `sidebar-toggle` part stays visible
+  from the `md` tier up, where the sidebar is docked and the toggle does nothing.
+- **Where:** `registry/patterns/dashboard-shell/dashboard-shell.html` (every variant) and
+  `dashboard-shell.css` (no rule for `sidebar-toggle` from `md` up; no controller wires it).
+- **Here:** `templates/layouts/app.faqir` binds `:data-state="nav ? 'expanded' : null"`
+  from an `l-data` on the shell with a header toggle; `public/app.css` hides the toggle
+  from `md` up.
+- **Suggested fix:** ship the canonical markup without a sidebar state (or with a small
+  controller that toggles it from `sidebar-toggle`, closes on Escape and on overlay
+  click), and hide `sidebar-toggle` where the sidebar is docked. A phone-width visual
+  test of the pattern's reference page.
 
 ---
 
-## Template (`@faqir-ui/template`)
+## Themes and fonts
 
-### 26. Inline text before punctuation gets a stray space
+### 9. No runtime accent: a brand colour needs the CLI
 
-- **Seen:** every node renders on its own line, and HTML renders a line break as a
-  space, so `code` followed by piped `| .` renders "`x` ." — inline-rich sentences
-  (a code span, then a comma) cannot be written without `raw`.
-- **Where:** `packages/template/src/render.js` (the one-node-per-line rule, §12.1 of
-  `docs/template.md`).
-- **Here:** `/for-agents` writes that list with `raw`; other copy was reworded.
-- **Suggested fix:** a "glue" marker (for example a piped line starting with `|<`)
-  that joins to the previous node without whitespace, documented beside §12.1.
+- **Seen:** the form designer's appearance tab offers a theme and an accent. A
+  theme is one `data-skin` and one scoped stylesheet (`faqir theme bundle --scope`,
+  which works very well), but an accent has no runtime form: `faqir theme generate`
+  is a CLI that writes files, and `faqir-tweak` writes inline tokens from JS.
+- **Where:** `src/commands/theme.ts` (`generate`), `registry/core/plugins/faqir-tweak.js`
+  (`ACCENT`, which already lists the five tokens an accent moves).
+- **Here:** `public/app.css` defines eight `[data-accent="…"]` hues that re-point
+  `--color-primary`, `-hover`, `-active`, `-subtle` and `--color-ring` with relative
+  colour syntax over the theme's own primary lightness.
+- **Suggested fix:** a `data-accent` axis in `tokens/semantic.css` with a fixed set of
+  named hues (and `--accent-hue` for any other), computed with relative colour syntax
+  so every theme keeps its own lightness and chroma; `contrast-tokens` should check
+  each named hue against each theme.
 
-### 27. A `ui:groups` fieldset card's `<legend>` notches the card border
+### 18. A one-weight heading font gets a synthesised bold
 
-- **Seen:** `@faqir-ui/forms` renders each `ui:groups` group as
-  `<fieldset data-ui="card" data-variant="outlined"><legend data-part="title">…</legend>
-  <div data-part="body">…`. `card.css` styles a `div` card: on a fieldset the legend keeps
-  the browser's rendering, sitting on the top border with a gap cut into it, flush to
-  the edge while the body is inset by `--card-padding` (`/f/customer-pulse`,
-  `/f/senior-product-engineer`).
-- **Where:** `registry/primitives/card/card.css` (no `fieldset` / `legend` rules);
-  `packages/forms/src/index.js` `fieldsetCard`.
-- **Here:** `public/app.css` floats the legend full width with the card's part padding
-  and clears the body after it.
-- **Suggested fix:** in `card.css`, `fieldset[data-ui="card"]` resets `min-inline-size`
-  and `margin`, and `> legend[data-part="title"]` is floated (or `display: contents` on a
-  wrapper) and padded like `[data-part="header"]`; a visual test of a grouped form.
+- **Seen:** `faqir fonts add instrument-serif --role heading` installs one weight
+  (400). Most themes ask for `--heading-weight: var(--weight-semibold)` or bold, and
+  card titles and stat values ask for their own weights in the heading face; the browser
+  fakes the bold, which smears the serif on every heading (marketing site, dashboard
+  card titles).
+- **Where:** `src/commands/fonts.ts` (the catalog knows the family is static) and
+  `tokens/` (nothing clamps `--heading-weight` to the installed weights).
+- **Here:** `public/app.css` sets `font-synthesis-weight: none` on `body`, and the
+  marketing pages set `--heading-weight: var(--weight-normal)`.
+- **Suggested fix:** `faqir fonts add` writes the family's available weights into
+  `fonts.css` and, for a static single-weight family, `font-synthesis-weight: none`
+  on the role it fills (or warns that the active theme's heading weight is not
+  available).
 
 ---
 
-## Engine (`ui/core/faqir-core.js`)
+## CLI / audit (`faqir-ui-cli`)
 
-### 28. Auto-start can boot between two deferred scripts, and `l-rules` is then silently never bound
+### 7. No programmatic audit in any npm package
 
-- **Seen:** found by the e2e suite. A form page loads `faqir-core.js`, then
-  `faqir-validate.js`, `faqir-rules.js` and `form.js`, all `defer`. About 4 runs in 6,
-  a field a rule hides stayed visible and a rule-required field was not required — no
-  error, no warning. Delaying `faqir-rules.js` by 300 ms made it deterministic.
-- **Where:** `src/core-src/engine.js`, the "Auto-start logic" block (`ui/core/faqir-core.js`
-  ~line 11945): when the core runs with `readyState === "interactive"` — always, for a
-  `defer` script — it adds a `DOMContentLoaded` listener **and** `setTimeout(autoStart, 0)`.
-  The timer can run between two deferred scripts, so the engine boots before later plugins
-  and page `Faqir.data()` registrations exist, and a directive registered afterwards is
-  never applied to the already-bound tree.
-- **Why:** the timer exists for module imports (README: "boots one task after it is
-  imported, so registrations on the following lines are seen"); for a classic `defer`
-  script the `DOMContentLoaded` listener alone is correct.
-- **Here:** both layouts load the core with `data-manual`, and `public/boot.js`, the last
-  deferred script, calls `Faqir.start()`. `tests/e2e/faqir-boot.spec.ts` guards it.
-- **Suggested fix:** schedule the timer only for a module (no `currentScript`); for a
-  classic script rely on `DOMContentLoaded`. And make a directive registered after boot
-  (a late plugin) scan the bound tree once, or at least warn in the dev build. Test: a page
-  whose plugin script arrives 300 ms late still binds `l-rules`.
+- **Seen:** forecraft's API returns an audit with every preview, so an agent can
+  self-check what it built. The only audit 1.2.5 ships is the CLI, so each preview
+  spawns `node node_modules/faqir-ui-cli/dist/faqir.mjs audit --stdin --json`
+  (about one second, most of it start-up).
+- **Where:** `src/audit/html-audit.ts` (the auditor), `src/commands/audit.ts` (the
+  only caller that ships); `src/audit/browser.ts` is built for the docs site, not
+  published.
+- **Here:** `src/forms/page.ts` `auditHtml` spawns the CLI.
+- **Suggested fix:** publish `auditHtml(html, { components })` from a package
+  (`@faqir-ui/audit`, or an export of `@faqir-ui/mcp`), the same code the MCP tool
+  `faqir_audit_html` runs. Test: the package and `faqir audit --stdin --json` give the
+  same findings for the audit fixtures.
 
-## Recipes (continued)
+---
 
-### 29. A date-picker's input holds display text, so `FormData` submits "October 15, 2026"
+## What worked unusually well (do not break)
 
-- **Seen:** found by the e2e suite. A `format: "date"` field renders the `date-picker`
-  recipe; after picking a day the readonly input's `value` is "October 15, 2026" and the
-  ISO date is only in `input.dataset.value`. Anything that reads the form the standard way
-  (`new FormData(form)`, a native submit) sends the display text, which the same
-  definition's `format: "date"` then refuses on the server (422).
-- **Where:** `registry/recipes/date-picker/date-picker.js` (`input.dataset.value = dateStr`
-  beside a formatted `value`); `packages/forms/src/index.js` `renderDatePicker` gives the
-  readonly display input the field's `name`.
-- **Here:** `public/form.js` `pairs()` sends `dataset.value` for inputs inside a
-  `date-picker`. `tests/e2e/date-field.spec.ts` guards it.
-- **Suggested fix:** keep the display text in the visible input without a `name`, and put
-  the ISO value in a hidden `<input name>` the picker updates (the pattern native date
-  inputs follow), so `FormData` and native submits carry what the schema validates. Test:
-  `new FormData(form).get(name)` is ISO after a pick.
+- **One definition, browser and server.** `@faqir-ui/rules` in the page (`l-rules`) and on
+  the server (`coerce` → `validate`) gave the same verdict on every case we tried,
+  including hidden fields, wizard steps and form pairs vs JSON. Findings carry `path` and
+  `rule`, which became forecraft's 422 problem body with no mapping layer.
+- **`renderForm` refuses rather than guesses.** Unknown keys, bad partitions and
+  unsupported keywords throw with a path; forecraft turns those messages straight into
+  `errors[].pointer` for agents.
+- **`faqir theme bundle --scope`.** Thirty-one scoped themes from one command each; a public
+  form switches theme with one `data-skin` and one stylesheet, with no build.
+- **`@faqir-ui/template`.** Manifest-checked component calls caught wrong parts and
+  variants at compile time; `l-data=json(...)` and `data-prop-*` made server data reach
+  faqir-core safely; templates compile once and render fast.
+- **`faqir audit --stdin --json`.** A stable JSON contract, good messages that name the
+  fix ("move it out of the main content flow"), and fast enough to run on every preview.
+- **`Faqir.data` + `$ui` + `$dispatch`.** The designer (drag and drop, undo, autosave,
+  live preview) is one registered component with no framework; dialogs, tabs, the
+  command palette and toasts were driven entirely from expressions.
+- **Inherited `--flow-space`.** Setting `data-gap` on an ancestor flow root tuned the
+  spacing of markup we could not touch.

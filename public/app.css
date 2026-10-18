@@ -455,3 +455,18 @@ body {
 [data-form-page] fieldset[data-ui="card"] > legend[data-part="title"] + * {
   clear: both;
 }
+
+/* dashboard-shell docks its sidebar from the md tier but keeps showing the phone
+   toggle there (FAQIR-UPSTREAM.md #30). */
+@media (min-width: 48rem) {
+  [data-app] > [data-part="header"] > [data-part="sidebar-toggle"] {
+    display: none;
+  }
+}
+/* The palette is a keyboard affordance; on a phone the header needs the room. */
+[data-palette-button] {
+  display: none;
+}
+@media (min-width: 40rem) {
+  [data-palette-button] { display: inline-flex; }
+}

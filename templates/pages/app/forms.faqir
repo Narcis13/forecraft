@@ -68,7 +68,7 @@ block content
               th(data-part="th" scope="col" data-sortable aria-sort="none") Status
               th(data-part="th" scope="col" data-sortable aria-sort="none" data-align="end") Responses
               th(data-part="th" scope="col" data-sortable aria-sort="none" data-hide-below="md") Updated
-              th(data-part="th" scope="col" data-align="end")
+              th(data-part="th" scope="col" data-align="end" data-hide-below="md")
                 span(data-ui="text" data-size="sm" data-variant="muted") Actions
           tbody(data-part="tbody")
             each f in page.forms
