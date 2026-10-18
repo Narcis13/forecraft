@@ -1,0 +1,38 @@
+//- The site's top bar, shared by the marketing pages, auth and the dashboard.
+//- Parameters (all optional):
+//-   current    the path of the section the page belongs to: "/", "/for-agents",
+//-              "/docs" or "/pricing" (marks that link active)
+//-   signed_in  true when a person is signed in: the actions become "Dashboard"
+//- include "partials/site-header.faqir" (current="/pricing")
+//- The links are written twice, once for the bar and once for the phone menu,
+//- as the site-header pattern asks; keep the two lists in step.
+header(data-ui="site-header" data-variant="glass" data-sticky data-condense)
+  a(data-part="brand" href="/" aria-label="forecraft home")
+    img(src="/favicon.svg" alt="" width="24" height="24")
+    span forecraft
+  div(data-part="nav")
+    nav(data-ui="nav" aria-label="Main")
+      a(data-part="link" href="/" data-state=(current ?? "") == "/" ? "active" : false aria-current=(current ?? "") == "/" ? "page" : false) Product
+      a(data-part="link" href="/for-agents" data-state=(current ?? "") == "/for-agents" ? "active" : false aria-current=(current ?? "") == "/for-agents" ? "page" : false) For agents
+      a(data-part="link" href="/docs" data-state=(current ?? "") == "/docs" ? "active" : false aria-current=(current ?? "") == "/docs" ? "page" : false) Docs
+      a(data-part="link" href="/pricing" data-state=(current ?? "") == "/pricing" ? "active" : false aria-current=(current ?? "") == "/pricing" ? "page" : false) Pricing
+  div(data-part="actions")
+    if signed_in ?? false
+      a(data-ui="button" data-variant="primary" data-size="sm" href="/app") Dashboard
+    else
+      a(data-ui="link" data-variant="muted" href="/signin") Sign in
+      a(data-ui="button" data-variant="primary" data-size="sm" href="/signup") Get an API key
+  details(data-part="menu")
+    summary(data-part="toggle") Menu
+    div(data-part="panel")
+      nav(data-ui="nav" data-variant="vertical" aria-label="Main menu")
+        a(data-part="link" href="/" data-state=(current ?? "") == "/" ? "active" : false aria-current=(current ?? "") == "/" ? "page" : false) Product
+        a(data-part="link" href="/for-agents" data-state=(current ?? "") == "/for-agents" ? "active" : false aria-current=(current ?? "") == "/for-agents" ? "page" : false) For agents
+        a(data-part="link" href="/docs" data-state=(current ?? "") == "/docs" ? "active" : false aria-current=(current ?? "") == "/docs" ? "page" : false) Docs
+        a(data-part="link" href="/pricing" data-state=(current ?? "") == "/pricing" ? "active" : false aria-current=(current ?? "") == "/pricing" ? "page" : false) Pricing
+      div(data-part="actions")
+        if signed_in ?? false
+          a(data-ui="button" data-variant="primary" href="/app") Dashboard
+        else
+          a(data-ui="button" data-variant="primary" href="/signup") Get an API key
+          a(data-ui="button" data-variant="outline" href="/signin") Sign in

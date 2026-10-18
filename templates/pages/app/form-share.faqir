@@ -1,0 +1,61 @@
+layout "layouts/app.faqir"
+
+block title
+  | Share · {{ page.form.title }} — forecraft
+
+block header
+  h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.form.title }}
+  span(data-ui="badge" data-variant=page.form.statusVariant) {{ page.form.statusLabel }}
+
+block actions
+  include "partials/form-actions.faqir" (id=page.form.id draft=page.form.draft)
+
+block content
+  div(data-ui="stack" data-gap="6")
+    include "partials/form-tabs.faqir" (tabs=page.tabs tab=page.tab)
+    if !page.form.version
+      div(data-ui="callout" data-variant="warning" role="note")
+        span(data-part="icon")
+          span(data-ui="icon" data-icon="triangle-alert" aria-hidden="true")
+        div(data-part="content") Publish the form first: until then the link shows a "not published" page.
+    div(data-ui="grid" data-cols="1" data-cols-lg="2" data-gap="4")
+      div(data-ui="card")
+        div(data-part="header")
+          h2(data-part="title") Public link
+          p(data-part="description") Always serves the latest published version.
+        div(data-part="body")
+          div(data-ui="stack" data-gap="3")
+            div(data-ui="field-group")
+              label(data-part="label" for="share-url") URL
+              div(data-part="input")
+                input#share-url(data-ui="input" type="url" readonly value=page.url)
+            div(data-ui="cluster" data-gap="2")
+              button(type="button" data-ui="button" data-variant="primary" l-data="copier" data-prop-text=page.urlJson data-prop-label="Link copied" @click="copy()")
+                span(data-ui="icon" data-icon="copy" aria-hidden="true")
+                | Copy link
+              a(data-ui="button" data-variant="outline" href=page.url target="_blank" rel="noopener")
+                span(data-ui="icon" data-icon="external-link" aria-hidden="true")
+                | Open
+      div(data-ui="card")
+        div(data-part="header")
+          h2(data-part="title") Embed
+          p(data-part="description") Paste this where the form should appear on your own site.
+        div(data-part="body")
+          div(data-ui="stack" data-gap="3")
+            div(data-ui="field-group")
+              label(data-part="label" for="share-embed") Snippet
+              div(data-part="input")
+                textarea#share-embed(data-ui="textarea" rows="4" readonly) {{ page.embed }}
+            div(data-ui="cluster" data-gap="2")
+              button(type="button" data-ui="button" data-variant="outline" l-data="copier" data-prop-text=page.embedJson data-prop-label="Snippet copied" @click="copy()")
+                span(data-ui="icon" data-icon="code" aria-hidden="true")
+                | Copy snippet
+      div(data-ui="card")
+        div(data-part="header")
+          h2(data-part="title") For agents
+          p(data-part="description") An agent can submit on someone's behalf through the same endpoint the page uses.
+        div(data-part="body")
+          pre(data-ui="text" data-variant="mono" data-size="sm")
+            | curl -X POST {{ page.submitUrl }} \
+            |   -H "content-type: application/json" \
+            |   -d '{"data": { … }}'

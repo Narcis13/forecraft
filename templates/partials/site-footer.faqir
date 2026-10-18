@@ -1,0 +1,37 @@
+//- The site footer, shared by the marketing pages, auth and the dashboard.
+//- Parameters (all optional):
+//-   measure  the container measure to sit in: "wide" (default) or "full"
+//- include "partials/site-footer.faqir"
+div(data-ui="container" data-measure=measure ?? "wide" data-gutter="4")
+  footer(data-ui="site-footer" data-variant="columns")
+    div(data-part="brand")
+      p(data-part="logo")
+        a(href="/") forecraft
+      p(data-part="tagline") Forms your agent can build. An API and an MCP server first, a designer second.
+    div(data-part="columns")
+      div(data-part="column")
+        h2(data-part="column-title" id="site-footer-product") Product
+        nav(data-ui="nav" data-variant="vertical" aria-labelledby="site-footer-product")
+          a(data-part="link" href="/") Overview
+          a(data-part="link" href="/for-agents") For agents
+          a(data-part="link" href="/pricing") Pricing
+      div(data-part="column")
+        h2(data-part="column-title" id="site-footer-developers") Developers
+        nav(data-ui="nav" data-variant="vertical" aria-labelledby="site-footer-developers")
+          a(data-part="link" href="/docs/getting-started") Getting started
+          a(data-part="link" href="/docs/api") API reference
+          a(data-part="link" href="/docs/mcp") MCP server
+          a(data-part="link" href="/docs/definitions") Form definitions
+      div(data-part="column")
+        h2(data-part="column-title" id="site-footer-account") Account
+        nav(data-ui="nav" data-variant="vertical" aria-labelledby="site-footer-account")
+          a(data-part="link" href="/signup") Sign up
+          a(data-part="link" href="/signin") Sign in
+          a(data-part="link" href="/app") Dashboard
+    hr(data-ui="separator")
+    div(data-part="bottom")
+      p(data-part="copyright") © forecraft. A prototype: no billing, no email, no promises.
+      div(data-part="legal")
+        nav(data-ui="nav" aria-label="Machine-readable")
+          a(data-part="link" href="/llms.txt") llms.txt
+          a(data-part="link" href="/openapi.json") openapi.json

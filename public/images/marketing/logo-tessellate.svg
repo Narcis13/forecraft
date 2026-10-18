@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" width="160" height="40">
+  <path d="M6 28l7-12 7 12zM13 16h14l-7 12z" fill="#b8c0d4"/>
+  <path d="M20 28h14l-7-12z" fill="none" stroke="#b8c0d4" stroke-width="1.8" stroke-linejoin="round"/>
+  <text x="40" y="27" font-family="Georgia, 'Times New Roman', serif" font-size="20" font-style="italic" fill="#b8c0d4">Tessellate</text>
+</svg>

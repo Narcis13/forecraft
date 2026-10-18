@@ -29,7 +29,9 @@
         for (var j = 0; j < el.selectedOptions.length; j++) out.push([el.name, el.selectedOptions[j].value]);
         continue;
       }
-      out.push([el.name, el.value]);
+      // A date-picker's input shows "October 15, 2026"; its ISO value is data-value.
+      var picker = el.closest('[data-ui="date-picker"]');
+      out.push([el.name, picker && el.dataset.value !== undefined ? el.dataset.value : el.value]);
     }
     return out;
   }

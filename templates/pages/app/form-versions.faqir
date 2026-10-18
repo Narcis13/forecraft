@@ -1,0 +1,48 @@
+layout "layouts/app.faqir"
+
+block title
+  | Versions · {{ page.form.title }} — forecraft
+
+block header
+  h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.form.title }}
+  span(data-ui="badge" data-variant=page.form.statusVariant) {{ page.form.statusLabel }}
+
+block actions
+  include "partials/form-actions.faqir" (id=page.form.id draft=page.form.draft)
+
+block content
+  div(data-ui="stack" data-gap="6")
+    include "partials/form-tabs.faqir" (tabs=page.tabs tab=page.tab)
+    p(data-ui="text" data-variant="muted") Publishing snapshots the definition. The public form serves the newest snapshot; every response records the version it was given.
+    if page.versions.length == 0
+      div(data-ui="card")
+        div(data-part="body")
+          div(data-ui="empty-state")
+            span(data-part="icon")
+              span(data-ui="icon" data-icon="git-branch" aria-hidden="true")
+            h2(data-part="title") Not published yet
+            p(data-part="description") Publish from the designer, from the button above, or with POST /api/v1/forms/{{ page.form.id }}/publish.
+    else
+      div(data-ui="table" data-size="md")
+        table(data-part="table")
+          thead(data-part="thead")
+            tr(data-part="tr")
+              th(data-part="th" scope="col") Version
+              th(data-part="th" scope="col") Published
+              th(data-part="th" scope="col" data-align="end") Responses
+              th(data-part="th" scope="col" data-align="end")
+                span(data-ui="text" data-size="sm" data-variant="muted") Actions
+          tbody(data-part="tbody")
+            each v in page.versions
+              tr(data-part="tr")
+                td(data-part="td")
+                  div(data-ui="cluster" data-gap="2")
+                    span(data-ui="text" data-weight="semibold") v{{ v.version }}
+                    if v.live
+                      span(data-ui="badge" data-variant="success" data-size="sm") Live
+                td(data-part="td") {{ datetime(v.published) }}
+                td(data-part="td" data-align="end") {{ v.responses }}
+                td(data-part="td" data-align="end")
+                  div(data-ui="cluster" data-gap="1")
+                    a(data-ui="button" data-variant="ghost" data-size="sm" href="/app/forms/{{ page.form.id }}/preview?version={{ v.version }}" target="_blank" rel="noopener") Preview
+                    a(data-ui="button" data-variant="ghost" data-size="sm" href=v.href target="_blank" rel="noopener") JSON

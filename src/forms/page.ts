@@ -11,6 +11,8 @@ const SCENES: Record<string, string> = { card: "aurora", split: "spotlight", pag
 export interface FormPageOptions {
   action: string;
   preview: boolean;
+  /** The published version this page shows; sent back so answers are checked against it. */
+  version?: number;
 }
 
 export function renderFormPage(form: CompiledForm, opts: FormPageOptions): string {
@@ -24,7 +26,10 @@ export function renderFormPage(form: CompiledForm, opts: FormPageOptions): strin
       accent: a.accent === "theme" ? null : a.accent,
       scheme: a.scheme === "auto" ? null : a.scheme,
       layout: a.layout,
-      measure: a.layout === "page" ? "content" : "narrow",
+      measure: "narrow",
+      titleSize: a.layout === "split" ? "3xl" : "display",
+      // A wizard draws its own card per step; anything else sits on one card unless the layout is "page".
+      framed: !form.wizard && a.layout !== "page",
       scene: SCENES[a.layout],
       coverImage: a.cover?.image || null,
       eyebrow: a.cover?.eyebrow || null,
@@ -35,6 +40,7 @@ export function renderFormPage(form: CompiledForm, opts: FormPageOptions): strin
       redirect: a.redirect,
       preview: opts.preview,
       action: opts.action,
+      version: opts.version ?? null,
       state: { status: "idle", message: "" },
     },
   });
@@ -62,14 +68,33 @@ export interface AuditResult {
 const CLI = join(import.meta.dirname, "../../node_modules/faqir-ui-cli/dist/faqir.mjs");
 const PROJECT = join(import.meta.dirname, "../..");
 
-/** `faqir audit --stdin --json` over one page (the CLI is the only audit 1.2.5 ships; see FAQIR-UPSTREAM.md). */
-export function auditHtml(html: string): Promise<AuditResult> {
+// At most two audits run at once, each for at most 15 s: every designer edit
+// previews, and each preview is a process.
+const MAX_AUDITS = 2;
+let running = 0;
+const waiting: (() => void)[] = [];
+
+/** `faqir audit --stdin --json` over one page (the CLI is the only audit 1.2.5 ships; FAQIR-UPSTREAM.md #7). */
+export async function auditHtml(html: string): Promise<AuditResult> {
+  if (running >= MAX_AUDITS) await new Promise<void>((go) => waiting.push(go));
+  running++;
+  try {
+    return await runAudit(html);
+  } finally {
+    running--;
+    waiting.shift()?.();
+  }
+}
+
+function runAudit(html: string): Promise<AuditResult> {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [CLI, "audit", "--stdin", "--json"], { cwd: PROJECT, env: { ...process.env, FAQIR_FORCE_NODE: "1", NO_COLOR: "1" } });
     let out = "";
     child.stdout.on("data", (d) => (out += d));
+    const timer = setTimeout(() => child.kill(), 15_000);
     child.on("error", reject);
     child.on("close", () => {
+      clearTimeout(timer);
       try {
         const json = JSON.parse(out);
         resolve({

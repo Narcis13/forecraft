@@ -1,0 +1,61 @@
+layout "layouts/app.faqir"
+
+block title
+  | Settings · {{ page.form.title }} — forecraft
+
+block header
+  h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.form.title }}
+  span(data-ui="badge" data-variant=page.form.statusVariant) {{ page.form.statusLabel }}
+
+block actions
+  include "partials/form-actions.faqir" (id=page.form.id draft=page.form.draft)
+
+block content
+  div(data-ui="stack" data-gap="6" l-data="formSettings" data-prop-form-id=tojson(page.settings.formId) data-prop-open=tojson(page.settings.open) data-prop-limit=tojson(page.settings.limit) data-prop-slug=tojson(page.settings.slug))
+    include "partials/form-tabs.faqir" (tabs=page.tabs tab=page.tab)
+    form(aria-label="Form settings" @submit.prevent="save()")
+      div(data-ui="card")
+        div(data-part="header")
+          h2(data-part="title") Responses
+          p(data-part="description") Close a form without unpublishing it, or stop it after a number of responses.
+        div(data-part="body")
+          div(data-ui="stack" data-gap="6")
+            div(data-ui="field-group")
+              label(data-part="label" for="set-open") Accepting responses
+              div(data-part="input")
+                input#set-open(data-ui="switch" type="checkbox" role="switch" l-model="open" aria-describedby="set-open-hint")
+              p#set-open-hint(data-part="description") When off, the public link shows a closed page and the API answers 409.
+            div(data-ui="field-group")
+              label(data-part="label" for="set-limit") Response limit
+              div(data-part="input")
+                input#set-limit(data-ui="input" type="number" min="1" step="1" l-model="limit" placeholder="No limit" aria-describedby="set-limit-hint")
+              p#set-limit-hint(data-part="description") Leave empty for no limit. At the limit the form shows a "full" page.
+            div(data-ui="field-group")
+              label(data-part="label" for="set-slug") Public address
+              div(data-part="input")
+                input#set-slug(data-ui="input" type="text" l-model="slug" pattern="[a-z0-9][a-z0-9-]{1,62}[a-z0-9]" aria-describedby="set-slug-hint")
+              p#set-slug-hint(data-part="description") /f/ followed by this. Lowercase letters, digits and dashes. Old links stop working when you change it.
+        div(data-part="footer")
+          button(type="submit" data-ui="button" data-variant="primary") Save settings
+    div(data-ui="card" data-variant="outlined")
+      div(data-part="header")
+        h2(data-part="title") Delete this form
+      div(data-part="body")
+        p(data-ui="text" data-variant="muted") The form, every version and every response are deleted. Export the responses first if you need them.
+      div(data-part="footer")
+        button(type="button" data-ui="button" data-variant="destructive" @click="$ui('#delete-form').open()") Delete form
+
+block dialogs
+  //- A dialog, not an alert-dialog: alert-dialog requires its own trigger, which
+  //- would put the whole dialog inside <main> (FAQIR-UPSTREAM.md #11).
+  div#delete-form(data-ui="dialog" data-state="closed" l-data="formSettings" data-prop-form-id=tojson(page.settings.formId))
+    div(data-part="overlay" hidden)
+    div(data-part="panel" role="dialog" aria-modal="true" aria-labelledby="delete-form-title" aria-describedby="delete-form-desc" data-size="sm" data-variant="danger" hidden)
+      div(data-part="header")
+        h2#delete-form-title(data-part="title") Delete “{{ page.form.title }}”?
+        button(type="button" data-part="close" aria-label="Close dialog") ✕
+      div(data-part="body")
+        p#delete-form-desc(data-part="description") {{ plural(page.form.responses, "response") }} will be deleted with it. This cannot be undone.
+      div(data-part="footer")
+        button(type="button" data-ui="button" data-variant="outline" @click="$ui('#delete-form').close()") Keep the form
+        button(type="button" data-ui="button" data-variant="destructive" @click="remove()") Delete for good

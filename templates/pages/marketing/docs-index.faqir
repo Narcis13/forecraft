@@ -1,0 +1,44 @@
+layout "layouts/base.faqir"
+
+block title
+  | {{ page.title }}
+
+
+block body
+  include "partials/site-header.faqir" (current="/docs")
+  main#main(data-site="marketing" data-gap="12")
+    div(data-ui="backdrop" data-variant="grid" data-intensity="subtle")
+      div(data-ui="container" data-measure="wide" data-gutter="4")
+        section(data-ui="hero" data-variant="center" data-animate aria-labelledby="docs-headline")
+          span(data-ui="badge" data-part="eyebrow" data-variant="primary") Docs
+          h1(data-part="headline" id="docs-headline") Read once, build forever.
+          p(data-part="description") How forecraft works, written short enough for a context window. Start with getting started; agents can skip to the curl sequence.
+          div(data-part="actions")
+            a(data-ui="button" data-variant="primary" data-size="lg" href="/docs/getting-started") Getting started
+            a(data-ui="button" data-variant="outline" data-size="lg" href="/docs/for-agents") The curl sequence
+
+    div(data-ui="container" data-measure="wide" data-gutter="4")
+      section(aria-labelledby="docs-pages-heading")
+        h2(data-ui="heading" data-size="2" id="docs-pages-heading") Every page
+        div(data-ui="grid" data-cols="1" data-cols-md="2" data-cols-lg="3" data-gap="6")
+          each d, i in page.docs
+            div(data-ui="spotlight" data-variant="border")
+              article(data-ui="card" data-variant="outlined" data-hover aria-labelledby="doc-card-{{ d.slug }}")
+                div(data-part="header")
+                  p(data-ui="text" data-variant="mono" data-size="xs") /docs/{{ d.slug }}
+                  h3(data-part="title" id="doc-card-{{ d.slug }}")
+                    a(href=d.href) {{ d.title }}
+                div(data-part="body")
+                  p {{ d.summary }}
+          else
+            p(data-ui="text" data-variant="muted") No docs yet.
+
+    div(data-ui="container" data-measure="wide" data-gutter="4")
+      section(data-ui="cta" data-variant="banner" data-tone="surface" aria-labelledby="docs-machines-headline")
+        div(data-part="content")
+          h2(data-part="headline" id="docs-machines-headline") Reading for a machine?
+          p(data-part="description") The same contract, in the formats agents parse best.
+        div(data-part="actions")
+          a(data-ui="button" data-variant="primary" href="/llms.txt") /llms.txt
+          a(data-ui="button" data-variant="outline" href="/openapi.json") /openapi.json
+  include "partials/site-footer.faqir"

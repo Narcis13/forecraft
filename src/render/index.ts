@@ -23,6 +23,8 @@ const HELPERS = {
     const d = new Date(iso);
     return `${d.getUTCDate()} ${d.toLocaleString("en-GB", { month: "short", timeZone: "UTC" })} ${d.getUTCFullYear()}`;
   },
+  /** A value as JSON text, for a data-prop-* attribute (faqir-core JSON-parses those). */
+  tojson: (v: unknown) => JSON.stringify(v),
   /** plural(3, "form") → "3 forms" */
   plural: (n: unknown, word: unknown) => `${n} ${word}${n === 1 ? "" : "s"}`,
   /** Answers as one line of text for a table cell. */
@@ -37,6 +39,7 @@ const HELPERS = {
 
 type Ast = NonNullable<ReturnType<typeof compile>["ast"]>;
 const compiled = new Map<string, Ast>();
+const DEV = process.env.NODE_ENV === "development" || "WATCH_REPORT_DEPENDENCIES" in process.env;
 
 function load(name: string): Ast {
   let ast = compiled.get(name);
@@ -48,7 +51,8 @@ function load(name: string): Ast {
     throw new Error(result.diagnostics.map((d) => `${d.file}:${d.line}:${d.col} ${d.code} ${d.message}`).join("\n"));
   }
   ast = result.ast;
-  if (process.env.NODE_ENV !== "development") compiled.set(name, ast);
+  // Under `node --watch` (npm run dev) templates are re-read on every render.
+  if (!DEV) compiled.set(name, ast);
   return ast;
 }
 

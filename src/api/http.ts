@@ -76,7 +76,10 @@ export function take(key: string, perMinute: number): { ok: boolean; retryAfter:
   const b = buckets.get(key) ?? { tokens: perMinute, at: t };
   b.tokens = Math.min(perMinute, b.tokens + ((t - b.at) / 60_000) * perMinute);
   b.at = t;
-  if (buckets.size > 50_000) buckets.clear();
+  // Bounded: when full, forget the bucket touched longest ago (Map keeps insertion
+  // order and every take() re-inserts), never everyone's at once.
+  buckets.delete(key);
+  if (buckets.size >= 50_000) buckets.delete(buckets.keys().next().value!);
   if (b.tokens < 1) {
     buckets.set(key, b);
     return { ok: false, retryAfter: Math.ceil(((1 - b.tokens) * 60_000) / perMinute / 1000), remaining: 0 };
@@ -99,10 +102,12 @@ export function rateLimit(perMinute: number, keyOf: (c: Context<Env>) => string)
   };
 }
 
+/** The socket's address. `X-Forwarded-For` is believed only behind a proxy you name (TRUST_PROXY=1). */
 export function clientIp(c: Context): string {
-  const forwarded = c.req.header("x-forwarded-for")?.split(",")[0]?.trim();
   const env = c.env as { incoming?: { socket?: { remoteAddress?: string } } } | undefined;
-  return forwarded || env?.incoming?.socket?.remoteAddress || "unknown";
+  const socket = env?.incoming?.socket?.remoteAddress || "unknown";
+  if (process.env.TRUST_PROXY !== "1") return socket;
+  return c.req.header("x-forwarded-for")?.split(",").at(-1)?.trim() || socket;
 }
 
 /** A salted hash of the client IP: enough to rate-limit and spot spam, not to identify anyone. */

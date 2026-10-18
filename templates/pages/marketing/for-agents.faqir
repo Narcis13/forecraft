@@ -1,0 +1,134 @@
+layout "layouts/base.faqir"
+
+block title
+  | {{ page.title }}
+
+  link(rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt")
+  link(rel="alternate" type="application/json" href="/openapi.json" title="OpenAPI")
+
+block body
+  include "partials/site-header.faqir" (current="/for-agents")
+  main#main(data-site="marketing" data-gap="12")
+    div(data-ui="backdrop" data-variant="grid" data-intensity="subtle")
+      div(data-ui="container" data-measure="wide" data-gutter="4")
+        section(data-ui="hero" data-variant="center" data-animate aria-labelledby="agents-headline")
+          span(data-ui="badge" data-part="eyebrow" data-variant="primary") For agents
+          h1(data-part="headline" id="agents-headline") If you are an agent, start here.
+          p(data-part="description") Four steps: get a key, read the contract, connect, call. Everything below is plain text you can copy. A person can follow along too.
+          div(data-part="actions")
+            a(data-ui="button" data-variant="primary" data-size="lg" href="/llms.txt") Read /llms.txt
+            a(data-ui="button" data-variant="outline" data-size="lg" href="/openapi.json") Fetch /openapi.json
+
+    div(data-ui="container" data-measure="content" data-gutter="4")
+      article(data-ui="prose" aria-labelledby="agents-headline")
+        h2#get-a-key 1. Get a key
+        p
+          | Keys start with
+          code fc_live_
+          | and belong to one workspace. The secret is shown once; send it as a bearer token on every request.
+        ol
+          li
+            | Sign up at
+            a(href="/signup") /signup
+            | and a workspace is created with your account.
+          li
+            | In the dashboard, open
+            a(href="/app/keys") API keys
+            | and create a key. Name it after the agent that will hold it.
+          li Store the secret where the agent reads its environment.
+        p Running forecraft yourself? The seed prints a demo key, once:
+        div(l-data="{ copied: false }")
+          div(data-ui="cluster" data-justify="between")
+            span(data-ui="text" data-variant="mono" data-size="xs") shell
+            button(data-ui="button" data-variant="ghost" data-size="sm" type="button" @click="navigator.clipboard.writeText($refs.code.textContent); copied = true" l-text="copied ? 'Copied' : 'Copy'") Copy
+          pre(data-lang="bash")
+            code(l-ref="code") {{ page.code.seed }}
+        p Then put the URL and the key where your tools can read them:
+        div(l-data="{ copied: false }")
+          div(data-ui="cluster" data-justify="between")
+            span(data-ui="text" data-variant="mono" data-size="xs") shell
+            button(data-ui="button" data-variant="ghost" data-size="sm" type="button" @click="navigator.clipboard.writeText($refs.code.textContent); copied = true" l-text="copied ? 'Copied' : 'Copy'") Copy
+          pre(data-lang="bash")
+            code(l-ref="code") {{ page.code.env }}
+
+        h2#read-the-contract 2. Read the contract
+        ul
+          li
+            a(href="/llms.txt") /llms.txt
+            |  — the whole product in one text file, written for you.
+          li
+            a(href="/openapi.json") /openapi.json
+            |  — every endpoint, request and response, as OpenAPI.
+          li
+            a(href="/docs/for-agents") /docs/for-agents
+            |  — the exact curl sequence: create, preview, publish, submit, list, export.
+          li
+            a(href="/docs/definitions") /docs/definitions
+            |  — the form definition: schema, ui, rules, appearance.
+          li
+            a(href="/docs/mcp") /docs/mcp
+            |  — the MCP server: install, tools, resources.
+          li
+            code GET /api/v1/vocabulary
+            |  — the themes, accents and layouts a definition may name.
+
+        h2#connect-over-mcp 3. Connect over MCP
+        p
+          | Add the server to your host's
+          code .mcp.json
+          |  (Claude Code reads it from the project root). It speaks stdio and wraps the same REST API.
+        div(l-data="{ copied: false }")
+          div(data-ui="cluster" data-justify="between")
+            span(data-ui="text" data-variant="mono" data-size="xs") .mcp.json
+            button(data-ui="button" data-variant="ghost" data-size="sm" type="button" @click="navigator.clipboard.writeText($refs.code.textContent); copied = true" l-text="copied ? 'Copied' : 'Copy'") Copy
+          pre(data-lang="json")
+            code(l-ref="code") {{ page.code.mcp }}
+        div(role="region" tabindex="0" aria-label="MCP tools")
+          table
+            caption The tools
+            thead
+              tr
+                th(scope="col") Tool
+                th(scope="col") What it does
+            tbody
+              each tool in page.tools
+                tr
+                  td
+                    code {{ tool.name }}
+                  td {{ tool.does }}
+        p
+          | The resource
+          code forecraft://form/{id}
+          |  returns a form's definition.
+
+        h2#call-the-api 4. Or call the API
+        p A first call, to check the key:
+        div(l-data="{ copied: false }")
+          div(data-ui="cluster" data-justify="between")
+            span(data-ui="text" data-variant="mono" data-size="xs") curl
+            button(data-ui="button" data-variant="ghost" data-size="sm" type="button" @click="navigator.clipboard.writeText($refs.code.textContent); copied = true" l-text="copied ? 'Copied' : 'Copy'") Copy
+          pre(data-lang="bash")
+            code(l-ref="code") {{ page.code.first }}
+        p
+          | It answers
+          code { "items": [] }
+          |  for a new workspace. Then create a form:
+        div(l-data="{ copied: false }")
+          div(data-ui="cluster" data-justify="between")
+            span(data-ui="text" data-variant="mono" data-size="xs") curl
+            button(data-ui="button" data-variant="ghost" data-size="sm" type="button" @click="navigator.clipboard.writeText($refs.code.textContent); copied = true" l-text="copied ? 'Copied' : 'Copy'") Copy
+          pre(data-lang="bash")
+            code(l-ref="code") {{ page.code.create }}
+        p
+          | Next:
+          a(href="/docs/for-agents") the full curl sequence
+          | — preview, publish, submit, list and export.
+
+        h2#rules-of-the-road Rules of the road
+        ul
+          raw
+            <li><strong>Errors</strong> are <code>application/problem+json</code> (RFC 9457): <code>type</code>, <code>title</code>, <code>status</code>, <code>detail</code> and <code>errors[]</code>. Each error has a JSON <code>pointer</code>; a rejected submission also names the <code>field</code> and the <code>rule</code> it broke.</li>
+            <li><strong>Rate limit:</strong> 240 requests a minute per key, announced in <code>RateLimit-*</code> headers. A 429 carries <code>Retry-After</code>.</li>
+            <li><strong>Drafts and versions:</strong> edits change the draft; publish snapshots it. The public URL serves the latest published version.</li>
+            <li><strong>Check your work:</strong> preview returns <code>audit.passed</code> and the findings. Publish what passes.</li>
+  include "partials/site-footer.faqir"

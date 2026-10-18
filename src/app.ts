@@ -7,6 +7,8 @@ import { DefinitionProblem } from "./forms/model.ts";
 import { apiRoutes } from "./routes/api.ts";
 import { publicRoutes } from "./routes/public.ts";
 import { pageRoutes } from "./routes/pages.ts";
+import { marketingRoutes } from "./routes/marketing.ts";
+import { agentRoutes } from "./routes/agents.ts";
 import { page } from "./render/index.ts";
 
 const ROOT = join(import.meta.dirname, "..");
@@ -26,6 +28,8 @@ export function createApp(db: DB) {
 
   app.route("/api/v1", apiRoutes(db));
   app.route("/", publicRoutes(db));
+  app.route("/", agentRoutes());
+  app.route("/", marketingRoutes());
   app.route("/", pageRoutes(db));
 
   app.notFound((c) => {

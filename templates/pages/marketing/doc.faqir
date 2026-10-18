@@ -1,0 +1,37 @@
+layout "layouts/base.faqir"
+
+block title
+  | {{ page.title }}
+
+
+block body
+  include "partials/site-header.faqir" (current="/docs")
+  main#main(data-site="marketing" data-doc=page.doc.slug)
+    div(data-ui="container" data-measure="wide" data-gutter="4")
+      div(data-ui="stack" data-gap="12" data-direction-lg="horizontal" data-align-lg="start" data-justify-lg="center")
+        article(data-ui="prose" aria-labelledby="doc-title")
+          p(data-ui="text" data-variant="eyebrow")
+            a(href="/docs") Docs
+          raw page.doc.html
+          hr(data-ui="separator")
+          div(data-ui="cluster" data-justify="between" data-gap="4")
+            if page.prev
+              a(data-ui="button" data-variant="ghost" href=page.prev.href)
+                span(data-ui="icon" data-icon="arrow-left" aria-hidden="true")
+                | {{ page.prev.title }}
+            else
+              span
+            if page.next
+              a(data-ui="button" data-variant="outline" href=page.next.href)
+                | {{ page.next.title }}
+                span(data-ui="icon" data-icon="arrow-right" aria-hidden="true")
+        aside(aria-label="Documentation")
+          p(data-ui="text" data-variant="eyebrow") In the docs
+          nav(data-ui="nav" data-variant="vertical" aria-label="Docs pages")
+            each d in page.docs
+              a(data-part="link" href=d.href data-state=d.current ? "active" : false aria-current=d.current ? "page" : false) {{ d.title }}
+          p(data-ui="text" data-variant="eyebrow") For machines
+          nav(data-ui="nav" data-variant="vertical" aria-label="Machine-readable docs")
+            a(data-part="link" href="/llms.txt") llms.txt
+            a(data-part="link" href="/openapi.json") openapi.json
+  include "partials/site-footer.faqir"

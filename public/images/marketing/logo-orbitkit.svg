@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" width="160" height="40">
+  <ellipse cx="18" cy="20" rx="12" ry="6" fill="none" stroke="#b8c0d4" stroke-width="2.2" transform="rotate(-25 18 20)"/>
+  <circle cx="18" cy="20" r="4" fill="#b8c0d4"/>
+  <circle cx="28" cy="14" r="2.2" fill="#b8c0d4"/>
+  <text x="38" y="27" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" letter-spacing="-0.6" fill="#b8c0d4">orbitkit</text>
+</svg>

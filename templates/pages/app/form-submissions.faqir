@@ -1,0 +1,96 @@
+layout "layouts/app.faqir"
+
+block title
+  | Responses · {{ page.form.title }} — forecraft
+
+block header
+  h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.form.title }}
+  span(data-ui="badge" data-variant=page.form.statusVariant) {{ page.form.statusLabel }}
+
+block actions
+  include "partials/form-actions.faqir" (id=page.form.id draft=page.form.draft)
+
+block content
+  div(data-ui="stack" data-gap="6")
+    include "partials/form-tabs.faqir" (tabs=page.tabs tab=page.tab)
+    form(method="get" role="search" aria-label="Filter responses")
+      div(data-ui="cluster" data-gap="3")
+        div(data-ui="field-group")
+          label(data-part="label" for="sub-q") Search answers
+          div(data-part="input")
+            input#sub-q(data-ui="input" type="search" name="q" value=page.q placeholder="Any word in any answer")
+        div(data-ui="field-group")
+          label(data-part="label" for="sub-version") Version
+          div(data-part="input")
+            select#sub-version(data-ui="select" name="version")
+              option(value="") All versions
+              each v in page.versions
+                option(value=v.value selected=v.selected) {{ v.label }}
+        button(type="submit" data-ui="button" data-variant="outline")
+          span(data-ui="icon" data-icon="funnel" aria-hidden="true")
+          | Filter
+        div(data-ui="cluster" data-gap="2" data-push)
+          a(data-ui="button" data-variant="outline" href=page.csvHref download)
+            span(data-ui="icon" data-icon="download" aria-hidden="true")
+            | Export CSV
+          a(data-ui="button" data-variant="ghost" href=page.jsonHref download)
+            span(data-ui="icon" data-icon="download" aria-hidden="true")
+            | JSON
+    p(data-ui="text" data-size="sm" data-variant="muted") {{ plural(page.total, "response") }}{{ page.total > page.rows.length ? " · showing the newest " + page.rows.length + "; the exports hold all of them" : "" }}
+    if page.rows.length == 0
+      div(data-ui="card")
+        div(data-part="body")
+          div(data-ui="empty-state")
+            span(data-part="icon")
+              span(data-ui="icon" data-icon="message-square" aria-hidden="true")
+            h2(data-part="title") {{ page.q ? "Nothing matches" : "No responses yet" }}
+            p(data-part="description") {{ page.q ? "Try a shorter search, or clear the filters." : "Responses appear here the moment someone submits, or the moment your agent does, through the same endpoint." }}
+    else
+      div(data-ui="table" data-size="md")
+        table(data-part="table")
+          thead(data-part="thead")
+            tr(data-part="tr")
+              th(data-part="th" scope="col")
+                span(data-ui="text" data-size="sm" data-variant="muted") Details
+              th(data-part="th" scope="col" data-sortable aria-sort="none") Submitted
+              each col in page.columns
+                th(data-part="th" scope="col" data-sortable aria-sort="none" data-hide-below="md") {{ col.title }}
+              th(data-part="th" scope="col" data-hide-below="sm") Version
+              th(data-part="th" scope="col" data-align="end")
+                span(data-ui="text" data-size="sm" data-variant="muted") Actions
+          tbody(data-part="tbody")
+            each r in page.rows
+              tr(data-part="tr")
+                td(data-part="td")
+                  button(type="button" data-ui="button" data-variant="ghost" data-size="sm" data-part="row-toggle" aria-expanded="false") View
+                td(data-part="td" data-sort-value=r.created) {{ datetime(r.created) }}
+                each cell in r.cells
+                  td(data-part="td") {{ answer(cell) }}
+                td(data-part="td") v{{ r.version }}
+                td(data-part="td" data-align="end")
+                  button(type="button" data-ui="button" data-variant="ghost" data-size="sm" value=r.id aria-label="Delete this response" @click="$dispatch('remove-sub', { id: $this.value }); $ui('#remove-submission').open()")
+                    span(data-ui="icon" data-icon="trash-2" aria-hidden="true")
+              tr(data-part="detail-row" hidden)
+                td(data-part="td" colspan="{{ page.columns.length + 4 }}")
+                  dl(data-ui="description-list")
+                    each a in r.answers
+                      dt(data-part="term") {{ a.label }}
+                      dd(data-part="details") {{ answer(a.value) }}
+                    dt(data-part="term") Response id
+                    dd(data-part="details")
+                      code {{ r.id }}
+
+block dialogs
+  //- A dialog, not an alert-dialog: alert-dialog requires its own trigger, and
+  //- this one is opened from any row (FAQIR-UPSTREAM.md #11).
+  div#remove-submission(data-ui="dialog" data-state="closed" l-data="submissionsPage" @remove-sub.window="removeId = $event.detail.id")
+    div(data-part="overlay" hidden)
+    div(data-part="panel" role="dialog" aria-modal="true" aria-labelledby="remove-submission-title" aria-describedby="remove-submission-desc" data-size="sm" data-variant="danger" hidden)
+      div(data-part="header")
+        h2#remove-submission-title(data-part="title") Delete this response?
+        button(type="button" data-part="close" aria-label="Close dialog") ✕
+      div(data-part="body")
+        p#remove-submission-desc(data-part="description") It is removed from the table and from every export. This cannot be undone.
+      div(data-part="footer")
+        button(type="button" data-ui="button" data-variant="outline" @click="$ui('#remove-submission').close()") Keep it
+        button(type="button" data-ui="button" data-variant="destructive" @click="remove()") Delete

@@ -25,7 +25,7 @@ export function publicRoutes(db: DB) {
     if (row.submission_limit !== null && countSubmissions(db, row.id) >= row.submission_limit) {
       return c.html(renderClosedPage(form, "full"));
     }
-    return c.html(renderFormPage(form, { action: `/api/v1/f/${row.slug}/submissions`, preview: false }));
+    return c.html(renderFormPage(form, { action: `/api/v1/f/${row.slug}/submissions`, preview: false, version: row.published_version }));
   });
 
   return app;

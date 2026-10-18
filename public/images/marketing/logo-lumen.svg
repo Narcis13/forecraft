@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" width="160" height="40">
+  <circle cx="18" cy="20" r="5" fill="#b8c0d4"/>
+  <g stroke="#b8c0d4" stroke-width="2.4" stroke-linecap="round">
+    <path d="M18 7v4M18 29v4M5 20h4M27 20h4M8.8 10.8l2.8 2.8M24.4 26.4l2.8 2.8M8.8 29.2l2.8-2.8M24.4 13.6l2.8-2.8"/>
+  </g>
+  <text x="38" y="26" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="500" fill="#b8c0d4">lumen</text>
+  <text x="96" y="26" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="300" fill="#b8c0d4">labs</text>
+</svg>

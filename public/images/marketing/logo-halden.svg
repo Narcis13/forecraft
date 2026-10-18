@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" width="160" height="40">
+  <rect x="6" y="10" width="20" height="20" rx="3" fill="none" stroke="#b8c0d4" stroke-width="2.5"/>
+  <path d="M11 15v10M21 15v10M11 20h10" stroke="#b8c0d4" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="34" y="26" font-family="Georgia, 'Times New Roman', serif" font-size="19" fill="#b8c0d4">Halden</text>
+  <text x="102" y="25" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="9" font-weight="600" letter-spacing="2.2" fill="#b8c0d4">STUDIO</text>
+</svg>

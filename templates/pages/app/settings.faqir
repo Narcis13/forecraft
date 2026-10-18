@@ -1,0 +1,61 @@
+layout "layouts/app.faqir"
+
+block title
+  | Workspace — forecraft
+
+block content
+  div(data-ui="stack" data-gap="6" l-data="workspacePage" data-prop-name=tojson(page.workspace.name))
+    form(aria-label="Workspace name" @submit.prevent="rename()")
+      div(data-ui="card")
+        div(data-part="header")
+          h2(data-part="title") Workspace
+          p(data-part="description") Forms, keys and responses belong to the workspace, not to a person.
+        div(data-part="body")
+          div(data-ui="field-group")
+            label(data-part="label" for="ws-name") Name
+            div(data-part="input")
+              input#ws-name(data-ui="input" type="text" l-model="name" required)
+        div(data-part="footer")
+          button(type="submit" data-ui="button" data-variant="primary") Save
+    div(data-ui="card")
+      div(data-part="header")
+        h2(data-part="title") Members
+        p(data-part="description") Everyone here sees every form. Invite by email; in this prototype we show you the link to send yourself.
+      div(data-part="body")
+        div(data-ui="stack" data-gap="6")
+          div(data-ui="table" data-size="sm")
+            table(data-part="table")
+              thead(data-part="thead")
+                tr(data-part="tr")
+                  th(data-part="th" scope="col") Email
+                  th(data-part="th" scope="col") Role
+                  th(data-part="th" scope="col" data-hide-below="sm") Joined
+              tbody(data-part="tbody")
+                each m in page.members
+                  tr(data-part="tr")
+                    td(data-part="td") {{ m.email }}
+                    td(data-part="td")
+                      span(data-ui="badge" data-variant=m.role == "owner" ? "primary" : "default") {{ m.role }}
+                    td(data-part="td") {{ date(m.created_at) }}
+                each i in page.invites
+                  tr(data-part="tr")
+                    td(data-part="td") {{ i.email }}
+                    td(data-part="td")
+                      span(data-ui="badge" data-variant="warning") invited
+                    td(data-part="td") {{ date(i.created_at) }}
+          form(aria-label="Invite a member" @submit.prevent="invite()")
+            div(data-ui="cluster" data-gap="3")
+              div(data-ui="field-group")
+                label(data-part="label" for="invite-email") Invite by email
+                div(data-part="input")
+                  input#invite-email(data-ui="input" type="email" l-model="email" required placeholder="colleague@company.com")
+              button(type="submit" data-ui="button" data-variant="outline")
+                span(data-ui="icon" data-icon="user-plus" aria-hidden="true")
+                | Create invite link
+          template(l-if="inviteUrl")
+            div(data-ui="callout" data-variant="success" role="status")
+              strong(data-part="title") Invite link ready
+              div(data-part="content")
+                div(data-ui="cluster" data-gap="2")
+                  code(l-text="inviteUrl")
+                  button(type="button" data-ui="button" data-variant="outline" data-size="sm" @click="copyInvite()") Copy

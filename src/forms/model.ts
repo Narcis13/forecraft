@@ -14,7 +14,6 @@ import { createHash } from "node:crypto";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
-export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
 export interface Appearance {
   theme: string;
@@ -68,7 +67,6 @@ export class DefinitionProblem extends Error {
 }
 
 const ID_PREFIX = "fc";
-export const FORM_ID = `${ID_PREFIX}-form`;
 
 export interface CompiledForm {
   definition: FormDefinition;
@@ -104,7 +102,8 @@ export function compileForm(input: unknown): CompiledForm {
       // Always pass rules, so the form always carries its definition — the one
       // the server validates with. See FAQIR-UPSTREAM.md #1.
       rules: definition.rules ?? {},
-      i18n: { submitLabel: appearance.submitLabel },
+      // "Select {title}" reads badly when titles are questions ("Select What do you do?").
+      i18n: { submitLabel: appearance.submitLabel, selectPlaceholder: "Choose one…" },
     });
   } catch (err) {
     throw new DefinitionProblem([{ pointer: "/schema", detail: cleanMessage(err) }]);
@@ -209,7 +208,12 @@ function appearanceErrors(a: unknown): { pointer: string; detail: string }[] {
 
 function isHttpUrl(v: unknown): boolean {
   if (typeof v !== "string") return false;
-  if (/^\/[^/\\]/.test(v)) return true; // a path on this site, e.g. /images/cover.svg
+  // A path on this site, e.g. /images/cover.svg: no whitespace, control characters
+  // or backslashes, and it must stay on the origin it resolves against.
+  if (v.startsWith("/")) {
+    if (/[\s\x00-\x1f\x7f\\]/.test(v)) return false;
+    return new URL(v, "https://forecraft.invalid").host === "forecraft.invalid";
+  }
   try {
     const u = new URL(v);
     return u.protocol === "https:" || u.protocol === "http:";
@@ -242,15 +246,36 @@ export interface SubmissionVerdict {
  * the `faqir-rules` plugin ran in the browser, on the same definition.
  * `raw` is a JSON object of answers, or form pairs (`URLSearchParams`, `[k, v][]`).
  */
-export function checkSubmission(form: CompiledForm, raw: Record<string, unknown> | URLSearchParams | [string, string][]): SubmissionVerdict {
-  const record = isRecord(raw) ? raw : fromFormData(raw as URLSearchParams);
+export function checkSubmission(form: CompiledForm, raw: Record<string, unknown> | URLSearchParams): SubmissionVerdict {
+  const record = raw instanceof URLSearchParams ? fromFormData(raw) : raw;
   const coerced = coerce(form.rules, record) as Record<string, unknown>;
   const verdict = validate(form.rules, coerced);
-  const data: Record<string, unknown> = {};
-  for (const { name } of form.fields) {
-    if (verdict.visible[name] === false) continue;
-    const value = name in verdict.computed ? verdict.computed[name] : coerced[name];
-    if (value !== undefined && value !== null && value !== "" && !(Array.isArray(value) && value.length === 0)) data[name] = value;
+  const hidden = (path: string) => verdict.visible[path] === false || verdict.visible[path.replace(/.(d+)(?=.|$)/g, "[$1]")] === false;
+  const data = keep(form.definition.schema, { ...coerced, ...verdict.computed }, "", hidden) as Record<string, unknown>;
+  return { valid: verdict.valid, findings: verdict.findings as Finding[], data: data ?? {} };
+}
+
+/**
+ * What is stored: the declared properties only, at every depth, without the
+ * paths a rule hid, and without blanks. Keys the form never declared are dropped.
+ */
+function keep(schema: { type?: unknown; properties?: Record<string, unknown>; items?: unknown }, value: unknown, path: string, hidden: (p: string) => boolean): unknown {
+  if (value === undefined || value === null || value === "" || (Array.isArray(value) && value.length === 0)) return undefined;
+  if (schema.properties && isRecord(value)) {
+    const out: Record<string, unknown> = {};
+    for (const [name, child] of Object.entries(schema.properties)) {
+      const at = path ? `${path}.${name}` : name;
+      if (hidden(at)) continue;
+      const v = keep(child as typeof schema, value[name], at, hidden);
+      if (v !== undefined) out[name] = v;
+    }
+    return path && Object.keys(out).length === 0 ? undefined : out;
   }
-  return { valid: verdict.valid, findings: verdict.findings as Finding[], data };
+  const items = schema.items as typeof schema | undefined;
+  if (Array.isArray(value) && items?.properties) {
+    const rows = value.map((row, i) => keep(items, row, `${path}.${i}`, hidden)).filter((r) => r !== undefined);
+    return rows.length ? rows : undefined;
+  }
+  if (schema.properties || items?.properties) return undefined; // a scalar where an object belongs
+  return value;
 }

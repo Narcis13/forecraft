@@ -1,0 +1,141 @@
+layout "layouts/base.faqir"
+
+block title
+  | {{ page.title }}
+
+
+block body
+  include "partials/site-header.faqir" (current="/pricing")
+  main#main(data-site="marketing" data-gap="12")
+    div(data-ui="backdrop" data-variant="dots" data-intensity="subtle")
+      div(data-ui="container" data-measure="wide" data-gutter="4")
+        section(data-ui="hero" data-variant="center" data-animate aria-labelledby="pricing-headline")
+          span(data-ui="badge" data-part="eyebrow" data-variant="primary") Pricing
+          h1(data-part="headline" id="pricing-headline")
+            | Free while it is a
+            span(data-ui="highlight" data-variant="gradient") prototype.
+          p(data-part="description") forecraft has no billing yet. Everything that exists is on, for everyone, at no cost. The two plans after it are a sketch of where it goes.
+
+    div(data-ui="container" data-measure="wide" data-gutter="4")
+      section(data-ui="pricing" data-cols="3" aria-labelledby="plans-heading")
+        h2(data-part="heading" id="plans-heading") Three plans, one of them real
+        p(data-part="description") Your agent's key works the same on every plan: same API, same MCP server, same forms.
+        div(data-ui="grid" data-part="tiers" data-cols="1" data-cols-sm="2" data-cols-lg="3" data-gap="6" data-align-rows)
+          article(data-ui="card" data-part="tier" data-state="featured" aria-labelledby="tier-prototype")
+            div(data-part="header")
+              span(data-ui="stamp" data-variant="primary" data-size="sm") Available now
+              h3(data-part="title" id="tier-prototype") Prototype
+              p(data-part="description") Everything forecraft does today, for agents and the people they work for.
+              div(data-ui="stat" data-size="lg")
+                div(data-part="value") $0
+                div(data-part="label") no card, no billing, no trial clock
+            hr(data-ui="separator" data-part="divider")
+            div(data-part="body")
+              ul
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | Unlimited forms and submissions
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | REST API and MCP server
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | Drag-and-drop designer
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | 31 themes, wizards and rules
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | CSV and JSON export
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | 240 API requests a minute per key
+            div(data-part="footer")
+              a(data-ui="button" data-variant="primary" data-effect="shine" data-full href="/signup") Get an API key
+
+          article(data-ui="card" data-part="tier" aria-labelledby="tier-team")
+            div(data-part="header")
+              span(data-ui="badge" data-variant="secondary") Coming soon
+              h3(data-part="title" id="tier-team") Team
+              p(data-part="description") For a workspace where several people and agents share forms.
+              div(data-ui="stat" data-size="lg")
+                div(data-part="value") $24
+                div(data-part="label") per workspace a month, planned
+            hr(data-ui="separator" data-part="divider")
+            div(data-part="body")
+              ul
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | Everything in Prototype
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | Roles and per-form permissions
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | Webhooks that retry until you answer
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | File uploads to your own bucket
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | 1,200 API requests a minute per key
+            div(data-part="footer")
+              button(data-ui="button" data-variant="outline" data-full type="button" disabled) Coming soon
+
+          article(data-ui="card" data-part="tier" aria-labelledby="tier-scale")
+            div(data-part="header")
+              span(data-ui="badge" data-variant="secondary") Coming soon
+              h3(data-part="title" id="tier-scale") Scale
+              p(data-part="description") For organisations whose agents collect data an auditor will ask about.
+              div(data-ui="stat" data-size="lg")
+                div(data-part="value") $149
+                div(data-part="label") per workspace a month, planned
+            hr(data-ui="separator" data-part="divider")
+            div(data-part="body")
+              ul
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | Everything in Team
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | Single sign-on and an audit log
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | Public forms on your own domain
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | Signatures and consent records
+                li
+                  span(data-ui="icon" data-icon="check" aria-hidden="true")
+                  | EU data residency
+            div(data-part="footer")
+              button(data-ui="button" data-variant="outline" data-full type="button" disabled) Coming soon
+        p(data-part="footnote") No billing exists in forecraft. Nothing is charged, and the planned prices are a sketch, not an offer.
+
+    div(data-ui="container" data-measure="wide" data-gutter="4")
+      section(data-ui="faq" data-variant="split" aria-labelledby="pricing-faq-heading")
+        div(data-part="intro")
+          h2(data-part="heading" id="pricing-faq-heading") About the money
+          p(data-part="description") There is none yet. Here is what that means.
+        div(data-part="items")
+          details(data-ui="collapsible" data-variant="bordered" open)
+            summary(data-part="trigger") Is there a catch?
+            div(data-part="content") forecraft is a prototype: no billing, no email delivery, no uptime promise. Use it to build and test forms with your agent, not to run payroll.
+          details(data-ui="collapsible" data-variant="bordered")
+            summary(data-part="trigger") Are there limits on the free plan?
+            div(data-part="content") 240 API requests a minute per key, and 10 submissions a minute from one address to stop spam. Forms and submissions are not capped.
+          details(data-ui="collapsible" data-variant="bordered")
+            summary(data-part="trigger") What happens to my forms when paid plans arrive?
+            div(data-part="content") They stay where they are. A form's definition, versions and submissions belong to its workspace, and you can export every submission as CSV or JSON at any time.
+          details(data-ui="collapsible" data-variant="bordered")
+            summary(data-part="trigger") Can I run it myself?
+            div(data-part="content") Yes. Clone it, run npm install, npm run seed and npm start. It is one Node process and one SQLite file.
+
+    div(data-ui="container" data-measure="wide" data-gutter="4")
+      section(data-ui="cta" data-variant="banner" data-tone="gradient" aria-labelledby="pricing-cta-headline")
+        div(data-part="content")
+          h2(data-part="headline" id="pricing-cta-headline") Start on the plan that exists.
+          p(data-part="description") Sign up, create a key, hand it to your agent.
+        div(data-part="actions")
+          a(data-ui="button" data-variant="secondary" data-size="lg" href="/signup") Get an API key
+  include "partials/site-footer.faqir"

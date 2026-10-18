@@ -47,7 +47,7 @@ export function toResource(db: DB, row: FormRow): FormResource {
     status: row.status,
     submission_limit: row.submission_limit,
     published_version: row.published_version,
-    has_unpublished_changes: published === null || published.definition !== row.definition,
+    has_unpublished_changes: !published || published.definition !== row.definition,
     submission_count: countSubmissions(db, row.id),
     created_at: row.created_at,
     updated_at: row.updated_at,
@@ -160,19 +160,29 @@ export function countSubmissions(db: DB, formId: string): number {
 
 export interface SubmissionQuery { q?: string; version?: number; since?: string; until?: string; limit?: number; offset?: number }
 
-export function listSubmissions(db: DB, formId: string, query: SubmissionQuery = {}): { items: Submission[]; total: number } {
+function where(formId: string, query: SubmissionQuery): { sql: string; args: (string | number)[] } {
   const where = ["form_id = ?"];
   const args: (string | number)[] = [formId];
   if (query.q) { where.push("data LIKE ? ESCAPE '\\'"); args.push(`%${query.q.replace(/[\\%_]/g, (m) => `\\${m}`)}%`); }
   if (query.version) { where.push("version = ?"); args.push(query.version); }
   if (query.since) { where.push("created_at >= ?"); args.push(query.since); }
   if (query.until) { where.push("created_at <= ?"); args.push(query.until); }
-  const sql = where.join(" AND ");
+  return { sql: where.join(" AND "), args };
+}
+
+export function listSubmissions(db: DB, formId: string, query: SubmissionQuery = {}): { items: Submission[]; total: number } {
+  const { sql, args } = where(formId, query);
   const total = (db.prepare(`SELECT COUNT(*) AS n FROM submissions WHERE ${sql}`).get(...args) as { n: number }).n;
   const limit = Math.min(Math.max(query.limit ?? 50, 1), 1000);
   const rows = db.prepare(`SELECT * FROM submissions WHERE ${sql} ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?`)
     .all(...args, limit, query.offset ?? 0) as unknown as SubmissionRow[];
   return { items: rows.map(toSubmission), total };
+}
+
+/** Every submission matching the filters, oldest first — for exports. */
+export function exportSubmissions(db: DB, formId: string, query: SubmissionQuery = {}): Submission[] {
+  const { sql, args } = where(formId, query);
+  return (db.prepare(`SELECT * FROM submissions WHERE ${sql} ORDER BY created_at, id`).all(...args) as unknown as SubmissionRow[]).map(toSubmission);
 }
 
 export function getSubmission(db: DB, workspaceId: string, id: string): Submission | undefined {
@@ -186,9 +196,6 @@ export function deleteSubmission(db: DB, id: string): void {
   db.prepare("DELETE FROM submissions WHERE id = ?").run(id);
 }
 
-export function recentSubmissionsFromIp(db: DB, ipHash: string, sinceIso: string): number {
-  return (db.prepare("SELECT COUNT(*) AS n FROM submissions WHERE ip_hash = ? AND created_at >= ?").get(ipHash, sinceIso) as { n: number }).n;
-}
 
 // ── Export ────────────────────────────────────────────────────────────────
 

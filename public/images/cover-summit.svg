@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Abstract golden arcs over a night sky">
+  <defs>
+    <radialGradient id="sun" cx="68%" cy="34%" r="62%">
+      <stop offset="0" stop-color="#f6d58e"/>
+      <stop offset="0.18" stop-color="#d9a441"/>
+      <stop offset="0.45" stop-color="#5a3a1a"/>
+      <stop offset="1" stop-color="#0d0b10"/>
+    </radialGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a1420" stop-opacity="0"/>
+      <stop offset="1" stop-color="#07060a"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbe7b5"/>
+      <stop offset="1" stop-color="#b9822b"/>
+    </linearGradient>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 1  0 0 0 0 0.9  0 0 0 0 0.75  0 0 0 0.07 0"/>
+    </filter>
+  </defs>
+  <rect width="900" height="1200" fill="url(#sun)"/>
+  <g fill="none" stroke="url(#gold)" stroke-linecap="round">
+    <circle cx="612" cy="408" r="120" stroke-width="2" opacity="0.9"/>
+    <circle cx="612" cy="408" r="190" stroke-width="1.5" opacity="0.6"/>
+    <circle cx="612" cy="408" r="270" stroke-width="1" opacity="0.4"/>
+    <circle cx="612" cy="408" r="370" stroke-width="1" opacity="0.25"/>
+    <circle cx="612" cy="408" r="490" stroke-width="0.8" opacity="0.15"/>
+  </g>
+  <g fill="#0b090e">
+    <path d="M0 860 L80 820 L130 840 L190 770 L240 790 L300 700 L330 715 L360 640 L390 700 L440 690 L470 740 L540 720 L600 760 L660 735 L720 790 L790 770 L900 820 L900 1200 L0 1200 Z"/>
+  </g>
+  <g fill="#f3c873" opacity="0.85">
+    <rect x="352" y="652" width="4" height="10"/><rect x="372" y="672" width="3" height="8"/><rect x="452" y="702" width="4" height="9"/>
+    <rect x="610" y="748" width="3" height="8"/><rect x="232" y="800" width="4" height="9"/><rect x="690" y="772" width="3" height="7"/>
+  </g>
+  <rect y="760" width="900" height="440" fill="url(#sea)"/>
+  <g stroke="#e6b65c" stroke-width="2" opacity="0.5">
+    <line x1="520" y1="900" x2="700" y2="900"/><line x1="560" y1="930" x2="670" y2="930"/><line x1="585" y1="960" x2="645" y2="960"/>
+    <line x1="600" y1="990" x2="628" y2="990"/>
+  </g>
+  <rect width="900" height="1200" filter="url(#grain)"/>
+</svg>
