@@ -756,3 +756,13 @@ the case it would add to Faqir's own print matrix (`tests/visual/print/matrix.ts
   command palette and toasts were driven entirely from expressions.
 - **Inherited `--flow-space`.** Setting `data-gap` on an ancestor flow root tuned the
   spacing of markup we could not touch.
+- **The document layer (phase 2).** The `document` pattern and the `doc-*` tokens turned a
+  plain sheet into print geometry in one element; retuning the house style was token
+  assignments, not new CSS. The table recipe's print rules repeated headers and kept rows
+  whole across pages; `box-decoration-break: clone` padded every page fragment.
+- **`qr-code` and `barcode` print as vector.** Drawn by their controllers before printing,
+  they embed as paths; an EPC payment payload and a Code 128 ticket both decode from the PDF.
+- **`@faqir-ui/template` as a report engine.** Agents' bindings are template expressions
+  with compile-time diagnostics (line, column, code) that became 422 pointers, `??` for
+  optional data, and URL escaping that refuses a `javascript:` link coming from data.
+- **`faqir audit` on documents.** The share view of every seed document audits clean.
