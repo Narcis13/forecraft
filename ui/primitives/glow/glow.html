@@ -1,0 +1,54 @@
+<!-- @ui:component glow -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants style=gradient|beam trigger=always|hover -->
+<!--
+  Glow — animated light around one box. CSS only, zero JavaScript.
+    · Wrap exactly one child. The ring is drawn outside it, so the child keeps
+      its own background, border and padding.
+    · The root's radius has to match the child's; it defaults to the card's.
+      For anything else, set --glow-radius to that component's radius token.
+    · Purely decorative: no role, no name, no focus stop.
+-->
+
+<!-- Gradient ring (default) around a card -->
+<div data-ui="glow">
+  <div data-ui="card">
+    <div data-part="body">A rotating accent gradient frames this card.</div>
+  </div>
+</div>
+
+<!-- Ring with a halo — the light the ring casts -->
+<div data-ui="glow" data-halo>
+  <div data-ui="card">
+    <div data-part="body">The same ring, with its glow behind the card.</div>
+  </div>
+</div>
+
+<!-- Beam — one bright arc travelling a quiet border -->
+<div data-ui="glow" data-variant="beam">
+  <div data-ui="card">
+    <div data-part="body">A single beam orbits the edge.</div>
+  </div>
+</div>
+
+<!-- Hover — off until the pointer or the keyboard arrives -->
+<div data-ui="glow" data-trigger="hover" data-halo>
+  <div data-ui="card">
+    <div data-part="body">
+      <a data-ui="link" href="#glow">Focus or hover to light the card</a>
+    </div>
+  </div>
+</div>
+
+<!-- Around a button: match the button's radius, thinner ring, faster orbit -->
+<span data-ui="glow" data-halo style="--glow-radius: var(--button-radius); --glow-width: var(--border-width-sm); --glow-duration: 12s">
+  <button data-ui="button" data-variant="primary" data-size="lg" type="button">Get started</button>
+</span>
+
+<!-- Static, in custom colours -->
+<div data-ui="glow" data-static style="--glow-color-1: var(--color-success); --glow-color-2: var(--color-warning)">
+  <div data-ui="card">
+    <div data-part="body">A still gradient border.</div>
+  </div>
+</div>

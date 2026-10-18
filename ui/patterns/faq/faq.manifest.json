@@ -1,0 +1,149 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "faq",
+  "version": "1.0.0",
+  "kind": "pattern",
+  "category": "marketing",
+  "description": "Frequently-asked-questions section: a heading, an optional description, a stack of native <details data-ui='collapsible'> questions and a closing contact line. Composition only: zero JavaScript, no controller, no reactive directives — the two layouts are pure CSS grid and the optional numbering is a CSS counter.",
+
+  "anatomy": {
+    "tag": "section",
+    "selector": "[data-ui='faq']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "heading": {
+      "selector": "[data-part='heading']",
+      "required": true,
+      "tag_hint": "h2",
+      "description": "Section heading. Give it an id and point the section's aria-labelledby at it so the landmark is named. A direct child in the stacked layout; inside intro in the split layout"
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Optional intro paragraph under the heading. A direct child in the stacked layout; inside intro in the split layout"
+    },
+    "intro": {
+      "selector": "[data-part='intro']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Wrapper for heading, description and footer — required by the split layout, where it sticks beside the questions from the lg floor; omitted by the stacked one"
+    },
+    "items": {
+      "selector": "[data-part='items']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "The stack of questions. Put one nested <details data-ui='collapsible'> per question directly inside; its <summary data-part='trigger'> and <div data-part='content'> are the COLLAPSIBLE's parts, not the faq's. Only the gap between questions is drawn here (--faq-gap)"
+    },
+    "footer": {
+      "selector": "[data-part='footer']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Closing line under the questions — typically 'Still have questions?' with a nested data-ui='link'. A direct child in the stacked layout; inside intro in the split layout"
+    }
+  },
+
+  "variants": {
+    "layout": {
+      "values": ["stacked", "split"],
+      "default": "stacked",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "numbered": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-numbered",
+      "description": "Prefix every question with a two-digit counter. The number is drawn by the collapsible root's ::before and read from a CSS counter on items, so the markup does not change and nothing has to be renumbered when a question moves."
+    },
+    "--faq-gap": {
+      "type": "string",
+      "default": "var(--space-3)",
+      "description": "Space between questions (custom property, set on the root or on items). Pass a spacing token."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-labelledby on the section pointing at the heading id",
+      "every question is a <details data-ui='collapsible'> whose trigger is its <summary>",
+      "descriptive link text in the footer (never 'click here')"
+    ],
+    "notes": "The questions are native disclosure widgets: the browser manages the expanded state and the summary's implicit aria-expanded, so the section needs no ARIA wiring of its own. The counter drawn by data-numbered is generated content and is not announced consistently; it is a visual aid, so never make the number the only way to refer to a question.",
+    "keyboard": {
+      "Tab": "move through the question summaries and any footer link in source order",
+      "Enter/Space": "toggle the focused question open or closed (native <summary> behaviour)"
+    }
+  },
+
+  "tokens_used": [
+    "space-4", "space-12", "space-3", "space-10", "space-16", "space-6", "space-8", "font-body",
+    "font-heading", "font-ui", "color-fg", "color-bg", "color-fg-muted", "text-xl", "text-lg",
+    "text-sm", "text-3xl", "heading-weight", "heading-tracking", "heading-transform",
+    "heading-caps", "heading-leading", "leading-relaxed", "leading-normal", "measure-content"
+  ],
+
+  "templates": {
+    "html": "<section data-ui=\"faq\" data-variant=\"{layout}\" aria-labelledby=\"{id}-heading\">\n  <h2 data-part=\"heading\" id=\"{id}-heading\">{heading}</h2>\n  <p data-part=\"description\">{description}</p>\n  <div data-part=\"items\">\n    <details data-ui=\"collapsible\" data-variant=\"bordered\">\n      <summary data-part=\"trigger\">{question}</summary>\n      <div data-part=\"content\">{answer}</div>\n    </details>\n  </div>\n  <p data-part=\"footer\">{footer_text} <a data-ui=\"link\" href=\"{footer_href}\">{footer_label}</a></p>\n</section>"
+  },
+
+  "safe_transforms": [
+    "add-question",
+    "remove-question",
+    "reorder-questions",
+    "change-layout-variant",
+    "toggle-numbered",
+    "open-a-question-by-default",
+    "add-section-description",
+    "remove-section-description",
+    "add-footer",
+    "remove-footer",
+    "change-question-gap"
+  ],
+
+  "unsafe_transforms": [
+    "replace-collapsibles-with-divs",
+    "add-data-part-to-a-collapsible",
+    "move-heading-outside-intro-in-split-layout",
+    "remove-aria-labelledby",
+    "promote-heading-to-h1-inside-a-page-that-has-one",
+    "add-custom-script"
+  ],
+
+  "composition": {
+    "contains": ["collapsible", "link"],
+    "used_in": [],
+    "notes": [
+      "The questions are nested collapsibles, so each one keeps the collapsible's five-attribute contract: its root carries data-variant (bordered, as here, or default) and its summary and body are the collapsible's trigger and content parts. A nested root must not also carry a faq data-part — put it inside [data-part='items'] instead.",
+      "The faq never styles a collapsible's parts. The stack is spaced through [data-part='items'] (--faq-gap), and data-numbered hangs its counter off the collapsible ROOT — the items part's direct child — with a padding gutter, so the summary's own padding, hover fill and chevron are untouched.",
+      "The split layout needs [data-part='intro'] around heading, description and footer so the three can stick as one block; the stacked layout leaves them as direct children of the section. The stylesheet reaches every intro part both ways."
+    ]
+  },
+
+  "files": {
+    "html": "faq.html",
+    "css": "faq.css",
+    "manifest": "faq.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-section-with-data-ui-faq",
+    "heading-and-items-slots-are-required",
+    "section-is-labelled-by-its-heading",
+    "questions-are-nested-collapsibles-without-a-faq-data-part",
+    "stacked-is-the-default-layout",
+    "split-variant-gains-its-second-column-at-the-lg-floor",
+    "numbered-prefixes-each-question-with-a-counter",
+    "ships-zero-javascript",
+    "reference-page-is-audit-clean"
+  ]
+}

@@ -1,0 +1,51 @@
+<!-- @ui:component separator -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots label -->
+<!-- @ui:variants orientation=horizontal|vertical style=solid|dashed|dotted|thick|ornament -->
+
+<!-- Horizontal (default) -->
+<hr data-ui="separator">
+
+<!-- Vertical -->
+<hr data-ui="separator" data-variant="vertical" aria-orientation="vertical">
+
+<!-- With label -->
+<div data-ui="separator" role="separator">
+  <span data-part="label">OR</span>
+</div>
+
+<!-- Dashed -->
+<hr data-ui="separator" data-style="dashed">
+
+<!-- Dotted -->
+<hr data-ui="separator" data-style="dotted">
+
+<!-- Thick -->
+<hr data-ui="separator" data-style="thick">
+
+<!-- Dashed with label -->
+<div data-ui="separator" data-style="dashed" role="separator">
+  <span data-part="label">Section Break</span>
+</div>
+
+<!-- Vertical dashed (for use in horizontal stacks) -->
+<hr data-ui="separator" data-variant="vertical" data-style="dashed" data-size="md" aria-orientation="vertical">
+
+<!-- Vertical dotted -->
+<hr data-ui="separator" data-variant="vertical" data-style="dotted" data-size="lg" aria-orientation="vertical">
+
+
+<!-- Ornament — a centred diamond in the accent, hairline rules fading out to both sides.
+     No text content: the diamond is drawn by CSS. An hr keeps its separator semantics. -->
+<hr data-ui="separator" data-style="ornament">
+
+<!-- Ornament with a label: the label sits in the middle instead of the diamond -->
+<div data-ui="separator" data-style="ornament" role="separator">
+  <span data-part="label">Chapter Two</span>
+</div>
+
+<!-- Ornament in a div with no label part: the same diamond -->
+<div data-ui="separator" data-style="ornament" role="separator"></div>
+
+<!-- Ornament is horizontal only; vertical keeps its solid line -->
+<hr data-ui="separator" data-variant="vertical" data-style="ornament" data-size="md" aria-orientation="vertical">

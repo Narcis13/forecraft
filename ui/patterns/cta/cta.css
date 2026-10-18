@@ -1,0 +1,254 @@
+/* @ui:component cta */
+/* @ui:tokens color-fg color-fg-muted color-primary color-primary-fg color-info space-4 space-8 space-3 space-12 font-body font-heading card-bg card-border border-width radius-2xl radius-lg corner-shape text-sm text-3xl text-base text-2xl text-4xl text-lg weight-semibold leading-snug leading-relaxed heading-weight heading-tracking heading-transform heading-caps heading-leading measure-prose */
+
+/* ── Root ──
+   One panel that asks for one thing. A grid, so the layout variants only
+   change how the same parts flow — stacked and centred, copy beside media,
+   or one compact row — and the tone variants only change what the panel is
+   painted with.
+
+   Three private properties carry the tone: the ink, the muted ink the
+   description and the note are set in, and the accent the eyebrow is set in.
+   A tone re-points them once and every part follows; `--cta-fg` re-points the
+   ink for all three tones.
+
+   Mobile-first: every declaration outside the `@media` blocks at the foot of
+   the sheet is the PHONE case; the canon floors only ever widen it. */
+[data-ui="cta"] {
+  --faqir-cta-ink: var(--cta-fg, var(--color-fg));
+  --faqir-cta-muted: var(--color-fg-muted);
+  --faqir-cta-accent: var(--color-primary);
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--cta-padding, var(--space-8));
+  font-family: var(--font-body);
+  color: var(--faqir-cta-ink);
+  background: var(--cta-bg, var(--card-bg));
+  border: var(--border-width) solid var(--card-border);
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  overflow: clip;
+}
+
+/* ── Eyebrow ── */
+[data-ui="cta"] > [data-part="eyebrow"],
+[data-ui="cta"] > :where([data-part="content"]) > [data-part="eyebrow"] {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  color: var(--faqir-cta-accent);
+}
+
+/* ── Headline ──
+   The heading voice. A nested highlight inside it keeps the words real text;
+   the effect is a background under the glyphs. */
+[data-ui="cta"] > [data-part="headline"],
+[data-ui="cta"] > :where([data-part="content"]) > [data-part="headline"] {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  line-height: var(--heading-leading);
+  color: var(--faqir-cta-ink);
+  text-wrap: balance;
+}
+
+/* ── Description ── */
+[data-ui="cta"] > [data-part="description"],
+[data-ui="cta"] > :where([data-part="content"]) > [data-part="description"] {
+  margin: 0;
+  max-inline-size: var(--measure-prose);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--faqir-cta-muted);
+}
+
+/* ── Actions ──
+   Stacked and full-bleed on a phone: two side-by-side buttons in 320px of
+   viewport are two truncated buttons. They become a row at the sm floor. The
+   buttons inside keep their own contract — on a primary or gradient tone the
+   markup uses the button's secondary variant, which is what reads on a filled
+   panel; the pattern never restyles a nested component. */
+[data-ui="cta"] > [data-part="actions"],
+[data-ui="cta"] > :where([data-part="content"]) > [data-part="actions"] {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
+  inline-size: 100%;
+  gap: var(--space-3);
+  margin-block-start: var(--space-4);
+}
+
+/* ── Note ── */
+[data-ui="cta"] > [data-part="note"],
+[data-ui="cta"] > :where([data-part="content"]) > [data-part="note"] {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: var(--faqir-cta-muted);
+}
+
+/* ── Content ──
+   The text column of the split and banner layouts: a grid of its own, so the
+   inner rhythm matches the centred layout, where the parts sit directly in
+   the root. */
+[data-ui="cta"] > [data-part="content"] {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+}
+
+/* ── Media ── */
+[data-ui="cta"] > [data-part="media"] {
+  margin: 0;
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  overflow: clip;
+}
+
+[data-ui="cta"] > :where([data-part="media"]) > img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+
+/* ── Layout: center (default) ── */
+[data-ui="cta"]:not([data-variant]),
+[data-ui="cta"][data-variant="center"] {
+  justify-items: center;
+  text-align: center;
+}
+
+[data-ui="cta"]:not([data-variant]) > [data-part="actions"],
+[data-ui="cta"][data-variant="center"] > [data-part="actions"] {
+  justify-content: center;
+}
+
+/* ── Layout: split ──
+   Copy and media share the row from the lg floor; until then the media
+   follows the copy, in source order. */
+[data-ui="cta"][data-variant="split"] {
+  align-items: center;
+  gap: var(--space-8);
+}
+
+/* ── Layout: banner ──
+   One compact row from the md floor: the copy at the start, the actions at
+   the end. The headline steps down a size so the row stays a row. */
+[data-ui="cta"][data-variant="banner"] {
+  align-items: center;
+}
+
+[data-ui="cta"][data-variant="banner"] > :where([data-part="content"]) > [data-part="headline"] {
+  font-size: var(--text-2xl);
+}
+
+[data-ui="cta"][data-variant="banner"] > :where([data-part="content"]) > [data-part="description"] {
+  font-size: var(--text-base);
+}
+
+/* ── Tone: primary ──
+   The accent as the panel. The ink is the accent's own foreground, the muted
+   ink is that foreground let through at most of its strength, and the
+   eyebrow takes the ink — an accent-coloured eyebrow on an accent panel
+   would vanish. */
+[data-ui="cta"][data-tone="primary"] {
+  --faqir-cta-ink: var(--cta-fg, var(--color-primary-fg));
+  --faqir-cta-muted: color-mix(in oklch, var(--faqir-cta-ink) 88%, transparent);
+  --faqir-cta-accent: var(--faqir-cta-ink);
+  background: var(--cta-bg, var(--color-primary));
+  border-color: transparent;
+}
+
+/* ── Tone: gradient ──
+   The theme's accent gradient where it states one, else the accent running
+   into info. The same ink as the primary tone, because the gradient is built
+   from colours that share the accent's foreground. */
+[data-ui="cta"][data-tone="gradient"] {
+  --faqir-cta-ink: var(--cta-fg, var(--color-primary-fg));
+  --faqir-cta-muted: color-mix(in oklch, var(--faqir-cta-ink) 88%, transparent);
+  --faqir-cta-accent: var(--faqir-cta-ink);
+  background: var(--cta-gradient, var(--gradient-accent, linear-gradient(135deg, var(--color-primary), var(--color-info))));
+  border-color: transparent;
+}
+
+/* ── Transparent ──
+   For a panel inside a backdrop: the backdrop paints the light BEHIND its
+   content, so the panel's own fill and edge would hide it. The padding and
+   the radius stay, so the copy keeps its room. */
+[data-ui="cta"][data-transparent] {
+  background: none;
+  border-color: transparent;
+}
+
+/* ── Print ── */
+@media print {
+  [data-ui="cta"] {
+    break-inside: avoid;
+  }
+}
+
+/* ── Responsive ──
+   Canon tiers only, min-width only, ascending. sm: the type scale opens up,
+   the panel takes its full padding and the action row is a row again. md:
+   the banner becomes its row. lg: the split layout earns its second column. */
+@media (min-width: 40rem) {
+  [data-ui="cta"] {
+    padding: var(--cta-padding, var(--space-12));
+  }
+
+  [data-ui="cta"][data-variant="banner"] {
+    padding: var(--cta-padding, var(--space-8));
+  }
+
+  [data-ui="cta"] > [data-part="headline"],
+  [data-ui="cta"] > :where([data-part="content"]) > [data-part="headline"] {
+    font-size: var(--text-4xl);
+  }
+
+  [data-ui="cta"][data-variant="banner"] > :where([data-part="content"]) > [data-part="headline"] {
+    font-size: var(--text-2xl);
+  }
+
+  [data-ui="cta"] > [data-part="description"],
+  [data-ui="cta"] > :where([data-part="content"]) > [data-part="description"] {
+    font-size: var(--text-lg);
+  }
+
+  [data-ui="cta"][data-variant="banner"] > :where([data-part="content"]) > [data-part="description"] {
+    font-size: var(--text-base);
+  }
+
+  /* `normal` rather than a value of its own: this is the initial align-items,
+     so the row is exactly the un-stacked default and nothing is "undone". */
+  [data-ui="cta"] > [data-part="actions"],
+  [data-ui="cta"] > :where([data-part="content"]) > [data-part="actions"] {
+    inline-size: auto;
+    flex-direction: row;
+    align-items: normal;
+  }
+}
+
+@media (min-width: 48rem) {
+  [data-ui="cta"][data-variant="banner"] {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-8);
+  }
+
+  [data-ui="cta"][data-variant="banner"] > [data-part="actions"] {
+    justify-content: end;
+    margin-block-start: 0;
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-ui="cta"][data-variant="split"] {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-12);
+  }
+}

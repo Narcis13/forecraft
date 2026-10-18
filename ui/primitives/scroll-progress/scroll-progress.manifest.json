@@ -1,0 +1,107 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "scroll-progress",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "feedback",
+  "description": "A reading-progress bar that grows from the start edge as the page — or the nearest scrolling pane — scrolls. One empty element and a scroll timeline: no script, no scroll listener. Painted in the theme's accent gradient, pinned top or bottom, and absent where scroll timelines are unsupported.",
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='scroll-progress']",
+    "content_model": "empty"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "position": {
+      "values": ["top", "bottom"],
+      "default": "top",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "scope": {
+      "values": ["page", "nearest"],
+      "default": "page",
+      "attr": "data-scope",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "--scroll-progress-size": {
+      "type": "string",
+      "default": "0.1875rem",
+      "description": "Thickness of the bar (custom property)."
+    },
+    "--scroll-progress-color": {
+      "type": "string",
+      "default": "var(--gradient-accent), else var(--color-primary)",
+      "description": "Fill of the bar: a colour token or a gradient (custom property)."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-hidden=\"true\" on the root"
+    ],
+    "notes": "Decorative duplicate of information the scrollbar already exposes, so it is hidden from assistive technology and takes no pointer events. It moves only with the reader's own scrolling, never on a clock, and therefore stays under prefers-reduced-motion.",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "z-sticky", "color-primary", "ease-linear"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"scroll-progress\" aria-hidden=\"true\"></div>",
+    "html_bottom": "<div data-ui=\"scroll-progress\" data-variant=\"bottom\" aria-hidden=\"true\"></div>",
+    "html_nearest": "<div data-ui=\"scroll-progress\" data-scope=\"nearest\" aria-hidden=\"true\"></div>"
+  },
+
+  "safe_transforms": [
+    "change-position",
+    "change-scope",
+    "change-custom-property-dimensions",
+    "change-custom-property-colors"
+  ],
+
+  "unsafe_transforms": [
+    "remove-aria-hidden",
+    "add-children",
+    "put-two-page-scoped-bars-on-one-page",
+    "place-a-nearest-scoped-bar-anywhere-but-the-scroller-edge"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["article"],
+    "notes": [
+      "One page-scoped bar per page, anywhere in <body> — it is position: fixed and pins itself.",
+      "data-scope=\"nearest\" makes it sticky inside the nearest scroll container: put it first in that container (or last, with data-variant=\"bottom\").",
+      "Under a sticky site header, the header covers a top bar; use data-variant=\"bottom\", or place the bar inside the header.",
+      "The fill reads --gradient-accent when the theme defines one, so it matches gradient highlights and glows on the same page."
+    ]
+  },
+
+  "files": {
+    "html": "scroll-progress.html",
+    "css": "scroll-progress.css",
+    "manifest": "scroll-progress.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-empty-aria-hidden-div",
+    "is-hidden-without-scroll-timeline-support",
+    "grows-from-the-start-edge",
+    "bottom-variant-pins-to-the-bottom-edge",
+    "nearest-scope-is-sticky-and-reads-the-nearest-scroller",
+    "takes-no-pointer-events",
+    "is-absent-in-print"
+  ]
+}

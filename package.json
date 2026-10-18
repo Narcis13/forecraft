@@ -1,0 +1,33 @@
+{
+  "name": "forecraft",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Forms for the agentic era: an API and MCP server first, a designer second.",
+  "type": "module",
+  "engines": {
+    "node": ">=24.15"
+  },
+  "dependencies": {
+    "@faqir-ui/forms": "1.2.5",
+    "@faqir-ui/rules": "1.2.5",
+    "@faqir-ui/template": "1.2.5",
+    "@hono/node-server": "2.1.5",
+    "hono": "4.13.13"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/node": "26.6.5",
+    "faqir-ui-cli": "1.2.5",
+    "typescript": "7.0.2"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.ts",
+    "start": "node src/server.ts",
+    "seed": "node scripts/seed.ts",
+    "test": "node --test \"tests/unit/**/*.test.ts\" \"tests/api/**/*.test.ts\"",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc --noEmit",
+    "audit": "node scripts/audit.ts",
+    "check": "npm run typecheck && npm run audit && npm test"
+  }
+}

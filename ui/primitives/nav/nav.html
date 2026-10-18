@@ -1,0 +1,33 @@
+<!-- @ui:component nav -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots link separator -->
+
+<!-- Horizontal (default) -->
+<nav data-ui="nav" aria-label="Main">
+  <a data-part="link" data-state="active" href="#">Dashboard</a>
+  <a data-part="link" href="#">Components</a>
+  <a data-part="link" href="#">Settings</a>
+</nav>
+
+<!-- Underline variant -->
+<nav data-ui="nav" data-variant="underline" aria-label="Tabs">
+  <a data-part="link" data-state="active" href="#">Overview</a>
+  <a data-part="link" href="#">Analytics</a>
+  <a data-part="link" href="#">Reports</a>
+</nav>
+
+<!-- Pill variant -->
+<nav data-ui="nav" data-variant="pill" aria-label="View">
+  <button data-part="link" data-state="active">Grid</button>
+  <button data-part="link">List</button>
+  <button data-part="link">Board</button>
+</nav>
+
+<!-- Vertical variant -->
+<nav data-ui="nav" data-variant="vertical" aria-label="Sidebar">
+  <a data-part="link" data-state="active" href="#">Home</a>
+  <a data-part="link" href="#">Projects</a>
+  <div data-part="separator"></div>
+  <a data-part="link" href="#">Settings</a>
+  <a data-part="link" href="#">Help</a>
+</nav>

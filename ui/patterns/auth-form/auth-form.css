@@ -1,0 +1,289 @@
+/* @ui:component auth-form */
+/* @ui:tokens color-fg color-fg-muted color-border color-ring color-primary color-primary-hover color-destructive color-destructive-subtle radius-lg radius-sm shadow-sm space-1 space-2 space-3 space-4 space-5 space-6 space-8 font-heading font-body heading-weight heading-tracking heading-transform heading-caps heading-leading text-sm text-lg text-xl text-2xl weight-medium weight-bold leading-tight leading-normal border-width focus-ring-width focus-ring-style focus-ring-color focus-ring-offset link-decoration card-radius card-shadow card-border */
+
+/* ── Root Container ── */
+[data-ui="auth-form"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font-family: var(--font-body);
+}
+
+/* Mobile-first (task 0.8-09): on a phone the card IS the page — edge to edge,
+   square, no shadow, no side rules. The canon sm block at the foot of the sheet
+   turns it back into a card.
+
+   It has to RESTATE card.css's box there rather than unset anything: `revert`
+   drops to the user-agent origin, which would take the card primitive's own
+   author rules with it. The values below go through card's own custom
+   properties, so a theme that retunes `--card-radius` still reaches them. */
+[data-ui="auth-form"] > [data-ui="card"] {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 0;
+  box-shadow: none;
+  border-inline-start: none;
+  border-inline-end: none;
+}
+
+/* ── Header ── */
+[data-ui="auth-form"] [data-part="header"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-6);
+  padding-bottom: 0;
+  text-align: center;
+}
+
+[data-ui="auth-form"] [data-part="title"] {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  line-height: var(--heading-leading);
+  color: var(--color-fg);
+}
+
+[data-ui="auth-form"] [data-part="description"] {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+  line-height: var(--leading-normal);
+}
+
+/* ── Error Message ── */
+[data-ui="auth-form"] [data-part="error"] {
+  display: none;
+  margin: var(--space-4) var(--space-6) 0;
+  padding: var(--space-3);
+  background: var(--color-destructive-subtle);
+  border: var(--border-width) solid var(--color-destructive);
+  border-radius: var(--radius-lg);
+  color: var(--color-destructive);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+[data-ui="auth-form"] [data-part="error"] p {
+  margin: 0;
+}
+
+[data-ui="auth-form"][data-state="error"] [data-part="error"] {
+  display: block;
+}
+
+[data-ui="auth-form"] [data-part="error"]:not([hidden]) {
+  display: block;
+}
+
+/* ── Form ── */
+[data-ui="auth-form"] [data-part="form"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+}
+
+/* ── Field Groups ── */
+[data-ui="auth-form"] [data-part="email-field"],
+[data-ui="auth-form"] [data-part="password-field"],
+[data-ui="auth-form"] [data-part="name-field"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ── Submit Button ── */
+[data-ui="auth-form"] [data-part="submit"] {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+/* ── Separator ── */
+[data-ui="auth-form"] [data-part="separator"] {
+  padding: 0 var(--space-6);
+}
+
+/* ── Social Buttons ── */
+[data-ui="auth-form"] [data-part="social"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0 var(--space-6);
+}
+
+[data-ui="auth-form"] [data-part="social"] > [data-ui="button"] {
+  width: 100%;
+}
+
+/* ── Footer ── */
+[data-ui="auth-form"] [data-part="footer"] {
+  padding: var(--space-4) var(--space-6) var(--space-6);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+}
+
+[data-ui="auth-form"] [data-part="footer"] p {
+  margin: 0;
+}
+
+[data-ui="auth-form"] [data-part="footer"] a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: var(--weight-medium);
+}
+
+[data-ui="auth-form"] [data-part="footer"] a:hover {
+  text-decoration-line: var(--link-decoration);
+  color: var(--color-primary-hover);
+}
+
+[data-ui="auth-form"] [data-part="footer"] a:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm, 0.25rem);
+}
+
+/* ── Mode Variants ── */
+
+/* Login mode: hide name field */
+[data-ui="auth-form"][data-variant="login"] [data-part="name-field"] {
+  display: none;
+}
+
+/* Register mode: hide social section and separator */
+[data-ui="auth-form"][data-variant="register"] [data-part="social"],
+[data-ui="auth-form"][data-variant="register"] [data-part="separator"] {
+  display: none;
+}
+
+/* Forgot-password mode: hide password, name, social, separator */
+[data-ui="auth-form"][data-variant="forgot-password"] [data-part="password-field"],
+[data-ui="auth-form"][data-variant="forgot-password"] [data-part="name-field"],
+[data-ui="auth-form"][data-variant="forgot-password"] [data-part="social"],
+[data-ui="auth-form"][data-variant="forgot-password"] [data-part="separator"] {
+  display: none;
+}
+
+/* ── State: Loading ── */
+[data-ui="auth-form"][data-state="loading"] [data-part="form"] {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* ── State: Success ── */
+[data-ui="auth-form"][data-state="success"] [data-part="error"] {
+  display: none;
+}
+
+/* ── Size Variants ── */
+
+/* Small */
+[data-ui="auth-form"][data-size="sm"] > [data-ui="card"] {
+  max-width: var(--auth-form-max-width-sm, 340px);
+}
+
+[data-ui="auth-form"][data-size="sm"] [data-part="header"] {
+  padding: var(--space-4);
+  padding-bottom: 0;
+}
+
+[data-ui="auth-form"][data-size="sm"] [data-part="title"] {
+  font-size: var(--text-lg);
+}
+
+[data-ui="auth-form"][data-size="sm"] [data-part="form"] {
+  padding: var(--space-4);
+  gap: var(--space-3);
+}
+
+[data-ui="auth-form"][data-size="sm"] [data-part="separator"] {
+  padding: 0 var(--space-4);
+}
+
+[data-ui="auth-form"][data-size="sm"] [data-part="social"] {
+  padding: 0 var(--space-4);
+  gap: var(--space-2);
+}
+
+[data-ui="auth-form"][data-size="sm"] [data-part="footer"] {
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+[data-ui="auth-form"][data-size="sm"] [data-part="error"] {
+  margin: var(--space-3) var(--space-4) 0;
+}
+
+/* Large */
+[data-ui="auth-form"][data-size="lg"] > [data-ui="card"] {
+  max-width: var(--auth-form-max-width-lg, 480px);
+}
+
+[data-ui="auth-form"][data-size="lg"] [data-part="header"] {
+  padding: var(--space-8);
+  padding-bottom: 0;
+}
+
+[data-ui="auth-form"][data-size="lg"] [data-part="title"] {
+  font-size: var(--text-2xl);
+}
+
+[data-ui="auth-form"][data-size="lg"] [data-part="form"] {
+  padding: var(--space-8);
+  gap: var(--space-5);
+}
+
+[data-ui="auth-form"][data-size="lg"] [data-part="separator"] {
+  padding: 0 var(--space-8);
+}
+
+[data-ui="auth-form"][data-size="lg"] [data-part="social"] {
+  padding: 0 var(--space-8);
+  gap: var(--space-4);
+}
+
+[data-ui="auth-form"][data-size="lg"] [data-part="footer"] {
+  padding: var(--space-5) var(--space-8) var(--space-8);
+}
+
+[data-ui="auth-form"][data-size="lg"] [data-part="error"] {
+  margin: var(--space-5) var(--space-8) 0;
+}
+
+/* ── Responsive ──
+   Canon tiers only, min-width only (FAQIR-NEXT §19). One step, at sm.
+
+   The pre-canon floor was an ad-hoc 480px — the one value in the registry that
+   had no canon tier under it. There is no `xs` (§19): a fifth tier would exist
+   to serve a single declaration in a single pattern, and the canon's whole point
+   is that four numbers describe the framework. So full bleed now runs to 640px,
+   which is a larger phone in landscape rather than a smaller one in portrait —
+   and full bleed is the *better* answer at that width anyway, since a 400px card
+   floating in 600px of viewport reads as a dialog that failed to centre.
+
+   The old `flex-direction: column` on [data-part="social"] is gone rather than
+   flipped: the base rule already declares it, so that line never did anything. */
+@media (min-width: 40rem) {
+  [data-ui="auth-form"] > [data-ui="card"] {
+    max-width: var(--auth-form-max-width, 400px);
+    border-radius: var(--card-radius, var(--radius-lg));
+    box-shadow: var(--card-shadow, var(--shadow-sm));
+    border-inline-start: var(--border-width) solid var(--card-border, var(--color-border));
+    border-inline-end: var(--border-width) solid var(--card-border, var(--color-border));
+  }
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="auth-form"] [data-part="form"],
+  [data-ui="auth-form"] [data-part="error"],
+  [data-ui="auth-form"] [data-part="footer"] a {
+    transition: none;
+  }
+}

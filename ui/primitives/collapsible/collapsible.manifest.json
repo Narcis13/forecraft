@@ -1,0 +1,117 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "collapsible",
+  "version": "1.0.1",
+  "kind": "primitive",
+  "category": "data-display",
+  "description": "Disclosure widget built on native <details>/<summary> — opens and closes with zero JavaScript, animated via ::details-content where supported",
+
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. The trigger and content rules were descendant selectors, so an open collapsible rotated the chevron of a closed one nested in its content, and gave its padding and hover fill to any nested part named trigger or content. They are child selectors now: the summary is always a direct child of its details, and the content is the template's direct child. No rule changes specificity.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "details",
+    "selector": "[data-ui='collapsible']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "trigger": {
+      "selector": "[data-part='trigger']",
+      "required": true,
+      "tag_hint": "summary",
+      "description": "The clickable disclosure header — must be the <summary> so the native toggle works"
+    },
+    "content": {
+      "selector": "[data-part='content']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "The collapsible body revealed when open"
+    }
+  },
+
+  "variants": {
+    "visual": {
+      "values": ["default", "bordered"],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "open": {
+      "attr": "open",
+      "default": false
+    }
+  },
+
+  "props": {
+    "open": { "type": "boolean", "default": false, "description": "Whether the section is expanded (native `open` attribute)" }
+  },
+
+  "a11y": {
+    "required_attrs": [],
+    "keyboard": {
+      "Enter/Space": "Toggles the section open/closed (native <summary> behavior)"
+    },
+    "notes": "The root must be <details> and the trigger must be its direct <summary> child. The browser manages the expanded/collapsed state and the implicit aria-expanded on the summary — no ARIA wiring or JavaScript is needed. Animation is a progressive enhancement gated on @supports (interpolate-size: allow-keywords)."
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted", "color-bg-subtle", "color-border", "color-ring",
+    "radius-md",
+    "space-2", "space-3",
+    "text-sm", "text-base",
+    "font-ui", "weight-medium",
+    "duration-fast", "duration-normal", "ease-default",
+    "border-width", "border-width-strong", "focus-ring-width", "focus-ring-offset", "focus-ring-style", "focus-ring-color", "focus-shadow"
+  ],
+
+  "templates": {
+    "html": "<details data-ui=\"collapsible\"><summary data-part=\"trigger\">{title}</summary><div data-part=\"content\">{content}</div></details>",
+    "html_open": "<details data-ui=\"collapsible\" open><summary data-part=\"trigger\">{title}</summary><div data-part=\"content\">{content}</div></details>"
+  },
+
+  "safe_transforms": [
+    "change-variant",
+    "change-trigger-text",
+    "change-content",
+    "set-open",
+    "remove-open"
+  ],
+
+  "unsafe_transforms": [
+    "change-root-from-details",
+    "change-trigger-from-summary",
+    "remove-trigger-slot",
+    "remove-content-slot",
+    "add-js-controller"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": []
+  },
+
+  "files": {
+    "html": "collapsible.html",
+    "css": "collapsible.css",
+    "manifest": "collapsible.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-details-element",
+    "trigger-slot-is-required",
+    "content-slot-is-required",
+    "trigger-is-summary",
+    "opens-and-closes-without-javascript",
+    "chevron-rotates-when-open",
+    "bordered-variant-has-border"
+  ]
+}

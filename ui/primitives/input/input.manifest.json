@@ -1,0 +1,133 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "input",
+  "version": "1.2.1",
+  "kind": "primitive",
+  "category": "forms",
+  "description": "Text input with error, disabled states and size variants; compose labeled or described inputs inside field-group so inner proximity and outer form rhythm have distinct owners",
+
+  "changes": [
+    {
+      "version": "1.2.1",
+      "note": "Nested components keep their own parts. The stylesheet reached an input-group's prefix and suffix with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Both are the group's children, and the padding rules that make room for them ask :has(> prefix) / :has(> suffix). Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.2.0",
+      "note": "The labeled reference now composes field-group, which keeps label/control/help text on the tight density-aware inner step while the surrounding default rhythm spaces adjacent fields.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "data-width='fixed' is now declared (it was in the CSS but in no manifest) and its responsive rule is mobile-first on the breakpoint canon: the 250px cap applies from sm (40rem) up instead of being undone below 640px. Same two widths at the same threshold; the boundary itself moves to the wide side, so at exactly 640px the input is now capped rather than full-bleed.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "input",
+    "selector": "[data-ui='input']",
+    "content_model": "inline"
+  },
+
+  "slots": {
+    "prefix": {
+      "selector": "[data-part='prefix']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Leading icon or text inside input-group"
+    },
+    "suffix": {
+      "selector": "[data-part='suffix']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Trailing icon or text inside input-group"
+    }
+  },
+
+  "variants": {
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "default": { "attr": "data-state=\"default\"", "default": true },
+    "error": { "attr": "data-state=\"error\"" },
+    "disabled": { "attr": "disabled" }
+  },
+
+  "props": {
+    "placeholder": { "type": "string", "default": "", "description": "Placeholder text" },
+    "value": { "type": "string", "default": "", "description": "Input value" },
+    "disabled": { "type": "boolean", "default": false, "description": "Whether the input is disabled" },
+    "type": { "type": "string", "default": "text", "description": "Input type attribute" },
+    "width": {
+      "type": "enum",
+      "values": ["fixed"],
+      "default": "",
+      "attr": "data-width",
+      "description": "data-width='fixed' caps the input at 250px from the sm tier (40rem) up; below sm it is full-bleed. Unset, the input fills its container at every width."
+    }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-invalid=\"true\" when in error state",
+      "id + matching label[for] for accessibility"
+    ],
+    "keyboard": {
+      "Tab": "focus input"
+    }
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted", "color-border", "color-border-strong", "color-ring",
+    "color-destructive", "radius-md", "space-2", "space-3", "space-4", "space-10", "font-ui",
+    "text-xs", "text-sm", "text-base", "duration-fast", "ease-default", "border-width",
+    "corner-shape", "focus-ring-width", "focus-ring-style", "focus-ring-color", "focus-shadow",
+    "input-border-width", "input-fill", "input-height", "input-radius", "input-font",
+    "disabled-opacity"
+  ],
+
+  "templates": {
+    "html": "<input data-ui=\"input\" type=\"{type}\" placeholder=\"{placeholder}\">"
+  },
+
+  "safe_transforms": [
+    "change-size",
+    "change-type",
+    "add-placeholder",
+    "wrap-in-input-group",
+    "add-prefix",
+    "add-suffix"
+  ],
+
+  "unsafe_transforms": [
+    "remove-input-element",
+    "change-to-div-without-role"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["field-group", "auth-form", "search-results", "crud-table", "settings-page"]
+  },
+
+  "files": {
+    "html": "input.html",
+    "css": "input.css",
+    "manifest": "input.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-input-element",
+    "error-state-sets-data-state-error",
+    "error-state-has-aria-invalid",
+    "disabled-state-has-disabled-attribute",
+    "sm-size-sets-data-size-sm",
+    "placeholder-is-styled"
+  ]
+}

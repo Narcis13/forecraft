@@ -1,0 +1,199 @@
+/* @ui:component switch */
+/* @ui:tokens color-bg-muted color-primary color-primary-fg color-border color-ring shadow-xs space-0h space-2 duration-fast ease-default border-width focus-ring-width focus-ring-offset focus-ring-style focus-ring-color focus-shadow switch-radius switch-width switch-height switch-thumb switch-travel switch-bg switch-thumb-shadow disabled-opacity */
+
+/* -- Label wrapper -- */
+[data-ui="switch-label"] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  cursor: pointer;
+}
+
+[data-ui="switch-label"]:has([data-ui="switch"]:disabled) {
+  cursor: not-allowed;
+  opacity: var(--disabled-opacity);
+}
+
+/* -- Base (track) -- */
+/* Travel direction.
+   `translateX` is PHYSICAL, and CSS has no logical translate: in an RTL page
+   the track flips but the thumb still slid right, 17px outside its own track.
+   One sign flip, read by every `translateX` below. `[dir]` covers the attribute
+   an RTL page sets; `:dir()` is a separate rule so a browser without it still
+   applies the first. [W3-3] */
+[data-ui="switch"] {
+  --switch-dir: 1;
+}
+[dir="rtl"] [data-ui="switch"],
+[data-ui="switch"][dir="rtl"] {
+  --switch-dir: -1;
+}
+[data-ui="switch"]:dir(rtl) {
+  --switch-dir: -1;
+}
+
+[data-ui="switch"] {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  width: var(--switch-width, 44px);
+  height: var(--switch-height, 24px);
+  padding: var(--space-0h, 2px);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--switch-radius);
+  background: var(--switch-bg, var(--color-bg-muted));
+  cursor: pointer;
+  position: relative;
+  transition: background var(--duration-fast) var(--ease-default),
+              border-color var(--duration-fast) var(--ease-default),
+              box-shadow var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="switch"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-shadow);
+}
+
+/* -- Thumb (pseudo-element for <input>, child for custom markup) -- */
+[data-ui="switch"]::after {
+  content: "";
+  display: block;
+  width: var(--switch-thumb, 18px);
+  height: var(--switch-thumb, 18px);
+  border-radius: var(--switch-radius);
+  background: var(--color-primary-fg);
+  box-shadow: var(--switch-thumb-shadow, var(--shadow-xs));
+  transition: transform var(--duration-fast) var(--ease-default);
+  pointer-events: none;
+}
+
+/* Child thumb (for non-input elements like <button>) */
+[data-ui="switch"] > [data-part="thumb"] {
+  display: block;
+  width: var(--switch-thumb, 18px);
+  height: var(--switch-thumb, 18px);
+  border-radius: var(--switch-radius);
+  background: var(--color-primary-fg);
+  box-shadow: var(--switch-thumb-shadow, var(--shadow-xs));
+  transition: transform var(--duration-fast) var(--ease-default);
+  pointer-events: none;
+}
+
+/* Hide pseudo-thumb when a real thumb child exists */
+[data-ui="switch"]:has(> [data-part="thumb"])::after {
+  display: none;
+}
+
+/* -- On state -- */
+[data-ui="switch"]:checked,
+[data-ui="switch"][aria-checked="true"],
+[data-ui="switch"][data-state="on"] {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+[data-ui="switch"]:checked::after,
+[data-ui="switch"][aria-checked="true"]::after,
+[data-ui="switch"][data-state="on"]::after {
+  transform: translateX(calc(var(--switch-travel, 20px) * var(--switch-dir, 1)));
+}
+
+[data-ui="switch"][aria-checked="true"] > [data-part="thumb"],
+[data-ui="switch"][data-state="on"] > [data-part="thumb"] {
+  transform: translateX(calc(var(--switch-travel, 20px) * var(--switch-dir, 1)));
+}
+
+/* -- Sizes -- */
+
+/* Small: 36x20, thumb 14px, travel 16px */
+[data-ui="switch"][data-size="sm"] {
+  width: 36px;
+  height: 20px;
+}
+[data-ui="switch"][data-size="sm"]::after,
+[data-ui="switch"][data-size="sm"] > [data-part="thumb"] {
+  width: 14px;
+  height: 14px;
+}
+[data-ui="switch"][data-size="sm"]:checked::after,
+[data-ui="switch"][data-size="sm"][aria-checked="true"]::after,
+[data-ui="switch"][data-size="sm"][data-state="on"]::after,
+[data-ui="switch"][data-size="sm"][aria-checked="true"] > [data-part="thumb"],
+[data-ui="switch"][data-size="sm"][data-state="on"] > [data-part="thumb"] {
+  transform: translateX(calc(16px * var(--switch-dir, 1)));
+}
+
+/* Large: 52x28, thumb 22px, travel 24px */
+[data-ui="switch"][data-size="lg"] {
+  width: 52px;
+  height: 28px;
+}
+[data-ui="switch"][data-size="lg"]::after,
+[data-ui="switch"][data-size="lg"] > [data-part="thumb"] {
+  width: 22px;
+  height: 22px;
+}
+[data-ui="switch"][data-size="lg"]:checked::after,
+[data-ui="switch"][data-size="lg"][aria-checked="true"]::after,
+[data-ui="switch"][data-size="lg"][data-state="on"]::after,
+[data-ui="switch"][data-size="lg"][aria-checked="true"] > [data-part="thumb"],
+[data-ui="switch"][data-size="lg"][data-state="on"] > [data-part="thumb"] {
+  transform: translateX(calc(24px * var(--switch-dir, 1)));
+}
+
+/* -- Disabled -- */
+[data-ui="switch"]:disabled {
+  cursor: not-allowed;
+}
+
+/* -- Forced colors (Windows High Contrast) --
+   Every colour above is dropped by the OS, so the track rendered as an empty
+   pill and ON and OFF were pixel-identical: the ONE thing this control exists
+   to say could not be read. `forced-color-adjust: none` on the thumb keeps a
+   fill the OS would otherwise strip, and the system keywords carry the state:
+   the track's border is always visible, and ON fills it with `Highlight`. [W3-3] */
+@media (forced-colors: active) {
+  [data-ui="switch"] {
+    border: var(--border-width) solid ButtonText;
+    background: ButtonFace;
+  }
+
+  [data-ui="switch"]::after,
+  [data-ui="switch"] > [data-part="thumb"] {
+    forced-color-adjust: none;
+    background: ButtonText;
+  }
+
+  [data-ui="switch"]:checked,
+  [data-ui="switch"][aria-checked="true"],
+  [data-ui="switch"][data-state="on"] {
+    background: Highlight;
+    border-color: Highlight;
+  }
+
+  [data-ui="switch"]:checked::after,
+  [data-ui="switch"][aria-checked="true"]::after,
+  [data-ui="switch"][data-state="on"]::after,
+  [data-ui="switch"][aria-checked="true"] > [data-part="thumb"],
+  [data-ui="switch"][data-state="on"] > [data-part="thumb"] {
+    background: HighlightText;
+  }
+
+  [data-ui="switch"]:disabled {
+    border-color: GrayText;
+  }
+
+  [data-ui="switch"]:focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+/* -- Motion -- */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="switch"],
+  [data-ui="switch"]::after,
+  [data-ui="switch"] > [data-part="thumb"] {
+    transition: none;
+  }
+}

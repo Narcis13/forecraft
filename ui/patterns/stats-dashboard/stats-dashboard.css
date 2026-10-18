@@ -1,0 +1,171 @@
+/* @ui:component stats-dashboard */
+/* @ui:tokens color-bg color-fg color-fg-muted color-border space-1 space-2 space-3 space-4 space-6 space-8 space-12 space-px font-heading font-body heading-tracking heading-transform heading-caps heading-leading text-sm text-base text-lg text-3xl weight-semibold weight-bold leading-tight leading-normal leading-relaxed */
+
+/* ── Root ──
+   A reporting page: title block, KPI row, then the panel region. The KPI row
+   is the grid primitive, so this sheet never sets its columns.
+
+   Mobile-first (task 0.8-09): everything outside the two `@media` blocks at the
+   foot of the sheet is the phone case, and the canon floors widen it. */
+[data-ui="stats-dashboard"] {
+  display: grid;
+  gap: var(--space-3);
+  padding-block: var(--space-8);
+  padding-inline: var(--space-4);
+  font-family: var(--font-body);
+  color: var(--color-fg);
+  background: var(--color-bg);
+}
+
+/* ── Title block ── */
+[data-ui="stats-dashboard"] [data-part="heading"] {
+  margin: 0;
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+[data-ui="stats-dashboard"] > [data-part="description"] {
+  margin: 0;
+  max-inline-size: 44rem;
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--color-fg-muted);
+}
+
+/* The reporting period is metadata, not prose — small, muted, tabular. */
+[data-ui="stats-dashboard"] [data-part="period"] {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── KPI row ──
+   [data-part="metrics"] is itself data-ui="grid": the mobile-first 1 → 2 → 4
+   column ladder lives in grid.css. Only the vertical rhythm is ours. */
+[data-ui="stats-dashboard"] [data-part="metrics"] {
+  margin-block-start: var(--space-4);
+}
+
+[data-ui="stats-dashboard"] [data-part="metrics"] > [data-ui="stat"] {
+  block-size: 100%;
+}
+
+/* ── Panel region ──
+   Report panel + a narrower companion panel. Pattern CSS rather than a nested
+   data-ui="grid" here, because [data-part="report"] must stay this pattern's
+   part: a grid between them would own it.
+
+   Stacked until lg: a report table needs the width long before a KPI card does,
+   which is why this region collapses a tier earlier than the metrics row. */
+[data-ui="stats-dashboard"] [data-part="reports"] {
+  display: grid;
+  gap: var(--space-6);
+  margin-block-start: var(--space-4);
+  align-items: start;
+  grid-template-columns: 1fr;
+}
+
+/* A lone panel spans the full width instead of leaving a hole. */
+[data-ui="stats-dashboard"] [data-part="reports"] > [data-part="report"]:only-child {
+  grid-column: 1 / -1;
+}
+
+/* ── Panel ──
+   The panel IS a card; everything below restyles the card's own slots in the
+   reporting context. */
+[data-ui="stats-dashboard"] [data-part="report"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+[data-ui="stats-dashboard"] [data-part="report"] [data-part="title"] {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  line-height: var(--heading-leading);
+}
+
+[data-ui="stats-dashboard"] [data-part="report"] [data-part="header"] [data-part="description"] {
+  margin: 0;
+  margin-block-start: var(--space-1);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-fg-muted);
+}
+
+/* The table brings its own look; the panel only guarantees it can scroll
+   sideways on a narrow screen instead of stretching the card. */
+[data-ui="stats-dashboard"] [data-part="report"] [data-part="body"] {
+  min-inline-size: 0;
+}
+
+[data-ui="stats-dashboard"] [data-part="report"] [data-ui="table"] {
+  inline-size: 100%;
+  overflow-x: auto;
+}
+
+/* ── Breakdown list ──
+   Plain <ul> inside the card body: a data-part here would belong to the card. */
+[data-ui="stats-dashboard"] [data-part="report"] [data-part="body"] ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+[data-ui="stats-dashboard"] [data-part="report"] [data-part="body"] li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-2);
+  border-block-end: var(--space-px, 1px) solid var(--color-border);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+}
+
+[data-ui="stats-dashboard"] [data-part="report"] [data-part="body"] li:last-child {
+  border-block-end: 0;
+}
+
+[data-ui="stats-dashboard"] [data-part="report"] [data-part="footer"] {
+  margin-block-start: auto;
+}
+
+/* ── Footnote ── */
+[data-ui="stats-dashboard"] [data-part="footnote"] {
+  margin: 0;
+  margin-block-start: var(--space-6);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-fg-muted);
+}
+
+/* ── Responsive ──
+   Canon tiers only, min-width only, ascending (FAQIR-NEXT §19). Two of the three
+   things this page can reflow are elsewhere: the KPI row is data-ui="grid" and
+   collapses in grid.css, each report table stacks against its own container in
+   table.css. Only the page frame and the panel split are this sheet's. */
+@media (min-width: 40rem) {
+  [data-ui="stats-dashboard"] {
+    padding-block: var(--space-12);
+    padding-inline: var(--space-6);
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-ui="stats-dashboard"] [data-part="reports"] {
+    grid-template-columns: 2fr 1fr;
+  }
+}

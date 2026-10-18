@@ -1,0 +1,83 @@
+<!-- @ui:component button -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots icon -->
+<!-- @ui:variants visual=default|primary|secondary|destructive|ghost|outline|link size=sm|md|lg -->
+
+<!-- Default -->
+<button data-ui="button">Default Button</button>
+
+<!-- Primary -->
+<button data-ui="button" data-variant="primary">Primary Button</button>
+
+<!-- Secondary -->
+<button data-ui="button" data-variant="secondary">Secondary Button</button>
+
+<!-- Destructive -->
+<button data-ui="button" data-variant="destructive">Destructive Button</button>
+
+<!-- Ghost -->
+<button data-ui="button" data-variant="ghost">Ghost Button</button>
+
+<!-- Outline -->
+<button data-ui="button" data-variant="outline">Outline Button</button>
+
+<!-- Link -->
+<button data-ui="button" data-variant="link">Link Button</button>
+
+<!-- Link with a size: the size's font size, the text's own box -->
+<button data-ui="button" data-variant="link" data-size="sm">Small link</button>
+
+<!-- Sizes -->
+<button data-ui="button" data-variant="primary" data-size="sm">Small</button>
+<button data-ui="button" data-variant="primary">Medium (default)</button>
+<button data-ui="button" data-variant="primary" data-size="lg">Large</button>
+
+<!-- With Icon -->
+<button data-ui="button" data-variant="primary">
+  <span data-part="icon">🔍</span>
+  Search
+</button>
+
+<!-- Icon Only (requires aria-label) -->
+<button data-ui="button" data-variant="ghost" aria-label="Settings">⚙️</button>
+
+<!-- Loading State -->
+<button data-ui="button" data-variant="primary" data-state="loading">Loading...</button>
+
+<!-- Disabled -->
+<button data-ui="button" data-variant="primary" disabled>Disabled</button>
+
+<!-- Pressed (a toggle button): default, outline and ghost show aria-pressed="true".
+     The label stays the same in both states; the page flips the attribute. -->
+<button data-ui="button" type="button" aria-pressed="true">Bold</button>
+<button data-ui="button" data-variant="outline" type="button" aria-pressed="true">Wrap lines</button>
+<button data-ui="button" data-variant="outline" type="button" aria-pressed="false">Line numbers</button>
+<button data-ui="button" data-variant="ghost" type="button" aria-pressed="true">Mute</button>
+
+<!-- Button Group -->
+<div data-ui="button-group">
+  <button data-ui="button" data-variant="outline">Left</button>
+  <button data-ui="button" data-variant="outline">Center</button>
+  <button data-ui="button" data-variant="outline">Right</button>
+</div>
+
+<!-- Effects: shine sweeps on hover, pulse rings on a loop, press sinks -->
+<button data-ui="button" data-variant="primary" data-effect="shine">Shine</button>
+<button data-ui="button" data-variant="primary" data-effect="pulse">Pulse</button>
+<button data-ui="button" data-variant="outline" data-effect="press">Press</button>
+
+<!-- Effect arrow: the trailing icon (the last child) leans toward the inline end on
+     hover and focus. Decorative icon, so aria-hidden. Motion only without reduced motion. -->
+<button data-ui="button" data-variant="primary" data-size="lg" data-effect="arrow">
+  Get started
+  <span data-ui="icon" data-icon="arrow-right" data-part="icon" aria-hidden="true"></span>
+</button>
+<button data-ui="button" data-variant="outline" data-effect="arrow">
+  Read the docs
+  <span data-ui="icon" data-icon="arrow-right" data-part="icon" aria-hidden="true"></span>
+</button>
+
+<!-- Effect sink: rests on the theme's shadow (hard in a hard-depth theme, soft elsewhere),
+     lifts on hover, presses flush on :active — pointer, Space and Enter alike. -->
+<button data-ui="button" data-variant="primary" data-effect="sink">Add to cart</button>
+<button data-ui="button" data-variant="secondary" data-size="lg" data-effect="sink">Book a demo</button>

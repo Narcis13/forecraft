@@ -1,0 +1,178 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "site-header",
+  "version": "1.0.0",
+  "kind": "pattern",
+  "category": "navigation",
+  "description": "Website header: a brand link, the nav primitive centred beside it, an actions cluster of buttons and links, and a native <details> phone menu that holds a vertical copy of the same nav. Composition only: zero JavaScript, no controller, no reactive directives — the plain/floating/glass styles, the sticky pin and the scroll-condense are pure CSS, the condense a scroll timeline that degrades to the plain sticky bar.",
+
+  "anatomy": {
+    "tag": "header",
+    "selector": "[data-ui='site-header']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "brand": {
+      "selector": "[data-part='brand']",
+      "required": true,
+      "tag_hint": "a",
+      "description": "Wordmark or logo, linking home. Keep it a link — not a heading, so the header never enters the document outline"
+    },
+    "nav": {
+      "selector": "[data-part='nav']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Wrapper that places a nested data-ui='nav' (aria-label it 'Main'). The nav owns its own [data-part='link'] slots. Hidden on a phone, where the menu panel carries the same links; centred in the row from the md floor"
+    },
+    "actions": {
+      "selector": "[data-part='actions']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "End-of-row cluster of nested data-ui='button' and data-ui='link' elements; they keep their own data-variant/data-size and must NOT carry a data-part. Hidden on a phone. The same part name inside the menu panel stacks the actions full width under a rule"
+    },
+    "menu": {
+      "selector": "[data-part='menu']",
+      "required": false,
+      "tag_hint": "details",
+      "description": "The phone menu, a native <details>: open and closed with zero JavaScript. Shown below the md floor only"
+    },
+    "toggle": {
+      "selector": "[data-part='toggle']",
+      "required": false,
+      "tag_hint": "summary",
+      "description": "The menu's <summary>, styled as a button with a chevron that turns when the menu is open. Write its text ('Menu'); it is the accessible name"
+    },
+    "panel": {
+      "selector": "[data-part='panel']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "The menu's contents: a nested vertical data-ui='nav' with its own accessible name (aria-label 'Main menu'), then an actions part. Drops out of the bar as an overlay rather than pushing the page down"
+    }
+  },
+
+  "variants": {
+    "style": {
+      "values": ["plain", "floating", "glass"],
+      "default": "plain",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "sticky": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-sticky",
+      "description": "Pin the bar to the top of the viewport (position: sticky, z-index --z-sticky). The floating style pins a beat below the edge so the pill keeps its inset."
+    },
+    "condense": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-condense",
+      "description": "Start transparent and roomy over the top of the page and settle into the fill, the bottom hairline and the working padding over the first 8rem of scroll — a scroll timeline, no listener. Needs data-sticky to be seen; where scroll timelines are not supported the bar is simply the plain sticky bar."
+    },
+    "--site-header-bg": {
+      "type": "string",
+      "default": "var(--panel-bg)",
+      "description": "The bar's fill, and the menu panel's (custom property). The glass style mixes it to 72% over whatever lies behind."
+    },
+    "--site-header-height": {
+      "type": "string",
+      "default": "var(--control-height-lg)",
+      "description": "Minimum height of the bar (custom property); the density ramp moves the default."
+    },
+    "--site-header-max": {
+      "type": "string",
+      "default": "var(--measure-wide)",
+      "description": "Maximum width of the row the brand, nav and actions sit in (custom property). Wider viewports centre it by growing the bar's own inline padding — there is no inner wrapper to size."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "the root is a <header> element at the top of the page (banner landmark)",
+      "every nested nav has an accessible name via aria-label, and the inline nav and the menu nav use different names",
+      "the menu is a <details> whose <summary> carries visible text — that text is the toggle's accessible name",
+      "descriptive link text on the brand and on every action (never 'click here')"
+    ],
+    "notes": "The links are written twice — inline nav and menu nav — but CSS shows exactly one copy at a time, so neither the tab order nor the landmark list doubles up. The <summary> toggle is natively focusable and operable with Enter and Space; nothing needs a script. Under reduced motion the toggle stops transitioning; the condense is kept because it only moves as far as the reader's own scrolling moves it.",
+    "keyboard": {
+      "Tab": "move through the brand, then the nav links, then the actions in source order (on a phone: the brand, then the menu toggle, then — once open — the panel's links and actions)",
+      "Enter / Space": "on the menu toggle, open or close the panel"
+    }
+  },
+
+  "tokens_used": [
+    "panel-bg", "space-4", "space-2", "space-1", "space-3", "space-5", "space-32", "space-6",
+    "control-height-lg", "control-height-sm", "measure-wide", "font-ui", "font-heading", "color-fg",
+    "color-border", "color-bg-subtle", "border-width", "border-width-md", "text-lg", "text-sm",
+    "weight-bold", "weight-medium", "heading-tracking", "leading-tight", "radius-sm", "radius-full",
+    "radius-lg", "focus-ring-width", "focus-ring-style", "focus-ring-color", "focus-ring-offset",
+    "focus-shadow", "button-radius", "duration-fast", "duration-normal", "ease-default",
+    "ease-linear", "shadow-md", "z-sticky", "card-shadow", "surface-backdrop"
+  ],
+
+  "templates": {
+    "html": "<header data-ui=\"site-header\" data-variant=\"{style}\" data-sticky>\n  <a data-part=\"brand\" href=\"{home_href}\">{brand}</a>\n  <div data-part=\"nav\">\n    <nav data-ui=\"nav\" aria-label=\"Main\">\n      <a data-part=\"link\" data-state=\"active\" href=\"{link_href}\">{link_label}</a>\n    </nav>\n  </div>\n  <div data-part=\"actions\">\n    <a data-ui=\"link\" data-variant=\"muted\" href=\"{secondary_href}\">{secondary_label}</a>\n    <a data-ui=\"button\" data-variant=\"primary\" data-size=\"sm\" href=\"{primary_href}\">{primary_label}</a>\n  </div>\n  <details data-part=\"menu\">\n    <summary data-part=\"toggle\">Menu</summary>\n    <div data-part=\"panel\">\n      <nav data-ui=\"nav\" data-variant=\"vertical\" aria-label=\"Main menu\">\n        <a data-part=\"link\" data-state=\"active\" href=\"{link_href}\">{link_label}</a>\n      </nav>\n      <div data-part=\"actions\">\n        <a data-ui=\"button\" data-variant=\"primary\" href=\"{primary_href}\">{primary_label}</a>\n        <a data-ui=\"button\" data-variant=\"outline\" href=\"{secondary_href}\">{secondary_label}</a>\n      </div>\n    </div>\n  </details>\n</header>"
+  },
+
+  "safe_transforms": [
+    "change-style-variant",
+    "toggle-sticky",
+    "toggle-condense",
+    "add-nav-link-to-both-navs",
+    "remove-nav-link-from-both-navs",
+    "change-action-buttons",
+    "change-brand-text",
+    "set-custom-property-knobs"
+  ],
+
+  "unsafe_transforms": [
+    "replace-header-element-with-div",
+    "remove-accessible-name-from-a-nav",
+    "give-both-navs-the-same-accessible-name",
+    "remove-the-summary-from-the-menu",
+    "edit-one-nav-without-the-other",
+    "add-data-part-to-action-buttons",
+    "promote-brand-to-a-heading",
+    "add-custom-script"
+  ],
+
+  "composition": {
+    "contains": ["nav", "link", "button"],
+    "used_in": [],
+    "notes": [
+      "Both navs nest the nav primitive: the <a> elements inside are the NAV's [data-part='link'] slots, not site-header's. The wrapper [data-part='nav'] only places the inline one; the panel holds the vertical one directly.",
+      "Nested primitives that carry their own data-variant (nav's vertical, button's primary, link's muted) must not also carry a data-part — a part's data-variant is validated against site-header's variant values.",
+      "The menu panel is an absolutely positioned overlay with the header as its containing block, which is why the root is positioned (relative, or sticky with data-sticky) and why a non-sticky header still layers the open panel over the content below it.",
+      "Condense is written for the plain and glass styles: its keyframes animate the bottom hairline only, so a floating pill that condenses keeps its other three edges throughout.",
+      "The condense distance reads --space-32 (8rem), so a density mode that remaps the spacing scale moves it with everything else."
+    ]
+  },
+
+  "files": {
+    "html": "site-header.html",
+    "css": "site-header.css",
+    "manifest": "site-header.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-header-with-data-ui-site-header",
+    "brand-slot-is-required-and-is-a-link",
+    "inline-nav-and-menu-nav-carry-different-accessible-names",
+    "menu-is-a-details-with-a-summary-toggle",
+    "plain-is-the-default-style",
+    "sticky-pins-the-bar-at-z-sticky",
+    "condense-is-skipped-without-scroll-timelines",
+    "nav-and-actions-appear-and-the-menu-goes-at-the-md-floor",
+    "glass-applies-backdrop-only-inside-the-supports-guard",
+    "ships-zero-javascript",
+    "reference-page-is-audit-clean"
+  ]
+}

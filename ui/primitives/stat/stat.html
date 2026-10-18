@@ -1,0 +1,70 @@
+<!-- @ui:component stat -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots value label change icon -->
+<!-- @ui:variants size=sm|md|lg variant=default|card trend=up|down|neutral -->
+
+<!-- Default (medium) -->
+<div data-ui="stat">
+  <span data-part="label">Total Revenue</span>
+  <span data-part="value">45,231.89 RON</span>
+</div>
+
+<!-- With change indicator (trend up) -->
+<div data-ui="stat" data-trend="up">
+  <span data-part="label">Monthly Revenue</span>
+  <span data-part="value">12,500.00 RON</span>
+  <span data-part="change">+15.3% vs last month</span>
+</div>
+
+<!-- Trend down -->
+<div data-ui="stat" data-trend="down">
+  <span data-part="label">Pending Invoices</span>
+  <span data-part="value">23</span>
+  <span data-part="change">-8% vs last month</span>
+</div>
+
+<!-- Trend neutral -->
+<div data-ui="stat" data-trend="neutral">
+  <span data-part="label">Active Clients</span>
+  <span data-part="value">142</span>
+  <span data-part="change">No change</span>
+</div>
+
+<!-- Small size -->
+<div data-ui="stat" data-size="sm" data-trend="up">
+  <span data-part="label">Orders</span>
+  <span data-part="value">58</span>
+  <span data-part="change">+12</span>
+</div>
+
+<!-- Large size -->
+<div data-ui="stat" data-size="lg">
+  <span data-part="label">Total Due</span>
+  <span data-part="value">157,500.00 RON</span>
+</div>
+
+<!-- Card variant -->
+<div data-ui="stat" data-variant="card" data-trend="up">
+  <span data-part="label">Net Profit</span>
+  <span data-part="value">8,750.00 RON</span>
+  <span data-part="change">+22.1%</span>
+</div>
+
+<!-- Card variant grid (multiple stats) -->
+<div data-ui="grid" data-cols="1" data-cols-md="3" data-gap="4">
+  <div data-ui="stat" data-variant="card" data-trend="up">
+    <span data-part="label">Revenue</span>
+    <span data-part="value">45,231 RON</span>
+    <span data-part="change">+20.1%</span>
+  </div>
+  <div data-ui="stat" data-variant="card" data-trend="down">
+    <span data-part="label">Expenses</span>
+    <span data-part="value">12,800 RON</span>
+    <span data-part="change">-5.3%</span>
+  </div>
+  <div data-ui="stat" data-variant="card" data-trend="up">
+    <span data-part="label">Profit</span>
+    <span data-part="value">32,431 RON</span>
+    <span data-part="change">+31.2%</span>
+  </div>
+</div>

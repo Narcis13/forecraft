@@ -1,0 +1,144 @@
+/* @ui:component site-footer */
+/* @ui:tokens color-bg-subtle color-fg color-fg-muted color-border space-2 space-3 space-4 space-6 space-8 space-10 space-12 font-body text-sm text-base text-lg weight-semibold weight-bold leading-normal border-width */
+
+/* ── Root ──
+   Mobile-first (task 0.8-09): everything outside the two `@media` blocks at the
+   foot of the sheet is the phone case, and the canon floors widen it. */
+[data-ui="site-footer"] {
+  display: grid;
+  gap: var(--space-8);
+  padding-block: var(--space-10);
+  padding-inline: var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+  background: var(--color-bg-subtle);
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+/* ── Brand ── */
+[data-ui="site-footer"] [data-part="brand"] {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+}
+
+[data-ui="site-footer"] [data-part="logo"] {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-fg);
+}
+
+[data-ui="site-footer"] [data-part="tagline"] {
+  margin: 0;
+  max-inline-size: 28rem;
+  line-height: var(--leading-normal);
+}
+
+[data-ui="site-footer"] [data-part="social"] {
+  display: flex;
+  gap: var(--space-3);
+  margin-block-start: var(--space-2);
+  font-size: var(--text-base);
+}
+
+/* ── Link columns ──
+   Each column is a heading plus a nested data-ui="nav"; the nav owns its own
+   [data-part="link"] elements, so only spacing is set here. */
+[data-ui="site-footer"] [data-part="columns"] {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: 1fr;
+}
+
+[data-ui="site-footer"] [data-part="column"] {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+
+[data-ui="site-footer"] [data-part="column-title"] {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-fg);
+}
+
+[data-ui="site-footer"] [data-part="column"] [data-ui="nav"] {
+  gap: var(--space-2);
+}
+
+/* ── Bottom bar ──
+   Two lines on a phone (copyright over legal links), one justified row from sm. */
+[data-ui="site-footer"] [data-part="bottom"] {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+[data-ui="site-footer"] [data-part="copyright"] {
+  margin: 0;
+}
+
+[data-ui="site-footer"] [data-part="legal"] {
+  display: flex;
+  gap: var(--space-4);
+}
+
+/* ── Layout: columns (default) ──
+   Brand column beside the link columns; the bottom bar spans the full width. */
+[data-ui="site-footer"][data-variant="columns"] {
+  grid-template-columns: 1fr;
+  align-items: start;
+  row-gap: var(--space-10);
+  column-gap: var(--space-12);
+}
+
+[data-ui="site-footer"][data-variant="columns"] > [data-ui="separator"],
+[data-ui="site-footer"][data-variant="columns"] [data-part="bottom"] {
+  grid-column: 1 / -1;
+}
+
+/* ── Layout: compact ── */
+[data-ui="site-footer"][data-variant="compact"] {
+  gap: var(--space-4);
+  padding-block: var(--space-8);
+}
+
+/* ── Responsive ──
+   Canon tiers only, min-width only, ascending (FAQIR-NEXT §19). Everything is a
+   single stack on a phone; the link columns pair up at sm and reach three at lg,
+   where the brand column also moves alongside them. The lg `row-gap` restates
+   the root's own `gap` — the columns variant carries a looser row rhythm only
+   while it is stacked. */
+@media (min-width: 40rem) {
+  [data-ui="site-footer"] {
+    padding-block: var(--space-12);
+    padding-inline: var(--space-6);
+  }
+
+  [data-ui="site-footer"] [data-part="columns"] {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-8);
+  }
+
+  [data-ui="site-footer"] [data-part="bottom"] {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-ui="site-footer"][data-variant="columns"] {
+    grid-template-columns: minmax(16rem, 1fr) 2fr;
+    row-gap: var(--space-8);
+  }
+
+  [data-ui="site-footer"] [data-part="columns"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

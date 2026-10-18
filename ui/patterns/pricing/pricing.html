@@ -1,0 +1,259 @@
+<!-- @ui:component pricing -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots heading description billing tiers tier monthly yearly footnote -->
+<!-- @ui:variants columns=2|3 -->
+<!-- @ui:states featured -->
+<!-- @ui:composition grid card badge stat separator button icon toggle-group -->
+<!--
+  Pricing table — composition only, zero JavaScript.
+    · Every tier is a real data-ui="card": the card owns its own header/title/
+      description/body/footer slots, and pricing styles them in context. That is
+      why there is no [data-part="price"] — a data-part inside the card would
+      belong to the card, not to pricing.
+    · The price is the stat primitive (value + label), the highlight flag is the
+      badge primitive, the feature ticks are the icon primitive.
+    · A highlighted tier is data-state="featured" on the tier card. The emphasis
+      is also stated in content (a "Most popular" badge), so it survives for
+      anyone who never sees the ring.
+    · The tiers are a real grid with data-align-rows. Each card exposes exactly
+      four direct rows — header/divider/body/footer — and the price sits at the
+      bottom of the shared header row. Subgrid aligns peers on each wrapped line;
+      engines without it stack the cards at full width instead of faking it.
+    · `faqir scaffold landing-page` composes the block marked below verbatim.
+-->
+
+<!-- @ui:scaffold landing-page -->
+<section data-ui="pricing" data-cols="3" id="pricing" aria-labelledby="pricing-heading">
+  <h2 data-part="heading" id="pricing-heading">Simple, transparent pricing</h2>
+  <p data-part="description">Start free while you build. Move up only when your team does.</p>
+
+  <div data-ui="grid" data-part="tiers" data-cols="1" data-cols-sm="2" data-cols-lg="3" data-gap="6" data-align-rows>
+
+    <article data-ui="card" data-part="tier" aria-labelledby="pricing-tier-starter">
+      <div data-part="header">
+        <h3 data-part="title" id="pricing-tier-starter">Starter</h3>
+        <p data-part="description">For side projects and prototypes.</p>
+        <div data-ui="stat" data-size="lg">
+          <div data-part="value">$0</div>
+          <div data-part="label">forever</div>
+        </div>
+      </div>
+      <hr data-ui="separator" data-part="divider">
+      <div data-part="body">
+        <ul>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Up to 3 projects</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Community support</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>All components and themes</li>
+        </ul>
+      </div>
+      <div data-part="footer">
+        <a data-ui="button" data-variant="outline" href="#signup-starter">Start for free</a>
+      </div>
+    </article>
+
+    <article data-ui="card" data-part="tier" data-state="featured" aria-labelledby="pricing-tier-team">
+      <div data-part="header">
+        <span data-ui="badge" data-variant="primary">Most popular</span>
+        <h3 data-part="title" id="pricing-tier-team">Team</h3>
+        <p data-part="description">For product teams shipping every week.</p>
+        <div data-ui="stat" data-size="lg">
+          <div data-part="value">$24</div>
+          <div data-part="label">per editor / month</div>
+        </div>
+      </div>
+      <hr data-ui="separator" data-part="divider">
+      <div data-part="body">
+        <ul>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Unlimited projects</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Shared themes and tokens</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Review workflow and history</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Email support within one day</li>
+        </ul>
+      </div>
+      <div data-part="footer">
+        <a data-ui="button" data-variant="primary" href="#signup-team">Start free trial</a>
+      </div>
+    </article>
+
+    <article data-ui="card" data-part="tier" aria-labelledby="pricing-tier-scale">
+      <div data-part="header">
+        <h3 data-part="title" id="pricing-tier-scale">Scale</h3>
+        <p data-part="description">For organisations with compliance needs.</p>
+        <div data-ui="stat" data-size="lg">
+          <div data-part="value">Let's talk</div>
+          <div data-part="label">annual agreement</div>
+        </div>
+      </div>
+      <hr data-ui="separator" data-part="divider">
+      <div data-part="body">
+        <ul>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Everything in Team</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Single sign-on and audit log</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Private component registry</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Named support engineer</li>
+        </ul>
+      </div>
+      <div data-part="footer">
+        <a data-ui="button" data-variant="outline" href="#contact-sales">Contact sales</a>
+      </div>
+    </article>
+
+  </div>
+
+  <p data-part="footnote">Prices exclude local taxes. Change or cancel a plan at any time.</p>
+</section>
+<!-- @ui:scaffold-end -->
+
+<!-- Two tiers, no footnote -->
+<section data-ui="pricing" data-cols="2" aria-labelledby="pricing-two-heading">
+  <h2 data-part="heading" id="pricing-two-heading">Personal or business</h2>
+
+  <div data-ui="grid" data-part="tiers" data-cols="1" data-cols-sm="2" data-cols-lg="2" data-gap="6" data-align-rows>
+
+    <article data-ui="card" data-part="tier" aria-labelledby="pricing-tier-personal">
+      <div data-part="header">
+        <h3 data-part="title" id="pricing-tier-personal">Personal</h3>
+        <div data-ui="stat" data-size="lg">
+          <div data-part="value">$9</div>
+          <div data-part="label">per month</div>
+        </div>
+      </div>
+      <hr data-ui="separator" data-part="divider">
+      <div data-part="body">
+        <ul>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>One workspace</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Community support</li>
+        </ul>
+      </div>
+      <div data-part="footer">
+        <a data-ui="button" data-variant="outline" href="#signup-personal">Choose Personal</a>
+      </div>
+    </article>
+
+    <article data-ui="card" data-part="tier" data-state="featured" aria-labelledby="pricing-tier-business">
+      <div data-part="header">
+        <span data-ui="badge" data-variant="primary">Recommended</span>
+        <h3 data-part="title" id="pricing-tier-business">Business</h3>
+        <div data-ui="stat" data-size="lg">
+          <div data-part="value">$29</div>
+          <div data-part="label">per month</div>
+        </div>
+      </div>
+      <hr data-ui="separator" data-part="divider">
+      <div data-part="body">
+        <ul>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Unlimited workspaces</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Priority support</li>
+        </ul>
+      </div>
+      <div data-part="footer">
+        <a data-ui="button" data-variant="primary" href="#signup-business">Choose Business</a>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- Billing switch — monthly / yearly with zero JavaScript.
+     · [data-part="billing"] is a DIRECT child of the section. It holds a
+       segmented single-mode toggle-group whose radios carry value="monthly"
+       and value="yearly"; the sheet reads exactly those two values.
+     · Each price is written twice, inside the tier's stat: a monthly/yearly
+       <span> pair in the stat's value and another in its label. While the
+       yearly radio is checked, :has() shows the yearly spans and hides the
+       monthly ones (display:none, so one price per tier is announced).
+     · No aria-live on the tiers: the radio announces the new period, and the
+       prices read in place, each with its period in words.
+     · Without :has() the switch is hidden and the monthly prices stand. -->
+<section data-ui="pricing" data-cols="3" aria-labelledby="pricing-billing-heading">
+  <h2 data-part="heading" id="pricing-billing-heading">Pay monthly, or save with a year</h2>
+  <p data-part="description">Every plan includes the full component registry. Switch to yearly billing for two months free.</p>
+
+  <div data-part="billing">
+    <div data-ui="toggle-group" data-mode="single" data-variant="segmented" role="radiogroup" aria-label="Billing period">
+      <label data-part="item" data-state="on">
+        <input data-part="control" type="radio" name="pricing-billing" value="monthly" checked>
+        <span data-part="label">Monthly</span>
+      </label>
+      <label data-part="item" data-state="off">
+        <input data-part="control" type="radio" name="pricing-billing" value="yearly">
+        <span data-part="label">Yearly</span>
+      </label>
+    </div>
+    <span data-ui="badge" data-variant="success">Save 20% yearly</span>
+  </div>
+
+  <div data-ui="grid" data-part="tiers" data-cols="1" data-cols-sm="2" data-cols-lg="3" data-gap="6" data-align-rows>
+
+    <article data-ui="card" data-part="tier" aria-labelledby="pricing-billing-tier-solo">
+      <div data-part="header">
+        <h3 data-part="title" id="pricing-billing-tier-solo">Solo</h3>
+        <p data-part="description">For one designer shipping client work.</p>
+        <div data-ui="stat" data-size="lg">
+          <div data-part="value"><span data-part="monthly">$12</span><span data-part="yearly">$10</span></div>
+          <div data-part="label"><span data-part="monthly">per month</span><span data-part="yearly">per month, billed yearly at $120</span></div>
+        </div>
+      </div>
+      <hr data-ui="separator" data-part="divider">
+      <div data-part="body">
+        <ul>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Unlimited projects</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Every theme</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Community support</li>
+        </ul>
+      </div>
+      <div data-part="footer">
+        <a data-ui="button" data-variant="outline" href="#signup-solo">Choose Solo</a>
+      </div>
+    </article>
+
+    <article data-ui="card" data-part="tier" data-state="featured" aria-labelledby="pricing-billing-tier-studio">
+      <div data-part="header">
+        <span data-ui="badge" data-variant="primary">Most popular</span>
+        <h3 data-part="title" id="pricing-billing-tier-studio">Studio</h3>
+        <p data-part="description">For small teams with a shared design system.</p>
+        <div data-ui="stat" data-size="lg">
+          <div data-part="value"><span data-part="monthly">$30</span><span data-part="yearly">$24</span></div>
+          <div data-part="label"><span data-part="monthly">per editor / month</span><span data-part="yearly">per editor / month, billed yearly</span></div>
+        </div>
+      </div>
+      <hr data-ui="separator" data-part="divider">
+      <div data-part="body">
+        <ul>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Everything in Solo</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Shared tokens and themes</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Review workflow and history</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Email support within one day</li>
+        </ul>
+      </div>
+      <div data-part="footer">
+        <a data-ui="button" data-variant="primary" href="#signup-studio">Start free trial</a>
+      </div>
+    </article>
+
+    <article data-ui="card" data-part="tier" aria-labelledby="pricing-billing-tier-company">
+      <div data-part="header">
+        <h3 data-part="title" id="pricing-billing-tier-company">Company</h3>
+        <p data-part="description">For organisations with compliance needs.</p>
+        <div data-ui="stat" data-size="lg">
+          <div data-part="value"><span data-part="monthly">$60</span><span data-part="yearly">$48</span></div>
+          <div data-part="label"><span data-part="monthly">per editor / month</span><span data-part="yearly">per editor / month, billed yearly</span></div>
+        </div>
+      </div>
+      <hr data-ui="separator" data-part="divider">
+      <div data-part="body">
+        <ul>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Everything in Studio</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Single sign-on and audit log</li>
+          <li><span data-ui="icon" data-icon="check" aria-hidden="true"></span>Named support engineer</li>
+        </ul>
+      </div>
+      <div data-part="footer">
+        <a data-ui="button" data-variant="outline" href="#contact-sales">Contact sales</a>
+      </div>
+    </article>
+
+  </div>
+
+  <p data-part="footnote">Yearly plans are billed once, up front. Prices exclude local taxes.</p>
+</section>

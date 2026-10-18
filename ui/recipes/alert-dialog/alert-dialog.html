@@ -1,0 +1,102 @@
+<!-- @ui:component alert-dialog -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots trigger overlay panel header title description body footer cancel confirm -->
+<!-- @ui:variants size=sm|md tone=default|destructive -->
+<!-- @ui:controller alert-dialog.js -->
+
+<!-- Destructive confirm (default alert) — Escape closes (WAI-ARIA allowed) -->
+<div data-ui="alert-dialog" data-state="closed" id="delete-alert">
+  <button data-part="trigger" data-ui="button" data-variant="destructive">Delete project</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="delete-alert-title"
+    aria-describedby="delete-alert-desc"
+    data-variant="destructive"
+    data-size="sm"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="delete-alert-title" data-part="title">Delete this project?</h2>
+    </div>
+    <div data-part="body">
+      <p id="delete-alert-desc" data-part="description">
+        This permanently deletes the project and all of its data. This action
+        cannot be undone.
+      </p>
+    </div>
+    <div data-part="footer">
+      <button data-ui="button" data-part="cancel" data-variant="outline">Cancel</button>
+      <button data-ui="button" data-part="confirm" data-variant="destructive">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm-required — Escape and the overlay are trapped; a choice is mandatory -->
+<div data-ui="alert-dialog" data-state="closed" id="discard-alert" data-confirm-required>
+  <button data-part="trigger" data-ui="button" data-variant="outline">Discard changes</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="discard-alert-title"
+    aria-describedby="discard-alert-desc"
+    data-variant="destructive"
+    data-size="sm"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="discard-alert-title" data-part="title">Discard unsaved changes?</h2>
+    </div>
+    <div data-part="body">
+      <p id="discard-alert-desc" data-part="description">
+        You have unsaved edits. Discarding them cannot be undone — choose to keep
+        editing or discard.
+      </p>
+    </div>
+    <div data-part="footer">
+      <button data-ui="button" data-part="cancel" data-variant="outline">Keep editing</button>
+      <button data-ui="button" data-part="confirm" data-variant="destructive">Discard</button>
+    </div>
+  </div>
+</div>
+
+<!-- Non-destructive acknowledgement — default tone, single confirm -->
+<div data-ui="alert-dialog" data-state="closed" id="session-alert">
+  <button data-part="trigger" data-ui="button" data-variant="outline">Show notice</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="session-alert-title"
+    aria-describedby="session-alert-desc"
+    data-variant="default"
+    data-size="sm"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="session-alert-title" data-part="title">Session expired</h2>
+    </div>
+    <div data-part="body">
+      <p id="session-alert-desc" data-part="description">
+        Your session has expired. Sign in again to continue where you left off.
+      </p>
+    </div>
+    <div data-part="footer">
+      <button data-ui="button" data-part="confirm" data-variant="primary">Sign in</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,121 @@
+<!-- @ui:component dialog -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots trigger overlay panel header title description body footer close -->
+<!-- @ui:variants size=sm|md|lg|full tone=default|danger -->
+<!-- @ui:controller dialog.js -->
+
+<!-- Default (medium) -->
+<div data-ui="dialog" data-state="closed" id="demo-dialog">
+  <button data-part="trigger" data-ui="button" data-variant="primary">Open Dialog</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="demo-dialog-title"
+    data-size="md"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="demo-dialog-title" data-part="title">Dialog Title</h2>
+      <button data-part="close" aria-label="Close dialog">&#x2715;</button>
+    </div>
+    <div data-part="body">
+      <p>This is the dialog body content.</p>
+    </div>
+    <div data-part="footer">
+      <button data-ui="button" data-part="close" data-variant="outline">Cancel</button>
+      <button data-ui="button" data-variant="primary">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Small danger variant -->
+<div data-ui="dialog" data-state="closed" id="danger-dialog">
+  <button data-part="trigger" data-ui="button" data-variant="destructive">Delete Account</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    data-variant="danger"
+    data-size="sm"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="danger-dialog-title"
+    aria-describedby="danger-dialog-description"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="danger-dialog-title" data-part="title">Are you sure?</h2>
+      <button data-part="close" aria-label="Close dialog">&#x2715;</button>
+    </div>
+    <div data-part="body">
+      <p id="danger-dialog-description" data-part="description">This action cannot be undone.</p>
+    </div>
+    <div data-part="footer">
+      <button data-ui="button" data-part="close" data-variant="outline">Cancel</button>
+      <button data-ui="button" data-variant="destructive">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Large variant -->
+<div data-ui="dialog" data-state="closed" id="large-dialog">
+  <button data-part="trigger" data-ui="button" data-variant="outline">Open Large Dialog</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    data-size="lg"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="large-dialog-title"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="large-dialog-title" data-part="title">Large Dialog</h2>
+      <button data-part="close" aria-label="Close dialog">&#x2715;</button>
+    </div>
+    <div data-part="body">
+      <p>This dialog has more room for content.</p>
+    </div>
+    <div data-part="footer">
+      <button data-ui="button" data-part="close" data-variant="outline">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Full-screen variant -->
+<div data-ui="dialog" data-state="closed" id="full-dialog">
+  <button data-part="trigger" data-ui="button" data-variant="outline">Open Fullscreen</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    data-size="full"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="full-dialog-title"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="full-dialog-title" data-part="title">Full Screen</h2>
+      <button data-part="close" aria-label="Close dialog">&#x2715;</button>
+    </div>
+    <div data-part="body">
+      <p>This dialog takes up the full viewport.</p>
+    </div>
+    <div data-part="footer">
+      <button data-ui="button" data-part="close" data-variant="outline">Close</button>
+    </div>
+  </div>
+</div>

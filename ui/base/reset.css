@@ -1,0 +1,178 @@
+/* @ui:base reset — modern CSS reset for Faqir projects */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* Colour scheme — the one place `data-theme` is translated into the platform's
+   own scheme signal. `light-dark()` in a theme reads `color-scheme`, not
+   `data-theme`, so a one-block theme [1.1A-06] resolves nothing at all without
+   these three rules; declaring them here (rather than in each theme) is what
+   makes the two authoring forms interchangeable. Nothing else in the registry
+   declares `color-scheme`, so this is purely additive.
+
+   Specificity does the mapping: `:root` is (0,0,1) and each attribute selector
+   is (0,1,0), so `<html data-theme="dark">` takes the dark rule over the root
+   default while a bare `<html>` — and `data-theme="light"` — keeps light. The
+   same rules apply to a NESTED element carrying `data-theme`, which is how a
+   dark island inside a light page has always worked here. */
+:root {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* `auto` hands the choice to the OS: `light dark` means "either, system first",
+   which is exactly what the `@media (prefers-color-scheme: dark)` mirror block
+   does for a theme authored in the three-block form. */
+[data-theme="auto"] {
+  color-scheme: light dark;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-fg);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100dvh;
+  /* The page's material. `none` by default (the initial value), so this is a
+     no-op until a theme points --texture-page at one of tokens/textures.css.
+     `html` keeps the background COLOUR; the texture rides on `body`, which
+     covers the viewport, so the two compose instead of overwriting. */
+  background-image: var(--texture-page);
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Text selection — the decoration axis reaching the one surface no component
+   owns. Until 1.1 the highlight was whatever the OS drew, which is the one part
+   of a themed page that never matched the theme. Both values are tokens
+   (tokens/aliases.css § Decoration), so a theme states its selection once. */
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+/* Focus visible — the default ring, and the only place it is spelled out.
+   Every value is a token (tokens/effects.css § Focus), so a theme states its
+   focus once and every element that has not drawn its own ring follows. */
+:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* The glow a theme may put behind the ring, at zero specificity. `box-shadow`
+   is not a property focus owns: an element's resting shadow — a card's depth,
+   an author's own — lives there too, and a (0,1,0) rule here replaced it with
+   `none` (the default) on every keyboard focus. Under `:where()` ANY rule that
+   sets a shadow outranks this one, so it lands only on an element nothing else
+   shadows, and it never takes a shadow away. The controls that draw their own
+   ring read `--focus-shadow` in their own `:focus-visible` rules. */
+:where(:focus-visible) {
+  box-shadow: var(--focus-shadow);
+}
+
+/* Hidden but accessible */
+[hidden] {
+  display: none !important;
+}
+
+/* Faqir cloak — hide until reactive engine initializes */
+[l-cloak] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

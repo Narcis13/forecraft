@@ -1,0 +1,36 @@
+<!-- @ui:component rating -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants size=sm|md|lg -->
+<!--
+  Rating — five stars from one element. Display only, CSS only.
+    · role="img" with an aria-label that says the score in words: the stars are
+      a picture of a number, and the label is the number.
+    · data-value takes half steps, 0 to 5. For any other fraction set
+      --rating-value (and still say the real figure in the label).
+    · It sizes with the surrounding text (1em tall).
+-->
+
+<!-- Whole stars -->
+<span data-ui="rating" data-value="4" role="img" aria-label="Rated 4 out of 5"></span>
+
+<!-- Half star -->
+<span data-ui="rating" data-value="4.5" role="img" aria-label="Rated 4.5 out of 5"></span>
+
+<!-- Full marks, large -->
+<span data-ui="rating" data-value="5" data-size="lg" role="img" aria-label="Rated 5 out of 5"></span>
+
+<!-- Small, beside a count -->
+<p>
+  <span data-ui="rating" data-value="3.5" data-size="sm" role="img" aria-label="Rated 3.5 out of 5"></span>
+  128 reviews
+</p>
+
+<!-- An exact average through the custom property -->
+<span data-ui="rating" role="img" aria-label="Rated 4.3 out of 5" style="--rating-value: 4.3"></span>
+
+<!-- In the accent colour instead of the warning amber -->
+<span data-ui="rating" data-value="4" role="img" aria-label="Rated 4 out of 5" style="--rating-color: var(--color-primary)"></span>
+
+<!-- Empty -->
+<span data-ui="rating" data-value="0" role="img" aria-label="Not yet rated"></span>

@@ -1,0 +1,286 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "sidebar",
+  "version": "1.1.3",
+  "kind": "recipe",
+  "category": "navigation",
+  "description": "Collapsible application sidebar with three modes — expanded, rail (icons only), and a mobile off-canvas drawer — switched responsively and toggled from the keyboard",
+  "changes": [
+    {
+      "version": "1.1.3",
+      "note": "Nested components keep their own parts. The stylesheet reached every part with descendant selectors, so a dropdown in the footer had its trigger styled as the sidebar toggle and its items as nav entries, and rail mode hid every label below the root. Parts are now root > panel > header / nav / footer, header > brand and trigger, nav or footer > item > icon and label. The trigger may also be the root's own child: a drawer that is off-canvas is opened from outside its panel. The rail chevron rule follows the trigger. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.2",
+      "note": "Only the sidebar's own triggers toggle it. The controller took every [data-part=\"trigger\"] inside the root, so a dropdown in the footer had its aria-expanded overwritten on every render and its click put the sidebar in rail. Triggers are now matched by owner, looking through layout primitives, and overlay and panel are taken as direct children.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.1",
+      "note": "The trigger glyph follows the state: authored once pointing inline-start, the stylesheet mirrors it (`scale: -1 1`, reduced-motion safe) in rail, so a toggled sidebar no longer shows a stale chevron. Both examples carry the one stable label \"Toggle sidebar\" instead of \"Collapse sidebar\" / \"Expand sidebar\", which went stale on the first toggle and contradicted aria-expanded.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "Stack the brand glyph and toggle in rail mode so both fit inside the 3.75rem column without unreachable inline-start clipping.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='sidebar']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "overlay": {
+      "selector": "[data-part='overlay']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Backdrop shown behind the panel when the mobile drawer is open; click to close"
+    },
+    "panel": {
+      "selector": "[data-part='panel']",
+      "required": true,
+      "tag_hint": "aside",
+      "description": "The sidebar surface itself — the focus-trap container in drawer mode. Should carry aria-label"
+    },
+    "header": {
+      "selector": "[data-part='header']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Top area holding the brand and the toggle button"
+    },
+    "brand": {
+      "selector": "[data-part='brand']",
+      "required": false,
+      "tag_hint": "a",
+      "description": "Product/brand lockup (icon + label)"
+    },
+    "brand-icon": {
+      "selector": "[data-part='brand-icon']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Brand glyph; stays visible in rail mode"
+    },
+    "brand-label": {
+      "selector": "[data-part='brand-label']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Brand wordmark; hidden in rail mode"
+    },
+    "trigger": {
+      "selector": "[data-part='trigger']",
+      "required": false,
+      "tag_hint": "button",
+      "description": "Toggle button, in the panel's header or as the root's own child (outside the panel, so an off-canvas drawer can be opened). Give it one stable aria-label (\"Toggle sidebar\") — its aria-expanded tracks the live state, and a button with aria-expanded must not change its name. Author its glyph (an svg or data-ui=\"icon\" child) pointing inline-start, at the collapse; the stylesheet mirrors it in rail. External buttons may also target the sidebar via data-sidebar-toggle=\"{id}\"."
+    },
+    "nav": {
+      "selector": "[data-part='nav']",
+      "required": false,
+      "tag_hint": "nav",
+      "description": "Navigation region; should carry aria-label"
+    },
+    "item": {
+      "selector": "[data-part='item']",
+      "required": false,
+      "tag_hint": "a",
+      "description": "A navigation entry (icon + label). Mark the current page with aria-current=\"page\". In rail mode give it an aria-label since the text label is hidden"
+    },
+    "icon": {
+      "selector": "[data-part='icon']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Item glyph; stays visible in rail mode"
+    },
+    "label": {
+      "selector": "[data-part='label']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Item text; hidden in rail mode"
+    },
+    "footer": {
+      "selector": "[data-part='footer']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Pinned bottom area (secondary links, user block)"
+    }
+  },
+  "variants": {},
+  "states": {
+    "expanded": {
+      "attr": "data-state=\"expanded\"",
+      "default": true
+    },
+    "rail": {
+      "attr": "data-state=\"rail\""
+    },
+    "drawer": {
+      "attr": "data-state=\"drawer\""
+    },
+    "drawer-open": {
+      "attr": "data-state=\"drawer-open\"",
+      "transient": true
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "toggle",
+        "params": ""
+      },
+      {
+        "name": "expand",
+        "params": ""
+      },
+      {
+        "name": "collapse",
+        "params": ""
+      },
+      {
+        "name": "open",
+        "params": ""
+      },
+      {
+        "name": "close",
+        "params": ""
+      },
+      {
+        "name": "isMobile",
+        "params": ""
+      },
+      {
+        "name": "getState",
+        "params": ""
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "breakpoint": {
+      "type": "number",
+      "default": 768,
+      "attr": "data-breakpoint",
+      "description": "Max-width in px below which the sidebar switches to the mobile drawer (matchMedia (max-width: Npx))"
+    }
+  },
+  "a11y": {
+    "role": "navigation",
+    "required_attrs": [
+      "aria-label on panel",
+      "aria-expanded on trigger"
+    ],
+    "focus_trap": true,
+    "escape_closes": true,
+    "return_focus": "trigger",
+    "keyboard": {
+      "Enter/Space": "activate the toggle button (expanded ↔ rail on desktop, open ↔ close on mobile)",
+      "Escape": "close the mobile drawer",
+      "Tab": "cycle focus within the panel while the mobile drawer is open",
+      "Shift+Tab": "reverse-cycle focus within the panel while the mobile drawer is open"
+    },
+    "notes": [
+      "data-state is the single source of truth: expanded | rail | drawer (mobile closed) | drawer-open (mobile open).",
+      "Agents can set the initial state declaratively; the controller reconciles it with the current breakpoint on init.",
+      "Every toggle button's aria-expanded tracks the live state (labels shown on desktop, drawer open on mobile).",
+      "The trigger's accessible name is stable across states (\"Toggle sidebar\"); the direction is carried by aria-expanded, and visually by the glyph the stylesheet mirrors in rail.",
+      "While the mobile drawer is closed the off-screen panel is inert + aria-hidden, so its links never sit in the tab order.",
+      "The mobile drawer traps focus, locks body scroll, closes on Escape or overlay click, and returns focus to the opener."
+    ]
+  },
+  "tokens_used": [
+    "color-bg",
+    "color-fg",
+    "color-fg-muted",
+    "color-border",
+    "color-primary",
+    "color-primary-subtle",
+    "color-bg-muted",
+    "color-ring",
+    "shadow-xl",
+    "space-1",
+    "space-2",
+    "space-3",
+    "space-4",
+    "radius-md",
+    "radius-lg",
+    "z-overlay",
+    "z-modal",
+    "text-sm",
+    "weight-medium",
+    "weight-semibold",
+    "duration-normal",
+    "duration-slow",
+    "ease-out",
+    "ease-default",
+    "border-width",
+    "focus-ring-width",
+    "focus-ring-style",
+    "focus-ring-color",
+    "focus-ring-offset"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"sidebar\" data-state=\"{state}\" id=\"{id}\">\n  <div data-part=\"overlay\" hidden></div>\n  <aside data-part=\"panel\" aria-label=\"Primary navigation\">\n    <div data-part=\"header\">\n      <a data-part=\"brand\" href=\"#\"><span data-part=\"brand-icon\" aria-hidden=\"true\">{brand_icon}</span><span data-part=\"brand-label\">{brand}</span></a>\n      <button data-part=\"trigger\" aria-label=\"Toggle sidebar\" aria-expanded=\"true\" aria-controls=\"{id}\">{toggle_icon}</button>\n    </div>\n    <nav data-part=\"nav\" aria-label=\"Main\">\n      <a data-part=\"item\" href=\"#\" aria-current=\"page\"><span data-part=\"icon\" aria-hidden=\"true\">{icon}</span><span data-part=\"label\">{label}</span></a>\n    </nav>\n    <div data-part=\"footer\">{footer}</div>\n  </aside>\n</div>",
+    "app_shell": "<div style=\"display: flex; min-block-size: 100dvh\">\n  <div data-ui=\"sidebar\" data-state=\"expanded\" id=\"app-sidebar\"> … </div>\n  <div style=\"flex: 1 1 auto; display: flex; flex-direction: column; min-inline-size: 0\">\n    <header role=\"banner\">\n      <button data-sidebar-toggle=\"app-sidebar\" aria-controls=\"app-sidebar\" aria-expanded=\"true\" aria-label=\"Toggle sidebar\">☰</button>\n    </header>\n    <main role=\"main\"> … </main>\n  </div>\n</div>"
+  },
+  "safe_transforms": [
+    "change-initial-state",
+    "change-breakpoint",
+    "add-nav-item",
+    "reorder-nav-items",
+    "set-active-item",
+    "add-footer-block",
+    "restyle-panel-background",
+    "change-sidebar-width",
+    "swap-brand"
+  ],
+  "unsafe_transforms": [
+    "remove-panel",
+    "remove-focus-trap",
+    "remove-escape-handler",
+    "remove-overlay",
+    "remove-trigger-aria-expanded",
+    "remove-panel-aria-label",
+    "invent-new-data-state-value"
+  ],
+  "composition": {
+    "contains": [
+      "button",
+      "badge",
+      "avatar",
+      "separator"
+    ],
+    "used_in": []
+  },
+  "files": {
+    "html": "sidebar.html",
+    "css": "sidebar.css",
+    "js": "sidebar.js",
+    "manifest": "sidebar.manifest.json"
+  },
+  "tests": [
+    "desktop-toggle-transitions-expanded-to-rail",
+    "desktop-toggle-transitions-rail-to-expanded",
+    "desktop-expand-and-collapse-api",
+    "mobile-init-reconciles-to-closed-drawer",
+    "mobile-toggle-opens-and-closes-drawer",
+    "mobile-drawer-escape-closes",
+    "mobile-drawer-overlay-click-closes",
+    "mobile-drawer-traps-focus",
+    "mobile-drawer-locks-and-restores-body-scroll",
+    "mobile-closed-drawer-panel-is-inert",
+    "mobile-drawer-returns-focus-to-opener",
+    "breakpoint-change-desktop-to-mobile-closes-into-drawer",
+    "breakpoint-change-restores-persisted-desktop-state",
+    "breakpoint-change-tears-down-open-drawer",
+    "trigger-aria-expanded-tracks-state",
+    "trigger-label-stable-across-toggle",
+    "external-trigger-toggles-and-tracks",
+    "rail-header-keeps-brand-and-trigger-within-the-panel",
+    "prevents-double-initialization",
+    "destroy-removes-listeners"
+  ]
+}

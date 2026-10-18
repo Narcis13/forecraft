@@ -1,0 +1,373 @@
+/* @ui:component dashboard-shell */
+/* @ui:tokens color-bg color-bg-subtle color-bg-muted color-fg color-fg-muted color-border color-primary color-primary-subtle space-2 space-3 space-4 space-6 space-1 radius-md shadow-md font-body font-ui text-xs text-sm text-lg text-2xl weight-medium weight-semibold weight-bold leading-tight leading-normal duration-normal duration-slow ease-default ease-out z-sticky z-overlay border-width focus-ring-width focus-ring-style focus-ring-color focus-ring-offset */
+
+/* ── Shell Grid Layout ──
+   Mobile-first (task 0.8-09): the base is the PHONE shell — one column, header
+   over content over footer, and the sidebar off-canvas as a drawer. The single
+   `@media (min-width: 48rem)` block at the foot of the sheet puts the sidebar
+   back in the flow.
+
+   This is the one pattern where the narrow case is the *more* decorated one, so
+   the md block has real resets in it. That is a consequence of the canon being
+   min-width-only (FAQIR-NEXT §19): "position: fixed below md" can only be said
+   as "position: fixed always, static from md up". */
+[data-ui="dashboard-shell"] {
+  display: grid;
+  /* `minmax(0, 1fr)`, not `1fr`: a `1fr` track has `auto` for its minimum, so it
+     never shrinks below the min-content of the header/content/footer inside it
+     and the whole shell grew 9px wider than the phone it was on. [W3-3] */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: var(--shell-header-height, 3.5rem) 1fr auto;
+  grid-template-areas:
+    "header"
+    "content"
+    "footer";
+  min-height: 100vh;
+  background: var(--color-bg);
+  font-family: var(--font-body);
+  color: var(--color-fg);
+}
+
+/* ── Sidebar-Right Variant ──
+   Same single column below md; only the drawer's side and the md grid differ. */
+[data-ui="dashboard-shell"][data-variant="right"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "header"
+    "content"
+    "footer";
+}
+
+/* ── Sidebar ──
+   Off-canvas by default; `data-state="expanded"` slides it in. `grid-area` is
+   harmless while it is `position: fixed` and is what places it from md up. */
+[data-ui="dashboard-shell"] > [data-part="sidebar"] {
+  grid-area: sidebar;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-bg-subtle);
+  border-inline-end: var(--border-width) solid var(--color-border);
+  overflow-y: auto;
+  position: fixed;
+  top: 0;
+  inset-inline-start: 0;
+  bottom: 0;
+  width: var(--shell-sidebar-width, 16rem);
+  z-index: var(--z-overlay, 200);
+  box-shadow: var(--shadow-md);
+  transform: translateX(-100%);
+  /* A closed drawer sat outside the window, painted and tabbable: the nav links
+     inside it took focus with nothing visible on screen. `visibility` removes it
+     from both, and is delayed off (not on) so the slide-out still animates. [W3-3] */
+  visibility: hidden;
+  transition: transform var(--duration-slow) var(--ease-out),
+              visibility 0s linear var(--duration-slow);
+}
+
+[data-ui="dashboard-shell"][data-variant="right"] > [data-part="sidebar"] {
+  border-inline-end: none;
+  border-inline-start: var(--border-width) solid var(--color-border);
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+  transform: translateX(100%);
+}
+
+[data-ui="dashboard-shell"] > [data-part="sidebar"][data-state="expanded"],
+[data-ui="dashboard-shell"][data-variant="right"] > [data-part="sidebar"][data-state="expanded"] {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform var(--duration-slow) var(--ease-out),
+              visibility 0s linear 0s;
+}
+
+/* ── Sidebar Collapsed ──
+   Only the rail's own metrics live here; the two `:has()` rules that narrow the
+   shell's first column moved into the md block, because below md there is no
+   sidebar column to narrow. (They used to sit out here and outrank the
+   single-column rule at (0,3,0) vs (0,1,0), so a collapsed sidebar on a phone
+   produced a 4rem column no grid area was ever placed in.) */
+[data-ui="dashboard-shell"] > [data-part="sidebar"][data-state="collapsed"] {
+  padding: var(--space-4) var(--space-2);
+  align-items: center;
+}
+
+[data-ui="dashboard-shell"] > [data-part="sidebar"][data-state="collapsed"] [data-part="nav-label"],
+[data-ui="dashboard-shell"] > [data-part="sidebar"][data-state="collapsed"] [data-part="sidebar-user-name"],
+[data-ui="dashboard-shell"] > [data-part="sidebar"][data-state="collapsed"] [data-part="logo"] span {
+  display: none;
+}
+
+/* A collapsed rail owns the full width of its nav. Trailing badges need their
+   labels to be meaningful and do not fit beside a glyph in the 4rem column, so
+   they join the labels in the declared collapsed presentation. */
+[data-ui="dashboard-shell"] > [data-part="sidebar"][data-state="collapsed"] [data-part="nav"] {
+  inline-size: 100%;
+}
+
+[data-ui="dashboard-shell"] > [data-part="sidebar"][data-state="collapsed"] [data-part="nav-item"] {
+  justify-content: center;
+}
+
+[data-ui="dashboard-shell"] > [data-part="sidebar"][data-state="collapsed"] [data-part="nav-item"] [data-ui="badge"] {
+  display: none;
+}
+
+/* ── Logo ── */
+[data-ui="dashboard-shell"] > [data-part="sidebar"] [data-part="logo"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  color: var(--color-fg);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ── Navigation ── */
+[data-ui="dashboard-shell"] > [data-part="sidebar"] [data-part="nav"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 0.25rem);
+  flex: 1;
+}
+
+/* ── Nav Item ── */
+[data-ui="dashboard-shell"] > [data-part="sidebar"] [data-part="nav-item"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background var(--duration-normal) var(--ease-default),
+              color var(--duration-normal) var(--ease-default);
+}
+
+[data-ui="dashboard-shell"] > [data-part="sidebar"] [data-part="nav-item"]:hover {
+  background: var(--color-bg-muted);
+  color: var(--color-fg);
+}
+
+[data-ui="dashboard-shell"] > [data-part="sidebar"] [data-part="nav-item"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: calc(-1 * var(--focus-ring-offset));
+}
+
+/* ── Nav Item Active ── */
+[data-ui="dashboard-shell"] > [data-part="sidebar"] [data-part="nav-item"][aria-current="page"] {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  font-weight: var(--weight-semibold);
+}
+
+/* ── Nav Icon ── */
+[data-ui="dashboard-shell"] > [data-part="sidebar"] [data-part="nav-icon"] {
+  flex-shrink: 0;
+  width: var(--space-4);
+  height: var(--space-4);
+}
+
+/* ── Nav Badge Positioning ── */
+[data-ui="dashboard-shell"] > [data-part="sidebar"] [data-part="nav-item"] [data-ui="badge"] {
+  margin-inline-start: auto;
+}
+
+/* ── Sidebar User ── */
+[data-ui="dashboard-shell"] > [data-part="sidebar"] [data-part="sidebar-user"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+/* Mobile-first gutters. A 48px inline padding plus a search field plus an
+   actions cluster does not fit a 320px window, and the header pushed itself
+   49px past its own edge — with the user menu, the thing that opens the
+   sidebar, among the parts outside it. The `md` block restores the roomier
+   desktop gutter. [W3-3] */
+[data-ui="dashboard-shell"] > [data-part="header"] {
+  grid-area: header;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  background: var(--color-bg);
+  border-bottom: var(--border-width) solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+}
+
+/* ── Search ── */
+[data-ui="dashboard-shell"] > [data-part="header"] [data-part="search"] {
+  /* `flex: 1` alone keeps the field's own min-content as a floor; a search input
+     will not give that up on a phone without an explicit one. */
+  flex: 1 1 0;
+  min-inline-size: 0;
+  max-width: 28rem;
+}
+
+/* ── Header Actions ── */
+[data-ui="dashboard-shell"] > [data-part="header"] [data-part="header-actions"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+  min-inline-size: 0;
+}
+
+/* ── User Menu ── */
+[data-ui="dashboard-shell"] > [data-part="header"] [data-part="user-menu"] {
+  display: flex;
+  align-items: center;
+  min-inline-size: 0;
+}
+
+/* The account name is the header's only elastic text: let it ellipsize rather
+   than set the width of everything beside it. */
+[data-ui="dashboard-shell"] > [data-part="header"] [data-part="user-menu"] [data-part="trigger"] {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Content ── */
+[data-ui="dashboard-shell"] > [data-part="content"] {
+  grid-area: content;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  /* Same reason as the header: 48px of gutter is a sixth of a 320px window. */
+  padding: var(--space-3);
+  overflow-y: auto;
+  min-inline-size: 0;
+}
+
+/* ── Content Metric ── */
+[data-ui="dashboard-shell"] > [data-part="content"] [data-part="metric"] {
+  font-size: var(--text-2xl, 1.5rem);
+  font-weight: var(--weight-bold, 700);
+  line-height: var(--leading-tight);
+  color: var(--color-fg);
+}
+
+/* ── Activity Item ── */
+[data-ui="dashboard-shell"] > [data-part="content"] [data-part="activity-item"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  font-size: var(--text-sm);
+  color: var(--color-fg);
+}
+
+[data-ui="dashboard-shell"] > [data-part="content"] [data-part="activity-item"] [data-ui="badge"] {
+  margin-inline-start: auto;
+}
+
+/* ── Footer ── */
+[data-ui="dashboard-shell"] > [data-part="footer"] {
+  grid-area: footer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-top: var(--border-width) solid var(--color-border);
+  font-size: var(--text-xs);
+  color: var(--color-fg-muted);
+}
+
+/* ── Responsive: the sidebar rejoins the flow at the canon md floor ──
+   Canon tiers only, min-width only (FAQIR-NEXT §19). Four `transform: none`
+   declarations rather than one, because the base states them at four different
+   specificities ((0,2,0) through (0,4,0)) and an override has to meet each; the
+   md block is later in the sheet, so equal specificity is enough to win. */
+@media (min-width: 48rem) {
+  [data-ui="dashboard-shell"] > [data-part="header"] {
+    gap: var(--space-4);
+    padding: 0 var(--space-6);
+  }
+
+  [data-ui="dashboard-shell"] > [data-part="content"] {
+    gap: var(--space-6);
+    padding: var(--space-6);
+  }
+
+  [data-ui="dashboard-shell"] {
+    grid-template-columns: var(--shell-sidebar-width, 16rem) minmax(0, 1fr);
+    grid-template-areas:
+      "sidebar header"
+      "sidebar content"
+      "sidebar footer";
+  }
+
+  [data-ui="dashboard-shell"][data-variant="right"] {
+    grid-template-columns: minmax(0, 1fr) var(--shell-sidebar-width, 16rem);
+    grid-template-areas:
+      "header  sidebar"
+      "content sidebar"
+      "footer  sidebar";
+  }
+
+  /* A collapsed sidebar narrows the column it actually occupies — which only
+     exists from here up. */
+  [data-ui="dashboard-shell"]:has(> [data-part="sidebar"][data-state="collapsed"]) {
+    grid-template-columns: var(--shell-sidebar-collapsed-width, 4rem) minmax(0, 1fr);
+  }
+
+  [data-ui="dashboard-shell"][data-variant="right"]:has(> [data-part="sidebar"][data-state="collapsed"]) {
+    grid-template-columns: minmax(0, 1fr) var(--shell-sidebar-collapsed-width, 4rem);
+  }
+
+  [data-ui="dashboard-shell"] > [data-part="sidebar"] {
+    position: static;
+    inset: auto;
+    width: auto;
+    z-index: auto;
+    box-shadow: none;
+    transform: none;
+    visibility: visible;
+    transition: width var(--duration-slow) var(--ease-out),
+                padding var(--duration-slow) var(--ease-out);
+  }
+
+  [data-ui="dashboard-shell"][data-variant="right"] > [data-part="sidebar"] {
+    inset: auto;
+    transform: none;
+  }
+
+  [data-ui="dashboard-shell"] > [data-part="sidebar"][data-state="expanded"] {
+    transform: none;
+  }
+
+  [data-ui="dashboard-shell"][data-variant="right"] > [data-part="sidebar"][data-state="expanded"] {
+    transform: none;
+  }
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="dashboard-shell"] > [data-part="sidebar"],
+  [data-ui="dashboard-shell"] > [data-part="sidebar"] [data-part="nav-item"] {
+    transition: none;
+  }
+}

@@ -1,0 +1,90 @@
+<!-- @ui:component wizard -->
+<!-- @ui:kind pattern -->
+<!-- @ui:variants size=sm|md|lg -->
+<!-- @ui:states active|submitted -->
+<!-- @ui:composition stepper card field-group input radio-group button -->
+<!-- @ui:requires faqir-core.js faqir-validate.js -->
+<!--
+  Multi-step form wizard — fully declarative, zero custom JS.
+    · l-data holds the single source of truth: { step }.
+    · faqir-validate owns the on-valid hook (the l-validate expression): on a
+      clean submit it advances the step; on the final step it marks the form
+      submitted and dispatches `faqir:wizard-complete`.
+    · Inactive-step controls are `:disabled`, so faqir-validate skips them and a
+      later step can never block an earlier one (and vice-versa).
+    · Step visibility + indicator state are pure `:hidden` / `:data-state`
+      bindings off `step`. No classes, no controller.
+-->
+<form
+  data-ui="wizard"
+  data-state="active"
+  aria-label="Create your account"
+  l-data="{ step: 0 }"
+  l-validate="step &lt; 1 ? (step = step + 1) : ($el.dataset.state = &#39;submitted&#39;, $el.dispatchEvent(new CustomEvent(&#39;faqir:wizard-complete&#39;, { bubbles: true, detail: { steps: 2 } })))"
+>
+  <h1 data-part="heading">Create your account</h1>
+
+  <div data-ui="stepper" data-part="steps" role="navigation" aria-label="Progress">
+    <div data-part="step" data-state="active" :data-state="step &gt; 0 ? &#39;completed&#39; : (step === 0 ? &#39;active&#39; : null)">
+      <span data-part="indicator">1</span>
+      <span data-part="label">Profile</span>
+    </div>
+    <div data-part="connector"></div>
+    <div data-part="step" :data-state="step &gt; 1 ? &#39;completed&#39; : (step === 1 ? &#39;active&#39; : null)">
+      <span data-part="indicator">2</span>
+      <span data-part="label">Plan</span>
+    </div>
+  </div>
+
+  <section data-ui="card" data-variant="outlined" data-part="panel" :hidden="step !== 0">
+    <h2 data-part="title">Profile</h2>
+    <p data-part="description">Tell us who you are.</p>
+    <div data-part="body">
+      <div data-ui="field-group">
+        <label data-part="label" for="wizard-fullname">Full name <span data-part="required">*</span></label>
+        <div data-part="input">
+          <input data-ui="input" id="wizard-fullname" name="fullName" type="text" required aria-required="true" aria-describedby="wizard-fullname-error" :disabled="step !== 0">
+        </div>
+        <p data-part="error" id="wizard-fullname-error" aria-live="polite"></p>
+      </div>
+      <div data-ui="field-group">
+        <label data-part="label" for="wizard-email">Email <span data-part="required">*</span></label>
+        <div data-part="input">
+          <input data-ui="input" id="wizard-email" name="email" type="email" required aria-required="true" aria-describedby="wizard-email-error" :disabled="step !== 0">
+        </div>
+        <p data-part="error" id="wizard-email-error" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <section data-ui="card" data-variant="outlined" data-part="panel" hidden :hidden="step !== 1">
+    <h2 data-part="title">Plan</h2>
+    <p data-part="description">Pick the plan that fits.</p>
+    <div data-part="body">
+      <div data-ui="field-group">
+        <label data-part="label" id="wizard-plan-label" for="wizard-plan-option-1">Plan</label>
+        <div data-part="input">
+          <div data-ui="radio-group" role="radiogroup" aria-labelledby="wizard-plan-label" aria-describedby="wizard-plan-error">
+            <label data-ui="radio-label">
+              <input data-ui="radio" type="radio" id="wizard-plan-option-1" name="plan" value="free" aria-describedby="wizard-plan-error" checked :disabled="step !== 1">
+              <span data-part="label">Free</span>
+            </label>
+            <label data-ui="radio-label">
+              <input data-ui="radio" type="radio" id="wizard-plan-option-2" name="plan" value="team" aria-describedby="wizard-plan-error" :disabled="step !== 1">
+              <span data-part="label">Team</span>
+            </label>
+          </div>
+        </div>
+        <p data-part="error" id="wizard-plan-error" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <div data-part="actions">
+    <button type="button" data-ui="button" data-variant="outline" data-part="back" :disabled="step === 0" @click="step = step - 1">Back</button>
+    <button type="submit" data-ui="button" data-variant="primary" data-part="next" :hidden="step === 1">Next</button>
+    <button type="submit" data-ui="button" data-variant="primary" data-part="submit" hidden :hidden="step !== 1">Create account</button>
+  </div>
+
+  <p data-part="complete" role="status">Your account is ready.</p>
+</form>

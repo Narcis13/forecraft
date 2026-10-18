@@ -1,0 +1,90 @@
+/* @ui:component chip */
+/* @ui:tokens color-bg-muted color-fg color-fg-muted color-primary color-primary-subtle color-destructive color-destructive-subtle color-border color-ring radius-full space-1 space-2 space-3 font-ui text-xs text-sm weight-medium border-width focus-ring-width focus-ring-offset focus-ring-style focus-ring-color focus-shadow */
+
+/* ── Base ── */
+[data-ui="chip"] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--chip-radius, var(--radius-full));
+  background: var(--color-bg-muted);
+  color: var(--color-fg);
+  font-family: var(--chip-font, var(--font-ui));
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+[data-ui="chip"] > [data-part="label"] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Dismiss ── */
+[data-ui="chip"] > [data-part="dismiss"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25em;
+  height: 1.25em;
+  padding: 0;
+  margin-inline-end: calc(var(--space-1) * -1);
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-fg-muted);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+[data-ui="chip"] > [data-part="dismiss"]:hover {
+  background: var(--color-border);
+  color: var(--color-fg);
+}
+
+[data-ui="chip"] > [data-part="dismiss"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  /* Half the default gap — the dismiss target is small, and the full ring
+     would collide with the chip's own edge. */
+  outline-offset: calc(var(--focus-ring-offset) / 2);
+  box-shadow: var(--focus-shadow);
+}
+
+/* ── Variants ── */
+[data-ui="chip"][data-variant="primary"] {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+
+[data-ui="chip"][data-variant="primary"] > [data-part="dismiss"] {
+  color: var(--color-primary);
+}
+
+[data-ui="chip"][data-variant="outline"] {
+  background: transparent;
+  border-color: var(--color-border);
+}
+
+[data-ui="chip"][data-variant="destructive"] {
+  background: var(--color-destructive-subtle);
+  color: var(--color-destructive);
+}
+
+[data-ui="chip"][data-variant="destructive"] > [data-part="dismiss"] {
+  color: var(--color-destructive);
+}
+
+/* ── Sizes ── */
+[data-ui="chip"][data-size="sm"] {
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
+}
+
+[data-ui="chip"][data-size="lg"] {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+}

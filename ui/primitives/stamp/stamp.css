@@ -1,0 +1,87 @@
+/* @ui:component stamp */
+/* @ui:tokens color-fg color-primary color-destructive color-success space-3 space-1 space-2 space-4 border-width-lg radius-sm radius-full corner-shape font-ui text-sm text-xs text-lg weight-bold */
+
+/* ── Base ──
+   A rubber-stamp mark: capitals, wide-tracked and heavy, in a double rule, set
+   at a slight angle as if pressed on by hand. "Sold out", "Look 07", "No. 0417",
+   "Limited edition". It is real text in a real box: the angle is a `rotate`, so
+   layout, reading order and selection are untouched.
+   The ink is one custom property, and the text and the border both draw in it.
+   Wide tracking leaves a trailing gap after the last letter, so the inline-end
+   padding gives that gap back; the word sits centred in its frame.
+   --stamp-rotate is the angle (default -6deg). */
+[data-ui="stamp"] {
+  --faqir-stamp-ink: var(--color-fg);
+  --faqir-stamp-track: 0.16em;
+  --faqir-stamp-px: var(--space-3);
+  --faqir-stamp-py: var(--space-1);
+
+  /* Block-level but only as wide as its word: a stamp sits on its own line (in a
+     card header, beside a row in a cluster), and a block box takes the page
+     rhythm the way an atomic inline box cannot. */
+  display: flex;
+  inline-size: fit-content;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding-block: var(--faqir-stamp-py);
+  padding-inline-start: var(--faqir-stamp-px);
+  padding-inline-end: calc(var(--faqir-stamp-px) - var(--faqir-stamp-track));
+  border: var(--border-width-lg) double var(--faqir-stamp-ink);
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  color: var(--faqir-stamp-ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  line-height: 1.1;
+  letter-spacing: var(--faqir-stamp-track);
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  rotate: var(--stamp-rotate, -6deg);
+}
+
+/* ── Variants ──
+   The ink only; the semantic colours are the ones the rest of the registry
+   uses for the same meaning. */
+[data-ui="stamp"][data-variant="primary"] {
+  --faqir-stamp-ink: var(--color-primary);
+}
+
+[data-ui="stamp"][data-variant="destructive"] {
+  --faqir-stamp-ink: var(--color-destructive);
+}
+
+[data-ui="stamp"][data-variant="success"] {
+  --faqir-stamp-ink: var(--color-success);
+}
+
+/* ── Sizes ── */
+[data-ui="stamp"][data-size="sm"] {
+  --faqir-stamp-px: var(--space-2);
+  --faqir-stamp-py: 0;
+  font-size: var(--text-xs);
+}
+
+[data-ui="stamp"][data-size="lg"] {
+  --faqir-stamp-px: var(--space-4);
+  --faqir-stamp-py: var(--space-2);
+  font-size: var(--text-lg);
+}
+
+/* ── Shape: round ──
+   A circular seal. The width is in em, so a seal scales with its size and every
+   seal of one size is the same disc; the text wraps and balances inside it. */
+[data-ui="stamp"][data-shape="round"] {
+  inline-size: 8em;
+  aspect-ratio: 1;
+  padding-block: var(--space-2);
+  padding-inline-start: var(--space-2);
+  padding-inline-end: calc(var(--space-2) - var(--faqir-stamp-track));
+  border-radius: var(--radius-full);
+  line-height: 1.2;
+  white-space: normal;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}

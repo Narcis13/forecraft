@@ -1,0 +1,62 @@
+<!-- @ui:component stack -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants direction=vertical|horizontal direction-legacy=vertical|horizontal gap=0|1|2|3|4|6|8|10|12|16 align=start|center|end|stretch|baseline justify=start|center|end|between|around -->
+<!-- Props: data-wrap (bare), data-align-text=start|center|right,
+     data-responsive (deprecated), and data-flex=1|auto|none on a CHILD.
+     direction, gap, align and justify are responsive: every value is also
+     accepted as data-ATTR-TIER for sm|md|lg|xl — data-direction="vertical"
+     data-direction-md="horizontal" reads mobile-first. data-variant and
+     data-responsive are deprecated 0.x aliases, removed in 1.0. -->
+
+<!-- Vertical Stack (default) -->
+<div data-ui="stack" data-gap="4">
+  <div data-ui="surface" data-size="sm">Item 1</div>
+  <div data-ui="surface" data-size="sm">Item 2</div>
+  <div data-ui="surface" data-size="sm">Item 3</div>
+</div>
+
+<!-- Horizontal Stack -->
+<div data-ui="stack" data-direction="horizontal" data-gap="4">
+  <div data-ui="surface" data-size="sm">Item 1</div>
+  <div data-ui="surface" data-size="sm">Item 2</div>
+  <div data-ui="surface" data-size="sm">Item 3</div>
+</div>
+
+<!-- Horizontal Stack, Center Aligned -->
+<div data-ui="stack" data-direction="horizontal" data-gap="2" data-align="center">
+  <div data-ui="surface" data-size="sm">Short</div>
+  <div data-ui="surface" data-size="sm">Taller<br>Item</div>
+  <div data-ui="surface" data-size="sm">Short</div>
+</div>
+
+<!-- Vertical Stack, Center Aligned -->
+<div data-ui="stack" data-gap="3" data-align="center">
+  <div data-ui="surface" data-size="sm">Centered Item 1</div>
+  <div data-ui="surface" data-size="sm">Centered Item 2</div>
+</div>
+
+<!-- Tight Stack (no gap) -->
+<div data-ui="stack" data-gap="0">
+  <div data-ui="surface" data-size="sm">No gap 1</div>
+  <div data-ui="surface" data-size="sm">No gap 2</div>
+  <div data-ui="surface" data-size="sm">No gap 3</div>
+</div>
+
+<!-- Spacious Stack -->
+<div data-ui="stack" data-gap="8">
+  <div data-ui="surface" data-size="sm">Spacious Item 1</div>
+  <div data-ui="surface" data-size="sm">Spacious Item 2</div>
+</div>
+
+<!-- Horizontal Stack, End Aligned -->
+<div data-ui="stack" data-direction="horizontal" data-gap="4" data-align="end">
+  <div data-ui="surface" data-size="sm">End 1</div>
+  <div data-ui="surface" data-size="sm">End 2</div>
+</div>
+
+<!-- Horizontal Stack, Stretch Aligned -->
+<div data-ui="stack" data-direction="horizontal" data-gap="4" data-align="stretch">
+  <div data-ui="surface" data-size="sm">Stretch 1</div>
+  <div data-ui="surface" data-size="sm">Stretch 2</div>
+</div>

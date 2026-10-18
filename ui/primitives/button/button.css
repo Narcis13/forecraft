@@ -1,0 +1,361 @@
+/* @ui:component button */
+/* @ui:tokens color-primary color-primary-hover color-primary-fg color-secondary color-secondary-hover color-secondary-fg color-destructive color-destructive-hover color-destructive-fg color-bg color-bg-muted color-bg-subtle color-fg color-border color-ring color-primary-subtle radius-md radius-full space-2 space-3 space-4 space-6 space-1 font-ui text-xs text-sm text-base weight-medium duration-fast duration-slower duration-normal ease-default ease-emphasized ease-out border-width border-width-strong border-width-md corner-shape focus-ring-width focus-ring-offset focus-ring-style focus-ring-color focus-shadow button-text-transform button-height-md button-radius button-height-sm button-height-lg motion-hover-lift motion-ambient-duration motion-ambient-play link-decoration disabled-opacity shadow-md shadow-lg shadow-xs */
+
+/* ── Base ── */
+[data-ui="button"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: var(--button-height-md, 40px);
+  padding-inline: var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--button-radius, var(--radius-md));
+  corner-shape: var(--corner-shape);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-transform: var(--button-text-transform);
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-default),
+              border-color var(--duration-fast) var(--ease-default),
+              color var(--duration-fast) var(--ease-default),
+              translate var(--duration-fast) var(--ease-default),
+              box-shadow var(--duration-fast) var(--ease-default);
+  user-select: none;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+[data-ui="button"]:hover {
+  background: var(--color-bg-muted);
+  /* The hover lift. `none` by default — the initial value of `translate` — so
+     this rule computes what the button computed before the token existed; a
+     theme with a springy personality sets `--motion-hover-lift: 0 -1px`. */
+  translate: var(--motion-hover-lift);
+}
+
+[data-ui="button"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-shadow);
+}
+
+/* ── Variants ── */
+[data-ui="button"][data-variant="primary"] {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+[data-ui="button"][data-variant="primary"]:hover {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+[data-ui="button"][data-variant="secondary"] {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: var(--color-secondary-fg);
+}
+[data-ui="button"][data-variant="secondary"]:hover {
+  background: var(--color-secondary-hover);
+}
+
+[data-ui="button"][data-variant="destructive"] {
+  background: var(--color-destructive);
+  border-color: var(--color-destructive);
+  color: var(--color-destructive-fg);
+}
+[data-ui="button"][data-variant="destructive"]:hover {
+  background: var(--color-destructive-hover);
+  border-color: var(--color-destructive-hover);
+}
+
+[data-ui="button"][data-variant="ghost"] {
+  background: transparent;
+  border-color: transparent;
+}
+[data-ui="button"][data-variant="ghost"]:hover {
+  background: var(--color-bg-muted);
+}
+
+[data-ui="button"][data-variant="outline"] {
+  background: transparent;
+}
+[data-ui="button"][data-variant="outline"]:hover {
+  background: var(--color-bg-subtle);
+}
+
+[data-ui="button"][data-variant="link"] {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-primary);
+  height: auto;
+  padding: 0;
+}
+[data-ui="button"][data-variant="link"]:hover {
+  text-decoration-line: var(--link-decoration);
+}
+
+/* ── Pressed — a toggle button, styled off aria-pressed, no JS ──
+   For the unfilled variants only: default (with or without the attribute),
+   outline and ghost. A filled variant has no room left to say "on" — its fill
+   is already the loudest thing on the button — so it gets no pressed style;
+   use the `toggle` primitive there. `:where()` keeps both rules at a variant
+   rule's own specificity, so they win on order and a page can still override
+   them with one more attribute. */
+[data-ui="button"][aria-pressed="true"]:where(:not([data-variant]), [data-variant="default"], [data-variant="outline"], [data-variant="ghost"]) {
+  background: var(--color-primary-subtle);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+/* The twin: without it the variant's own :hover fill replaces the pressed one,
+   and a pressed button under the pointer reads as released. */
+[data-ui="button"][aria-pressed="true"]:where(:not([data-variant]), [data-variant="default"], [data-variant="outline"], [data-variant="ghost"]):hover {
+  background: var(--color-primary-subtle);
+}
+
+/* ── Sizes ── */
+[data-ui="button"][data-size="sm"] {
+  height: var(--button-height-sm, 32px);
+  padding-inline: var(--space-3);
+  font-size: var(--text-xs);
+}
+
+[data-ui="button"][data-size="lg"] {
+  height: var(--button-height-lg, 48px);
+  padding-inline: var(--space-6);
+  font-size: var(--text-base);
+}
+
+/* A link button is text at every size. The size rules above match with the
+   link variant's own specificity and come later, so on their own they give it
+   back a control's height and inline padding; this puts the two together the
+   way they read — the size picks the font size, the box stays the text's. */
+[data-ui="button"][data-variant="link"][data-size] {
+  height: auto;
+  padding-inline: 0;
+}
+
+/* ── States ── */
+[data-ui="button"]:disabled,
+[data-ui="button"][data-state="disabled"] {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+[data-ui="button"][data-state="loading"] {
+  cursor: wait;
+  color: transparent;
+  position: relative;
+}
+[data-ui="button"][data-state="loading"]::after {
+  content: "";
+  position: absolute;
+  width: 1em;
+  height: 1em;
+  border: var(--border-width-strong) solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: var(--radius-full);
+  animation: faqir-spin 0.6s linear infinite;
+  color: var(--color-fg);
+}
+
+/* ── Full Width ── */
+[data-ui="button"][data-full] {
+  width: 100%;
+}
+
+/* ── Parts ── */
+[data-ui="button"] > [data-part="icon"] {
+  display: inline-flex;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+
+/* ── Button Group ── */
+[data-ui="button-group"] {
+  display: inline-flex;
+}
+[data-ui="button-group"] [data-ui="button"]:not(:first-child) {
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+  margin-inline-start: -1px;
+}
+[data-ui="button-group"] [data-ui="button"]:not(:last-child) {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+/* ── Forced colors (Windows High Contrast) ──
+   Pressed is carried by colour alone, and the OS replaces all three colours
+   with the ones every other button gets. System colours are the ones it keeps.
+   The :hover twin is listed too: it is the more specific rule, and its
+   `--color-primary-subtle` would be forced back to the plain button face
+   under HighlightText. */
+@media (forced-colors: active) {
+  [data-ui="button"][aria-pressed="true"]:where(:not([data-variant]), [data-variant="default"], [data-variant="outline"], [data-variant="ghost"]),
+  [data-ui="button"][aria-pressed="true"]:where(:not([data-variant]), [data-variant="default"], [data-variant="outline"], [data-variant="ghost"]):hover {
+    background: Highlight;
+    border-color: Highlight;
+    color: HighlightText;
+  }
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="button"] {
+    transition: none;
+  }
+}
+
+@keyframes faqir-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Effects ──
+   Attention a button can ask for, one at a time, on top of any variant.
+   `shine` sweeps a highlight across the face on hover — the sheen on a glossy
+   key; `pulse` sends a ring out from the edge on a loop, for the one action on
+   the screen that is waiting on the reader; `press` sinks under the pointer;
+   `arrow` leans the trailing icon toward the inline end, the "go" cue on a
+   call to action; `sink` is the neo-brutalist press, a resting offset shadow
+   the button lifts off on hover and is pushed flush into on :active.
+   The ring is drawn by ::before (::after belongs to the loading spinner) and
+   the sheen clips to the face, so neither reaches past the border. */
+[data-ui="button"][data-effect] {
+  position: relative;
+  isolation: isolate;
+}
+
+[data-ui="button"][data-effect="shine"] {
+  overflow: hidden;
+}
+
+[data-ui="button"][data-effect="shine"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: linear-gradient(115deg, transparent 35%, color-mix(in oklch, var(--color-primary-fg) 35%, transparent) 50%, transparent 65%);
+  translate: -100% 0;
+  transition: translate var(--duration-slower) var(--ease-emphasized);
+}
+
+[data-ui="button"][data-effect="shine"]:hover::before,
+[data-ui="button"][data-effect="shine"]:focus-visible::before {
+  translate: 100% 0;
+}
+
+[data-ui="button"][data-effect="pulse"]::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--border-width) * -1);
+  z-index: -1;
+  border: var(--border-width-md) solid var(--color-primary);
+  border-radius: inherit;
+  animation: faqir-button-pulse calc(var(--motion-ambient-duration) / 10) var(--ease-out) infinite;
+  animation-play-state: var(--motion-ambient-play);
+}
+
+@keyframes faqir-button-pulse {
+  from { scale: 1; opacity: 0.8; }
+  to   { scale: 1.35; opacity: 0; }
+}
+
+[data-ui="button"][data-effect="press"] {
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default),
+    translate var(--duration-fast) var(--ease-default),
+    scale var(--duration-fast) var(--ease-default),
+    box-shadow var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="button"][data-effect="press"]:active {
+  scale: 0.96;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="button"][data-effect="shine"]::before {
+    display: none;
+  }
+
+  [data-ui="button"][data-effect="pulse"]::before {
+    animation: none;
+    opacity: 0;
+  }
+
+  [data-ui="button"][data-effect="press"]:active {
+    scale: none;
+  }
+}
+
+/* ── Effect: arrow ──
+   The last icon child leans toward the inline end on hover and keyboard focus:
+   `Get started →` going where it says. The nudge is a private custom property
+   so right-to-left flips it in one place; the icon is whatever the page put
+   there (an arrow-right glyph, ordinarily). The movement lives wholly in the
+   no-preference query, so under reduced motion the icon simply stays put. */
+[data-ui="button"][data-effect="arrow"] {
+  --faqir-button-nudge: var(--space-1);
+}
+
+[data-ui="button"][data-effect="arrow"]:dir(rtl) {
+  --faqir-button-nudge: calc(var(--space-1) * -1);
+}
+
+/* In right-to-left the glyph is mirrored, so an arrow-right points the way it
+   moves. The effect is for a TRAILING icon: CSS cannot see the text beside an
+   icon, so a button whose only icon leads (`★ Save`) would nudge it too —
+   the manifest says so, and such a button wants no arrow effect. */
+[data-ui="button"][data-effect="arrow"]:dir(rtl) > [data-part="icon"]:last-child {
+  scale: -1 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-ui="button"][data-effect="arrow"] > [data-part="icon"]:last-child {
+    transition: translate var(--duration-normal) var(--ease-emphasized);
+  }
+
+  [data-ui="button"][data-effect="arrow"]:hover > [data-part="icon"]:last-child,
+  [data-ui="button"][data-effect="arrow"]:focus-visible > [data-part="icon"]:last-child {
+    translate: var(--faqir-button-nudge) 0;
+  }
+}
+
+/* ── Effect: sink ──
+   Depth you can push. At rest the button carries the theme's own shadow, so a
+   hard-depth theme (neo: `3px 3px 0`) draws a hard offset and a soft theme a
+   soft one. On hover the button lifts off it, up and back by the sink distance
+   while the shadow steps up a size, which keeps a hard shadow's tip where it
+   was. On :active (the pointer, or Space held on the keyboard) the
+   shadow collapses to its smallest step and the button travels the same
+   distance the other way, flush into the page.
+   `--sink-distance` is the travel (half a --space-1 by default) and
+   `--sink-shadow` replaces the resting and hover shadow, for a theme
+   that states none (brutalist sets every --shadow-* to none). The base focus
+   rule writes --focus-shadow to the same property; sink keeps its depth and
+   lets the focus outline, which it does not touch, mark focus.
+   Reduced motion: the base rule already drops every transition, so the states
+   change instantly. The shadow and the offset remain the feedback. */
+[data-ui="button"][data-effect="sink"] {
+  --faqir-button-sink: var(--sink-distance, calc(var(--space-1) / 2));
+  box-shadow: var(--sink-shadow, var(--shadow-md));
+}
+
+[data-ui="button"][data-effect="sink"]:hover {
+  box-shadow: var(--sink-shadow, var(--shadow-lg));
+  translate: calc(var(--faqir-button-sink) * -1) calc(var(--faqir-button-sink) * -1);
+}
+
+[data-ui="button"][data-effect="sink"]:active {
+  box-shadow: var(--shadow-xs);
+  translate: var(--faqir-button-sink) var(--faqir-button-sink);
+}

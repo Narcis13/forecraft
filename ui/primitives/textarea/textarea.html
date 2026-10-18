@@ -1,0 +1,43 @@
+<!-- @ui:component textarea -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots  -->
+<!-- @ui:variants size=sm|md|lg -->
+
+<!-- Default -->
+<div data-ui="field-group">
+  <label data-part="label" for="comment-input">Comment</label>
+  <div data-part="input">
+    <textarea data-ui="textarea" id="comment-input" placeholder="Write a comment..." aria-describedby="comment-input-hint"></textarea>
+  </div>
+  <p data-part="description" id="comment-input-hint">Keep the comment concise and specific.</p>
+</div>
+
+<!-- Error state -->
+<div data-ui="field-group" data-state="invalid">
+  <label data-part="label" for="bio-input">Bio</label>
+  <div data-part="input">
+    <textarea data-ui="textarea" id="bio-input" data-state="error" aria-invalid="true" aria-describedby="bio-input-error">This value is invalid</textarea>
+  </div>
+  <p data-part="error" id="bio-input-error">Bio must be 160 characters or fewer.</p>
+</div>
+
+<!-- Disabled -->
+<div data-ui="field-group" data-state="disabled">
+  <label data-part="label" for="notes-input">Notes</label>
+  <div data-part="input">
+    <textarea data-ui="textarea" id="notes-input" disabled>Cannot edit this field</textarea>
+  </div>
+</div>
+
+<!-- Sizes -->
+<textarea data-ui="textarea" data-size="sm" placeholder="Small textarea"></textarea>
+<textarea data-ui="textarea" placeholder="Medium textarea (default)"></textarea>
+<textarea data-ui="textarea" data-size="lg" placeholder="Large textarea"></textarea>
+
+<!-- With rows attribute -->
+<div data-ui="field-group">
+  <label data-part="label" for="description-input">Description</label>
+  <div data-part="input">
+    <textarea data-ui="textarea" id="description-input" rows="6" placeholder="Enter a detailed description..."></textarea>
+  </div>
+</div>

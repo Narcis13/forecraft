@@ -1,0 +1,59 @@
+layout "layouts/base.faqir"
+
+block title
+  | {{ page.title }}
+
+block body
+  div(data-ui="backdrop" data-variant=page.scene data-intensity="subtle")
+    main#main(data-form-page=page.layout l-data=json(page.state) @fc-sent="status = 'sent'" @fc-failed="status = 'failed'; message = $event.detail")
+      if page.coverImage ?? false
+        if page.layout == "split"
+          figure(data-form-cover)
+            img(src=page.coverImage alt="")
+      div(data-ui="container" data-measure=page.measure)
+        div(data-ui="reveal" data-variant="rise" data-stagger)
+          header(data-form-head)
+            div(data-ui="cluster" data-gap="2")
+              if page.eyebrow ?? false
+                span(data-ui="badge" data-variant="primary") {{ page.eyebrow }}
+              if page.preview
+                span(data-ui="stamp" data-variant="primary" data-size="sm") Preview
+            h1(data-form-title) {{ page.title }}
+            if page.description ?? false
+              p(data-ui="text" data-size="lg" data-variant="muted") {{ page.description }}
+          if page.coverImage ?? false
+            if page.layout != "split"
+              figure(data-form-cover)
+                img(src=page.coverImage alt="")
+          section(aria-label="Form" l-show="status !== 'sent'")
+            div(data-ui=page.layout == "page" ? false : "card" data-size="lg")
+              div(data-part=page.layout == "page" ? false : "body")
+                raw page.formHtml
+                div(data-form-actions)
+                  if !page.wizard
+                    button(type="submit" form="fc-form" data-ui="button" data-variant="primary" data-size="lg") {{ page.submitLabel }}
+                  template(l-if="status === 'failed'")
+                    div(data-ui="callout" data-variant="destructive" role="alert")
+                      div(data-part="content" l-text="message")
+                div(hidden)
+                  label(for="fc-hp") Leave this field empty
+                  input#fc-hp(name="_fc_hp" form="fc-form" tabindex="-1" autocomplete="off")
+          template(l-if="status === 'sent'")
+            section(aria-live="polite" data-form-thanks)
+              div(data-ui="reveal" data-variant="zoom")
+                div(data-ui="card" data-size="lg")
+                  div(data-part="body")
+                    span(data-ui="stamp" data-variant="success" data-size="lg") Received
+                    h2 {{ page.thankYou.title }}
+                    p(data-ui="text" data-variant="muted") {{ page.thankYou.message }}
+          footer(data-form-foot)
+            p(data-ui="text" data-size="sm" data-variant="muted")
+              | Made with
+              a(data-ui="link" href="/") forecraft
+              | — forms your agent can build.
+    div(hidden data-form-config data-action=page.action data-redirect=page.redirect ?? "" data-preview=page.preview ? "true" : "false")
+
+block scripts
+  script(src="/ui/core/plugins/faqir-validate.js" defer)
+  script(src="/ui/core/plugins/faqir-rules.js" defer)
+  script(src="/form.js" defer)

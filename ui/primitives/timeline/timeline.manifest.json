@@ -1,0 +1,180 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "timeline",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "data-display",
+  "description": "Events in order, read down a rail: changelog, company history, roadmap, process steps. An ordered list whose items draw their own rail segments, with done/current/upcoming statuses, large markers that hold a number or icon, a centred alternating layout from the md tier, and an optional scroll-linked progress mode that fills each marker as it rises through the viewport — pure CSS.",
+
+  "anatomy": {
+    "tag": "ol",
+    "selector": "[data-ui='timeline']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "item": {
+      "selector": "[data-part='item']",
+      "required": true,
+      "tag_hint": "li",
+      "description": "One event. Direct child of the list; holds a marker and a content block."
+    },
+    "marker": {
+      "selector": "[data-part='marker']",
+      "required": true,
+      "tag_hint": "span",
+      "description": "The ring on the rail. Decorative — give it aria-hidden=\"true\". Empty by default; with data-size=\"lg\" it can hold a step number or a nested data-ui=\"icon\"."
+    },
+    "content": {
+      "selector": "[data-part='content']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "The event's text: an optional time, a title and a description."
+    },
+    "time": {
+      "selector": "[data-part='time']",
+      "required": false,
+      "tag_hint": "time",
+      "description": "When it happened. Use a real <time datetime=\"…\">."
+    },
+    "title": {
+      "selector": "[data-part='title']",
+      "required": true,
+      "tag_hint": "p",
+      "description": "What happened, in a few words. A <p> by default so a timeline never disturbs the page's heading outline; use the heading level the surrounding section calls for when each event deserves one."
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Supporting sentence or two."
+    }
+  },
+
+  "variants": {
+    "layout": {
+      "values": ["start", "alternate"],
+      "default": "start",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "status": {
+      "type": "enum",
+      "values": ["done", "current", "upcoming"],
+      "attr": "data-status",
+      "description": "Written on an ITEM, never the root: done fills the marker and inks the rail below it, current rings the marker in the accent with a soft pulse, upcoming is the resting look. Say the status in the text as well — colour must not be its only carrier."
+    },
+    "progress": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-progress",
+      "description": "Scroll-linked progress: each marker fills and its rail segment inks in as that item rises through the viewport (one view timeline per item, no script). Falls back to the resting state where view timelines are unsupported, and under reduced motion."
+    },
+    "--timeline-color": {
+      "type": "string",
+      "default": "var(--color-primary)",
+      "description": "Ink of done and current markers and of the progress fill (custom property)."
+    },
+    "--timeline-rail": {
+      "type": "string",
+      "default": "var(--color-border)",
+      "description": "Colour of the resting rail and markers (custom property)."
+    },
+    "--timeline-gap": {
+      "type": "string",
+      "default": "var(--space-8)",
+      "description": "Space between events (custom property). Pass a spacing token."
+    },
+    "--timeline-marker-size": {
+      "type": "string",
+      "default": "0.875rem (md) / 2rem (lg)",
+      "description": "Diameter of the marker (custom property)."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "an <ol> root with <li> items — the order is the meaning",
+      "aria-hidden=\"true\" on every marker",
+      "a datetime attribute on each <time>"
+    ],
+    "notes": "A timeline is an ordered list and is announced as one, with its item count. Markers are decoration. A status must also be readable as text (in the title or description), because data-status only changes colour and motion. The current marker's pulse and the scroll progress stop under prefers-reduced-motion.",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-border", "color-primary", "color-fg", "color-bg", "color-fg-muted", "color-primary-fg",
+    "space-8", "space-4", "space-1", "font-body", "font-ui", "font-heading", "border-width-md",
+    "radius-full", "text-xs", "text-sm", "text-lg", "duration-normal", "ease-default", "ease-out",
+    "ease-linear", "weight-semibold", "heading-tracking", "leading-snug", "leading-relaxed",
+    "motion-ambient-duration", "motion-ambient-play"
+  ],
+
+  "templates": {
+    "html": "<ol data-ui=\"timeline\">\n  <li data-part=\"item\">\n    <span data-part=\"marker\" aria-hidden=\"true\"></span>\n    <div data-part=\"content\">\n      <time data-part=\"time\" datetime=\"{datetime}\">{time}</time>\n      <p data-part=\"title\">{title}</p>\n      <p data-part=\"description\">{description}</p>\n    </div>\n  </li>\n</ol>",
+    "html_status": "<ol data-ui=\"timeline\" data-size=\"lg\">\n  <li data-part=\"item\" data-status=\"{status}\">\n    <span data-part=\"marker\" aria-hidden=\"true\">{number}</span>\n    <div data-part=\"content\">\n      <p data-part=\"title\">{title}</p>\n      <p data-part=\"description\">{description}</p>\n    </div>\n  </li>\n</ol>",
+    "html_alternate": "<ol data-ui=\"timeline\" data-variant=\"alternate\" data-progress>\n  <li data-part=\"item\">\n    <span data-part=\"marker\" aria-hidden=\"true\"></span>\n    <div data-part=\"content\">\n      <time data-part=\"time\" datetime=\"{datetime}\">{time}</time>\n      <p data-part=\"title\">{title}</p>\n      <p data-part=\"description\">{description}</p>\n    </div>\n  </li>\n</ol>"
+  },
+
+  "safe_transforms": [
+    "add-item",
+    "remove-item",
+    "reorder-items",
+    "change-layout",
+    "change-size",
+    "set-item-status",
+    "toggle-progress",
+    "change-custom-property-colors"
+  ],
+
+  "unsafe_transforms": [
+    "replace-the-ordered-list-with-divs",
+    "remove-aria-hidden-from-a-marker",
+    "convey-status-by-colour-alone",
+    "put-data-status-on-the-root",
+    "remove-the-content-wrapper"
+  ],
+
+  "composition": {
+    "contains": ["icon"],
+    "used_in": ["article", "landing-page"],
+    "notes": [
+      "data-status goes on the <li data-part=\"item\">, one per event; a roadmap usually reads done… done… current… upcoming.",
+      "With data-size=\"lg\" the marker can hold a number or a nested <span data-ui=\"icon\">; keep it aria-hidden either way and say the step in the title.",
+      "data-variant=\"alternate\" is a centred rail from the md tier up and the ordinary one-sided list below it; source order is unchanged, so reading order is too.",
+      "data-progress and data-status can be combined, but they say different things: status is what the content states, progress is where the reader is."
+    ]
+  },
+
+  "files": {
+    "html": "timeline.html",
+    "css": "timeline.css",
+    "manifest": "timeline.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-ordered-list",
+    "each-item-draws-its-own-rail-segment",
+    "last-item-has-no-rail",
+    "markers-are-aria-hidden",
+    "status-is-declared-on-items",
+    "done-inks-the-rail-and-fills-the-marker",
+    "current-marker-pulses-and-stops-under-reduced-motion",
+    "alternate-layout-starts-at-the-md-floor",
+    "progress-is-guarded-by-supports",
+    "items-do-not-break-across-printed-pages"
+  ]
+}

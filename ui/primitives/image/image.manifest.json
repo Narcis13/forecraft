@@ -1,0 +1,127 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "image",
+  "version": "1.1.0",
+  "kind": "primitive",
+  "category": "data-display",
+  "description": "Responsive image with variants for different display modes and print optimization",
+  "changes": [
+    {
+      "version": "1.1.0",
+      "note": "A data-hover prop: zoom (the figure clips and the image leans in by 5%), lift (rises one spacing step) and fade (the image dims to 0.8). Each also answers to focus-within, so an image wrapped in a link gives the keyboard the same cue. Reduced motion removes the transitions. No change for markup without the attribute.",
+      "breaking": false
+    },
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the img and caption with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Both are the root's children. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "figure",
+    "selector": "[data-ui='image']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "img": {
+      "selector": "[data-part='img']",
+      "required": true,
+      "tag_hint": "img",
+      "description": "The image element"
+    },
+    "caption": {
+      "selector": "[data-part='caption']",
+      "required": false,
+      "tag_hint": "figcaption",
+      "description": "Optional image caption"
+    }
+  },
+
+  "variants": {
+    "variant": {
+      "values": ["responsive", "thumbnail", "cover", "contain"],
+      "default": "responsive",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["xs", "sm", "md", "lg", "full"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {
+    "hover": {"type":"enum","values":["zoom","lift","fade"],"attr":"data-hover","description":"What the picture does under the pointer and under focus-within: zoom leans into the frame, lift rises, fade dims. For images that are, or sit inside, links."},
+    "src": { "type": "string", "default": "", "description": "Image source URL" },
+    "alt": { "type": "string", "default": "", "description": "Image alt text (required for a11y)" },
+    "loading": { "type": "string", "default": "lazy", "description": "Loading strategy: lazy or eager" }
+  },
+
+  "a11y": {
+    "required_attrs": ["img must have non-empty alt attribute"],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-bg-muted", "color-fg-muted", "radius-md", "space-2", "space-1", "text-xs", "font-body",
+    "image-radius", "image-border-width", "image-border", "image-caption-size",
+    "image-caption-color", "doc-font", "duration-normal", "duration-slower", "ease-out",
+    "ease-emphasized", "ease-default"
+  ],
+
+  "templates": {
+    "html": "<figure data-ui=\"image\" data-variant=\"{variant}\" data-size=\"{size}\">\n  <img data-part=\"img\" src=\"{src}\" alt=\"{alt}\" loading=\"lazy\">\n</figure>",
+    "html_with_caption": "<figure data-ui=\"image\" data-variant=\"{variant}\" data-size=\"{size}\">\n  <img data-part=\"img\" src=\"{src}\" alt=\"{alt}\" loading=\"lazy\">\n  <figcaption data-part=\"caption\">{caption}</figcaption>\n</figure>"
+  },
+
+  "safe_transforms": [
+    "change-size",
+    "change-variant",
+    "swap-image-src",
+    "change-alt-text",
+    "add-caption",
+    "remove-caption",
+    "set-hover"
+  ],
+
+  "unsafe_transforms": [
+    "remove-alt-attribute",
+    "remove-img-element"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["card", "document"]
+  },
+
+  "files": {
+    "html": "image.html",
+    "css": "image.css",
+    "manifest": "image.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-figure-element",
+    "img-has-alt-attribute",
+    "default-variant-is-responsive",
+    "xs-size-sets-48px-max-width",
+    "sm-size-sets-96px-max-width",
+    "md-size-sets-192px-max-width",
+    "lg-size-sets-384px-max-width",
+    "full-size-sets-100-percent",
+    "thumbnail-variant-is-square",
+    "cover-variant-fills-container",
+    "contain-variant-fits-inside",
+    "lazy-loading-by-default",
+    "caption-slot-is-optional",
+    "print-max-width-applied",
+    "hover-zoom-clips-to-the-figure",
+    "hover-answers-to-focus-within"
+  ]
+}

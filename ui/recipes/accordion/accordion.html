@@ -1,0 +1,160 @@
+<!-- @ui:component accordion -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots item trigger content icon -->
+<!-- @ui:variants type=single|multiple bordered=true|false -->
+<!-- @ui:controller accordion.js -->
+
+<!-- Single mode (default) -->
+<div data-ui="accordion" data-variant="single" id="demo-accordion">
+  <div data-part="item" data-state="collapsed">
+    <button
+      data-part="trigger"
+      id="demo-trigger-1"
+      aria-expanded="false"
+      aria-controls="demo-content-1"
+    >
+      <span>What is Faqir UI?</span>
+      <span data-part="icon" aria-hidden="true">&#x25BE;</span>
+    </button>
+    <div
+      data-part="content"
+      id="demo-content-1"
+      role="region"
+      aria-labelledby="demo-trigger-1"
+      hidden
+    >
+      <p>Faqir UI is a component library built on semantic HTML patterns.</p>
+    </div>
+  </div>
+
+  <div data-part="item" data-state="collapsed">
+    <button
+      data-part="trigger"
+      id="demo-trigger-2"
+      aria-expanded="false"
+      aria-controls="demo-content-2"
+    >
+      <span>How do I install it?</span>
+      <span data-part="icon" aria-hidden="true">&#x25BE;</span>
+    </button>
+    <div
+      data-part="content"
+      id="demo-content-2"
+      role="region"
+      aria-labelledby="demo-trigger-2"
+      hidden
+    >
+      <p>Install via npm or include the registry files directly.</p>
+    </div>
+  </div>
+
+  <div data-part="item" data-state="collapsed">
+    <button
+      data-part="trigger"
+      id="demo-trigger-3"
+      aria-expanded="false"
+      aria-controls="demo-content-3"
+    >
+      <span>Is it accessible?</span>
+      <span data-part="icon" aria-hidden="true">&#x25BE;</span>
+    </button>
+    <div
+      data-part="content"
+      id="demo-content-3"
+      role="region"
+      aria-labelledby="demo-trigger-3"
+      hidden
+    >
+      <p>Yes, all components follow WAI-ARIA best practices.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Multiple mode -->
+<div data-ui="accordion" data-variant="multiple" id="multi-accordion">
+  <div data-part="item" data-state="expanded">
+    <button
+      data-part="trigger"
+      id="multi-trigger-1"
+      aria-expanded="true"
+      aria-controls="multi-content-1"
+    >
+      <span>Section A</span>
+      <span data-part="icon" aria-hidden="true">&#x25BE;</span>
+    </button>
+    <div
+      data-part="content"
+      id="multi-content-1"
+      role="region"
+      aria-labelledby="multi-trigger-1"
+    >
+      <p>Content for section A.</p>
+    </div>
+  </div>
+
+  <div data-part="item" data-state="collapsed">
+    <button
+      data-part="trigger"
+      id="multi-trigger-2"
+      aria-expanded="false"
+      aria-controls="multi-content-2"
+    >
+      <span>Section B</span>
+      <span data-part="icon" aria-hidden="true">&#x25BE;</span>
+    </button>
+    <div
+      data-part="content"
+      id="multi-content-2"
+      role="region"
+      aria-labelledby="multi-trigger-2"
+      hidden
+    >
+      <p>Content for section B.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Bordered variant -->
+<div data-ui="accordion" data-variant="single" data-bordered="true" id="bordered-accordion">
+  <div data-part="item" data-state="collapsed">
+    <button
+      data-part="trigger"
+      id="bordered-trigger-1"
+      aria-expanded="false"
+      aria-controls="bordered-content-1"
+    >
+      <span>Bordered Item One</span>
+      <span data-part="icon" aria-hidden="true">&#x25BE;</span>
+    </button>
+    <div
+      data-part="content"
+      id="bordered-content-1"
+      role="region"
+      aria-labelledby="bordered-trigger-1"
+      hidden
+    >
+      <p>Content for bordered item one.</p>
+    </div>
+  </div>
+
+  <div data-part="item" data-state="collapsed">
+    <button
+      data-part="trigger"
+      id="bordered-trigger-2"
+      aria-expanded="false"
+      aria-controls="bordered-content-2"
+    >
+      <span>Bordered Item Two</span>
+      <span data-part="icon" aria-hidden="true">&#x25BE;</span>
+    </button>
+    <div
+      data-part="content"
+      id="bordered-content-2"
+      role="region"
+      aria-labelledby="bordered-trigger-2"
+      hidden
+    >
+      <p>Content for bordered item two.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,135 @@
+/* @ui:component feature-grid */
+/* @ui:tokens color-bg color-fg color-fg-muted color-primary color-primary-subtle space-2 space-3 space-4 space-6 space-8 space-10 space-12 space-16 font-body text-base text-lg text-xl text-3xl weight-semibold weight-bold leading-tight leading-normal leading-relaxed radius-md */
+
+/* ── Root ──
+   Mobile-first (task 0.8-09): everything outside the two `@media` blocks at the
+   foot of the sheet is the phone case, and the canon floors widen it. */
+[data-ui="feature-grid"] {
+  display: grid;
+  gap: var(--space-4);
+  padding-block: var(--space-12);
+  padding-inline: var(--space-4);
+  font-family: var(--font-body);
+  color: var(--color-fg);
+  background: var(--color-bg);
+}
+
+/* ── Section heading ── */
+[data-ui="feature-grid"] [data-part="heading"] {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+[data-ui="feature-grid"] [data-part="description"] {
+  margin: 0;
+  max-inline-size: 44rem;
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--color-fg-muted);
+}
+
+/* ── Items ──
+   A real <ul>; the marker is removed rather than the semantics. Column count
+   comes from data-cols on the root, mirroring the grid primitive's vocabulary —
+   and, since 0.8-04, its mobile-first SEMANTICS too: `data-cols` is the widest
+   count, reached at the lg floor, and one column is the phone base. The per-count
+   rules therefore live in the tier blocks, not here. */
+[data-ui="feature-grid"] [data-part="items"] {
+  display: grid;
+  gap: var(--space-6);
+  margin: 0;
+  margin-block-start: var(--space-8);
+  padding: 0;
+  list-style: none;
+  grid-template-columns: 1fr;
+}
+
+/* ── Item ── */
+[data-ui="feature-grid"] [data-part="item"] {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+}
+
+/* ── Item icon ──
+   The plate WRAPS the icon primitive; it never is one. An icon paints its glyph
+   with background-color:currentColor through a mask, so a background on the
+   icon element would repaint the glyph instead of framing it. The nested icon
+   inherits both its size (1em) and its colour (currentColor) from this box. */
+[data-ui="feature-grid"] [data-part="icon"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--space-10);
+  block-size: var(--space-10);
+  margin-block-end: var(--space-2);
+  font-size: var(--text-xl);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  border-radius: var(--radius-md);
+}
+
+[data-ui="feature-grid"] [data-part="item-title"] {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+}
+
+[data-ui="feature-grid"] [data-part="item-description"] {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-fg-muted);
+}
+
+/* ── Footer ── */
+[data-ui="feature-grid"] [data-part="footer"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block-start: var(--space-10);
+}
+
+/* ── Responsive ──
+   Canon tiers only, min-width only, ascending (FAQIR-NEXT §19). One column on a
+   phone, two from sm, the declared count from lg — the same 640/1024 steps as
+   before, now expressed as floors, so the boundary belongs to the wider layout.
+   `data-cols="2"` needs no sm rule (two is already the sm default) but does need
+   an lg one, or it would inherit lg's three. */
+@media (min-width: 40rem) {
+  [data-ui="feature-grid"] {
+    padding-block: var(--space-16);
+    padding-inline: var(--space-6);
+  }
+
+  [data-ui="feature-grid"] [data-part="heading"] {
+    font-size: var(--text-3xl);
+  }
+
+  [data-ui="feature-grid"] [data-part="items"] {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-8);
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-ui="feature-grid"] [data-part="items"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  [data-ui="feature-grid"][data-cols="2"] [data-part="items"] {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  [data-ui="feature-grid"][data-cols="3"] [data-part="items"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  [data-ui="feature-grid"][data-cols="4"] [data-part="items"] {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

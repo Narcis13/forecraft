@@ -1,0 +1,234 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "dashboard-shell",
+  "version": "1.2.0",
+  "kind": "pattern",
+  "category": "composite",
+  "description": "Application dashboard layout with sidebar navigation, header, and content area",
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='dashboard-shell']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "sidebar": {
+      "selector": "[data-part='sidebar']",
+      "required": true,
+      "tag_hint": "aside",
+      "description": "Collapsible sidebar containing logo, navigation, and user avatar"
+    },
+    "nav": {
+      "selector": "[data-part='nav']",
+      "required": true,
+      "tag_hint": "nav",
+      "description": "Primary navigation container within the sidebar"
+    },
+    "nav-item": {
+      "selector": "[data-part='nav-item']",
+      "required": true,
+      "tag_hint": "a",
+      "description": "Individual navigation link with optional icon and badge"
+    },
+    "header": {
+      "selector": "[data-part='header']",
+      "required": true,
+      "tag_hint": "header",
+      "description": "Top header bar with search, notifications, and user menu"
+    },
+    "logo": {
+      "selector": "[data-part='logo']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Application logo displayed at the top of the sidebar"
+    },
+    "search": {
+      "selector": "[data-part='search']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Search input area within the header"
+    },
+    "user-menu": {
+      "selector": "[data-part='user-menu']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "User dropdown menu area in the header"
+    },
+    "content": {
+      "selector": "[data-part='content']",
+      "required": true,
+      "tag_hint": "main",
+      "description": "Main content area for dashboard pages"
+    },
+    "footer": {
+      "selector": "[data-part='footer']",
+      "required": false,
+      "tag_hint": "footer",
+      "description": "Optional footer at the bottom of the content area"
+    },
+    "sidebar-toggle": {
+      "selector": "[data-part='sidebar-toggle']",
+      "required": false,
+      "tag_hint": "button",
+      "description": "Button collapsing the sidebar on narrow viewports"
+    },
+    "nav-icon": {
+      "selector": "[data-part='nav-icon']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Leading glyph of a nav-item"
+    },
+    "nav-label": {
+      "selector": "[data-part='nav-label']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Text of a nav-item, hidden when the sidebar is collapsed"
+    },
+    "sidebar-user": {
+      "selector": "[data-part='sidebar-user']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Account block pinned to the foot of the sidebar"
+    },
+    "sidebar-user-name": {
+      "selector": "[data-part='sidebar-user-name']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Display name inside sidebar-user"
+    },
+    "header-actions": {
+      "selector": "[data-part='header-actions']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Trailing cluster of header controls"
+    },
+    "metric": {
+      "selector": "[data-part='metric']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "A single KPI figure inside a content card"
+    },
+    "activity-item": {
+      "selector": "[data-part='activity-item']",
+      "required": false,
+      "tag_hint": "li",
+      "description": "One entry of the activity feed inside a content card"
+    }
+  },
+  "variants": {
+    "sidebar-position": {
+      "values": [
+        "left",
+        "right"
+      ],
+      "default": "left",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "sidebar-state": {
+      "values": [
+        "expanded",
+        "collapsed"
+      ],
+      "default": "expanded",
+      "attr": "data-state",
+      "applied_to": "sidebar"
+    }
+  },
+  "states": {
+    "default": {
+      "description": "Standard dashboard view with expanded sidebar"
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "role=\"navigation\" on nav",
+      "aria-label on nav",
+      "aria-current=\"page\" on active nav-item",
+      "role=\"banner\" on header",
+      "role=\"main\" on content"
+    ],
+    "keyboard": {
+      "Tab": "move focus through interactive elements",
+      "Escape": "close open dropdown menus"
+    }
+  },
+  "tokens_used": [
+    "color-bg", "color-bg-subtle", "color-bg-muted", "color-fg", "color-fg-muted", "color-border",
+    "color-primary", "color-primary-subtle", "space-2", "space-3", "space-4", "space-6", "space-1",
+    "radius-md", "shadow-md", "font-body", "font-ui", "text-xs", "text-sm", "text-lg", "text-2xl",
+    "weight-medium", "weight-semibold", "weight-bold", "leading-tight", "leading-normal",
+    "duration-normal", "duration-slow", "ease-default", "ease-out", "z-sticky", "z-overlay",
+    "border-width", "focus-ring-width", "focus-ring-style", "focus-ring-color", "focus-ring-offset"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"dashboard-shell\">\n  <aside data-part=\"sidebar\" data-state=\"expanded\">\n    <div data-part=\"logo\">{logo}</div>\n    <nav data-part=\"nav\" aria-label=\"Main navigation\">\n      <a data-part=\"nav-item\" aria-current=\"page\">{item}</a>\n    </nav>\n  </aside>\n  <header data-part=\"header\">{header}</header>\n  <main data-part=\"content\">{content}</main>\n  <footer data-part=\"footer\">{footer}</footer>\n</div>"
+  },
+  "safe_transforms": [
+    "toggle-sidebar-state",
+    "change-sidebar-position",
+    "add-nav-item",
+    "remove-nav-item",
+    "add-footer",
+    "remove-footer",
+    "change-logo",
+    "restyle-sidebar-background"
+  ],
+  "unsafe_transforms": [
+    "remove-sidebar",
+    "remove-header",
+    "remove-content",
+    "remove-nav-role",
+    "flatten-layout"
+  ],
+  "composition": {
+    "contains": [
+      "card",
+      "grid",
+      "avatar",
+      "dropdown",
+      "button",
+      "separator",
+      "badge"
+    ],
+    "used_in": []
+  },
+  "files": {
+    "html": "dashboard-shell.html",
+    "css": "dashboard-shell.css",
+    "manifest": "dashboard-shell.manifest.json"
+  },
+  "tests": [
+    "renders-as-div-with-data-ui-dashboard-shell",
+    "sidebar-slot-is-required",
+    "header-slot-is-required",
+    "content-slot-is-required",
+    "sidebar-has-expanded-state-by-default",
+    "sidebar-collapses-with-data-state-collapsed",
+    "sidebar-position-right-variant-moves-sidebar",
+    "collapsed-sidebar-keeps-navigation-within-the-rail",
+    "nav-has-aria-label",
+    "active-nav-item-has-aria-current",
+    "sidebar-is-an-off-canvas-drawer-below-md-and-a-grid-column-from-it",
+    "contains-card-components",
+    "contains-grid-layout",
+    "contains-avatar-component",
+    "contains-dropdown-component"
+  ],
+  "changes": [
+    {
+      "version": "1.2.0",
+      "note": "Give the collapsed rail's navigation the available inline size, center its glyphs, and hide label-dependent badges so no navigation box is clipped past the viewport start.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.1",
+      "note": "Use the AA-gated muted foreground for visible footer text instead of the decorative subtle foreground.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "The responsive ladder moves onto the breakpoint canon, mobile-first (task 0.8-09). The sheet's max-width media blocks became min-width floors on canon tiers (sm 40rem/640px, md 48rem/768px, lg 64rem/1024px), so every unconditional rule is now the PHONE case and a tier block only ever widens it. The off-canvas drawer is now the base and the sidebar rejoins the grid at md — the same 768px floor as before. The two :has(sidebar collapsed) rules moved into the md block, fixing a pre-canon bug: at (0,3,0) they outranked the single-column rule at (0,1,0), so a collapsed sidebar on a phone produced a 4rem column no grid area was ever placed in. The floors keep their values, so the only behavioural shift is at exactly a floor: 1024px now gets the wide layout rather than the narrow one.",
+      "breaking": false
+    }
+  ]
+}

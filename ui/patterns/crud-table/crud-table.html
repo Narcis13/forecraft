@@ -1,0 +1,414 @@
+<!-- @ui:component crud-table -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots toolbar search filters actions create-button table-wrapper table row-actions edit-dialog delete-dialog pagination empty-state bulk-actions field selection-count empty-icon empty-title empty-description -->
+<!-- @ui:variants density=compact|default|comfortable -->
+<!-- @ui:contains table button dialog pagination input badge -->
+
+<!-- Default state -->
+<!-- @ui:scaffold admin-dashboard internal-tool -->
+<div data-ui="crud-table" data-state="default" data-variant="default">
+
+  <!-- ── Toolbar ── -->
+  <div data-part="toolbar">
+
+    <!-- Search -->
+    <div data-part="search">
+      <div data-ui="input-group">
+        <span data-part="prefix">&#x1F50D;</span>
+        <input data-ui="input" type="search" placeholder="Search records..." aria-label="Search records">
+      </div>
+    </div>
+
+    <!-- Active Filters -->
+    <div data-part="filters">
+      <span data-ui="chip" data-variant="outline">
+        <span data-part="label">Status: Active</span>
+        <button data-part="dismiss" type="button" aria-label="Remove filter: Status Active">&#x2715;</button>
+      </span>
+      <span data-ui="chip" data-variant="outline">
+        <span data-part="label">Role: Admin</span>
+        <button data-part="dismiss" type="button" aria-label="Remove filter: Role Admin">&#x2715;</button>
+      </span>
+    </div>
+
+    <!-- Actions -->
+    <div data-part="actions">
+      <button data-ui="button" data-variant="primary" data-part="create-button">
+        <span data-part="icon">&#x2795;</span>
+        Add Record
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ── Bulk Actions (shown when rows selected) ── -->
+  <div data-part="bulk-actions" hidden>
+    <span data-part="selection-count">3 selected</span>
+    <button data-ui="button" data-variant="outline" data-size="sm">Export</button>
+    <button data-ui="button" data-variant="destructive" data-size="sm">Delete Selected</button>
+  </div>
+
+  <!-- ── Table Wrapper ── -->
+  <div data-part="table-wrapper">
+
+    <div data-ui="table" data-part="table" data-size="md">
+      <table data-part="table">
+        <thead data-part="thead">
+          <tr data-part="tr">
+            <th data-part="th" scope="col">
+              <input data-part="checkbox" type="checkbox" aria-label="Select all rows">
+            </th>
+            <th data-part="th" scope="col" data-sortable aria-sort="ascending">Name</th>
+            <th data-part="th" scope="col" data-sortable aria-sort="none">Email</th>
+            <th data-part="th" scope="col" data-sortable aria-sort="none">Role</th>
+            <th data-part="th" scope="col" data-sortable aria-sort="none">Status</th>
+            <th data-part="th" scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody data-part="tbody">
+
+          <!-- Row 1 -->
+          <tr data-part="tr">
+            <td data-part="td">
+              <input data-part="checkbox" type="checkbox" aria-label="Select Alice Johnson">
+            </td>
+            <td data-part="td">Alice Johnson</td>
+            <td data-part="td">alice@example.com</td>
+            <td data-part="td">Admin</td>
+            <td data-part="td">
+              <span data-ui="badge" data-variant="success">Active</span>
+            </td>
+            <td data-part="td">
+              <div data-part="row-actions">
+                <button data-ui="button" data-variant="ghost" data-size="sm" aria-label="Edit Alice Johnson">&#x270E;</button>
+                <button data-ui="button" data-variant="ghost" data-size="sm" aria-label="Delete Alice Johnson">&#x1F5D1;</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 2 -->
+          <tr data-part="tr">
+            <td data-part="td">
+              <input data-part="checkbox" type="checkbox" aria-label="Select Bob Smith">
+            </td>
+            <td data-part="td">Bob Smith</td>
+            <td data-part="td">bob@example.com</td>
+            <td data-part="td">Editor</td>
+            <td data-part="td">
+              <span data-ui="badge" data-variant="success">Active</span>
+            </td>
+            <td data-part="td">
+              <div data-part="row-actions">
+                <button data-ui="button" data-variant="ghost" data-size="sm" aria-label="Edit Bob Smith">&#x270E;</button>
+                <button data-ui="button" data-variant="ghost" data-size="sm" aria-label="Delete Bob Smith">&#x1F5D1;</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 3 -->
+          <tr data-part="tr">
+            <td data-part="td">
+              <input data-part="checkbox" type="checkbox" aria-label="Select Carol White">
+            </td>
+            <td data-part="td">Carol White</td>
+            <td data-part="td">carol@example.com</td>
+            <td data-part="td">Viewer</td>
+            <td data-part="td">
+              <span data-ui="badge" data-variant="warning">Inactive</span>
+            </td>
+            <td data-part="td">
+              <div data-part="row-actions">
+                <button data-ui="button" data-variant="ghost" data-size="sm" aria-label="Edit Carol White">&#x270E;</button>
+                <button data-ui="button" data-variant="ghost" data-size="sm" aria-label="Delete Carol White">&#x1F5D1;</button>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ── Pagination ── -->
+  <div data-part="pagination">
+    <div data-ui="pagination" data-size="md">
+      <nav data-part="nav" role="navigation" aria-label="Pagination">
+        <button data-part="prev" aria-label="Previous page" disabled>&laquo; Prev</button>
+        <button data-part="page" data-page="1" data-state="active" aria-current="page">1</button>
+        <button data-part="page" data-page="2">2</button>
+        <button data-part="page" data-page="3">3</button>
+        <span data-part="ellipsis">&hellip;</span>
+        <button data-part="page" data-page="12">12</button>
+        <button data-part="next" aria-label="Next page">Next &raquo;</button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- @ui:scaffold-omit -->
+  <!-- ── Edit Dialog ── -->
+  <div data-ui="dialog" data-part="edit-dialog" data-state="closed" id="crud-edit-dialog">
+    <div data-part="overlay" hidden></div>
+    <div
+      data-part="panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="crud-edit-dialog-title"
+      data-size="md"
+      hidden
+    >
+      <div data-part="header">
+        <h2 id="crud-edit-dialog-title" data-part="title">Edit Record</h2>
+        <button data-part="close" aria-label="Close dialog">&#x2715;</button>
+      </div>
+      <div data-part="body">
+        <div data-part="field">
+          <label data-ui="label" for="crud-edit-name">Name</label>
+          <input data-ui="input" type="text" id="crud-edit-name" placeholder="Full name">
+        </div>
+        <div data-part="field">
+          <label data-ui="label" for="crud-edit-email">Email</label>
+          <input data-ui="input" type="email" id="crud-edit-email" placeholder="email@example.com">
+        </div>
+        <div data-part="field">
+          <label data-ui="label" for="crud-edit-role">Role</label>
+          <select data-ui="select" id="crud-edit-role">
+            <option value="admin">Admin</option>
+            <option value="editor">Editor</option>
+            <option value="viewer">Viewer</option>
+          </select>
+        </div>
+      </div>
+      <div data-part="footer">
+        <button data-ui="button" data-variant="outline" data-part="close">Cancel</button>
+        <button data-ui="button" data-variant="primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Delete Confirmation Dialog ── -->
+  <div data-ui="dialog" data-part="delete-dialog" data-state="closed" id="crud-delete-dialog">
+    <div data-part="overlay" hidden></div>
+    <div
+      data-part="panel"
+      data-variant="danger"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="crud-delete-dialog-title"
+      aria-describedby="crud-delete-dialog-desc"
+      data-size="sm"
+      hidden
+    >
+      <div data-part="header">
+        <h2 id="crud-delete-dialog-title" data-part="title">Delete Record</h2>
+        <button data-part="close" aria-label="Close dialog">&#x2715;</button>
+      </div>
+      <div data-part="body">
+        <p id="crud-delete-dialog-desc" data-part="description">
+          Are you sure you want to delete this record? This action cannot be undone.
+        </p>
+      </div>
+      <div data-part="footer">
+        <button data-ui="button" data-variant="outline" data-part="close">Cancel</button>
+        <button data-ui="button" data-variant="destructive">Delete</button>
+      </div>
+    </div>
+  </div>
+  <!-- @ui:scaffold-omit-end -->
+
+  <!-- ── Empty State (shown when data-state="empty") ── -->
+  <div data-part="empty-state" hidden>
+    <div data-part="empty-icon">&#x1F4CB;</div>
+    <h3 data-part="empty-title">No records found</h3>
+    <p data-part="empty-description">Get started by creating your first record, or adjust your search filters.</p>
+    <button data-ui="button" data-variant="primary">
+      <span data-part="icon">&#x2795;</span>
+      Add Record
+    </button>
+  </div>
+
+</div>
+<!-- @ui:scaffold-end -->
+
+<!-- ── Loading state ── -->
+<div data-ui="crud-table" data-state="loading" data-variant="default">
+
+  <div data-part="toolbar">
+    <div data-part="search">
+      <div data-ui="input-group">
+        <span data-part="prefix">&#x1F50D;</span>
+        <input data-ui="input" type="search" placeholder="Search records..." aria-label="Search records" disabled>
+      </div>
+    </div>
+    <div data-part="actions">
+      <button data-ui="button" data-variant="primary" data-part="create-button" disabled>
+        <span data-part="icon">&#x2795;</span>
+        Add Record
+      </button>
+    </div>
+  </div>
+
+  <div data-part="table-wrapper" aria-busy="true">
+    <div data-ui="spinner" role="status" aria-label="Loading records"></div>
+  </div>
+
+</div>
+
+<!-- ── Empty state ── -->
+<div data-ui="crud-table" data-state="empty" data-variant="default">
+
+  <div data-part="toolbar">
+    <div data-part="search">
+      <div data-ui="input-group">
+        <span data-part="prefix">&#x1F50D;</span>
+        <input data-ui="input" type="search" placeholder="Search records..." aria-label="Search records">
+      </div>
+    </div>
+    <div data-part="actions">
+      <button data-ui="button" data-variant="primary" data-part="create-button">
+        <span data-part="icon">&#x2795;</span>
+        Add Record
+      </button>
+    </div>
+  </div>
+
+  <div data-part="empty-state">
+    <div data-part="empty-icon">&#x1F4CB;</div>
+    <h3 data-part="empty-title">No records found</h3>
+    <p data-part="empty-description">Get started by creating your first record, or adjust your search filters.</p>
+    <button data-ui="button" data-variant="primary">
+      <span data-part="icon">&#x2795;</span>
+      Add Record
+    </button>
+  </div>
+
+</div>
+
+<!-- ── Compact density variant ── -->
+<div data-ui="crud-table" data-state="default" data-variant="compact">
+
+  <div data-part="toolbar">
+    <div data-part="search">
+      <div data-ui="input-group">
+        <span data-part="prefix">&#x1F50D;</span>
+        <input data-ui="input" data-size="sm" type="search" placeholder="Search..." aria-label="Search records">
+      </div>
+    </div>
+    <div data-part="actions">
+      <button data-ui="button" data-variant="primary" data-size="sm" data-part="create-button">
+        <span data-part="icon">&#x2795;</span>
+        Add
+      </button>
+    </div>
+  </div>
+
+  <div data-part="table-wrapper">
+    <div data-ui="table" data-part="table" data-size="sm">
+      <table data-part="table">
+        <thead data-part="thead">
+          <tr data-part="tr">
+            <th data-part="th" scope="col">
+              <input data-part="checkbox" type="checkbox" aria-label="Select all rows">
+            </th>
+            <th data-part="th" scope="col" data-sortable aria-sort="none">Name</th>
+            <th data-part="th" scope="col" data-sortable aria-sort="none">Email</th>
+            <th data-part="th" scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody data-part="tbody">
+          <tr data-part="tr">
+            <td data-part="td">
+              <input data-part="checkbox" type="checkbox" aria-label="Select Alice Johnson">
+            </td>
+            <td data-part="td">Alice Johnson</td>
+            <td data-part="td">alice@example.com</td>
+            <td data-part="td">
+              <div data-part="row-actions">
+                <button data-ui="button" data-variant="ghost" data-size="sm" aria-label="Edit Alice Johnson">&#x270E;</button>
+                <button data-ui="button" data-variant="ghost" data-size="sm" aria-label="Delete Alice Johnson">&#x1F5D1;</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div data-part="pagination">
+    <div data-ui="pagination" data-size="sm">
+      <nav data-part="nav" role="navigation" aria-label="Pagination">
+        <button data-part="prev" aria-label="Previous page" disabled>&laquo; Prev</button>
+        <button data-part="page" data-page="1" data-state="active" aria-current="page">1</button>
+        <button data-part="page" data-page="2">2</button>
+        <button data-part="next" aria-label="Next page">Next &raquo;</button>
+      </nav>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Comfortable density variant ── -->
+<div data-ui="crud-table" data-state="default" data-variant="comfortable">
+
+  <div data-part="toolbar">
+    <div data-part="search">
+      <div data-ui="input-group">
+        <span data-part="prefix">&#x1F50D;</span>
+        <input data-ui="input" data-size="lg" type="search" placeholder="Search records..." aria-label="Search records">
+      </div>
+    </div>
+    <div data-part="actions">
+      <button data-ui="button" data-variant="primary" data-size="lg" data-part="create-button">
+        <span data-part="icon">&#x2795;</span>
+        Add Record
+      </button>
+    </div>
+  </div>
+
+  <div data-part="table-wrapper">
+    <div data-ui="table" data-part="table" data-size="lg">
+      <table data-part="table">
+        <thead data-part="thead">
+          <tr data-part="tr">
+            <th data-part="th" scope="col">
+              <input data-part="checkbox" type="checkbox" aria-label="Select all rows">
+            </th>
+            <th data-part="th" scope="col" data-sortable aria-sort="none">Name</th>
+            <th data-part="th" scope="col" data-sortable aria-sort="none">Email</th>
+            <th data-part="th" scope="col" data-sortable aria-sort="none">Role</th>
+            <th data-part="th" scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody data-part="tbody">
+          <tr data-part="tr">
+            <td data-part="td">
+              <input data-part="checkbox" type="checkbox" aria-label="Select Alice Johnson">
+            </td>
+            <td data-part="td">Alice Johnson</td>
+            <td data-part="td">alice@example.com</td>
+            <td data-part="td">Admin</td>
+            <td data-part="td">
+              <div data-part="row-actions">
+                <button data-ui="button" data-variant="ghost" data-size="md" aria-label="Edit Alice Johnson">&#x270E;</button>
+                <button data-ui="button" data-variant="ghost" data-size="md" aria-label="Delete Alice Johnson">&#x1F5D1;</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div data-part="pagination">
+    <div data-ui="pagination" data-size="lg">
+      <nav data-part="nav" role="navigation" aria-label="Pagination">
+        <button data-part="prev" aria-label="Previous page" disabled>&laquo; Prev</button>
+        <button data-part="page" data-page="1" data-state="active" aria-current="page">1</button>
+        <button data-part="page" data-page="2">2</button>
+        <button data-part="page" data-page="3">3</button>
+        <button data-part="next" aria-label="Next page">Next &raquo;</button>
+      </nav>
+    </div>
+  </div>
+
+</div>

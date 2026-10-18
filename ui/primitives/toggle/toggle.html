@@ -1,0 +1,22 @@
+<!-- @ui:component toggle -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants size=sm|md|lg -->
+
+<!-- States and content — aria-pressed is the state source of truth -->
+<div data-ui="cluster" data-gap="4">
+  <button data-ui="toggle" type="button" aria-pressed="false">Bold</button>
+  <button data-ui="toggle" type="button" aria-pressed="true">Italic</button>
+  <button data-ui="toggle" type="button" aria-pressed="true">
+    <span aria-hidden="true">★</span>
+    Starred
+  </button>
+  <button data-ui="toggle" type="button" aria-pressed="false" disabled>Disabled</button>
+</div>
+
+<!-- Sizes -->
+<div data-ui="cluster" data-gap="4">
+  <button data-ui="toggle" type="button" aria-pressed="false" data-size="sm">Small</button>
+  <button data-ui="toggle" type="button" aria-pressed="false">Medium</button>
+  <button data-ui="toggle" type="button" aria-pressed="true" data-size="lg">Large</button>
+</div>

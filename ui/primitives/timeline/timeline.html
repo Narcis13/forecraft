@@ -1,0 +1,103 @@
+<!-- @ui:component timeline -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots item marker content time title description -->
+<!-- @ui:variants layout=start|alternate size=md|lg status=done|current|upcoming -->
+<!--
+  Timeline — events in order, read down a rail. CSS only.
+    · An <ol>: the order is the meaning. Each <li data-part="item"> holds an
+      aria-hidden marker and a content block (time, title, description).
+    · data-status on an item says where it stands. The status is ALSO in the
+      text (a visually hidden word, or the copy itself) — colour is not the
+      only carrier.
+    · data-progress fills markers and inks the rail as the reader scrolls, with
+      a view timeline per item. No script.
+-->
+
+<!-- Default — a changelog -->
+<ol data-ui="timeline">
+  <li data-part="item">
+    <span data-part="marker" aria-hidden="true"></span>
+    <div data-part="content">
+      <time data-part="time" datetime="2026-09">September 2026</time>
+      <p data-part="title">Motion primitives</p>
+      <p data-part="description">Reveal, marquee, backdrop, glow and highlight — all CSS, all token driven.</p>
+    </div>
+  </li>
+  <li data-part="item">
+    <span data-part="marker" aria-hidden="true"></span>
+    <div data-part="content">
+      <time data-part="time" datetime="2026-06">June 2026</time>
+      <p data-part="title">Generated themes</p>
+      <p data-part="description">A complete theme from one accent colour and fourteen axes.</p>
+    </div>
+  </li>
+  <li data-part="item">
+    <span data-part="marker" aria-hidden="true"></span>
+    <div data-part="content">
+      <time data-part="time" datetime="2026-01">January 2026</time>
+      <p data-part="title">The protocol froze</p>
+      <p data-part="description">Five attributes, one contract, stable until 2.0.</p>
+    </div>
+  </li>
+</ol>
+
+<!-- Statuses — a roadmap, with numbered large markers -->
+<ol data-ui="timeline" data-size="lg">
+  <li data-part="item" data-status="done">
+    <span data-part="marker" aria-hidden="true">1</span>
+    <div data-part="content">
+      <p data-part="title">Design tokens</p>
+      <p data-part="description">Shipped. Every value a theme can change is a token.</p>
+    </div>
+  </li>
+  <li data-part="item" data-status="current">
+    <span data-part="marker" aria-hidden="true">2</span>
+    <div data-part="content">
+      <p data-part="title">Motion system</p>
+      <p data-part="description">In progress. Entrances, loops and scroll-linked timelines.</p>
+    </div>
+  </li>
+  <li data-part="item" data-status="upcoming">
+    <span data-part="marker" aria-hidden="true">3</span>
+    <div data-part="content">
+      <p data-part="title">Theme studio</p>
+      <p data-part="description">Planned. Tune a theme live and export the overrides.</p>
+    </div>
+  </li>
+</ol>
+
+<!-- Alternate — the rail in the centre from the md tier up, with scroll progress -->
+<ol data-ui="timeline" data-variant="alternate" data-progress>
+  <li data-part="item">
+    <span data-part="marker" aria-hidden="true"></span>
+    <div data-part="content">
+      <time data-part="time" datetime="2023">2023</time>
+      <p data-part="title">A CLI and twelve components</p>
+      <p data-part="description">The first registry, copied into projects file by file.</p>
+    </div>
+  </li>
+  <li data-part="item">
+    <span data-part="marker" aria-hidden="true"></span>
+    <div data-part="content">
+      <time data-part="time" datetime="2024">2024</time>
+      <p data-part="title">The reactive engine</p>
+      <p data-part="description">Directives, stores and recipes in one script tag.</p>
+    </div>
+  </li>
+  <li data-part="item">
+    <span data-part="marker" aria-hidden="true"></span>
+    <div data-part="content">
+      <time data-part="time" datetime="2025">2025</time>
+      <p data-part="title">Audit, repair, conform</p>
+      <p data-part="description">The framework started checking its own output.</p>
+    </div>
+  </li>
+  <li data-part="item">
+    <span data-part="marker" aria-hidden="true"></span>
+    <div data-part="content">
+      <time data-part="time" datetime="2026">2026</time>
+      <p data-part="title">Personality</p>
+      <p data-part="description">Themes that measurably differ, and motion to match.</p>
+    </div>
+  </li>
+</ol>

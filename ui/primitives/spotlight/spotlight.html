@@ -1,0 +1,113 @@
+<!-- @ui:component spotlight -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants effect=light|border -->
+<!--
+  Spotlight — a hover light for a card, a tile or a grid of them.
+    · Wrap exactly one child. For several cards lit as ONE surface, wrap one grid
+      that holds them; for a ring on each card, wrap each card.
+    · The child needs its own background (a card has one). The light is laid over
+      it, never under it.
+    · Set --spotlight-radius to the child's radius if it is not a card.
+    · CSS only. The light glows from the top edge on hover and focus-within; to
+      make it FOLLOW the pointer, add the one-line @pointermove directive shown on
+      the grid below (it needs the engine, and writes two custom properties).
+    · Decoration only: no role, no name, no focus stop. The light ignores pointer
+      events, and is off on touch screens, under reduced motion, in forced
+      colours and in print, where the content renders as if the wrapper were not there.
+-->
+
+<!-- Light (default) on a single card: a glow from the top edge -->
+<div data-ui="spotlight">
+  <div data-ui="card">
+    <div data-part="header">
+      <h3 data-part="title">Edge-ready by default</h3>
+      <p data-part="description">A soft pool of the accent glows down from the top edge.</p>
+    </div>
+    <div data-part="body">
+      <p data-ui="text" data-variant="muted">Hover the card, or tab to its button: the light fades in, and out again when you leave.</p>
+    </div>
+    <div data-part="footer">
+      <button data-ui="button" data-variant="outline" type="button">Read the docs</button>
+    </div>
+  </div>
+</div>
+
+<!-- Light across a whole grid, following the pointer: ONE spotlight around ONE grid, so the light glides from tile to tile -->
+<div data-ui="spotlight" style="--spotlight-size: 36rem; --spotlight-radius: 0" l-data="{}" @pointermove="const r = $this.getBoundingClientRect(); $this.style.setProperty('--spotlight-x', ($event.clientX - r.left) + 'px'); $this.style.setProperty('--spotlight-y', ($event.clientY - r.top) + 'px')">
+  <div data-ui="grid" data-cols="1" data-cols-md="3" data-gap="4">
+    <div data-ui="card">
+      <div data-part="header">
+        <h3 data-part="title">Instant</h3>
+      </div>
+      <div data-part="body">
+        <span data-ui="icon" data-icon="zap" aria-hidden="true"></span>
+        <p data-ui="text" data-variant="muted">Ships with zero runtime dependencies.</p>
+      </div>
+    </div>
+    <div data-ui="card">
+      <div data-part="header">
+        <h3 data-part="title">Accessible</h3>
+      </div>
+      <div data-part="body">
+        <span data-ui="icon" data-icon="shield-check" aria-hidden="true"></span>
+        <p data-ui="text" data-variant="muted">Keyboard, focus and ARIA built in.</p>
+      </div>
+    </div>
+    <div data-ui="card">
+      <div data-part="header">
+        <h3 data-part="title">Themeable</h3>
+      </div>
+      <div data-part="body">
+        <span data-ui="icon" data-icon="sparkles" aria-hidden="true"></span>
+        <p data-ui="text" data-variant="muted">Every colour is a token you can swap.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Border — the light only lights the ring. One spotlight per card, inside a grid -->
+<div data-ui="grid" data-cols="1" data-cols-md="3" data-gap="4">
+  <div data-ui="spotlight" data-variant="border">
+    <div data-ui="card">
+      <div data-part="header">
+        <h3 data-part="title">Composable</h3>
+      </div>
+      <div data-part="body">
+        <span data-ui="icon" data-icon="layers" aria-hidden="true"></span>
+        <p data-ui="text" data-variant="muted">Small parts that snap together.</p>
+      </div>
+    </div>
+  </div>
+  <div data-ui="spotlight" data-variant="border">
+    <div data-ui="card">
+      <div data-part="header">
+        <h3 data-part="title">Readable</h3>
+      </div>
+      <div data-part="body">
+        <span data-ui="icon" data-icon="code" aria-hidden="true"></span>
+        <p data-ui="text" data-variant="muted">Plain attributes, no class soup.</p>
+      </div>
+    </div>
+  </div>
+  <div data-ui="spotlight" data-variant="border">
+    <div data-ui="card">
+      <div data-part="header">
+        <h3 data-part="title">Predictable</h3>
+      </div>
+      <div data-part="body">
+        <span data-ui="icon" data-icon="target" aria-hidden="true"></span>
+        <p data-ui="text" data-variant="muted">The same markup, every theme.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Custom colour, tighter and stronger -->
+<div data-ui="spotlight" style="--spotlight-color: var(--color-success); --spotlight-size: 14rem; --spotlight-opacity: 0.3">
+  <div data-ui="card">
+    <div data-part="body">
+      <p data-ui="text">A smaller, stronger green pool.</p>
+    </div>
+  </div>
+</div>

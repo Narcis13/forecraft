@@ -1,0 +1,123 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "spotlight",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "marketing",
+  "description": "A hover light for a card, a tile or a whole grid of them: a soft pool of the accent laid over the surface, or a lit border ring, faded in while the pointer is over it or focus is inside. CSS only. The pool sits at --spotlight-x / --spotlight-y (top centre by default); a page that wants it to follow the pointer writes those two properties from one @pointermove directive (template html_follow). Inert on touch screens, under reduced motion, in forced colours and in print.",
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='spotlight']",
+    "content_model": "block"
+  },
+  "slots": {},
+  "variants": {
+    "effect": {
+      "values": [
+        "light",
+        "border"
+      ],
+      "default": "light",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+  "props": {
+    "--spotlight-color": {
+      "type": "string",
+      "default": "var(--color-primary)",
+      "description": "Colour of the light (custom property). Pass a colour token."
+    },
+    "--spotlight-size": {
+      "type": "string",
+      "default": "22rem",
+      "description": "Radius of the pool of light (custom property). A wrapped grid wants a bigger pool than a single tile."
+    },
+    "--spotlight-opacity": {
+      "type": "string",
+      "default": "0.18",
+      "description": "Strength of the light on the surface, 0–1 (custom property). The border ring is lit five times as strongly, so one number retunes both."
+    },
+    "--spotlight-x": {
+      "type": "string",
+      "default": "50%",
+      "description": "Horizontal position of the pool, from the root's start edge (custom property). Fixed by default; the html_follow template writes it from the pointer in px."
+    },
+    "--spotlight-y": {
+      "type": "string",
+      "default": "0%",
+      "description": "Vertical position of the pool, from the root's top edge (custom property). Top edge by default, so a still light reads as a glow from above; html_follow writes it from the pointer."
+    },
+    "--spotlight-radius": {
+      "type": "string",
+      "default": "var(--card-radius)",
+      "description": "Corner radius of the wrapped child (custom property); the light is clipped to it. Must match the child: var(--radius-lg) around a bento tile, 0 around a full-bleed grid."
+    }
+  },
+  "states": {
+    "default": {
+      "attr": "",
+      "default": true
+    }
+  },
+  "a11y": {
+    "required_attrs": [],
+    "keyboard": {},
+    "notes": "Decoration only. The wrapper has no role, no accessible name, no tabindex and no keyboard interaction of its own, and the wrapped content's semantics, focus order and keyboard behaviour are untouched. The light is a pseudo-element that ignores pointer events, so every click, hover and text selection reaches the content beneath; it appears on :focus-within as well as :hover, so a keyboard reader sees the same glow. It lays the accent over the content at --spotlight-opacity (0.18 by default), which slightly lowers text contrast under the light: keep it low over text-heavy cards. It is dropped entirely under prefers-reduced-motion: reduce, on devices without hover or a fine pointer, in forced colours and in print. The html_follow directive only writes two custom properties on the wrapper; it never moves focus or cancels an event."
+  },
+  "tokens_used": [
+    "border-width",
+    "card-radius",
+    "color-primary",
+    "duration-slow",
+    "ease-default"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"spotlight\">{card}</div>",
+    "html_border": "<div data-ui=\"spotlight\" data-variant=\"border\">{card}</div>",
+    "html_follow": "<div data-ui=\"spotlight\" l-data=\"{}\" @pointermove=\"const r = $this.getBoundingClientRect(); $this.style.setProperty('--spotlight-x', ($event.clientX - r.left) + 'px'); $this.style.setProperty('--spotlight-y', ($event.clientY - r.top) + 'px')\">{card}</div>",
+    "html_grid": "<div data-ui=\"spotlight\" style=\"--spotlight-size: 36rem; --spotlight-radius: 0\">\n  <div data-ui=\"grid\" data-cols=\"1\" data-cols-md=\"3\" data-gap=\"4\">\n    {card1}\n    {card2}\n    {card3}\n  </div>\n</div>"
+  },
+  "safe_transforms": [
+    "change-effect",
+    "change-custom-property-values",
+    "add-or-remove-the-pointer-follow-directive",
+    "wrap-a-different-card-or-tile",
+    "match-radius-to-the-wrapped-component",
+    "change-the-wrapped-content"
+  ],
+  "unsafe_transforms": [
+    "wrap-more-than-one-sibling-without-a-grid",
+    "leave-the-radius-mismatched-with-the-child",
+    "add-tabindex-or-a-role-to-the-wrapper",
+    "put-the-only-cue-for-hover-in-the-light",
+    "pass-a-hardcoded-color-instead-of-a-token",
+    "raise-the-opacity-so-far-that-text-is-hard-to-read"
+  ],
+  "composition": {
+    "contains": [],
+    "used_in": [],
+    "notes": [
+      "One child. The root is a one-cell grid, so the child fills it. To light several cards as one surface, wrap ONE grid container that holds them; with the follow directive the light then glides across the whole grid, from tile to tile.",
+      "The border effect belongs to the root's own edge, so give each card its own spotlight (inside a grid) for a ring per card. A spotlight around a whole grid is for the light variant.",
+      "The child needs its own background; the light is laid over it, and a transparent child leaves the light floating over whatever is behind.",
+      "Set --spotlight-radius to the child's radius token (var(--radius-lg) for a bento tile, 0 for a grid that has no corners of its own).",
+      "Pointer-following is opt-in through the engine's own directives (html_follow), because CSS cannot read the pointer and a controller would cost every page the engine bytes. A 3D tilt toward the pointer is deliberately not offered; see docs/landing-craft.md.",
+      "The light is progressive: the page is complete without it, so never let it carry meaning (a state, a selection, an error)."
+    ]
+  },
+  "files": {
+    "html": "spotlight.html",
+    "css": "spotlight.css",
+    "manifest": "spotlight.manifest.json"
+  },
+  "tests": [
+    "light-is-a-pointer-events-none-pseudo-element",
+    "light-shows-on-hover-and-focus-within",
+    "border-variant-masks-the-light-to-the-ring",
+    "position-defaults-to-the-top-centre-and-reads-two-custom-properties",
+    "effect-only-with-no-preference-hover-and-fine-pointer",
+    "reduced-motion-forced-colors-and-print-drop-the-effect",
+    "follow-template-writes-only-the-two-position-properties"
+  ]
+}

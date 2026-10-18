@@ -1,0 +1,711 @@
+/* @ui:component table */
+/* @ui:tokens color-bg color-bg-subtle color-bg-muted color-fg color-fg-muted color-fg-subtle color-border color-border-strong color-primary color-primary-subtle color-ring color-destructive color-destructive-subtle space-0h space-1 space-2 space-3 space-4 space-5 space-8 text-xs text-sm weight-semibold weight-bold radius-sm radius-md radius-full duration-fast ease-default doc-table-footer-bg doc-table-footer-weight doc-print-border-color doc-table-font-size font-body border-width border-width-strong focus-ring-width focus-ring-style focus-ring-color focus-ring-offset stripe-bg */
+
+/* ── Root ── */
+[data-ui="table"] {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Responsive tables measure themselves (data-hide-below container queries). */
+[data-ui="table"][data-responsive] {
+  container-type: inline-size;
+  container-name: faqir-table;
+}
+
+/* Scrolling roots for sticky header/footer. Cap height via --table-max-height. */
+[data-ui="table"][data-sticky-header],
+[data-ui="table"][data-sticky-footer] {
+  overflow: auto;
+  max-block-size: var(--table-max-height, none);
+}
+
+/* Parts are child chains (1.1F-22). Below the table part the HTML table model
+   fixes the structure (section, row, cell), so every rule walks it with
+   weightless :where() hops and a table nested in a detail row keeps its own
+   striping, hover, selection, pins and hidden columns. The cell attributes
+   (data-align, data-format, data-pin, data-hide-below, data-col-hidden,
+   data-negative) are read on this table's own cells only: a stack with
+   data-align in a cell is not text-aligned. The quick filter may be the root's
+   child or sit in one plain div, stack or cluster inside it. */
+
+/* ── Table ── */
+[data-ui="table"] > [data-part="table"] {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: var(--font-body);
+}
+
+/* Once any column is resized the layout freezes so widths are exact. */
+[data-ui="table"][data-resized] > [data-part="table"] {
+  table-layout: fixed;
+}
+
+[data-ui="table"][data-resized] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"],
+[data-ui="table"][data-resized] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"] {
+  overflow-wrap: break-word;
+}
+
+/* ── Header Cell ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"] {
+  position: relative; /* anchors the injected resize handle */
+  padding: var(--space-3) var(--space-4);
+  text-align: start;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-fg-muted);
+  background: var(--color-bg);
+  border-bottom: var(--border-width-strong) solid var(--color-border);
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* ── Sortable Header ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"][data-sortable] {
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"][data-sortable]:hover {
+  color: var(--color-fg);
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"][data-sortable]::after {
+  content: "";
+  display: inline-block;
+  margin-inline-start: var(--space-2);
+  width: 0;
+  height: 0;
+  vertical-align: middle;
+  opacity: 0.3;
+  border-inline-start: 4px solid transparent;
+  border-inline-end: 4px solid transparent;
+  border-bottom: 5px solid currentColor;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"][aria-sort="ascending"]::after {
+  opacity: 1;
+  border-bottom: 5px solid currentColor;
+  border-top: none;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"][aria-sort="descending"]::after {
+  opacity: 1;
+  border-bottom: none;
+  border-top: 5px solid currentColor;
+}
+
+/* Multi-sort order badge (data-sort-order is set by the controller). */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"][data-sort-order]::before {
+  content: attr(data-sort-order);
+  display: inline-block;
+  margin-inline-end: var(--space-1);
+  min-inline-size: 1.5em;
+  padding: var(--space-0h);
+  font-size: 0.65em;
+  line-height: 1;
+  text-align: center;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle, oklch(0.96 0.04 264));
+  color: var(--color-primary);
+}
+
+/* Keyboard focus on cells (sortable headers + navigable grids). */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"]:focus-visible,
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: calc(-1 * var(--focus-ring-offset));
+}
+
+/* ── Data Cell ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"] {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-fg);
+  border-bottom: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+  transition: background var(--duration-fast) var(--ease-default);
+}
+
+/* Text, headings and breadcrumbs break anywhere on their own, so an id never
+   widens a page. In a data cell that would let auto layout squeeze every
+   column to one character per line; here the cell's own wrapping applies, the
+   table keeps its width and scrolls in its root. Header cells need no such
+   rule: they are `white-space: nowrap`, so nothing in them breaks at all. */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"] :is([data-ui="text"], [data-ui="heading"], [data-ui="breadcrumb"]) {
+  overflow-wrap: inherit;
+}
+
+/* ── Checkbox Cell ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="checkbox"] {
+  cursor: pointer;
+}
+
+/* ── Row Hover ── */
+[data-ui="table"] > :where([data-part="table"]) > [data-part="tbody"] > [data-part="tr"]:hover > [data-part="td"] {
+  background: var(--color-bg-subtle, oklch(0.97 0.004 260));
+}
+
+/* ── Selected Row ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="tr"][data-selected] > [data-part="td"] {
+  background: var(--color-primary-subtle, oklch(0.96 0.04 264));
+}
+
+/* Row-click selection affordance. */
+[data-ui="table"][data-selectable] > :where([data-part="table"]) > [data-part="tbody"] > [data-part="tr"] {
+  cursor: pointer;
+}
+
+/* ── Striped Variant ──
+   Static fallback via nth-child; once the controller stamps data-stripe on the
+   visible rows (so hidden rows never break the pattern), the stamped rules win. */
+[data-ui="table"][data-variant="striped"] > :where([data-part="table"]) > [data-part="tbody"] > [data-part="tr"]:not([data-stripe]):nth-child(even):not([data-selected]) > [data-part="td"] {
+  background: var(--stripe-bg);
+}
+
+[data-ui="table"][data-variant="striped"] > :where([data-part="table"]) > [data-part="tbody"] > [data-part="tr"]:not([data-stripe]):nth-child(even):not([data-selected]):hover > [data-part="td"] {
+  background: var(--stripe-bg);
+}
+
+[data-ui="table"][data-variant="striped"] > :where([data-part="table"]) > [data-part="tbody"] > [data-part="tr"][data-stripe="even"]:not([data-selected]) > [data-part="td"] {
+  background: var(--stripe-bg);
+}
+
+[data-ui="table"][data-variant="striped"] > :where([data-part="table"]) > [data-part="tbody"] > [data-part="tr"][data-stripe="even"]:not([data-selected]):hover > [data-part="td"] {
+  background: var(--stripe-bg);
+}
+
+/* ── Bordered Variant ── */
+[data-ui="table"][data-variant="bordered"] > [data-part="table"] {
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md, 0.375rem);
+  overflow: hidden;
+}
+
+[data-ui="table"][data-variant="bordered"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"],
+[data-ui="table"][data-variant="bordered"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"] {
+  border: var(--border-width) solid var(--color-border);
+}
+
+/* ── Size: Small ── */
+[data-ui="table"][data-size="sm"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"] {
+  padding: var(--space-2) var(--space-2);
+  font-size: var(--text-xs);
+}
+
+[data-ui="table"][data-size="sm"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"] {
+  padding: var(--space-2) var(--space-2);
+  font-size: var(--text-xs);
+}
+
+/* ── Size: Large ── */
+[data-ui="table"][data-size="lg"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"] {
+  padding: var(--space-4) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+[data-ui="table"][data-size="lg"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"] {
+  padding: var(--space-4) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+/* ── Footer ── */
+[data-ui="table"] > :where([data-part="table"]) > [data-part="tfoot"] > :where(tr) > [data-part="td"] {
+  font-weight: var(--doc-table-footer-weight, var(--weight-semibold));
+  border-top: var(--border-width-strong) solid var(--color-border);
+  border-bottom: none;
+  background: var(--doc-table-footer-bg, var(--color-bg-subtle, oklch(0.97 0.004 260)));
+}
+
+/* ── Cell Alignment ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-align="left"] {
+  text-align: start;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-align="center"] {
+  text-align: center;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-align="right"] {
+  text-align: end;
+}
+
+/* ── Number Formatting ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-format="number"],
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-format="currency"],
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-format="percent"] {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Accounting negatives (controller stamps data-negative on numeric cells). */
+[data-ui="table"][data-negatives="red"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-negative],
+[data-ui="table"][data-negatives="both"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-negative] {
+  color: var(--color-destructive);
+}
+
+/* ── Grouped Rows ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="group-header"] > td,
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="group-header"] > [data-part="td"] {
+  font-weight: var(--weight-semibold);
+  background: var(--color-bg-subtle, oklch(0.97 0.004 260));
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-fg-muted);
+}
+
+[data-ui="table"][data-groupable] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="group-header"] {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ── Expanders (tree rows, group headers) & detail-row toggles ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="expander"],
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="row-toggle"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--space-5);
+  block-size: var(--space-5);
+  margin-inline-end: var(--space-1);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-fg-muted);
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > button[data-part="expander"]:hover,
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="row-toggle"]:hover {
+  background: var(--color-bg-muted, oklch(0.94 0.004 260));
+  color: var(--color-fg);
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="expander"]::before,
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="row-toggle"]::before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-block-start: 4px solid transparent;
+  border-block-end: 4px solid transparent;
+  border-inline-start: 5px solid currentColor;
+  transition: transform var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="expander"][aria-expanded="true"]::before,
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="row-toggle"][aria-expanded="true"]::before {
+  transform: rotate(90deg);
+}
+
+[dir="rtl"] [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="expander"][aria-expanded="true"]::before,
+[dir="rtl"] [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="row-toggle"][aria-expanded="true"]::before {
+  transform: rotate(-90deg);
+}
+
+/* Leaf placeholder keeps tree columns aligned without a control. */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="expander"][data-leaf] {
+  visibility: hidden;
+  cursor: default;
+}
+
+/* ── Tree Indentation ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"][data-tree-cell] {
+  padding-inline-start: calc(var(--space-4) + var(--table-level, 0) * var(--table-indent, var(--space-5)));
+}
+
+/* ── Detail Rows (master/detail) ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="detail-row"] > [data-part="td"],
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="detail-row"] > td {
+  background: var(--color-bg-subtle, oklch(0.97 0.004 260));
+  font-size: var(--text-xs);
+  color: var(--color-fg-muted);
+}
+
+/* ── Empty State Row ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="empty"] > [data-part="td"],
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="empty"] > td {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--color-fg-muted);
+}
+
+/* ── Filter Row & Filter Inputs ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="filter-row"] > [data-part="td"],
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="filter-row"] > [data-part="th"] {
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-bg);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="filter-input"],
+[data-ui="table"] > [data-part="filter"],
+[data-ui="table"] > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="filter"] {
+  inline-size: 100%;
+  box-sizing: border-box;
+  padding: var(--space-1) var(--space-2);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  color: var(--color-fg);
+  background: var(--color-bg);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="filter-input"]:focus,
+[data-ui="table"] > [data-part="filter"]:focus,
+[data-ui="table"] > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="filter"]:focus {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: calc(-1 * var(--border-width));
+  border-color: var(--color-primary);
+}
+
+/* ── Inline Editing ── */
+[data-ui="table"][data-editable] > :where([data-part="table"]) > [data-part="tbody"] > :where(tr) > [data-part="td"]:not([data-readonly]):hover {
+  cursor: cell;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"][data-editing] {
+  padding: var(--space-1) var(--space-1);
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="cell-input"] {
+  inline-size: 100%;
+  box-sizing: border-box;
+  padding: var(--space-1) var(--space-2);
+  font: inherit;
+  text-align: inherit;
+  color: var(--color-fg);
+  background: var(--color-bg);
+  border: var(--border-width) solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  outline: none;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="cell-input"][data-invalid] {
+  border-color: var(--color-destructive);
+  background: var(--color-destructive-subtle, oklch(0.97 0.02 25));
+}
+
+/* ── Drag & Drop: rows and columns ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="drag-handle"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--space-5);
+  block-size: var(--space-5);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-fg-subtle);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  vertical-align: middle;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="drag-handle"]::before {
+  content: "⠿";
+  font-size: var(--text-sm);
+  line-height: 1;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="drag-handle"]:hover {
+  background: var(--color-bg-muted, oklch(0.94 0.004 260));
+  color: var(--color-fg);
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="drag-handle"]:active {
+  cursor: grabbing;
+}
+
+[data-ui="table"]:has(> :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-dragging], > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-dragging]) {
+  user-select: none;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="tr"][data-dragging] > [data-part="td"] {
+  opacity: 0.5;
+  background: var(--color-bg-muted, oklch(0.94 0.004 260));
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="tr"][data-drop-target][data-drop-pos="before"] > [data-part="td"] {
+  border-block-start: var(--border-width-strong) solid var(--color-primary);
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="tr"][data-drop-target][data-drop-pos="after"] > [data-part="td"] {
+  border-block-end: var(--border-width-strong) solid var(--color-primary);
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"][data-dragging] {
+  opacity: 0.5;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"][data-drop-target][data-drop-pos="before"] {
+  border-inline-start: var(--border-width-strong) solid var(--color-primary);
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"][data-drop-target][data-drop-pos="after"] {
+  border-inline-end: var(--border-width-strong) solid var(--color-primary);
+}
+
+/* ── Column Resize Handles (injected by the controller) ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="resize-handle"] {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  inline-size: var(--space-2);
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  z-index: 1;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="resize-handle"]::before {
+  content: "";
+  position: absolute;
+  inset-block: var(--space-1);
+  inset-inline-end: var(--space-0h);
+  inline-size: var(--space-0h);
+  border-radius: var(--radius-full);
+  background: transparent;
+  transition: background var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="resize-handle"]:hover::before {
+  background: var(--color-primary);
+}
+
+/* ── Sticky Header / Footer ── */
+[data-ui="table"][data-sticky-header] > :where([data-part="table"]) > [data-part="thead"] {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 3;
+  background: var(--color-bg);
+}
+
+[data-ui="table"][data-sticky-footer] > :where([data-part="table"]) > [data-part="tfoot"] {
+  position: sticky;
+  inset-block-end: 0;
+  z-index: 3;
+  background: var(--doc-table-footer-bg, var(--color-bg-subtle, oklch(0.97 0.004 260)));
+}
+
+/* Pinned rows stick just below the header; --table-thead-h is measured by the controller. */
+[data-ui="table"] > :where([data-part="table"]) > [data-part="tbody"] > [data-part="tr"][data-pin="top"] > [data-part="td"] {
+  position: sticky;
+  inset-block-start: var(--table-thead-h, 0px);
+  z-index: 2;
+  background: var(--color-bg-subtle, oklch(0.97 0.004 260));
+}
+
+/* ── Pinned (sticky) Columns ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"][data-pin="start"],
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"][data-pin="start"] {
+  position: sticky;
+  inset-inline-start: var(--table-pin-offset, 0px);
+  z-index: 1;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"][data-pin="end"],
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"][data-pin="end"] {
+  position: sticky;
+  inset-inline-end: var(--table-pin-offset, 0px);
+  z-index: 1;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"][data-pin] {
+  z-index: 4;
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-pin="start"][data-pin-edge] {
+  border-inline-end: var(--border-width) solid var(--color-border-strong, oklch(0.85 0.006 260));
+}
+
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-pin="end"][data-pin-edge] {
+  border-inline-start: var(--border-width) solid var(--color-border-strong, oklch(0.85 0.006 260));
+}
+
+/* ── Column Visibility ── */
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-col-hidden] {
+  display: none;
+}
+
+/* ── Responsive: priority column hiding (needs data-responsive on the root) ──
+   Mobile-first on the breakpoint canon (task 0.8-08, src/utils/breakpoints.ts).
+   A prioritised column is hidden by default and *revealed* from its tier up, so
+   every prelude is a `min-width` floor — the 1.x sheet used three `max-width`
+   ceilings on a private ladder where `sm` meant 30rem, half a tier below the
+   canon's 40rem.
+
+   Three specificity facts hold this together, and the suite pins all three:
+     · the base hide carries `[data-responsive]` (0,3,0) because nothing scopes
+       it otherwise — the reveals do not need it, since `faqir-table` is only a
+       container on a responsive root, so an unnamed-container miss already
+       makes them inert;
+     · each reveal is (0,3,0) too and sits *before* the stacked-mode block, so
+       stacked mode still wins and card rows keep every column — the 1.x
+       behaviour, preserved deliberately;
+     · `:not([data-col-hidden])` keeps a column the controller hid from being
+       revealed by a widening container. */
+[data-ui="table"][data-responsive] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-hide-below] {
+  display: none;
+}
+
+@container faqir-table (min-width: 40rem) {
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-hide-below="sm"]:not([data-col-hidden]) {
+    display: revert;
+  }
+}
+
+@container faqir-table (min-width: 48rem) {
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-hide-below="md"]:not([data-col-hidden]) {
+    display: revert;
+  }
+}
+
+@container faqir-table (min-width: 64rem) {
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-hide-below="lg"]:not([data-col-hidden]) {
+    display: revert;
+  }
+}
+
+/* ── Responsive: stacked card mode ──
+   The controller toggles data-stacked below the data-stack-below breakpoint;
+   authors can also set data-stacked directly to force the layout. */
+[data-ui="table"][data-stacked] > [data-part="table"],
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > [data-part="tbody"],
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > [data-part="tfoot"] {
+  display: block;
+}
+
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > [data-part="thead"] {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > [data-part="tbody"] > [data-part="tr"],
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > [data-part="tbody"] > [data-part="group-header"],
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > [data-part="tbody"] > [data-part="detail-row"],
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > [data-part="tbody"] > [data-part="empty"],
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > [data-part="tfoot"] > [data-part="tr"] {
+  display: block;
+  margin-block-end: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"],
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="group-header"] > td {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-4);
+  text-align: end;
+  border-bottom: none;
+  border-block-end: var(--border-width) solid var(--color-border);
+}
+
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="tr"] > [data-part="td"]:last-child,
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > [data-part="tfoot"] > :where(tr) > [data-part="td"]:last-child {
+  border-block-end: none;
+}
+
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"]::before {
+  content: attr(data-label);
+  flex-shrink: 0;
+  font-weight: var(--weight-semibold);
+  color: var(--color-fg-muted);
+  text-align: start;
+}
+
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"][data-tree-cell] {
+  padding-inline-start: calc(var(--space-4) + var(--table-level, 0) * var(--table-indent, var(--space-5)));
+}
+
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-pin],
+[data-ui="table"][data-stacked] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-pin] {
+  position: static;
+}
+
+/* ── Hidden rows (collapse, filter, [hidden]) — last so they beat layout modes ── */
+[data-ui="table"] > :where([data-part="table"]) > [data-part="tbody"] > tr[data-part][data-collapsed],
+[data-ui="table"] > :where([data-part="table"]) > [data-part="tbody"] > tr[data-part][data-filtered],
+[data-ui="table"] > :where([data-part="table"]) > [data-part] > tr[data-part][hidden],
+[data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > tr[data-part][hidden] {
+  display: none;
+}
+
+/* ── Print: Compact ── */
+@media print {
+  [data-ui="table"][data-print="compact"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"] {
+    padding: var(--space-1, 0.25rem) var(--space-2);
+    font-size: var(--doc-table-font-size, var(--text-xs));
+  }
+
+  [data-ui="table"][data-print="compact"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"] {
+    padding: var(--space-1, 0.25rem) var(--space-2);
+    font-size: var(--doc-table-font-size, var(--text-xs));
+  }
+
+  [data-ui="table"] > [data-part="table"] {
+    break-inside: auto;
+  }
+
+  [data-ui="table"] > :where([data-part="table"]) > [data-part="thead"] {
+    display: table-header-group;
+    position: static;
+  }
+
+  [data-ui="table"] > :where([data-part="table"]) > [data-part="tfoot"] {
+    display: table-footer-group;
+    position: static;
+  }
+
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="tr"] {
+    break-inside: avoid;
+  }
+
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"],
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"] {
+    border-color: var(--doc-print-border-color, var(--color-border));
+    position: static;
+  }
+
+  [data-ui="table"][data-sticky-header],
+  [data-ui="table"][data-sticky-footer] {
+    overflow: visible;
+    max-block-size: none;
+  }
+
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="drag-handle"],
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="resize-handle"],
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="filter-row"],
+  [data-ui="table"] > [data-part="filter"],
+  [data-ui="table"] > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="filter"],
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="expander"],
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="row-toggle"] {
+    display: none;
+  }
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="th"],
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > [data-part="td"],
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="expander"]::before,
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="row-toggle"]::before,
+  [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) > [data-part="resize-handle"]::before {
+    transition: none;
+  }
+}

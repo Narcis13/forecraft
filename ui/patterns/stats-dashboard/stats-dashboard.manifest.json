@@ -1,0 +1,182 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "stats-dashboard",
+  "version": "1.1.0",
+  "kind": "pattern",
+  "category": "composite",
+  "description": "Reporting page composing a KPI row (the grid primitive filled with stats) and card panels, one of which holds the table recipe with its formatting contract — data-format columns, data-value cells and a live-aggregating tfoot. Composition only: this pattern ships no JavaScript of its own; loading faqir-core.js (which bundles table.js) makes the table sortable and its totals live.",
+
+  "anatomy": {
+    "tag": "section",
+    "selector": "[data-ui='stats-dashboard']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "heading": {
+      "selector": "[data-part='heading']",
+      "required": true,
+      "tag_hint": "h2",
+      "description": "Report title. Give it an id and point the section's aria-labelledby at it"
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Optional intro paragraph. Must be a direct child of the section — the panels' own card descriptions are card slots, not this one"
+    },
+    "period": {
+      "selector": "[data-part='period']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "The reporting period and its comparison basis, e.g. '1–30 June 2026 · compared with May'. Rendered as muted metadata, not prose"
+    },
+    "metrics": {
+      "selector": "[data-part='metrics']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "The KPI row. It is itself a data-ui='grid', so the column count comes from grid's mobile-first vocabulary — data-cols='1' is the phone base and data-cols-md/data-cols-lg widen it (1 → 2 → 4); the stats inside carry no data-part"
+    },
+    "reports": {
+      "selector": "[data-part='reports']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Region holding the report panels. Two sit side by side (2fr 1fr); a single one spans the full width"
+    },
+    "report": {
+      "selector": "[data-part='report']",
+      "required": true,
+      "tag_hint": "section",
+      "description": "One report panel — a nested data-ui='card'. Inside it you address the CARD's slots (header, title, description, body, footer), never this pattern's: the nearest data-ui ancestor owns a data-part. Named `report` rather than `panel` because the audit's aria-describedby rule treats a [data-part='panel'] as a dialog's describable surface"
+    },
+    "footnote": {
+      "selector": "[data-part='footnote']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Fine print under the report panels (what the numbers exclude, how they are counted)"
+    }
+  },
+
+  "variants": {},
+
+  "states": {
+    "default": { "attr": "", "default": true, "description": "The only state — a report renders what it was given; loading and error states belong to whatever fetches the data" }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-labelledby on the section pointing at the heading id",
+      "aria-labelledby on each report panel pointing at its own title id",
+      "a <caption> on every report table saying what it counts and over which period",
+      "scope='col' on every table header cell",
+      "the trend of a stat is stated in its change text, not only by the data-trend colour"
+    ],
+    "keyboard": {
+      "Tab": "move through the report panel links and, once table.js is loaded, the sortable column headers",
+      "Enter / Space on a sortable header": "sort the report table (table recipe)"
+    }
+  },
+
+  "tokens_used": [
+    "color-bg", "color-fg", "color-fg-muted", "color-border",
+    "space-1", "space-2", "space-3", "space-4", "space-6", "space-8", "space-12", "space-px",
+    "font-heading", "font-body", "heading-tracking", "heading-transform", "heading-caps", "heading-leading", "text-sm", "text-base", "text-lg", "text-3xl",
+    "weight-semibold", "weight-bold", "leading-tight", "leading-normal", "leading-relaxed"
+  ],
+
+  "templates": {
+    "html": "<section data-ui=\"stats-dashboard\" aria-labelledby=\"{id}-heading\">\n  <h2 data-part=\"heading\" id=\"{id}-heading\">{heading}</h2>\n  <p data-part=\"description\">{description}</p>\n  <p data-part=\"period\">{period}</p>\n  <div data-ui=\"grid\" data-part=\"metrics\" data-cols=\"1\" data-cols-md=\"2\" data-cols-lg=\"4\" data-gap=\"6\">\n    <div data-ui=\"stat\" data-variant=\"card\" data-trend=\"{trend}\">\n      <span data-part=\"label\">{metric_label}</span>\n      <span data-part=\"value\">{metric_value}</span>\n      <span data-part=\"change\">{metric_change}</span>\n    </div>\n  </div>\n  <div data-part=\"reports\">\n    <section data-ui=\"card\" data-part=\"report\" aria-labelledby=\"{id}-panel\">\n      <div data-part=\"header\">\n        <h3 data-part=\"title\" id=\"{id}-panel\">{panel_title}</h3>\n      </div>\n      <div data-part=\"body\">\n        <div data-ui=\"table\" data-size=\"sm\" data-currency=\"{currency}\">\n          <table data-part=\"table\">\n            <caption>{table_caption}</caption>\n            <thead data-part=\"thead\">\n              <tr data-part=\"tr\">\n                <th data-part=\"th\" scope=\"col\" data-sortable aria-sort=\"none\">{column}</th>\n                <th data-part=\"th\" scope=\"col\" data-align=\"right\" data-format=\"currency\">{amount_column}</th>\n              </tr>\n            </thead>\n            <tbody data-part=\"tbody\">\n              <tr data-part=\"tr\">\n                <td data-part=\"td\">{row_label}</td>\n                <td data-part=\"td\" data-align=\"right\" data-format=\"currency\" data-value=\"{row_amount}\" data-aggregate=\"sum\">{row_amount_formatted}</td>\n              </tr>\n            </tbody>\n            <tfoot data-part=\"tfoot\">\n              <tr data-part=\"tr\">\n                <td data-part=\"td\">{total_label}</td>\n                <td data-part=\"td\" data-align=\"right\" data-format=\"currency\" data-aggregate=\"sum\" data-col=\"1\">{total}</td>\n              </tr>\n            </tfoot>\n          </table>\n        </div>\n      </div>\n    </section>\n  </div>\n  <p data-part=\"footnote\">{footnote}</p>\n</section>"
+  },
+
+  "data_shape": {
+    "note": "What an agent binds where. The pattern is static markup — these are the shapes to render into it, whether server-side or through l-for over an l-source.",
+    "metrics": {
+      "target": "[data-part='metrics'] > [data-ui='stat']",
+      "item": {
+        "label": "string — what is measured ([data-part='label'])",
+        "value": "string — the already-formatted headline number ([data-part='value'])",
+        "change": "string — the comparison, stated in words ([data-part='change'])",
+        "trend": "'up' | 'down' | 'neutral' — data-trend on the stat; it colours the change, so the change text must still say which way it went"
+      }
+    },
+    "table_rows": {
+      "target": "[data-part='report'] [data-ui='table'] [data-part='tbody'] > [data-part='tr']",
+      "item": {
+        "cells": "one [data-part='td'] per column, in header order",
+        "data-value": "the RAW number on numeric cells (unformatted, dot decimal). table.js re-renders the cell through Intl using data-format plus data-locale/data-currency on the table root; the authored text is the no-JS fallback",
+        "data-format": "'number' | 'currency' | 'percent' | 'date' — must match the column header's data-format",
+        "note": "body cells never opt into aggregation — a tfoot cell reads its whole column by index, so adding data-aggregate here does nothing"
+      }
+    },
+    "table_totals": {
+      "target": "[data-part='report'] [data-ui='table'] [data-part='tfoot'] [data-part='td']",
+      "item": {
+        "data-aggregate": "'sum' | 'avg' | 'min' | 'max' | 'count' — recomputed over the VISIBLE body rows of one column (filtered-out rows are excluded)",
+        "data-col": "zero-based index of the column to read. Without it the cell aggregates its own position, which only holds when the footer row's cells line up with the body's",
+        "text": "the authored total, which stands when no controller is loaded"
+      }
+    }
+  },
+
+  "safe_transforms": [
+    "add-metric",
+    "remove-metric",
+    "change-metric-column-count-on-the-grid",
+    "add-panel",
+    "remove-panel",
+    "add-table-column",
+    "add-table-row",
+    "change-number-formats-and-currency",
+    "add-footnote"
+  ],
+
+  "unsafe_transforms": [
+    "add-stats-dashboard-data-parts-inside-a-panel-card",
+    "add-a-data-part-to-a-metric-stat",
+    "remove-the-table-caption",
+    "remove-aria-labelledby",
+    "format-a-cell-differently-from-its-column-header",
+    "add-custom-script"
+  ],
+
+  "composition": {
+    "contains": ["grid", "stat", "card", "table", "badge", "button"],
+    "used_in": [],
+    "notes": [
+      "Slot ownership: a data-part belongs to its nearest data-ui ancestor. The KPI row is data-ui='grid', so the stats inside it must NOT carry a data-part — it would become an orphan part of the grid, which declares no slots. That is the deliberate trade: composing the grid buys the responsive column collapse and costs the per-metric part. Address a KPI as [data-part='metrics'] > [data-ui='stat'].",
+      "Same rule inside a report panel: the panel IS the card, so its title/description/body/footer are the CARD's slots and a stats-dashboard part there would be an orphan part of the card.",
+      "The report table is the table recipe unchanged — this pattern's stylesheet defines no table rules beyond letting it scroll sideways inside the panel. Column formatting is the recipe's contract: data-format on the th, data-value + matching data-format on the td, data-aggregate on the column's body cells, and the tfoot cell that totals them.",
+      "The authored numbers are the no-JS truth. table.js reformats data-value cells through Intl and recomputes data-aggregate footers over the visible rows once faqir-core.js is loaded, so the two must agree when the page ships — tests/patterns/stats-dashboard.test.ts adds up each aggregated column and compares it with the authored total.",
+      "Aggregation is declared in the tfoot alone: the footer cell names the column with data-col and reads every visible body cell in it. The body cells carry only data-value plus their column's data-format."
+    ]
+  },
+
+  "files": {
+    "html": "stats-dashboard.html",
+    "css": "stats-dashboard.css",
+    "manifest": "stats-dashboard.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-section-with-data-ui-stats-dashboard",
+    "heading-metrics-and-panels-slots-are-required",
+    "the-metric-row-is-the-grid-primitive",
+    "metric-stats-carry-no-data-part",
+    "every-panel-is-a-card",
+    "the-report-table-declares-formats-on-headers-and-cells",
+    "numeric-cells-carry-a-raw-data-value",
+    "the-tfoot-totals-with-data-aggregate",
+    "every-table-has-a-caption",
+    "ships-zero-javascript",
+    "panels-stack-below-lg-and-split-2fr-1fr-from-it",
+    "reference-page-is-audit-clean"
+  ],
+
+  "changes": [
+    {
+      "version": "1.1.0",
+      "note": "The responsive ladder moves onto the breakpoint canon, mobile-first (task 0.8-09). The sheet's max-width media blocks became min-width floors on canon tiers (sm 40rem/640px, md 48rem/768px, lg 64rem/1024px), so every unconditional rule is now the PHONE case and a tier block only ever widens it. The panel region stacks until lg; the KPI row's own ladder was already grid.css's. The floors keep their values, so the only behavioural shift is at exactly a floor: 1024px now gets the wide layout rather than the narrow one.",
+      "breaking": false
+    }
+  ]
+}

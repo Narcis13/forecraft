@@ -1,0 +1,158 @@
+/* @ui:component faq */
+/* @ui:tokens space-4 space-12 space-3 space-10 space-16 space-6 space-8 font-body font-heading font-ui color-fg color-bg color-fg-muted text-xl text-lg text-sm text-3xl heading-weight heading-tracking heading-transform heading-caps heading-leading leading-relaxed leading-normal measure-content */
+
+/* ── Root ──
+   A one-column grid; the layout variants only change how that grid flows, so
+   the same markup reads centred or split. Every unconditional declaration is
+   the PHONE case and the `@media` floors at the foot of the sheet widen it.
+
+   The questions themselves are nested collapsibles — native <details>, so the
+   whole section opens and closes with zero JavaScript. This sheet never
+   touches a collapsible's own parts: the stack is spaced through
+   [data-part="items"], and the numbering below hangs off the collapsible's
+   ROOT, which is this part's direct child. */
+[data-ui="faq"] {
+  display: grid;
+  gap: var(--space-4);
+  padding-block: var(--space-12);
+  padding-inline: var(--space-4);
+  font-family: var(--font-body);
+  color: var(--color-fg);
+  background: var(--color-bg);
+}
+
+/* ── Intro ──
+   The split layout gathers heading, description and footer into one column
+   so they can stick together while the questions scroll. The stacked layout
+   does not need the wrapper, so every intro part below is reached both ways. */
+[data-ui="faq"] > [data-part="intro"] {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+}
+
+/* ── Heading ── */
+[data-ui="faq"] > [data-part="heading"],
+[data-ui="faq"] > :where([data-part="intro"]) > [data-part="heading"] {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  line-height: var(--heading-leading);
+  text-wrap: balance;
+}
+
+/* ── Description ── */
+[data-ui="faq"] > [data-part="description"],
+[data-ui="faq"] > :where([data-part="intro"]) > [data-part="description"] {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--color-fg-muted);
+}
+
+/* ── Items ──
+   The stack of collapsibles. The gap is the only thing this part draws — the
+   border, padding and chevron belong to the collapsible — and it is a knob so
+   a page can tighten a long list without re-styling the primitive. The text
+   alignment is reset here because the stacked layout centres its prose and a
+   question should still read from the start edge. */
+[data-ui="faq"] > [data-part="items"] {
+  display: grid;
+  gap: var(--faq-gap, var(--space-3));
+  margin-block-start: var(--space-4);
+  text-align: start;
+}
+
+/* ── Footer ── */
+[data-ui="faq"] > [data-part="footer"],
+[data-ui="faq"] > :where([data-part="intro"]) > [data-part="footer"] {
+  margin: 0;
+  margin-block-start: var(--space-4);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-fg-muted);
+}
+
+/* ── Numbered ──
+   A CSS counter on the items part, stepped by each direct child — the
+   collapsible root, never its summary — and drawn by that child's ::before.
+   The figure sits in a gutter opened with padding on the child, so the
+   collapsible's own summary padding and chevron are untouched; it is a small
+   UI-face number in the muted ink, a label rather than a headline. */
+[data-ui="faq"][data-numbered] > :where([data-part="items"]) {
+  counter-reset: faqir-faq;
+}
+
+[data-ui="faq"][data-numbered] > :where([data-part="items"]) > * {
+  position: relative;
+  padding-inline-start: var(--space-10);
+  counter-increment: faqir-faq;
+}
+
+[data-ui="faq"][data-numbered] > :where([data-part="items"]) > *::before {
+  content: counter(faqir-faq, decimal-leading-zero);
+  position: absolute;
+  inset-inline-start: var(--space-3);
+  inset-block-start: var(--space-3);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--leading-normal);
+  color: var(--color-fg-muted);
+}
+
+/* ── Layout: stacked (default) ──
+   One centred column no wider than the content measure: the grid's single
+   track is capped and centred, so the prose is centred and the questions
+   below it stay a comfortable reading width. */
+[data-ui="faq"]:not([data-variant]),
+[data-ui="faq"][data-variant="stacked"] {
+  grid-template-columns: minmax(0, var(--measure-content));
+  justify-content: center;
+  text-align: center;
+}
+
+/* ── Layout: split ──
+   One column on a phone, exactly like stacked but start-aligned; the second
+   column and the sticky intro arrive at the lg floor. */
+[data-ui="faq"][data-variant="split"] {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+/* ── Responsive ──
+   Canon tiers only, min-width only, ascending. sm: the type scale and the
+   block padding open up. lg: the split variant earns its second column and
+   the intro sticks below the top edge so the heading keeps the questions
+   company as a long list scrolls. */
+@media (min-width: 40rem) {
+  [data-ui="faq"] {
+    padding-block: var(--space-16);
+    padding-inline: var(--space-6);
+  }
+
+  [data-ui="faq"] > [data-part="heading"],
+  [data-ui="faq"] > :where([data-part="intro"]) > [data-part="heading"] {
+    font-size: var(--text-3xl);
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-ui="faq"][data-variant="split"] {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: var(--space-12);
+  }
+
+  [data-ui="faq"][data-variant="split"] > [data-part="intro"] {
+    position: sticky;
+    inset-block-start: var(--space-8);
+  }
+
+  [data-ui="faq"][data-variant="split"] > [data-part="items"] {
+    margin-block-start: 0;
+  }
+}

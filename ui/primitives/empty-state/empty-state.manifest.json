@@ -1,0 +1,108 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "empty-state",
+  "version": "1.1.1",
+  "kind": "primitive",
+  "category": "feedback",
+  "description": "Placeholder for empty content sections with icon, title, description, and action slots",
+
+  "changes": [
+    {
+      "version": "1.1.1",
+      "note": "Nested components keep their own parts. The icon, title, description and actions rules were descendant selectors, and those are part names half the registry shares: a callout or card placed inside an empty state had its title resized and recoloured. They are child selectors now, which is the canonical markup. No rule changes specificity.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "data-size=\"sm\" is now declared (it was in empty-state.css and in no manifest). Its default is empty because absence is a real value here rather than a synonym for a medium size: an unsized empty-state keeps the roomy base padding, and only sm has a rule. No CSS or behaviour change. 0.8-10's undeclared-attribute rule now makes this class of drift impossible: an attribute a component's CSS selects on that its manifest never declares fails the registry gate.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='empty-state']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "icon": {
+      "selector": "[data-part='icon']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Visual icon or emoji"
+    },
+    "title": {
+      "selector": "[data-part='title']",
+      "required": true,
+      "tag_hint": "h3",
+      "description": "Heading text"
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Explanatory text"
+    },
+    "actions": {
+      "selector": "[data-part='actions']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Container for action buttons"
+    }
+  },
+
+  "variants": {
+    "size": {
+      "values": ["sm"],
+      "default": "",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "a11y": {
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted", "color-fg-subtle",
+    "text-sm", "text-lg", "text-3xl", "text-xs", "text-xl",
+    "weight-medium", "space-2", "space-3", "space-4", "space-8",
+    "font-heading"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"empty-state\"><span data-part=\"icon\">{icon}</span><h3 data-part=\"title\">{title}</h3><p data-part=\"description\">{description}</p><div data-part=\"actions\">{actions}</div></div>"
+  },
+
+  "safe_transforms": [
+    "Change icon content",
+    "Change title and description text",
+    "Add or remove actions slot",
+    "Add or remove icon slot"
+  ],
+  "unsafe_transforms": [
+    "Remove data-ui attribute",
+    "Remove title slot"
+  ],
+
+  "composition": {
+    "contains": ["button"],
+    "used_in": ["crud-table", "search-results"]
+  },
+
+  "files": {
+    "html": "empty-state.html",
+    "css": "empty-state.css",
+    "manifest": "empty-state.manifest.json"
+  },
+
+  "tests": [
+    "Renders title",
+    "Centers content",
+    "Compact size reduces spacing and font"
+  ]
+}

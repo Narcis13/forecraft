@@ -1,0 +1,51 @@
+<!-- @ui:component checkbox -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots label -->
+<!-- @ui:variants size=sm|md|lg -->
+
+<!-- States — control rows use a wider cluster gap than each label's internal gap -->
+<div data-ui="cluster" data-gap="4">
+  <label data-ui="checkbox-label" for="terms">
+    <input data-ui="checkbox" type="checkbox" id="terms">
+    <span data-part="label">Accept terms and conditions</span>
+  </label>
+
+  <label data-ui="checkbox-label" for="newsletter">
+    <input data-ui="checkbox" type="checkbox" id="newsletter" checked>
+    <span data-part="label">Subscribe to newsletter</span>
+  </label>
+
+  <label data-ui="checkbox-label" for="readonly-off">
+    <input data-ui="checkbox" type="checkbox" id="readonly-off" disabled>
+    <span data-part="label">Disabled option</span>
+  </label>
+
+  <label data-ui="checkbox-label" for="readonly-on">
+    <input data-ui="checkbox" type="checkbox" id="readonly-on" disabled checked>
+    <span data-part="label">Locked selection</span>
+  </label>
+
+  <!-- Indeterminate is set via JS: el.indeterminate = true. -->
+  <label data-ui="checkbox-label" for="select-all">
+    <input data-ui="checkbox" type="checkbox" id="select-all" data-state="indeterminate">
+    <span data-part="label">Select all</span>
+  </label>
+</div>
+
+<!-- Sizes -->
+<div data-ui="cluster" data-gap="4">
+  <label data-ui="checkbox-label" for="checkbox-sm">
+    <input data-ui="checkbox" data-size="sm" type="checkbox" id="checkbox-sm">
+    <span data-part="label">Small</span>
+  </label>
+
+  <label data-ui="checkbox-label" for="checkbox-md">
+    <input data-ui="checkbox" type="checkbox" id="checkbox-md">
+    <span data-part="label">Medium (default)</span>
+  </label>
+
+  <label data-ui="checkbox-label" for="checkbox-lg">
+    <input data-ui="checkbox" data-size="lg" type="checkbox" id="checkbox-lg">
+    <span data-part="label">Large</span>
+  </label>
+</div>

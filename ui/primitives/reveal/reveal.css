@@ -1,0 +1,162 @@
+/* @ui:component reveal */
+/* @ui:tokens motion-reveal-distance motion-reveal-scale motion-reveal-blur motion-reveal-duration motion-reveal-ease motion-stagger ease-linear */
+
+/* ── Root ──
+   A reveal never lays anything out: it only decides how its content ARRIVES.
+   The entrance is one keyframe pair read through four private custom
+   properties, so a variant is a declaration and not a new animation, and a
+   theme that re-points the `--motion-reveal-*` family restyles all of them.
+
+   The four are re-declared on every root on purpose. They are inherited (a
+   staggered group hands them to its children), and without the reset a reveal
+   nested inside another would add its parent's travel to its own. */
+[data-ui="reveal"] {
+  --faqir-reveal-translate: 0 0;
+  --faqir-reveal-scale: 1;
+  --faqir-reveal-filter: none;
+  --faqir-reveal-index: 0;
+}
+
+/* ── Variants: where the content comes from ── */
+[data-ui="reveal"][data-variant="rise"],
+[data-ui="reveal"]:not([data-variant]) {
+  --faqir-reveal-translate: 0 var(--reveal-distance, var(--motion-reveal-distance));
+}
+
+[data-ui="reveal"][data-variant="fall"] {
+  --faqir-reveal-translate: 0 calc(var(--reveal-distance, var(--motion-reveal-distance)) * -1);
+}
+
+/* The inline pair is logical: `start` is the left edge of a left-to-right page
+   and the right edge of a right-to-left one. */
+[data-ui="reveal"][data-variant="slide-start"],
+[data-ui="reveal"][data-variant="slide-end"]:dir(rtl) {
+  --faqir-reveal-translate: calc(var(--reveal-distance, var(--motion-reveal-distance)) * -1) 0;
+}
+
+[data-ui="reveal"][data-variant="slide-end"],
+[data-ui="reveal"][data-variant="slide-start"]:dir(rtl) {
+  --faqir-reveal-translate: var(--reveal-distance, var(--motion-reveal-distance)) 0;
+}
+
+[data-ui="reveal"][data-variant="zoom"] {
+  --faqir-reveal-scale: var(--motion-reveal-scale);
+}
+
+[data-ui="reveal"][data-variant="blur"] {
+  --faqir-reveal-filter: blur(var(--motion-reveal-blur));
+}
+
+/* ── Stagger: the order of a group ──
+   With `data-stagger` the root stays put and its CHILDREN arrive, each one
+   `--motion-stagger` after the sibling before it. Twelve steps are counted;
+   everything past the twelfth arrives with it, which keeps a long list from
+   holding its last row back for seconds. */
+[data-ui="reveal"][data-stagger] > :nth-child(2)    { --faqir-reveal-index: 1; }
+[data-ui="reveal"][data-stagger] > :nth-child(3)    { --faqir-reveal-index: 2; }
+[data-ui="reveal"][data-stagger] > :nth-child(4)    { --faqir-reveal-index: 3; }
+[data-ui="reveal"][data-stagger] > :nth-child(5)    { --faqir-reveal-index: 4; }
+[data-ui="reveal"][data-stagger] > :nth-child(6)    { --faqir-reveal-index: 5; }
+[data-ui="reveal"][data-stagger] > :nth-child(7)    { --faqir-reveal-index: 6; }
+[data-ui="reveal"][data-stagger] > :nth-child(8)    { --faqir-reveal-index: 7; }
+[data-ui="reveal"][data-stagger] > :nth-child(9)    { --faqir-reveal-index: 8; }
+[data-ui="reveal"][data-stagger] > :nth-child(10)   { --faqir-reveal-index: 9; }
+[data-ui="reveal"][data-stagger] > :nth-child(11)   { --faqir-reveal-index: 10; }
+[data-ui="reveal"][data-stagger] > :nth-child(n+12) { --faqir-reveal-index: 11; }
+
+/* ── Trigger: load (default) ──
+   Plays once, when the element is first rendered — on page load, or the moment
+   a directive inserts it. `both` holds the from-state through the delay, so a
+   staggered child is not visible and then hidden and then revealed. */
+[data-ui="reveal"]:not([data-stagger], [data-state]),
+[data-ui="reveal"][data-stagger]:not([data-state]) > * {
+  animation: faqir-reveal var(--reveal-duration, var(--motion-reveal-duration))
+    var(--reveal-ease, var(--motion-reveal-ease)) both;
+  animation-delay: calc(var(--reveal-delay, 0s) + var(--motion-stagger) * var(--faqir-reveal-index));
+}
+
+/* Only a `from`: the animation ends on whatever the element already is, so a
+   reveal can wrap content that carries its own opacity, transform or filter. */
+@keyframes faqir-reveal {
+  from {
+    opacity: 0;
+    translate: var(--faqir-reveal-translate);
+    scale: var(--faqir-reveal-scale);
+    filter: var(--faqir-reveal-filter);
+  }
+}
+
+/* ── Trigger: scroll ──
+   The same keyframes on a view timeline: the entrance is scrubbed by the
+   scrollbar as the element crosses the bottom of the viewport, and plays
+   backwards when it leaves the way it came. No script, no observer. Where view
+   timelines are not supported the block is skipped entirely and the rule above
+   still plays the entrance once on load — the content is never left hidden.
+
+   A time delay means nothing on a scroll timeline, so a staggered group
+   offsets each child's RANGE instead: the same order, measured in scroll. */
+@supports (animation-timeline: view()) {
+  [data-ui="reveal"][data-trigger="scroll"]:not([data-stagger], [data-state]),
+  [data-ui="reveal"][data-trigger="scroll"][data-stagger]:not([data-state]) > * {
+    animation-timeline: view();
+    animation-timing-function: var(--ease-linear);
+    animation-delay: 0s;
+    animation-range:
+      entry calc(var(--reveal-range-start, 5%) + var(--faqir-reveal-index) * 6%)
+      entry calc(var(--reveal-range-end, 70%) + var(--faqir-reveal-index) * 6%);
+  }
+}
+
+/* ── Trigger: state ──
+   For a page that wants the entrance to play ONCE, on a clock, when the element
+   is first seen. The page (or the `l-intersect` plugin) writes `data-state`:
+   `hidden` holds the from-state, `shown` releases it. A reveal that carries no
+   `data-state` never reads this block, so markup without a script is never
+   stuck invisible. */
+[data-ui="reveal"][data-state]:not([data-stagger]),
+[data-ui="reveal"][data-state][data-stagger] > * {
+  transition:
+    opacity var(--reveal-duration, var(--motion-reveal-duration)) var(--reveal-ease, var(--motion-reveal-ease)),
+    translate var(--reveal-duration, var(--motion-reveal-duration)) var(--reveal-ease, var(--motion-reveal-ease)),
+    scale var(--reveal-duration, var(--motion-reveal-duration)) var(--reveal-ease, var(--motion-reveal-ease)),
+    filter var(--reveal-duration, var(--motion-reveal-duration)) var(--reveal-ease, var(--motion-reveal-ease));
+  transition-delay: calc(var(--reveal-delay, 0s) + var(--motion-stagger) * var(--faqir-reveal-index));
+}
+
+[data-ui="reveal"][data-state="hidden"]:not([data-stagger]),
+[data-ui="reveal"][data-state="hidden"][data-stagger] > * {
+  opacity: 0;
+  translate: var(--faqir-reveal-translate);
+  scale: var(--faqir-reveal-scale);
+  filter: var(--faqir-reveal-filter);
+}
+
+/* ── Motion ──
+   Reduced motion removes the entrance, not the content: every trigger resolves
+   to "already arrived", including a `hidden` state a script has not released.
+   Paper gets the same treatment — a printed page has no entrance. */
+@media (prefers-reduced-motion: reduce), print {
+  /* Every selector that starts an entrance is repeated here, so this rule
+     matches its specificity and, coming later, wins. `[data-ui="reveal"]`
+     alone (0,1,0) lost to the trigger rules (0,2,0 to 0,4,0), and a scroll
+     reveal kept scrubbing in under reduced motion. */
+  [data-ui="reveal"],
+  [data-ui="reveal"][data-stagger] > *,
+  [data-ui="reveal"]:not([data-stagger], [data-state]),
+  [data-ui="reveal"][data-stagger]:not([data-state]) > *,
+  [data-ui="reveal"][data-trigger="scroll"]:not([data-stagger], [data-state]),
+  [data-ui="reveal"][data-trigger="scroll"][data-stagger]:not([data-state]) > *,
+  [data-ui="reveal"][data-state]:not([data-stagger]),
+  [data-ui="reveal"][data-state][data-stagger] > * {
+    animation: none;
+    transition: none;
+  }
+
+  [data-ui="reveal"][data-state="hidden"]:not([data-stagger]),
+  [data-ui="reveal"][data-state="hidden"][data-stagger] > * {
+    opacity: 1;
+    translate: none;
+    scale: none;
+    filter: none;
+  }
+}

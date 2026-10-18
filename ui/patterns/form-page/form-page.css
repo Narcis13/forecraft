@@ -1,0 +1,35 @@
+/* @ui:component form-page */
+/* @ui:tokens color-fg color-fg-muted measure-narrow space-5 space-8 font-body text-sm text-2xl weight-semibold leading-tight leading-normal */
+/* form-page — page-level framing for a schema-rendered form.
+   The markup is emitted verbatim by @faqir-ui/forms (this reference page is the
+   pinned golden target for that generator), so every field's look comes from the
+   composed primitives: field-group, input, radio-group, textarea, checkbox. This
+   sheet only sets the page's reading measure and vertical rhythm — the plain
+   generated form has no data-ui root, so it is scoped to the bare l-data form
+   that the generator produces (the wizard form carries data-ui and is excluded).
+   Attribute + token selectors only; logical properties throughout. */
+
+:where(form[l-data]:not([data-ui])) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-inline-size: var(--measure-narrow);
+  margin-inline: auto;
+  padding-block: var(--space-8);
+  font-family: var(--font-body);
+}
+
+:where(form[l-data]:not([data-ui]) > h1) {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  color: var(--color-fg);
+}
+
+:where(form[l-data]:not([data-ui]) > p) {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}

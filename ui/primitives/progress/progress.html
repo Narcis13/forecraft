@@ -1,0 +1,35 @@
+<!-- @ui:component progress -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots track fill label -->
+
+<!-- Default -->
+<div data-ui="progress" data-variant="default" role="progressbar" aria-label="Progress" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+  <div data-part="track">
+    <div data-part="fill" style="width: 60%"></div>
+  </div>
+  <span data-part="label">60%</span>
+</div>
+
+<!-- With variant -->
+<div data-ui="progress" data-variant="success" role="progressbar" aria-label="Progress" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+  <div data-part="track">
+    <div data-part="fill" style="width: 100%"></div>
+  </div>
+  <span data-part="label">100%</span>
+</div>
+
+<!-- Small destructive -->
+<div data-ui="progress" data-size="sm" data-variant="destructive" role="progressbar" aria-label="Progress" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">
+  <div data-part="track">
+    <div data-part="fill" style="width: 40%"></div>
+  </div>
+  <span data-part="label">40%</span>
+</div>
+
+<!-- Large -->
+<div data-ui="progress" data-size="lg" data-variant="warning" role="progressbar" aria-label="Progress" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+  <div data-part="track">
+    <div data-part="fill" style="width: 75%"></div>
+  </div>
+  <span data-part="label">75%</span>
+</div>

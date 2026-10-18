@@ -1,0 +1,155 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "feature-grid",
+  "version": "1.1.0",
+  "kind": "pattern",
+  "category": "marketing",
+  "description": "Responsive feature list for a marketing page: a section heading plus a real <ul> of icon + title + description items. Composition only: zero JavaScript, no controller, no reactive directives. Column count is data-cols on the root (2|3|4) and follows grid's mobile-first semantics: it names the WIDEST count, reached at the lg floor, with two columns from sm and one on a phone — all in pure CSS.",
+
+  "anatomy": {
+    "tag": "section",
+    "selector": "[data-ui='feature-grid']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "heading": {
+      "selector": "[data-part='heading']",
+      "required": true,
+      "tag_hint": "h2",
+      "description": "Section heading. Give it an id and point the section's aria-labelledby at it"
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Optional intro paragraph under the heading"
+    },
+    "items": {
+      "selector": "[data-part='items']",
+      "required": true,
+      "tag_hint": "ul",
+      "description": "The grid container. Keep it a <ul> so the features are announced as a list; the marker is removed in CSS, not the semantics"
+    },
+    "item": {
+      "selector": "[data-part='item']",
+      "required": true,
+      "tag_hint": "li",
+      "description": "One feature — repeat this element once per feature. Direct child of items"
+    },
+    "icon": {
+      "selector": "[data-part='icon']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Tinted plate WRAPPING a nested data-ui='icon' (the plate is never the icon itself). Mark the plate aria-hidden='true' — it is decoration; the meaning is carried by item-title"
+    },
+    "item-title": {
+      "selector": "[data-part='item-title']",
+      "required": true,
+      "tag_hint": "h3",
+      "description": "Feature name. One level below the section heading so the outline never skips"
+    },
+    "item-description": {
+      "selector": "[data-part='item-description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "One or two sentences describing the feature"
+    },
+    "footer": {
+      "selector": "[data-part='footer']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Closing action row under the grid. Nested buttons/links go directly inside and must not carry a data-part"
+    }
+  },
+
+  "variants": {
+    "columns": {
+      "values": ["2", "3", "4"],
+      "default": "3",
+      "attr": "data-cols",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-labelledby on the section pointing at the heading id",
+      "aria-hidden='true' on every decorative item icon",
+      "item titles are real headings one level below the section heading"
+    ],
+    "keyboard": {
+      "Tab": "move through any links inside the items and the footer, in source order"
+    }
+  },
+
+  "tokens_used": [
+    "color-bg", "color-fg", "color-fg-muted", "color-primary", "color-primary-subtle", "space-2",
+    "space-3", "space-4", "space-6", "space-8", "space-10", "space-12", "space-16", "font-body",
+    "text-base", "text-lg", "text-xl", "text-3xl", "weight-semibold", "weight-bold",
+    "leading-tight", "leading-normal", "leading-relaxed", "radius-md"
+  ],
+
+  "templates": {
+    "html": "<section data-ui=\"feature-grid\" data-cols=\"{columns}\" aria-labelledby=\"{id}-heading\">\n  <h2 data-part=\"heading\" id=\"{id}-heading\">{heading}</h2>\n  <p data-part=\"description\">{description}</p>\n  <ul data-part=\"items\">\n    <li data-part=\"item\">\n      <span data-ui=\"icon\" data-icon=\"{icon}\" data-part=\"icon\" aria-hidden=\"true\"></span>\n      <h3 data-part=\"item-title\">{item_title}</h3>\n      <p data-part=\"item-description\">{item_description}</p>\n    </li>\n  </ul>\n</section>"
+  },
+
+  "safe_transforms": [
+    "add-item",
+    "remove-item",
+    "change-column-count",
+    "change-item-icons",
+    "add-section-description",
+    "remove-section-description",
+    "add-footer-action"
+  ],
+
+  "unsafe_transforms": [
+    "replace-items-list-with-divs",
+    "remove-aria-labelledby",
+    "remove-aria-hidden-from-decorative-icons",
+    "promote-item-titles-to-h2",
+    "add-custom-script"
+  ],
+
+  "composition": {
+    "contains": ["icon", "button"],
+    "used_in": ["landing-page"],
+    "notes": [
+      "The grid itself is pattern CSS, not a nested data-ui='grid': a nested component would take ownership of the data-part on its children, so [data-part='item'] would no longer belong to feature-grid. Column count is expressed with the grid primitive's own data-cols vocabulary instead.",
+      "Nested primitives that carry their own data-variant (buttons in the footer) must not also carry a data-part.",
+      "The icon plate wraps the icon primitive instead of being it: an icon renders its glyph with background-color:currentColor behind a CSS mask, so setting a background on a data-ui='icon' element repaints the glyph in that colour rather than framing it. Style the wrapper; let the icon inherit colour and size.",
+      "`faqir scaffold landing-page` copies the block between the <!-- @ui:scaffold landing-page --> markers in feature-grid.html verbatim."
+    ]
+  },
+
+  "files": {
+    "html": "feature-grid.html",
+    "css": "feature-grid.css",
+    "manifest": "feature-grid.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-section-with-data-ui-feature-grid",
+    "heading-and-items-slots-are-required",
+    "items-container-is-a-real-list",
+    "each-item-carries-a-title",
+    "decorative-icons-are-aria-hidden",
+    "default-column-count-is-three",
+    "ships-zero-javascript",
+    "one-column-below-sm-two-from-sm-and-the-declared-count-from-lg",
+    "reference-page-is-audit-clean"
+  ],
+
+  "changes": [
+    {
+      "version": "1.1.0",
+      "note": "The responsive ladder moves onto the breakpoint canon, mobile-first (task 0.8-09). The sheet's max-width media blocks became min-width floors on canon tiers (sm 40rem/640px, md 48rem/768px, lg 64rem/1024px), so every unconditional rule is now the PHONE case and a tier block only ever widens it. The item grid follows grid's mobile-first semantics (0.8-04): data-cols names the WIDEST count, reached at lg, with two columns from sm and one on a phone. The floors keep their values, so the only behavioural shift is at exactly a floor: 1024px now gets the wide layout rather than the narrow one.",
+      "breaking": false
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+/* @ui:component collapsible */
+/* @ui:tokens color-fg color-fg-muted color-bg-subtle color-border color-ring radius-md space-2 space-3 text-sm text-base font-ui weight-medium duration-fast duration-normal ease-default border-width border-width-strong focus-ring-width focus-ring-offset focus-ring-style focus-ring-color focus-shadow */
+
+/* ── Root — native <details>, so it opens/closes with zero JavaScript ── */
+[data-ui="collapsible"] {
+  border-radius: var(--collapsible-radius, var(--radius-md));
+  font-family: var(--collapsible-font, var(--font-ui));
+  color: var(--color-fg);
+}
+
+/* Child combinators throughout: <summary> is always a direct child of its
+   <details>, and a collapsible nested in the content keeps its own trigger —
+   the `[open]` rule below used to rotate the chevron of a closed one inside
+   an open one. [1.1F-20] */
+
+/* ── Trigger — the <summary> ── */
+[data-ui="collapsible"] > [data-part="trigger"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  line-height: 1.4;
+  cursor: pointer;
+  list-style: none;
+  border-radius: var(--collapsible-radius, var(--radius-md));
+  transition: background var(--duration-fast) var(--ease-default);
+}
+
+/* Strip the native disclosure marker (WebKit + standard list-item marker) */
+[data-ui="collapsible"] > [data-part="trigger"]::-webkit-details-marker {
+  display: none;
+}
+
+[data-ui="collapsible"] > [data-part="trigger"]:hover {
+  background: var(--color-bg-subtle);
+}
+
+[data-ui="collapsible"] > [data-part="trigger"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-shadow);
+}
+
+/* Chevron indicator — rotates when open, CSS-only */
+[data-ui="collapsible"] > [data-part="trigger"]::after {
+  content: "";
+  flex: none;
+  width: 0.5em;
+  height: 0.5em;
+  border-inline-end: var(--border-width-strong) solid var(--color-fg-muted);
+  border-block-end: var(--border-width-strong) solid var(--color-fg-muted);
+  transform: rotate(45deg);
+  transition: transform var(--duration-normal) var(--ease-default);
+}
+
+[data-ui="collapsible"][open] > [data-part="trigger"]::after {
+  transform: rotate(-135deg);
+}
+
+/* ── Content ── */
+[data-ui="collapsible"] > [data-part="content"] {
+  padding: 0 var(--space-3) var(--space-3);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--color-fg-muted);
+}
+
+/* ── Bordered variant ── */
+[data-ui="collapsible"][data-variant="bordered"] {
+  border: var(--border-width) solid var(--color-border);
+}
+
+/* ── Open/close animation via ::details-content, where supported ── */
+/* Progressive enhancement: browsers without interpolate-size simply snap open. */
+@supports (interpolate-size: allow-keywords) {
+  [data-ui="collapsible"] {
+    interpolate-size: allow-keywords;
+  }
+
+  [data-ui="collapsible"]::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition: block-size var(--duration-normal) var(--ease-default),
+                content-visibility var(--duration-normal) var(--ease-default) allow-discrete;
+  }
+
+  [data-ui="collapsible"][open]::details-content {
+    block-size: auto;
+  }
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="collapsible"] > [data-part="trigger"],
+  [data-ui="collapsible"] > [data-part="trigger"]::after,
+  [data-ui="collapsible"]::details-content {
+    transition: none;
+  }
+}

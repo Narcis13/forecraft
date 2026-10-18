@@ -1,0 +1,104 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "form-page",
+  "version": "1.0.0",
+  "kind": "pattern",
+  "category": "composite",
+  "description": "The canonical schema-rendered form page — the pinned reference output shape for @faqir-ui/forms. A single form with a heading, description, and a field-group per property (text, email, enum radio, textarea, checkbox), driven by faqir-core (l-data) and validated by faqir-validate (l-validate). This markup is emitted verbatim by @faqir-ui/forms for its reference schema; the forms package drift-tests that the generator output still matches this page byte-for-byte.",
+
+  "anatomy": {
+    "tag": "form",
+    "selector": "form[l-data]:not([data-ui])",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "heading": {
+      "selector": "> h1",
+      "required": true,
+      "tag_hint": "h1",
+      "description": "Form title, from the schema's `title`"
+    },
+    "description": {
+      "selector": "> p",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Form description, from the schema's `description`; wired to the form via aria-describedby"
+    },
+    "field": {
+      "selector": "[data-ui='field-group']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "One field-group per schema property, carrying label, control, optional hint, and error slot"
+    }
+  },
+
+  "variants": {},
+
+  "states": {},
+
+  "a11y": {
+    "role": "form",
+    "required_attrs": [
+      "aria-label or aria-labelledby on the form element",
+      "aria-describedby on the form pointing to the description when present",
+      "label[for] matching each control id inside every field-group",
+      "aria-required=\"true\" on required controls",
+      "aria-describedby pointing to the field-group hint and/or error",
+      "aria-live=\"polite\" on each field-group error slot"
+    ],
+    "keyboard": {
+      "Tab": "move focus between controls",
+      "Enter": "submit the form (native submit; faqir-validate gates it)",
+      "Shift+Tab": "reverse focus order"
+    }
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted",
+    "measure-narrow",
+    "space-5", "space-8",
+    "font-body", "text-sm", "text-2xl",
+    "weight-semibold", "leading-tight", "leading-normal"
+  ],
+
+  "templates": {
+    "html": "<form id=\"{id}-form\" l-data l-validate aria-label=\"{title}\" aria-describedby=\"{id}-form-description\">\n  <h1>{title}</h1>\n  <p id=\"{id}-form-description\">{description}</p>\n  <div data-ui=\"field-group\">\n    <label data-part=\"label\" for=\"{id}-field-name\">{field_label} <span data-part=\"required\">*</span></label>\n    <div data-part=\"input\"><input data-ui=\"input\" id=\"{id}-field-name\" name=\"{field_name}\" required aria-required=\"true\" aria-describedby=\"{id}-field-name-error\" type=\"text\"></div>\n    <p data-part=\"error\" id=\"{id}-field-name-error\" aria-live=\"polite\"></p>\n  </div>\n</form>"
+  },
+
+  "safe_transforms": [
+    "add-field",
+    "remove-field",
+    "reorder-fields",
+    "change-field-label",
+    "change-title-text",
+    "change-description-text"
+  ],
+
+  "unsafe_transforms": [
+    "remove-l-data",
+    "remove-l-validate",
+    "remove-form-element",
+    "remove-labels-from-inputs",
+    "remove-aria-describedby-wiring",
+    "add-custom-script"
+  ],
+
+  "composition": {
+    "contains": ["field-group", "input", "radio-group", "textarea", "checkbox"],
+    "used_in": []
+  },
+
+  "files": {
+    "html": "form-page.html",
+    "css": "form-page.css",
+    "manifest": "form-page.manifest.json"
+  },
+
+  "tests": [
+    "matches-faqir-ui-forms-generator-output-byte-for-byte",
+    "reference-schema-round-trips-through-renderForm",
+    "reference-page-is-audit-clean",
+    "reference-page-has-zero-custom-js"
+  ]
+}

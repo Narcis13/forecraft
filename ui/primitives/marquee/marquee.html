@@ -1,0 +1,76 @@
+<!-- @ui:component marquee -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots track -->
+<!-- @ui:variants orientation=horizontal|vertical direction=forward|reverse speed=slow|normal|fast -->
+<!--
+  Marquee — an endless strip, CSS only.
+    · Write the items twice: two identical [data-part="track"] lists. The second
+      carries aria-hidden="true" so a screen reader meets every item once.
+    · The root is a labelled group; hovering or focusing inside it pauses the
+      strip (WCAG 2.2.2), unless data-pause="never" opts out.
+    · Reduced motion drops the duplicate and wraps the items in place.
+-->
+
+<!-- Default — a row of words drifting towards the start edge -->
+<div data-ui="marquee" role="group" aria-label="What teams say about shipping with Faqir">
+  <ul data-part="track">
+    <li>Zero classes</li>
+    <li>Manifest driven</li>
+    <li>Agent native</li>
+    <li>No build step</li>
+  </ul>
+  <ul data-part="track" aria-hidden="true">
+    <li>Zero classes</li>
+    <li>Manifest driven</li>
+    <li>Agent native</li>
+    <li>No build step</li>
+  </ul>
+</div>
+
+<!-- Faded edges, reversed, slow -->
+<div data-ui="marquee" data-fade data-direction="reverse" data-speed="slow" role="group" aria-label="Integrations">
+  <ul data-part="track">
+    <li><span data-ui="badge" data-variant="secondary">Vue</span></li>
+    <li><span data-ui="badge" data-variant="secondary">React</span></li>
+    <li><span data-ui="badge" data-variant="secondary">Laravel</span></li>
+    <li><span data-ui="badge" data-variant="secondary">Rails</span></li>
+    <li><span data-ui="badge" data-variant="secondary">Django</span></li>
+  </ul>
+  <ul data-part="track" aria-hidden="true">
+    <li><span data-ui="badge" data-variant="secondary">Vue</span></li>
+    <li><span data-ui="badge" data-variant="secondary">React</span></li>
+    <li><span data-ui="badge" data-variant="secondary">Laravel</span></li>
+    <li><span data-ui="badge" data-variant="secondary">Rails</span></li>
+    <li><span data-ui="badge" data-variant="secondary">Django</span></li>
+  </ul>
+</div>
+
+<!-- Fast, with its own gap and lap time -->
+<div data-ui="marquee" data-speed="fast" role="group" aria-label="Release notes" style="--marquee-gap: var(--space-12); --marquee-duration: 18s">
+  <ul data-part="track">
+    <li>Seven new entrances</li>
+    <li>Scroll-linked timelines</li>
+    <li>Ambient backdrops</li>
+  </ul>
+  <ul data-part="track" aria-hidden="true">
+    <li>Seven new entrances</li>
+    <li>Scroll-linked timelines</li>
+    <li>Ambient backdrops</li>
+  </ul>
+</div>
+
+<!-- Vertical — a column that climbs; decorative, so it never pauses -->
+<div data-ui="marquee" data-variant="vertical" data-fade data-pause="never" role="group" aria-label="Recent activity" style="--marquee-size: 12rem">
+  <ul data-part="track">
+    <li>Deploy finished</li>
+    <li>Audit passed</li>
+    <li>Theme generated</li>
+    <li>Snapshot recorded</li>
+  </ul>
+  <ul data-part="track" aria-hidden="true">
+    <li>Deploy finished</li>
+    <li>Audit passed</li>
+    <li>Theme generated</li>
+    <li>Snapshot recorded</li>
+  </ul>
+</div>

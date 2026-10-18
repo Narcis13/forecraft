@@ -1,0 +1,94 @@
+<!-- @ui:component field-group -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots label required input description error -->
+<!-- @ui:variants layout=vertical|horizontal size=sm|md|lg -->
+<!-- @ui:states default invalid validating valid disabled -->
+
+<!-- Default (vertical) -->
+<div data-ui="field-group">
+  <label data-part="label" for="email">Email Address</label>
+  <div data-part="input">
+    <input data-ui="input" id="email" name="email" type="email" placeholder="you@example.com">
+  </div>
+  <p data-part="description">We'll never share your email with anyone.</p>
+</div>
+
+<!-- Required field (standardized [data-part="required"] marker, §7.1) -->
+<div data-ui="field-group">
+  <label data-part="label" for="company">Company Name <span data-part="required">*</span></label>
+  <div data-part="input">
+    <input data-ui="input" id="company" name="company" required aria-required="true">
+  </div>
+</div>
+
+<!-- Invalid state (renamed from `error` in v2.0.0 — see manifest changes) -->
+<div data-ui="field-group" data-state="invalid">
+  <label data-part="label" for="cui">CIF / CUI <span data-part="required">*</span></label>
+  <div data-part="input">
+    <input data-ui="input" id="cui" name="cui" value="123" required aria-required="true" aria-invalid="true" aria-describedby="cui-error">
+  </div>
+  <p data-part="error" id="cui-error">CIF must be between 6 and 10 digits</p>
+</div>
+
+<!-- Validating state (async constraint in flight; pair with aria-busy) -->
+<div data-ui="field-group" data-state="validating">
+  <label data-part="label" for="username">Username</label>
+  <div data-part="input">
+    <input data-ui="input" id="username" name="username" value="ada" aria-busy="true" aria-describedby="username-hint">
+  </div>
+  <p data-part="description" id="username-hint">Checking availability…</p>
+</div>
+
+<!-- Disabled state -->
+<div data-ui="field-group" data-state="disabled">
+  <label data-part="label" for="locked">Locked Field</label>
+  <div data-part="input">
+    <input data-ui="input" id="locked" name="locked" value="Read only" disabled>
+  </div>
+</div>
+
+<!-- Valid state -->
+<div data-ui="field-group" data-state="valid">
+  <label data-part="label" for="iban">IBAN</label>
+  <div data-part="input">
+    <input data-ui="input" id="iban" name="iban" value="RO49AAAA1B31007593840000">
+  </div>
+  <p data-part="description">Bank account number verified</p>
+</div>
+
+<!-- With textarea -->
+<div data-ui="field-group">
+  <label data-part="label" for="notes">Notes</label>
+  <div data-part="input">
+    <textarea data-ui="textarea" id="notes" name="notes" rows="3" placeholder="Additional notes..."></textarea>
+  </div>
+</div>
+
+<!-- With select -->
+<div data-ui="field-group" data-required>
+  <label data-part="label" for="payment">Payment Method</label>
+  <div data-part="input">
+    <select data-ui="select" id="payment" name="payment" required aria-required="true">
+      <option value="">Select method...</option>
+      <option value="transfer">Bank Transfer</option>
+      <option value="card">Card</option>
+      <option value="cash">Cash</option>
+    </select>
+  </div>
+</div>
+
+<!-- Horizontal layout -->
+<div data-ui="field-group" data-variant="horizontal">
+  <label data-part="label" for="address">Address</label>
+  <div data-part="input">
+    <input data-ui="input" id="address" name="address" placeholder="Street, Nr., City">
+  </div>
+</div>
+
+<!-- Small size -->
+<div data-ui="field-group" data-size="sm">
+  <label data-part="label" for="ref">Reference</label>
+  <div data-part="input">
+    <input data-ui="input" id="ref" name="ref" placeholder="REF-000">
+  </div>
+</div>

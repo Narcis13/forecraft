@@ -1,0 +1,244 @@
+/* @ui:component sheet */
+/* @ui:tokens color-bg color-fg color-border color-fg-muted color-bg-muted panel-bg shadow-xl radius-xl radius-md space-6 z-overlay z-modal duration-normal duration-slow ease-out font-heading border-width focus-ring-width focus-ring-style focus-ring-color focus-ring-offset surface-backdrop text-lg text-base weight-semibold */
+
+/* ── Root ── */
+[data-ui="sheet"] {
+  position: relative;
+}
+
+/* ── Overlay ── */
+[data-ui="sheet"] > [data-part="overlay"] {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: var(--sheet-overlay-bg, oklch(0 0 0 / 0.5));
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+[data-ui="sheet"][data-state="open"] > [data-part="overlay"] {
+  opacity: 1;
+}
+
+[data-ui="sheet"][data-state="closing"] > [data-part="overlay"] {
+  opacity: 0;
+}
+
+/* ── Panel (shared) ── */
+[data-ui="sheet"] > [data-part="panel"] {
+  position: fixed;
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-xl);
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+
+/* The panel is focused on open (tabindex="-1") only so the focus trap and the
+   Escape key have somewhere to start. It is not a control, so it draws no ring:
+   the global :focus-visible would otherwise outline the whole panel when the
+   overlay is opened from the keyboard. */
+[data-ui="sheet"] > [data-part="panel"]:focus {
+  outline: none;
+}
+
+@supports ((-webkit-backdrop-filter: blur(1rem)) or (backdrop-filter: blur(1rem))) {
+  [data-ui="sheet"] > [data-part="panel"] {
+    -webkit-backdrop-filter: var(--surface-backdrop);
+    backdrop-filter: var(--surface-backdrop);
+  }
+}
+
+/* ── Side: Bottom ── */
+[data-ui="sheet"] > [data-part="panel"][data-variant="bottom"] {
+  bottom: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  max-height: 90vh;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  transform: translateY(100%);
+}
+
+/* ── Side: Top ── */
+[data-ui="sheet"] > [data-part="panel"][data-variant="top"] {
+  top: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  max-height: 90vh;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  transform: translateY(-100%);
+}
+
+/* ── Side: Left ── */
+[data-ui="sheet"] > [data-part="panel"][data-variant="left"] {
+  top: 0;
+  inset-inline-start: 0;
+  bottom: 0;
+  max-width: 100vw;
+  border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
+  border-inline-end: var(--border-width) solid var(--color-border);
+  transform: translateX(-100%);
+}
+
+/* ── Side: Right ── */
+[data-ui="sheet"] > [data-part="panel"][data-variant="right"] {
+  top: 0;
+  inset-inline-end: 0;
+  bottom: 0;
+  max-width: 100vw;
+  border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+  border-inline-start: var(--border-width) solid var(--color-border);
+  transform: translateX(100%);
+}
+
+/* ── Open State ── */
+[data-ui="sheet"][data-state="open"] > [data-part="panel"][data-variant="bottom"],
+[data-ui="sheet"][data-state="open"] > [data-part="panel"][data-variant="top"] {
+  transform: translateY(0);
+}
+
+[data-ui="sheet"][data-state="open"] > [data-part="panel"][data-variant="left"],
+[data-ui="sheet"][data-state="open"] > [data-part="panel"][data-variant="right"] {
+  transform: translateX(0);
+}
+
+/* ── Closing State ── */
+[data-ui="sheet"][data-state="closing"] > [data-part="panel"][data-variant="bottom"] {
+  transform: translateY(100%);
+}
+
+[data-ui="sheet"][data-state="closing"] > [data-part="panel"][data-variant="top"] {
+  transform: translateY(-100%);
+}
+
+[data-ui="sheet"][data-state="closing"] > [data-part="panel"][data-variant="left"] {
+  transform: translateX(-100%);
+}
+
+[data-ui="sheet"][data-state="closing"] > [data-part="panel"][data-variant="right"] {
+  transform: translateX(100%);
+}
+
+/* ── Size for Bottom/Top ── */
+[data-ui="sheet"] > [data-part="panel"][data-variant="bottom"][data-size="sm"],
+[data-ui="sheet"] > [data-part="panel"][data-variant="top"][data-size="sm"] {
+  height: 30vh;
+}
+
+[data-ui="sheet"] > [data-part="panel"][data-variant="bottom"][data-size="md"],
+[data-ui="sheet"] > [data-part="panel"][data-variant="top"][data-size="md"] {
+  height: 50vh;
+}
+
+[data-ui="sheet"] > [data-part="panel"][data-variant="bottom"][data-size="lg"],
+[data-ui="sheet"] > [data-part="panel"][data-variant="top"][data-size="lg"] {
+  height: 75vh;
+}
+
+/* ── Size for Left/Right ── */
+[data-ui="sheet"] > [data-part="panel"][data-variant="left"][data-size="sm"],
+[data-ui="sheet"] > [data-part="panel"][data-variant="right"][data-size="sm"] {
+  width: 280px;
+}
+
+[data-ui="sheet"] > [data-part="panel"][data-variant="left"][data-size="md"],
+[data-ui="sheet"] > [data-part="panel"][data-variant="right"][data-size="md"] {
+  width: 380px;
+}
+
+[data-ui="sheet"] > [data-part="panel"][data-variant="left"][data-size="lg"],
+[data-ui="sheet"] > [data-part="panel"][data-variant="right"][data-size="lg"] {
+  width: 500px;
+}
+
+/* ── Header ──
+   Every part is reached from the root by child combinators, so a component in
+   the body keeps its own header, title and close (1.1F-21); the hops are in
+   :where(), so every rule keeps the weight it had. Beyond direct children: the
+   header and body may sit in a <form> that is the panel's child (a form
+   dialog), and a title or close button may sit in one plain div, stack or
+   cluster inside its section. */
+[data-ui="sheet"] > :where([data-part="panel"]) > [data-part="header"],
+[data-ui="sheet"] > :where([data-part="panel"]) > :where(form) > [data-part="header"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-6);
+  padding-bottom: 0;
+  flex-shrink: 0;
+}
+
+/* ── Title ── */
+[data-ui="sheet"] > :where([data-part="panel"]) > :where([data-part="header"]) > [data-part="title"],
+[data-ui="sheet"] > :where([data-part="panel"]) > :where([data-part="header"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="title"],
+[data-ui="sheet"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"]) > [data-part="title"],
+[data-ui="sheet"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="title"] {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: var(--weight-semibold, 600);
+  color: var(--color-fg);
+}
+
+/* ── Close Button ──
+   `:not([data-ui])` is the trigger contract read backwards (task 0.9-05): a part
+   that delegates its look to a primitive must not then be restyled by the recipe.
+   Without it this icon-close rule also caught the footer's
+   `<button data-ui="button" data-part="close">Cancel</button>` and squashed it to
+   a 32px borderless square — invisible for as long as the panel was, and the
+   first thing the forced-open preview showed. */
+[data-ui="sheet"] > :where([data-part="panel"]) > [data-part="close"]:not([data-ui]),
+[data-ui="sheet"] > :where([data-part="panel"]) > :where([data-part="header"], [data-part="footer"]) > [data-part="close"]:not([data-ui]),
+[data-ui="sheet"] > :where([data-part="panel"]) > :where([data-part="header"], [data-part="footer"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="close"]:not([data-ui]),
+[data-ui="sheet"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"], [data-part="footer"]) > [data-part="close"]:not([data-ui]),
+[data-ui="sheet"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"], [data-part="footer"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="close"]:not([data-ui]) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-md, 0.375rem);
+  background: transparent;
+  color: var(--color-fg-muted, oklch(0.55 0 0));
+  font-size: var(--text-base, 1rem);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+[data-ui="sheet"] > :where([data-part="panel"]) > [data-part="close"]:not([data-ui]):hover,
+[data-ui="sheet"] > :where([data-part="panel"]) > :where([data-part="header"], [data-part="footer"]) > [data-part="close"]:not([data-ui]):hover,
+[data-ui="sheet"] > :where([data-part="panel"]) > :where([data-part="header"], [data-part="footer"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="close"]:not([data-ui]):hover,
+[data-ui="sheet"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"], [data-part="footer"]) > [data-part="close"]:not([data-ui]):hover,
+[data-ui="sheet"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"], [data-part="footer"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="close"]:not([data-ui]):hover {
+  background: var(--color-bg-muted, oklch(0.96 0.004 260));
+  color: var(--color-fg);
+}
+
+[data-ui="sheet"] > :where([data-part="panel"]) > [data-part="close"]:not([data-ui]):focus-visible,
+[data-ui="sheet"] > :where([data-part="panel"]) > :where([data-part="header"], [data-part="footer"]) > [data-part="close"]:not([data-ui]):focus-visible,
+[data-ui="sheet"] > :where([data-part="panel"]) > :where([data-part="header"], [data-part="footer"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="close"]:not([data-ui]):focus-visible,
+[data-ui="sheet"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"], [data-part="footer"]) > [data-part="close"]:not([data-ui]):focus-visible,
+[data-ui="sheet"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"], [data-part="footer"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="close"]:not([data-ui]):focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ── Body ── */
+[data-ui="sheet"] > :where([data-part="panel"]) > [data-part="body"],
+[data-ui="sheet"] > :where([data-part="panel"]) > :where(form) > [data-part="body"] {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-6);
+  color: var(--color-fg);
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="sheet"] > [data-part="overlay"],
+  [data-ui="sheet"] > [data-part="panel"] {
+    transition: none;
+  }
+}

@@ -1,0 +1,160 @@
+/* @ui:component marquee */
+/* @ui:tokens space-8 motion-ambient-duration motion-ambient-play ease-linear */
+
+/* ── Root ──
+   A window onto a strip that is longer than it. The strip is written twice —
+   two identical `track` parts, the second hidden from assistive technology —
+   and both slide by exactly one track plus one gap, so the moment the first
+   leaves, the second is standing where it started. That is the whole trick:
+   no script measures anything.
+
+   `--faqir-marquee-flow` is the travel direction along the inline axis: -1
+   (towards the start edge) in a left-to-right page, +1 in a right-to-left one,
+   because the tracks themselves are laid out the other way round there. */
+[data-ui="marquee"] {
+  --faqir-marquee-flow: -1;
+  --faqir-marquee-pace: 1;
+  display: flex;
+  gap: var(--marquee-gap, var(--space-8));
+  overflow: hidden;
+  max-inline-size: 100%;
+}
+
+[data-ui="marquee"]:dir(rtl) {
+  --faqir-marquee-flow: 1;
+}
+
+/* ── Track ── */
+[data-ui="marquee"] > [data-part="track"] {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-around;
+  gap: var(--marquee-gap, var(--space-8));
+  min-inline-size: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  animation: faqir-marquee-inline
+    calc(var(--marquee-duration, var(--motion-ambient-duration)) * var(--faqir-marquee-pace))
+    var(--ease-linear) infinite;
+  animation-play-state: var(--motion-ambient-play);
+}
+
+[data-ui="marquee"] > [data-part="track"] > * {
+  flex-shrink: 0;
+}
+
+@keyframes faqir-marquee-inline {
+  to {
+    translate: calc((100% + var(--marquee-gap, var(--space-8))) * var(--faqir-marquee-flow)) 0;
+  }
+}
+
+@keyframes faqir-marquee-block {
+  to {
+    translate: 0 calc(-100% - var(--marquee-gap, var(--space-8)));
+  }
+}
+
+/* ── Direction ── */
+[data-ui="marquee"][data-direction="reverse"] > [data-part="track"] {
+  animation-direction: reverse;
+}
+
+/* ── Speed ──
+   A pace is a multiple of the one duration, so `--marquee-duration` (or the
+   theme's `--motion-ambient-duration`) still moves all three together. */
+[data-ui="marquee"][data-speed="slow"] {
+  --faqir-marquee-pace: 2;
+}
+
+[data-ui="marquee"][data-speed="fast"] {
+  --faqir-marquee-pace: 0.5;
+}
+
+/* ── Orientation: vertical ──
+   A column needs a height to be a window; `--marquee-size` is that height. */
+[data-ui="marquee"][data-variant="vertical"] {
+  flex-direction: column;
+  block-size: var(--marquee-size, 24rem);
+}
+
+[data-ui="marquee"][data-variant="vertical"] > [data-part="track"] {
+  flex-direction: column;
+  align-items: stretch;
+  min-inline-size: 0;
+  min-block-size: 100%;
+  animation-name: faqir-marquee-block;
+}
+
+/* ── Fade ──
+   The strip dissolves into the page at both ends instead of being cut by the
+   window's edge. A mask, so it works over any background, texture included. */
+[data-ui="marquee"][data-fade] {
+  -webkit-mask-image: linear-gradient(to right, transparent, black var(--marquee-fade, 12%), black calc(100% - var(--marquee-fade, 12%)), transparent);
+  mask-image: linear-gradient(to right, transparent, black var(--marquee-fade, 12%), black calc(100% - var(--marquee-fade, 12%)), transparent);
+}
+
+[data-ui="marquee"][data-variant="vertical"][data-fade] {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black var(--marquee-fade, 12%), black calc(100% - var(--marquee-fade, 12%)), transparent);
+  mask-image: linear-gradient(to bottom, transparent, black var(--marquee-fade, 12%), black calc(100% - var(--marquee-fade, 12%)), transparent);
+}
+
+/* ── Pause ──
+   Anything that moves for more than five seconds needs a way to stop it
+   (WCAG 2.2.2). The pointer and the keyboard both get one, unless the author
+   opts out for a strip with nothing to read in it. */
+[data-ui="marquee"]:not([data-pause="never"]):hover > [data-part="track"],
+[data-ui="marquee"]:not([data-pause="never"]):focus-within > [data-part="track"] {
+  animation-play-state: paused;
+}
+
+/* ── Motion ──
+   Reduced motion turns the strip back into ordinary content: the duplicate
+   track goes, and the one that is left wraps (or, in a column, scrolls) so
+   every item is still reachable. The fade goes with it — a mask over content
+   that no longer moves would just hide the ends. */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="marquee"] {
+    flex-wrap: wrap;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  [data-ui="marquee"] > [data-part="track"] {
+    flex-wrap: wrap;
+    justify-content: center;
+    min-inline-size: 0;
+    animation: none;
+  }
+
+  [data-ui="marquee"] > [data-part="track"][aria-hidden="true"] {
+    display: none;
+  }
+
+  [data-ui="marquee"][data-variant="vertical"] {
+    flex-wrap: nowrap;
+    overflow-y: auto;
+  }
+}
+
+/* ── Print ── */
+@media print {
+  [data-ui="marquee"] {
+    flex-wrap: wrap;
+    block-size: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  [data-ui="marquee"] > [data-part="track"] {
+    flex-wrap: wrap;
+    min-inline-size: 0;
+    animation: none;
+  }
+
+  [data-ui="marquee"] > [data-part="track"][aria-hidden="true"] {
+    display: none;
+  }
+}

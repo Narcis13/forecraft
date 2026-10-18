@@ -1,0 +1,133 @@
+<!-- @ui:component faq -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots heading description intro items footer -->
+<!-- @ui:variants layout=stacked|split -->
+<!-- @ui:composition collapsible link -->
+<!--
+  Frequently asked questions — composition only, zero JavaScript.
+    · Every question is a nested <details data-ui="collapsible">, so the whole
+      section opens and closes natively; the summary and body are the
+      COLLAPSIBLE's parts (trigger, content), never the faq's. The faq only
+      spaces the stack, through [data-part="items"].
+    · The section is labelled by its own heading (aria-labelledby), so the
+      landmark carries a name without inventing one.
+    · The split layout wraps heading, description and footer in
+      [data-part="intro"] so they can stick beside a long list; the stacked
+      layout leaves them as direct children.
+    · data-numbered prefixes each question with a CSS counter drawn on the
+      collapsible root — no markup changes, no ids to keep in step.
+-->
+
+<!-- Stacked (default): one centred column, with a closing contact line -->
+<section data-ui="faq" aria-labelledby="faq-heading">
+  <h2 data-part="heading" id="faq-heading">Frequently asked questions</h2>
+  <p data-part="description">
+    Everything people ask before they ship their first page. If yours is not
+    here, the team answers within a working day.
+  </p>
+  <div data-part="items">
+    <details data-ui="collapsible" data-variant="bordered" open>
+      <summary data-part="trigger">Do I need a build step?</summary>
+      <div data-part="content">
+        No. Components are plain HTML with data attributes and a stylesheet;
+        drop them into any page, static or server-rendered.
+      </div>
+    </details>
+    <details data-ui="collapsible" data-variant="bordered">
+      <summary data-part="trigger">Can I use my own design tokens?</summary>
+      <div data-part="content">
+        Yes. Every colour, space and radius resolves from a custom property, so
+        a theme is one stylesheet that redefines them.
+      </div>
+    </details>
+    <details data-ui="collapsible" data-variant="bordered">
+      <summary data-part="trigger">Is the framework accessible out of the box?</summary>
+      <div data-part="content">
+        Roles, names, keyboard behaviour and reduced-motion fallbacks are part
+        of each component's manifest, and the audit checks a page against them.
+      </div>
+    </details>
+    <details data-ui="collapsible" data-variant="bordered">
+      <summary data-part="trigger">What does it cost?</summary>
+      <div data-part="content">
+        The registry is free while you build. Paid plans add hosted previews
+        and a private component registry for your team.
+      </div>
+    </details>
+  </div>
+  <p data-part="footer">Still have questions? <a data-ui="link" href="#contact">Contact us</a></p>
+</section>
+
+<!-- Split, numbered: a sticky intro beside the questions from the lg floor -->
+<section data-ui="faq" data-variant="split" data-numbered aria-labelledby="faq-split-heading">
+  <div data-part="intro">
+    <h2 data-part="heading" id="faq-split-heading">Billing and plans</h2>
+    <p data-part="description">
+      How seats, invoices and upgrades work. Numbered so support can point you
+      at the right answer.
+    </p>
+    <p data-part="footer">Need an invoice? <a data-ui="link" href="#billing-support">Write to billing</a></p>
+  </div>
+  <div data-part="items">
+    <details data-ui="collapsible" data-variant="bordered">
+      <summary data-part="trigger">How are seats counted?</summary>
+      <div data-part="content">
+        Anyone who can edit a project is a seat. Viewers and commenters are
+        free, without limit.
+      </div>
+    </details>
+    <details data-ui="collapsible" data-variant="bordered">
+      <summary data-part="trigger">Can I change plans mid-cycle?</summary>
+      <div data-part="content">
+        Yes. Upgrades apply immediately and are prorated; downgrades take
+        effect at the next renewal.
+      </div>
+    </details>
+    <details data-ui="collapsible" data-variant="bordered">
+      <summary data-part="trigger">Do you offer annual billing?</summary>
+      <div data-part="content">
+        Annual plans are billed up front at two months off the monthly price.
+      </div>
+    </details>
+    <details data-ui="collapsible" data-variant="bordered">
+      <summary data-part="trigger">Which payment methods do you accept?</summary>
+      <div data-part="content">
+        Cards and bank transfer. Purchase orders are available on annual plans.
+      </div>
+    </details>
+    <details data-ui="collapsible" data-variant="bordered">
+      <summary data-part="trigger">How do I cancel?</summary>
+      <div data-part="content">
+        From the workspace settings, any time. Your data stays exportable for
+        ninety days after the last renewal.
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- Stacked, numbered, no description or footer -->
+<section data-ui="faq" data-numbered aria-labelledby="faq-short-heading">
+  <h2 data-part="heading" id="faq-short-heading">Before you install</h2>
+  <div data-part="items" style="--faq-gap: var(--space-2)">
+    <details data-ui="collapsible" data-variant="bordered">
+      <summary data-part="trigger">Which browsers are supported?</summary>
+      <div data-part="content">
+        The current and previous release of every evergreen browser. Older
+        engines get the markup and the tokens, without the animations.
+      </div>
+    </details>
+    <details data-ui="collapsible" data-variant="bordered">
+      <summary data-part="trigger">Does it work with my framework?</summary>
+      <div data-part="content">
+        Components are HTML, so any framework that renders HTML can render
+        them; typed bindings are generated for the common ones.
+      </div>
+    </details>
+    <details data-ui="collapsible" data-variant="bordered">
+      <summary data-part="trigger">Where do I report a problem?</summary>
+      <div data-part="content">
+        Open an issue in the registry repository with the audit output attached.
+      </div>
+    </details>
+  </div>
+</section>

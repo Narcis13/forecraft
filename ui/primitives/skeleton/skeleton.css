@@ -1,0 +1,47 @@
+/* @ui:component skeleton */
+/* @ui:tokens color-bg-muted color-bg-subtle radius-sm radius-md radius-full ease-default */
+
+/* ── Base (text variant is the default) ── */
+[data-ui="skeleton"] {
+  display: block;
+  width: var(--skeleton-width, 100%);
+  height: var(--skeleton-height, 1em);
+  background-color: var(--color-bg-muted);
+  background-image: linear-gradient(
+    90deg,
+    var(--color-bg-muted) 25%,
+    var(--color-bg-subtle) 50%,
+    var(--color-bg-muted) 75%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--skeleton-radius, var(--radius-sm));
+  animation: faqir-skeleton-shimmer 1.5s var(--ease-default) infinite;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Variants ── */
+[data-ui="skeleton"][data-variant="circle"] {
+  width: var(--skeleton-size, 2.5rem);
+  height: var(--skeleton-size, 2.5rem);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+[data-ui="skeleton"][data-variant="rect"] {
+  height: var(--skeleton-height, 6rem);
+  border-radius: var(--radius-md);
+}
+
+/* ── Motion ── */
+@keyframes faqir-skeleton-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="skeleton"] {
+    animation: none;
+    background-image: none;
+  }
+}

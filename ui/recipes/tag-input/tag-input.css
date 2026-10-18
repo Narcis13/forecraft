@@ -1,0 +1,106 @@
+/* @ui:component tag-input */
+/* @ui:tokens color-bg color-fg color-fg-muted color-border color-primary-subtle radius-md radius-lg shadow-md space-1 space-1h space-2 space-3 text-sm z-dropdown duration-fast ease-default font-ui border-width focus-ring-color focus-ring-width */
+
+/* NOTE: the tags themselves are `data-ui="chip"` elements — their styling comes
+   entirely from chip.css. This file styles only the field wrapper, the tag row,
+   the text input, and the suggestions listbox. No chip styles are redefined. */
+
+/* ── Root ── */
+[data-ui="tag-input"] {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+/* ── Tag row: the chips + the text input share one field-like box ── */
+[data-ui="tag-input"] > [data-part="taglist"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1h);
+  width: 100%;
+  padding: var(--space-1h) var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  list-style: none;
+  transition: border-color var(--duration-fast) var(--ease-default),
+              box-shadow var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="tag-input"] > [data-part="taglist"]:focus-within {
+  border-color: var(--focus-ring-color);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+}
+
+/* ── Text input: borderless, grows to fill the remaining row space ── */
+[data-ui="tag-input"] > :where([data-part="taglist"]) > [data-part="input"] {
+  flex: 1 1 6ch;
+  min-width: 6ch;
+  padding: var(--space-1) 0;
+  border: none;
+  background: transparent;
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  outline: none;
+}
+
+[data-ui="tag-input"] > :where([data-part="taglist"]) > [data-part="input"]::placeholder {
+  color: var(--color-fg-muted);
+}
+
+/* ── Suggestions listbox (mirrors the combobox listbox contract) ── */
+[data-ui="tag-input"] > [data-part="listbox"] {
+  position: absolute;
+  top: 100%;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  z-index: var(--z-dropdown);
+  margin-top: var(--space-1);
+  padding: var(--space-1);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-md);
+  max-height: 240px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+[data-ui="tag-input"] > :where([data-part="listbox"]) > [data-part="option"] {
+  display: flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-fg);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="tag-input"] > :where([data-part="listbox"]) > [data-part="option"]:hover,
+[data-ui="tag-input"] > :where([data-part="listbox"]) > [data-part="option"][data-highlighted] {
+  background: var(--color-primary-subtle, oklch(0.96 0.04 264));
+}
+
+[data-ui="tag-input"] > :where([data-part="listbox"]) > [data-part="option"][data-hidden] {
+  display: none;
+}
+
+[data-ui="tag-input"] > :where([data-part="listbox"]) > [data-part="empty"] {
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-fg-muted);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="tag-input"] > [data-part="taglist"],
+  [data-ui="tag-input"] > :where([data-part="listbox"]) > [data-part="option"] {
+    transition: none;
+  }
+}

@@ -1,0 +1,70 @@
+<!-- @ui:component radio -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots label -->
+<!-- @ui:variants size=sm|md|lg -->
+
+<!-- Radio group -->
+<fieldset data-ui="radio-group">
+  <legend data-ui="label">Notification preference</legend>
+
+  <div data-ui="cluster" data-gap="4">
+    <label data-ui="radio-label" for="notification-all">
+      <input data-ui="radio" id="notification-all" type="radio" name="notification" value="all" checked>
+      <span data-part="label">All notifications</span>
+    </label>
+
+    <label data-ui="radio-label" for="notification-mentions">
+      <input data-ui="radio" id="notification-mentions" type="radio" name="notification" value="mentions">
+      <span data-part="label">Mentions only</span>
+    </label>
+
+    <label data-ui="radio-label" for="notification-none">
+      <input data-ui="radio" id="notification-none" type="radio" name="notification" value="none">
+      <span data-part="label">None</span>
+    </label>
+  </div>
+</fieldset>
+
+<!-- With disabled option -->
+<fieldset data-ui="radio-group">
+  <legend data-ui="label">Plan</legend>
+
+  <div data-ui="cluster" data-gap="4">
+    <label data-ui="radio-label" for="plan-free">
+      <input data-ui="radio" id="plan-free" type="radio" name="plan" value="free" checked>
+      <span data-part="label">Free</span>
+    </label>
+
+    <label data-ui="radio-label" for="plan-pro">
+      <input data-ui="radio" id="plan-pro" type="radio" name="plan" value="pro">
+      <span data-part="label">Pro</span>
+    </label>
+
+    <label data-ui="radio-label" for="plan-enterprise">
+      <input data-ui="radio" id="plan-enterprise" type="radio" name="plan" value="enterprise" disabled>
+      <span data-part="label">Enterprise (contact sales)</span>
+    </label>
+  </div>
+</fieldset>
+
+<!-- Sizes -->
+<fieldset data-ui="radio-group">
+  <legend data-ui="label">Size variants</legend>
+
+  <div data-ui="cluster" data-gap="4">
+    <label data-ui="radio-label" for="radio-sm">
+      <input data-ui="radio" id="radio-sm" data-size="sm" type="radio" name="size-demo" value="sm" checked>
+      <span data-part="label">Small</span>
+    </label>
+
+    <label data-ui="radio-label" for="radio-md">
+      <input data-ui="radio" id="radio-md" type="radio" name="size-demo-md" value="md" checked>
+      <span data-part="label">Medium (default)</span>
+    </label>
+
+    <label data-ui="radio-label" for="radio-lg">
+      <input data-ui="radio" id="radio-lg" data-size="lg" type="radio" name="size-demo-lg" value="lg" checked>
+      <span data-part="label">Large</span>
+    </label>
+  </div>
+</fieldset>

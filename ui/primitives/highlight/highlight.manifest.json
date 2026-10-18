@@ -1,0 +1,129 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "highlight",
+  "version": "1.1.0",
+  "kind": "primitive",
+  "category": "typography",
+  "description": "Inline emphasis for the words a headline wants read first: accent-gradient text, a highlighter marker, a drawn underline, a shimmer, metallic foil, outlined display type or a two-colour echo. Every effect is a background, stroke or shadow on real text — selectable, searchable, announced once — and each can play its motion (pan, draw-in, glint) from tokens. Pure CSS; restores plain text under forced colours.",
+
+  "changes": [
+    {
+      "version": "1.1.0",
+      "note": "Three more values for the style group, for display type on landing pages. foil: metallic text, a banded gradient built from the primary ramp (--color-primary, -hover and -active, which step away from the page in either scheme) clipped to the glyphs, with a slow glint that pans under prefers-reduced-motion: no-preference only; plain primary text where background-clip is unsupported. outline: transparent fill and a --border-width-strong stroke in the ink colour, inside an @supports (-webkit-text-stroke) guard so an unsupporting browser shows solid text. echo: two hard text-shadow copies at 0.04em and 0.08em, in the ink colour and in --highlight-echo (warning by default). All three drop to plain text under forced colours. Fixed alongside: the reduced-motion and forced-colours rules now name the [data-animate] and gradient/shimmer selectors they cancel — at their own specificity they had lost, so gradient pans and marker draws still played under reduced motion. New custom-property knob --highlight-echo. No change for the existing values.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "span",
+    "selector": "[data-ui='highlight']",
+    "content_model": "inline"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "style": {
+      "values": ["gradient", "shimmer", "marker", "underline", "foil", "outline", "echo"],
+      "default": "gradient",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "animate": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-animate",
+      "description": "Play the variant's motion: the gradient pans back and forth, the marker and the underline are drawn in once from the start of the line. Shimmer and foil always move (until reduced motion) and ignore this; outline and echo are static."
+    },
+    "--highlight-color": {
+      "type": "string",
+      "default": "var(--color-primary)",
+      "description": "Ink of the marker, the underline, the outline's stroke and the echo's first shadow (custom property). Pass a colour token."
+    },
+    "--highlight-echo": {
+      "type": "string",
+      "default": "var(--color-warning)",
+      "description": "With the echo style: colour of the second, farther shadow (custom property). Pass a colour token."
+    },
+    "--highlight-gradient": {
+      "type": "string",
+      "default": "var(--gradient-accent), else the accent → info gradient",
+      "description": "The gradient clipped to the text (custom property). Defaults to the theme's --gradient-accent where the theme states one."
+    },
+    "--highlight-delay": {
+      "type": "string",
+      "default": "var(--duration-slow)",
+      "description": "With data-animate on marker and underline: time before the stroke is drawn (custom property)."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "notes": "Purely visual: a highlight is a span with no role, and the text inside is the only text there is. Gradient and shimmer set the fill transparent and paint the glyphs with a background, so their contrast is the gradient's contrast against the page — keep both gradient stops at 4.5:1 against the surface, or use the highlight on large text only. Marker and underline leave the text colour alone. Foil, outline and echo are decorative treatments of real text, never a second copy of it: the words stay selectable, searchable and read once. Foil is gradient text, so hold it to the same rule, display size only; its bands are the primary ramp and keep at least about 3:1 against the page on the default theme. Outline has a transparent fill, so its legibility is the stroke's contrast against the page: use it at display size on a plain ground, never on body text or a busy image. Echo keeps the text colour, so its legibility is unchanged; the two shadow colours are decoration. Forced colours remove every one of these effects and restore the system text colour.",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-primary", "color-info", "color-fg-muted", "color-fg", "color-primary-active",
+    "color-primary-hover", "color-bg", "color-warning", "motion-ambient-duration",
+    "motion-ambient-play", "motion-reveal-duration", "motion-reveal-ease", "ease-in-out",
+    "ease-linear", "radius-sm", "border-width-lg", "border-width-strong", "duration-slow"
+  ],
+
+  "templates": {
+    "html": "<span data-ui=\"highlight\" data-variant=\"{style}\">{text}</span>",
+    "html_animated": "<span data-ui=\"highlight\" data-variant=\"{style}\" data-animate>{text}</span>"
+  },
+
+  "safe_transforms": [
+    "change-style",
+    "toggle-animate",
+    "change-custom-property-colors",
+    "wrap-words-in-a-heading",
+    "unwrap-text"
+  ],
+
+  "unsafe_transforms": [
+    "duplicate-the-text-for-an-effect",
+    "highlight-a-whole-paragraph",
+    "use-gradient-on-small-body-text-without-checking-contrast",
+    "pass-a-hardcoded-color-instead-of-a-token"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["hero", "cta"],
+    "notes": [
+      "A few words, not a sentence: a highlight works because the rest of the line is plain.",
+      "Inside a hero headline it sits directly in the heading: <h1 data-part=\"headline\">Ship your interface, <span data-ui=\"highlight\">not your design system</span></h1>.",
+      "The gradient variant picks up a theme's signature gradient automatically — themes that define --gradient-accent (aurora) re-colour every gradient highlight on the page."
+    ]
+  },
+
+  "files": {
+    "html": "highlight.html",
+    "css": "highlight.css",
+    "manifest": "highlight.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-inline-span",
+    "gradient-is-the-default-style",
+    "gradient-prefers-the-theme-gradient-accent",
+    "text-is-never-duplicated",
+    "marker-and-underline-keep-the-text-colour",
+    "wrapped-highlights-restart-per-line",
+    "animate-draws-marker-and-underline-once",
+    "reduced-motion-restores-shimmer-ink",
+    "forced-colors-restore-plain-text",
+    "foil-glint-only-under-no-preference",
+    "outline-is-guarded-by-supports-text-stroke",
+    "echo-offsets-are-em-relative"
+  ]
+}

@@ -1,0 +1,828 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "table",
+  "version": "3.2.2",
+  "kind": "recipe",
+  "category": "data-display",
+  "description": "Advanced data table: multi-column type-aware sorting, global + per-column filtering, tree data and collapsible row groups with live aggregates, inline cell editing with Intl number/currency formatting, drag-and-drop row and column reordering, column resize/hide/pin, sticky header/footer/rows, grid keyboard navigation, CSV export, responsive stacked mode, and state persistence — every feature opt-in via data attributes",
+  "changes": [
+    {
+      "version": "3.2.2",
+      "note": "Nested components keep their own parts. The stylesheet reached its parts with descendant selectors, so a table nested in a detail row (or in any cell) took the outer table's rules: a striped outer table striped the inner rows, a selected or top-pinned outer row painted and stuck every inner cell, a stacked outer table stacked the inner one and unpinned its columns, and a responsive outer table hid the inner table's data-hide-below columns. The cell attributes leaked into other components too: a stack with data-align=\"center\" in a cell was text-aligned by the table. Every rule now walks the table's own structure, root > table > thead/tbody/tfoot > row > cell > control, with each hop in :where() so no rule changes specificity, and data-align, data-format, data-pin, data-hide-below, data-col-hidden and data-negative are read on the table's own cells only. The quick filter is styled as the root's child or inside one plain div, stack or cluster in it (a toolbar); the controller still binds it anywhere inside the root. Canonical markup is unchanged.",
+      "breaking": false
+    },
+    {
+      "version": "3.2.1",
+      "note": "text, heading and breadcrumb components inside a data cell keep the cell's own wrapping (overflow-wrap: inherit). Those three now break anywhere by default so an unbreakable id cannot widen a page; in an auto-layout table that would squeeze every column to one character per line, so here an id stays on one line, the table keeps its width and scrolls inside its root. Header cells never wrapped (white-space: nowrap) and are unaffected. A data-resized table still breaks long words in its cells.",
+      "breaking": false
+    },
+    {
+      "version": "3.2.0",
+      "note": "Behaviour change: a navigable table (data-navigable, or data-editable) now follows the ARIA grid pattern for links, buttons and fields inside its cells. They used to stay in the Tab order beside the grid's single roving stop, and arrow keys did nothing while one had focus. The controller now gives them tabindex=\"-1\" (re-checked on every refresh, so rows added later are covered; call refresh() after changing a cell's content in place). Enter or F2 on a cell with no editor or toggle focuses its first control, and Escape in that control returns focus to the cell. Focus landing on one of them (a pointer click) moves the Tab stop to its cell. The table's own controls stay in the Tab order: selection checkboxes, filter inputs, drag handles, expanders and row toggles. destroy() puts back each control's original tabindex. A table without data-navigable is unchanged.",
+      "breaking": false
+    },
+    {
+      "version": "3.1.2",
+      "note": "A table nested in a detail row keeps its own parts and events. The outer table's delegated handlers reacted to it: focus in an inner cell moved the outer's Tab stop into the inner table, arrow keys there drove the outer grid, an inner row-toggle was toggled twice (by both tables), and the inner quick filter filtered the outer rows. The outer also took the inner's tfoot when it had none (so hiding a column hid the inner's footer cell), and clearFilters()/setState() wrote into the inner's quick-filter input. Delegated handlers now ignore events whose nearest [data-ui='table'] is another table, and the tfoot and quick-filter lookups do the same.",
+      "breaking": false
+    },
+    {
+      "version": "3.1.1",
+      "note": "A navigable table no longer loses its Tab stop. The roving tabindex=\"0\" stayed on the last active cell after that cell's row was removed, filtered out or collapsed into its group or tree parent, or after its column was hidden, so no visible cell could be reached with Tab and the arrow keys did nothing. The controller now re-checks the stop after every refresh, filter, collapse and column hide, and hands it to the first visible cell when the old one is gone. Hidden-column cells get tabindex=\"-1\". Only the Tab stop moves; focus is never moved.",
+      "breaking": false
+    },
+    {
+      "version": "3.1.0",
+      "note": "Twenty attributes table.css has always selected on are now declared. Seventeen are runtime states the controller writes — the set its own header comment lists (data-selected, data-collapsed, data-filtered, data-editing, data-dragging, data-drop-target/-pos, data-col-hidden, data-negative, data-stripe, data-resized, plus data-sort-order, data-pin-edge, data-leaf, data-tree-cell, data-invalid and data-stacked) — and three are authored column configuration, so they are props: data-sortable, data-readonly and data-pin. data-collapsed is declared as the state \"row-collapsed\" because the group-header's data-state=\"collapsed\" already holds that name. No CSS, controller or behaviour change; the table's surface is now visible to the docs site, the skill, faqir context and the bindings. 0.8-10's undeclared-attribute rule now makes this class of drift impossible: an attribute a component's CSS selects on that its manifest never declares fails the registry gate.",
+      "breaking": false
+    },
+    {
+      "version": "3.0.0",
+      "note": "The responsive ladder moves onto the breakpoint canon (task 0.8-08). data-hide-below and data-stack-below now name the SAME thresholds the rest of the framework uses — sm 40rem/640px, md 48rem/768px, lg 64rem/1024px — where 1.x carried a private ladder whose sm was 30rem/480px in the CSS and 480px in the controller. Only sm moves; md and lg are unchanged. MIGRATION: a column marked data-hide-below='sm' now hides up to 640px instead of 480px, and data-stack-below='sm' stacks up to 640px instead of 480px — pass an explicit pixel number (data-stack-below='480') to keep the old behaviour, for which data-hide-below has no equivalent by design. The CSS is also mobile-first: the three max-width container ceilings became min-width floors that reveal a hidden column from its tier up, so the boundary belongs to the wide side (at exactly 48rem an md column now shows). Stacked mode still overrides column hiding, and a controller-hidden column (data-col-hidden) is no longer revealed by a widening container.",
+      "breaking": true
+    },
+    {
+      "version": "2.0.0",
+      "note": "Feature release: multi-sort, filtering, tree/grouping with aggregates, inline editing, row/column drag & drop, column resize/hide/pin, sticky header/footer, keyboard grid navigation, CSV export, responsive stack mode, state persistence. The 1.x API (sort, selectRow, selectAll, deselectAll, getSelected, destroy) and all 1.x markup keep working unchanged; ISO date columns now sort chronologically instead of by year. Also corrected here, with no effect on any markup: 1.x declared two variant groups named striped and bordered whose values were data-variant=\"true\" and data-variant=\"false\" — values no selector in table.css has ever matched. One group, data-variant: default|striped|bordered, replaces them and describes what the sheet actually styles.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='table']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "table": {
+      "selector": "[data-part='table']",
+      "required": true,
+      "tag_hint": "table",
+      "description": "The table element"
+    },
+    "thead": {
+      "selector": "[data-part='thead']",
+      "required": true,
+      "tag_hint": "thead",
+      "description": "Table header section"
+    },
+    "tbody": {
+      "selector": "[data-part='tbody']",
+      "required": true,
+      "tag_hint": "tbody",
+      "description": "Table body section"
+    },
+    "tr": {
+      "selector": "[data-part='tr']",
+      "required": true,
+      "tag_hint": "tr",
+      "description": "Table row. Optional: data-level (tree depth), data-row-id, data-pin='top' (sticky row)"
+    },
+    "th": {
+      "selector": "[data-part='th']",
+      "required": true,
+      "tag_hint": "th",
+      "description": "Header cell with scope=col. Optional: data-sortable, data-type, data-format, data-align, data-editable, data-readonly, data-pin='start|end', data-hide-below='sm|md|lg', data-key, data-min-width, data-max-width, data-no-resize, data-csv-skip"
+    },
+    "td": {
+      "selector": "[data-part='td']",
+      "required": true,
+      "tag_hint": "td",
+      "description": "Data cell. Optional: data-value (raw value), data-sort-value, data-format, data-align, data-editable, data-readonly, data-aggregate='sum|avg|min|max|count', data-col (aggregate column override), data-label (stack-mode label)"
+    },
+    "checkbox": {
+      "selector": "[data-part='checkbox']",
+      "required": false,
+      "tag_hint": "input",
+      "description": "Checkbox for row selection"
+    },
+    "tfoot": {
+      "selector": "[data-part='tfoot']",
+      "required": false,
+      "tag_hint": "tfoot",
+      "description": "Table footer for totals; cells with data-aggregate recompute live over visible rows"
+    },
+    "group-header": {
+      "selector": "[data-part='group-header']",
+      "required": false,
+      "tag_hint": "tr",
+      "description": "Category header row within grouped data; collapsible when the root has data-groupable, cells with data-aggregate + data-col show per-group totals"
+    },
+    "filter-row": {
+      "selector": "[data-part='filter-row']",
+      "required": false,
+      "tag_hint": "tr",
+      "description": "Second thead row holding per-column filter inputs"
+    },
+    "filter-input": {
+      "selector": "[data-part='filter-input']",
+      "required": false,
+      "tag_hint": "input",
+      "description": "Per-column filter input inside the filter row (auto-bound, debounced; numeric columns accept >, >=, <, <=, =, !=, and a..b ranges)"
+    },
+    "filter": {
+      "selector": "[data-part='filter']",
+      "required": false,
+      "tag_hint": "input",
+      "description": "Global quick-filter input anywhere inside the root (auto-bound, debounced). Styled when it is the root's own child or sits in one plain div, stack or cluster there, such as a toolbar above the table"
+    },
+    "expander": {
+      "selector": "[data-part='expander']",
+      "required": false,
+      "tag_hint": "button",
+      "description": "Expand/collapse control for tree parents and group headers (auto-injected; leaf rows get an aligned placeholder span)"
+    },
+    "drag-handle": {
+      "selector": "[data-part='drag-handle']",
+      "required": false,
+      "tag_hint": "button",
+      "description": "Row drag handle for pointer reordering; ArrowUp/ArrowDown on the focused handle moves the row"
+    },
+    "detail-row": {
+      "selector": "[data-part='detail-row']",
+      "required": false,
+      "tag_hint": "tr",
+      "description": "Master/detail expansion row placed immediately after its data row; it moves with the row through sorts and drags"
+    },
+    "row-toggle": {
+      "selector": "[data-part='row-toggle']",
+      "required": false,
+      "tag_hint": "button",
+      "description": "Button inside a data row that shows/hides its detail-row (aria-expanded reflects state)"
+    },
+    "empty": {
+      "selector": "[data-part='empty']",
+      "required": false,
+      "tag_hint": "tr",
+      "description": "Empty-state row, shown automatically when no rows are visible (e.g. all filtered out)"
+    },
+    "cell-input": {
+      "selector": "[data-part='cell-input']",
+      "required": false,
+      "tag_hint": "input",
+      "description": "Inline cell editor input (created by the controller during editing)"
+    },
+    "resize-handle": {
+      "selector": "[data-part='resize-handle']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Column resize grip (injected by the controller when the root has data-resizable)"
+    }
+  },
+  "variants": {
+    "variant": {
+      "values": [
+        "default",
+        "striped",
+        "bordered"
+      ],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+  "states": {
+    "default": {
+      "attr": "data-state=\"default\"",
+      "default": true
+    },
+    "expanded": {
+      "attr": "data-state=\"expanded\"",
+      "applied_to": "group-header"
+    },
+    "collapsed": {
+      "attr": "data-state=\"collapsed\"",
+      "applied_to": "group-header"
+    },
+    "selected": {
+      "attr": "data-selected",
+      "applied_to": "tr",
+      "description": "A selected row (checkbox, click, shift-range or select-all). The controller writes it and reads it back for getSelected()"
+    },
+    "row-collapsed": {
+      "attr": "data-collapsed",
+      "applied_to": "tr",
+      "description": "A row hidden because its group header or its tree parent is collapsed. Named for its attribute because the group-header's own collapsed state already owns the name"
+    },
+    "filtered": {
+      "attr": "data-filtered",
+      "applied_to": "tr",
+      "description": "A row hidden by the active filters. Kept in the DOM (and in the export) rather than removed, so filtering is reversible without a re-render"
+    },
+    "editing": {
+      "attr": "data-editing",
+      "applied_to": "td",
+      "description": "The cell currently in inline edit mode — its [data-part=\"cell-input\"] is mounted and focused"
+    },
+    "invalid": {
+      "attr": "data-invalid",
+      "applied_to": "cell-input",
+      "description": "The edit input holds a value the column's type rejects; the commit is refused until it parses"
+    },
+    "dragging": {
+      "attr": "data-dragging",
+      "applied_to": "tr",
+      "description": "The row or header being dragged (data-reorderable / data-col-reorderable). Also matched on the root via :has() to suppress text selection for the duration"
+    },
+    "drop-target": {
+      "attr": "data-drop-target",
+      "applied_to": "tr",
+      "description": "The row or header the pointer is currently over during a drag — carries the drop indicator together with data-drop-pos"
+    },
+    "drop-pos": {
+      "attr": "data-drop-pos=\"before\"",
+      "applied_to": "tr",
+      "description": "Which edge of the drop target the dragged row/column would land on: \"before\" or \"after\". Written alongside data-drop-target and cleared with it"
+    },
+    "sort-order": {
+      "attr": "data-sort-order",
+      "applied_to": "th",
+      "description": "The 1-based rank of this column in a multi-sort (data-multi-sort). The controller writes it only when more than one sort is active; the badge renders from it"
+    },
+    "col-hidden": {
+      "attr": "data-col-hidden",
+      "applied_to": "th",
+      "description": "A column hidden through hideColumn()/toggleColumn() or the persisted visibility state. Also suppresses the responsive reveal, so a widening container cannot un-hide it"
+    },
+    "pin-edge": {
+      "attr": "data-pin-edge",
+      "applied_to": "th",
+      "description": "The last pinned column on its side — carries the shadow that separates the frozen block from the scrolling one"
+    },
+    "negative": {
+      "attr": "data-negative",
+      "applied_to": "td",
+      "description": "A numeric cell the controller formatted as negative; data-negatives on the root decides whether that renders red, in accounting parentheses, or both"
+    },
+    "stripe": {
+      "attr": "data-stripe=\"even\"",
+      "applied_to": "tr",
+      "description": "The zebra parity the controller computed over the VISIBLE rows, so striping stays alternating after filtering or sorting. Overrides the plain :nth-child() striping of data-variant=\"striped\""
+    },
+    "resized": {
+      "attr": "data-resized",
+      "applied_to": "root",
+      "description": "At least one column has an explicit width (drag-resized or restored from data-persist), which switches the table to a fixed layout so the widths hold"
+    },
+    "stacked": {
+      "attr": "data-stacked",
+      "applied_to": "root",
+      "description": "The responsive stack mode is engaged: below data-stack-below the rows re-render as labelled cards. The controller measures and writes it; every column shows in this mode"
+    },
+    "leaf": {
+      "attr": "data-leaf",
+      "applied_to": "expander",
+      "description": "A tree row with no children — the expander renders as an inert spacer so the label column stays aligned"
+    },
+    "tree-cell": {
+      "attr": "data-tree-cell",
+      "applied_to": "td",
+      "description": "The cell that carries the tree indentation (--table-level) and the expander, in a data-tree table"
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "sort",
+        "params": "columnIndex, direction",
+        "description": "Legacy API: sort one column with an explicit direction."
+      },
+      {
+        "name": "sortBy",
+        "params": "specs",
+        "description": "Multi-sort API: sortBy([{ column, direction }...])."
+      },
+      {
+        "name": "clearSort",
+        "params": ""
+      },
+      {
+        "name": "selectRow",
+        "params": "index"
+      },
+      {
+        "name": "selectAll",
+        "params": ""
+      },
+      {
+        "name": "deselectAll",
+        "params": ""
+      },
+      {
+        "name": "getSelected",
+        "params": ""
+      },
+      {
+        "name": "getSelectedData",
+        "params": ""
+      },
+      {
+        "name": "setFilter",
+        "params": "query"
+      },
+      {
+        "name": "setColumnFilter",
+        "params": "colIndex, query"
+      },
+      {
+        "name": "clearFilters",
+        "params": ""
+      },
+      {
+        "name": "toggleGroup",
+        "params": "ghOrIndex, force"
+      },
+      {
+        "name": "toggleRow",
+        "params": "rowOrIndex, force"
+      },
+      {
+        "name": "toggleDetail",
+        "params": "rowOrIndex, force",
+        "description": "Master/detail: show or hide a row's [data-part='detail-row'] via the hidden attribute."
+      },
+      {
+        "name": "expandAll",
+        "params": ""
+      },
+      {
+        "name": "collapseAll",
+        "params": ""
+      },
+      {
+        "name": "startEdit",
+        "params": "a, b"
+      },
+      {
+        "name": "commitEdit",
+        "params": "focusBack"
+      },
+      {
+        "name": "cancelEdit",
+        "params": "focusBack"
+      },
+      {
+        "name": "moveRow",
+        "params": "from, to"
+      },
+      {
+        "name": "moveColumn",
+        "params": "from, to"
+      },
+      {
+        "name": "hideColumn",
+        "params": "i"
+      },
+      {
+        "name": "showColumn",
+        "params": "i"
+      },
+      {
+        "name": "toggleColumn",
+        "params": "i, force"
+      },
+      {
+        "name": "setColumnWidth",
+        "params": "i, width"
+      },
+      {
+        "name": "exportCsv",
+        "params": "o = {}"
+      },
+      {
+        "name": "getData",
+        "params": "o = {}"
+      },
+      {
+        "name": "getState",
+        "params": ""
+      },
+      {
+        "name": "setState",
+        "params": "state"
+      },
+      {
+        "name": "refresh",
+        "params": ""
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "selectable": {
+      "type": "string",
+      "default": "",
+      "description": "data-selectable[='single|multi'] on root: row click (de)selects; checkboxes, shift-ranges and the header select-all work regardless"
+    },
+    "align": {
+      "type": "string",
+      "default": "left",
+      "description": "Cell alignment: left, center, right (data-align attribute; th values are mirrored to their column)"
+    },
+    "format": {
+      "type": "string",
+      "default": "",
+      "description": "Number format: number, currency, percent, date (data-format). Cells with data-value are rendered via Intl using data-locale/data-currency on the root"
+    },
+    "print": {
+      "type": "string",
+      "default": "",
+      "description": "Print mode: compact (data-print attribute)"
+    },
+    "multi-sort": {
+      "type": "boolean",
+      "default": false,
+      "description": "data-multi-sort on root: shift+click accumulates secondary sorts (numbered badges on headers)"
+    },
+    "sort-cycle": {
+      "type": "string",
+      "default": "toggle",
+      "description": "data-sort-cycle='tristate' on root: third header click clears the sort and restores original order"
+    },
+    "editable": {
+      "type": "boolean",
+      "default": false,
+      "description": "data-editable on root enables inline editing (dblclick / Enter / F2). Restrict columns by marking th data-editable, exclude with data-readonly"
+    },
+    "tree": {
+      "type": "boolean",
+      "default": false,
+      "description": "data-tree on root: rows with data-level form a treegrid; parents get expanders, sorting stays within siblings, aggregates roll up descendants"
+    },
+    "groupable": {
+      "type": "boolean",
+      "default": false,
+      "description": "data-groupable on root: group-header rows toggle their section collapsed/expanded"
+    },
+    "reorderable": {
+      "type": "boolean",
+      "default": false,
+      "description": "data-reorderable on root: rows drag via [data-part='drag-handle'] (pointer or arrow keys); tree rows reorder among siblings with subtrees attached"
+    },
+    "col-reorderable": {
+      "type": "boolean",
+      "default": false,
+      "description": "data-col-reorderable on root: drag column headers to rearrange columns (Alt+Arrow with keyboard focus)"
+    },
+    "resizable": {
+      "type": "boolean",
+      "default": false,
+      "description": "data-resizable on root: drag the injected header handles (Ctrl+Shift+Arrow with keyboard focus); th data-min-width/data-max-width clamp in px"
+    },
+    "sticky-header": {
+      "type": "boolean",
+      "default": false,
+      "description": "data-sticky-header on root: thead sticks while the root scrolls (cap height with --table-max-height)"
+    },
+    "sticky-footer": {
+      "type": "boolean",
+      "default": false,
+      "description": "data-sticky-footer on root: tfoot sticks to the bottom of the scrolling root"
+    },
+    "navigable": {
+      "type": "boolean",
+      "default": false,
+      "description": "data-navigable on root (implied by data-editable): roving-focus grid keyboard navigation (arrows, Home/End, PageUp/Down, Space selects, Enter/F2 edits or toggles, else focuses the cell's first link or button; Escape returns to the cell). Links, buttons and fields inside cells leave the Tab order (tabindex=-1, restored on destroy); selection checkboxes, filter inputs, drag handles, expanders and row toggles stay focusable"
+    },
+    "responsive": {
+      "type": "string",
+      "default": "",
+      "description": "data-responsive='stack' re-renders rows as labelled cards below the data-stack-below breakpoint (default md); any data-responsive value makes the root a container query root and enables data-hide-below column hiding"
+    },
+    "stack-below": {
+      "type": "enum",
+      "values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "default": "md",
+      "attr": "data-stack-below",
+      "description": "data-stack-below on root (with data-responsive='stack'): the canon tier under which rows re-render as labelled cards — sm 640px, md 768px, lg 1024px, measured on the table's own width, not the viewport. A raw pixel number is still accepted as an escape hatch (data-stack-below='480')."
+    },
+    "hide-below": {
+      "type": "enum",
+      "values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "default": "",
+      "attr": "data-hide-below",
+      "description": "data-hide-below on a th (mirrored onto that column's cells): the column is hidden until the table's own inline size reaches that canon tier — sm 40rem, md 48rem, lg 64rem. Requires data-responsive on the root; stacked mode shows every column regardless."
+    },
+    "persist": {
+      "type": "string",
+      "default": "",
+      "description": "data-persist='key' on root: sorts, filters, column widths and visibility survive reloads via localStorage"
+    },
+    "locale": {
+      "type": "string",
+      "default": "",
+      "description": "data-locale on root for Intl formatting (defaults to the document language)"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD",
+      "description": "data-currency on root for currency-formatted cells"
+    },
+    "negatives": {
+      "type": "string",
+      "default": "",
+      "description": "data-negatives='red|parens|both' on root: negative numbers render red and/or in accounting parentheses"
+    },
+    "sortable": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-sortable",
+      "description": "On a th: this column can be sorted — the controller makes the header interactive, mirrors aria-sort, and draws the direction indicator"
+    },
+    "readonly": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-readonly",
+      "description": "On a th or td: exempt from inline editing even when the table is data-editable"
+    },
+    "pin": {
+      "type": "enum",
+      "values": [
+        "start",
+        "end",
+        "top"
+      ],
+      "default": "",
+      "attr": "data-pin",
+      "description": "Freeze a column against the inline-start or inline-end edge (on a th; the controller mirrors it onto that column's cells), or a row against the top of the scroll area (on a tr)"
+    },
+    "value": {
+      "type": "string",
+      "default": "",
+      "attr": "data-value",
+      "description": "On a td: the RAW value behind the rendered text. Sorting, filtering, aggregation and CSV export read this rather than the formatted cell text, so \"$21,980.00\" sorts and sums as 21980."
+    },
+    "row-id": {
+      "type": "string",
+      "default": "",
+      "attr": "data-row-id",
+      "description": "On a tr: a stable identity for the row, surfaced as `_id` by getSelectedData() and getData(). Without it a row is identified only by its position, which a sort or a filter changes."
+    },
+    "aggregate": {
+      "type": "enum",
+      "values": [
+        "sum",
+        "avg",
+        "min",
+        "max",
+        "count"
+      ],
+      "default": "",
+      "attr": "data-aggregate",
+      "description": "On a td in a footer or group row: the function to compute over the visible rows of that column. The cell's text is written by the controller."
+    },
+    "level": {
+      "type": "string",
+      "default": "0",
+      "attr": "data-level",
+      "description": "On a tr in a data-tree table: the row's depth, 0 for a root row. Drives indentation (--table-level) and which rows a collapse hides."
+    },
+    "col": {
+      "type": "string",
+      "default": "",
+      "attr": "data-col",
+      "description": "On a td whose colspan makes its column ambiguous: the explicit column index the cell belongs to, so an aggregate lands under the right header."
+    },
+    "label": {
+      "type": "string",
+      "default": "",
+      "attr": "data-label",
+      "description": "On a td: the header text the responsive stacked layout shows beside the value. Filled in from the column header by the controller when absent."
+    },
+    "no-resize": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-no-resize",
+      "description": "On a th in a data-resizable table: this column has no drag handle and keeps its width."
+    },
+    "csv-skip": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-csv-skip",
+      "description": "On a th: exclude this column from exportCsv() — for a selection checkbox or a row-actions column that has no value to export."
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "Proper table semantics (table, thead, tbody, tr, th, td)",
+      "scope=\"col\" on th elements",
+      "aria-sort on sortable th elements (controller-managed)",
+      "aria-label on selection checkboxes",
+      "Tree mode adds role=\"treegrid\" to the table element plus aria-level/aria-expanded to rows (controller-managed)",
+      "Expander and row-toggle buttons carry aria-expanded (controller-managed)",
+      "aria-label on filter inputs, drag handles, and expander buttons"
+    ],
+    "keyboard": {
+      "Click header / Enter / Space on focused header": "toggle sort direction on sortable columns (Shift adds a secondary sort when data-multi-sort)",
+      "Click checkbox": "toggle row selection",
+      "Shift+Click checkbox or row": "range selection from last selected",
+      "Arrow keys / Home / End / PageUp / PageDown": "move cell focus in navigable grids (Ctrl+Home/End jumps to grid corners)",
+      "Enter / F2 on a cell": "start inline editing (editable) or toggle a tree/group row; otherwise focus the cell's first link, button or field (navigable)",
+      "Escape in a link, button or field inside a cell": "return focus to the cell (navigable)",
+      "Enter / Escape / Tab in the editor": "commit / cancel / commit-and-edit-next",
+      "Space on a row cell": "toggle row selection; toggles group headers",
+      "Ctrl/Cmd+A": "select all visible rows in selectable navigable grids",
+      "ArrowUp / ArrowDown on a drag handle": "move the row among its siblings",
+      "Alt+ArrowLeft/Right on a header": "reorder the column (data-col-reorderable)",
+      "Ctrl+Shift+ArrowLeft/Right on a header": "resize the column (data-resizable)"
+    }
+  },
+  "tokens_used": [
+    "color-bg",
+    "color-bg-subtle",
+    "color-bg-muted",
+    "color-fg",
+    "color-fg-muted",
+    "color-fg-subtle",
+    "color-border",
+    "color-border-strong",
+    "color-primary",
+    "color-primary-subtle",
+    "color-ring",
+    "color-destructive",
+    "color-destructive-subtle",
+    "space-0h",
+    "space-1",
+    "space-2",
+    "space-3",
+    "space-4",
+    "space-5",
+    "space-8",
+    "text-xs",
+    "text-sm",
+    "weight-semibold",
+    "weight-bold",
+    "radius-sm",
+    "radius-md",
+    "radius-full",
+    "duration-fast",
+    "ease-default",
+    "doc-table-footer-bg",
+    "doc-table-footer-weight",
+    "doc-print-border-color",
+    "doc-table-font-size",
+    "font-body",
+    "border-width",
+    "border-width-strong",
+    "focus-ring-width",
+    "focus-ring-style",
+    "focus-ring-color",
+    "focus-ring-offset",
+    "stripe-bg"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"table\" data-size=\"{size}\">\n  <table data-part=\"table\">\n    <thead data-part=\"thead\">\n      <tr data-part=\"tr\">\n        <th data-part=\"th\" scope=\"col\"><input data-part=\"checkbox\" type=\"checkbox\" aria-label=\"Select all rows\"></th>\n        <th data-part=\"th\" scope=\"col\" data-sortable aria-sort=\"none\">{col1}</th>\n        <th data-part=\"th\" scope=\"col\" data-sortable aria-sort=\"none\">{col2}</th>\n      </tr>\n    </thead>\n    <tbody data-part=\"tbody\">\n      <tr data-part=\"tr\">\n        <td data-part=\"td\"><input data-part=\"checkbox\" type=\"checkbox\" aria-label=\"Select row\"></td>\n        <td data-part=\"td\">{val1}</td>\n        <td data-part=\"td\">{val2}</td>\n      </tr>\n    </tbody>\n  </table>\n</div>",
+    "html_financial": "<div data-ui=\"table\" data-variant=\"bordered\" data-size=\"md\" data-editable data-multi-sort data-currency=\"USD\" data-negatives=\"both\" data-sticky-header style=\"--table-max-height: 420px\">\n  <table data-part=\"table\">\n    <thead data-part=\"thead\">\n      <tr data-part=\"tr\">\n        <th data-part=\"th\" scope=\"col\" data-sortable aria-sort=\"none\">{account}</th>\n        <th data-part=\"th\" scope=\"col\" data-sortable aria-sort=\"none\" data-format=\"currency\" data-editable>{debit}</th>\n        <th data-part=\"th\" scope=\"col\" data-sortable aria-sort=\"none\" data-format=\"currency\" data-editable>{credit}</th>\n      </tr>\n      <tr data-part=\"filter-row\">\n        <td data-part=\"td\"><input data-part=\"filter-input\" type=\"text\" aria-label=\"Filter {account}\"></td>\n        <td data-part=\"td\"><input data-part=\"filter-input\" type=\"text\" aria-label=\"Filter {debit}\"></td>\n        <td data-part=\"td\"><input data-part=\"filter-input\" type=\"text\" aria-label=\"Filter {credit}\"></td>\n      </tr>\n    </thead>\n    <tbody data-part=\"tbody\">\n      <tr data-part=\"tr\">\n        <td data-part=\"td\">{row_account}</td>\n        <td data-part=\"td\" data-format=\"currency\" data-value=\"{row_debit}\"></td>\n        <td data-part=\"td\" data-format=\"currency\" data-value=\"{row_credit}\"></td>\n      </tr>\n      <tr data-part=\"empty\" hidden><td data-part=\"td\" colspan=\"3\">No matching entries</td></tr>\n    </tbody>\n    <tfoot data-part=\"tfoot\">\n      <tr data-part=\"tr\">\n        <td data-part=\"td\" data-align=\"right\">Total</td>\n        <td data-part=\"td\" data-format=\"currency\" data-aggregate=\"sum\"></td>\n        <td data-part=\"td\" data-format=\"currency\" data-aggregate=\"sum\"></td>\n      </tr>\n    </tfoot>\n  </table>\n</div>",
+    "html_tree": "<div data-ui=\"table\" data-tree data-size=\"md\">\n  <table data-part=\"table\">\n    <thead data-part=\"thead\">\n      <tr data-part=\"tr\">\n        <th data-part=\"th\" scope=\"col\">{name}</th>\n        <th data-part=\"th\" scope=\"col\" data-format=\"currency\">{amount}</th>\n      </tr>\n    </thead>\n    <tbody data-part=\"tbody\">\n      <tr data-part=\"tr\" data-level=\"0\"><td data-part=\"td\">{parent}</td><td data-part=\"td\" data-format=\"currency\" data-aggregate=\"sum\"></td></tr>\n      <tr data-part=\"tr\" data-level=\"1\"><td data-part=\"td\">{child}</td><td data-part=\"td\" data-format=\"currency\" data-value=\"{child_amount}\"></td></tr>\n    </tbody>\n  </table>\n</div>"
+  },
+  "safe_transforms": [
+    "add-column",
+    "remove-column",
+    "add-row",
+    "remove-row",
+    "change-size",
+    "toggle-striped",
+    "toggle-bordered",
+    "add-sortable",
+    "remove-sortable",
+    "restyle-header-background",
+    "add-footer-row",
+    "remove-footer-row",
+    "set-cell-alignment",
+    "set-cell-format",
+    "add-colspan",
+    "add-row-group",
+    "toggle-print-compact",
+    "add-filter-row",
+    "remove-filter-row",
+    "add-tree-levels",
+    "add-aggregate-cells",
+    "add-drag-handles",
+    "add-detail-rows",
+    "add-empty-state-row",
+    "toggle-multi-sort",
+    "toggle-editable",
+    "toggle-sticky-header",
+    "toggle-sticky-footer",
+    "pin-column",
+    "set-hide-below",
+    "set-persist-key",
+    "set-locale-currency",
+    "toggle-responsive-stack"
+  ],
+  "unsafe_transforms": [
+    "remove-table-semantics",
+    "remove-scope-col",
+    "remove-aria-sort",
+    "remove-checkbox-labels",
+    "remove-selection-checkboxes",
+    "remove-aria-level-from-tree-rows",
+    "remove-filter-input-labels",
+    "nest-detail-row-away-from-its-row",
+    "mix-tree-and-groupable-modes",
+    "put-data-level-on-group-headers"
+  ],
+  "composition": {
+    "contains": [
+      "checkbox",
+      "badge",
+      "button",
+      "input"
+    ],
+    "used_in": [
+      "crud-table"
+    ]
+  },
+  "files": {
+    "html": "table.html",
+    "css": "table.css",
+    "js": "table.js",
+    "manifest": "table.manifest.json"
+  },
+  "tests": [
+    "renders-table-with-proper-semantics",
+    "th-has-scope-col",
+    "sortable-th-has-aria-sort",
+    "click-header-sorts-ascending",
+    "click-header-again-sorts-descending",
+    "tristate-third-click-restores-original-order",
+    "shift-click-adds-secondary-sort-with-order-badge",
+    "sort-indicator-shows-direction",
+    "iso-dates-sort-chronologically",
+    "data-sort-value-overrides-cell-text",
+    "accounting-parens-parse-as-negative",
+    "header-checkbox-selects-all",
+    "header-checkbox-deselects-all",
+    "row-checkbox-toggles-selection",
+    "selected-row-has-data-selected",
+    "shift-click-selects-range",
+    "header-checkbox-shows-indeterminate",
+    "selection-change-event-fires",
+    "row-click-selects-when-selectable",
+    "single-select-mode-is-exclusive",
+    "striped-variant-alternates-bg",
+    "bordered-variant-has-borders",
+    "footer-renders-with-tfoot",
+    "footer-has-bold-weight",
+    "cell-align-right-sets-text-align",
+    "cell-format-currency-uses-tabular-nums",
+    "colspan-spans-columns",
+    "group-header-has-distinct-style",
+    "print-compact-reduces-padding",
+    "global-filter-hides-non-matching-rows",
+    "column-filter-supports-numeric-operators",
+    "filter-updates-empty-state-and-aggregates",
+    "group-toggle-collapses-members",
+    "group-aggregates-compute-per-group",
+    "tree-rows-get-aria-level-and-expanders",
+    "tree-collapse-hides-descendants",
+    "tree-sort-stays-within-siblings",
+    "tree-filter-keeps-ancestor-path",
+    "tree-parent-aggregates-roll-up-descendants",
+    "inline-edit-commits-on-enter",
+    "inline-edit-cancels-on-escape",
+    "inline-edit-formats-currency-via-intl",
+    "inline-edit-tab-moves-to-next-editable-cell",
+    "inline-edit-rejects-invalid-numbers",
+    "cell-edit-event-carries-old-and-new-values",
+    "move-row-emits-row-reorder",
+    "drag-handle-arrow-keys-move-row",
+    "pointer-drag-reorders-rows",
+    "tree-drag-moves-subtree-with-parent",
+    "move-column-reorders-all-rows",
+    "hide-column-sets-data-col-hidden",
+    "set-column-width-freezes-layout",
+    "pinned-columns-get-sticky-offsets",
+    "aggregates-sum-avg-min-max-count",
+    "aggregates-recompute-after-edit",
+    "csv-export-escapes-and-skips-checkbox-column",
+    "get-data-returns-keyed-objects",
+    "state-roundtrip-via-get-set-state",
+    "state-persists-to-localstorage",
+    "stack-mode-labels-cells-from-headers",
+    "detail-row-toggles-and-travels-with-sort",
+    "keyboard-grid-navigation-moves-focus",
+    "sortable-header-keyboard-activation",
+    "observer-refresh-picks-up-appended-rows"
+  ]
+}

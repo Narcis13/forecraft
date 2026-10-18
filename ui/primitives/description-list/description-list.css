@@ -1,0 +1,134 @@
+/* @ui:component description-list */
+/* @ui:tokens color-fg color-fg-muted color-border space-2 space-3 space-4 space-6 space-1 text-xs text-sm text-base font-body weight-semibold border-width doc-font doc-line-height */
+
+/* ── Base ── */
+[data-ui="description-list"] {
+  margin: 0;
+  padding: 0;
+  font-family: var(--doc-font, var(--font-body));
+}
+
+/* A term or details is the list's child, or the child of a plain <div> that
+   groups one pair (HTML allows `dl > div > dt + dd`). Never a descendant
+   further down: a list nested in a <dd> is its own, and a `sm` list used to
+   shrink it too. The <div> hop is `:where()`, so both shapes weigh the same,
+   and `:not([data-ui])` keeps a component out of the grouping role. [1.1F-20] */
+
+/* ── Term ── */
+[data-ui="description-list"] > [data-part="term"],
+[data-ui="description-list"] > :where(div:not([data-ui])) > [data-part="term"] {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-fg);
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Details ── */
+[data-ui="description-list"] > [data-part="details"],
+[data-ui="description-list"] > :where(div:not([data-ui])) > [data-part="details"] {
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+  margin: 0;
+  padding: 0;
+  line-height: var(--doc-line-height, 1.5);
+}
+
+/* ── Variant: Vertical (default) ── */
+[data-ui="description-list"][data-variant="vertical"],
+[data-ui="description-list"]:not([data-variant]) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+[data-ui="description-list"][data-variant="vertical"] > [data-part="term"],
+[data-ui="description-list"][data-variant="vertical"] > :where(div:not([data-ui])) > [data-part="term"],
+[data-ui="description-list"]:not([data-variant]) > [data-part="term"],
+[data-ui="description-list"]:not([data-variant]) > :where(div:not([data-ui])) > [data-part="term"] {
+  margin-bottom: var(--space-1, 0.25rem);
+}
+
+[data-ui="description-list"][data-variant="vertical"] > [data-part="details"],
+[data-ui="description-list"][data-variant="vertical"] > :where(div:not([data-ui])) > [data-part="details"],
+[data-ui="description-list"]:not([data-variant]) > [data-part="details"],
+[data-ui="description-list"]:not([data-variant]) > :where(div:not([data-ui])) > [data-part="details"] {
+  margin-bottom: var(--space-4);
+}
+
+[data-ui="description-list"][data-variant="vertical"] > [data-part="details"]:last-child,
+[data-ui="description-list"][data-variant="vertical"] > :where(div:not([data-ui])) > [data-part="details"]:last-child,
+[data-ui="description-list"]:not([data-variant]) > [data-part="details"]:last-child,
+[data-ui="description-list"]:not([data-variant]) > :where(div:not([data-ui])) > [data-part="details"]:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Variant: Horizontal ── */
+[data-ui="description-list"][data-variant="horizontal"] {
+  display: grid;
+  grid-template-columns: minmax(8rem, auto) minmax(0, 1fr);
+  gap: var(--space-3) var(--space-6);
+  align-items: baseline;
+}
+
+/* ── Divided ── */
+[data-ui="description-list"][data-divided][data-variant="vertical"] > [data-part="details"],
+[data-ui="description-list"][data-divided][data-variant="vertical"] > :where(div:not([data-ui])) > [data-part="details"],
+[data-ui="description-list"][data-divided]:not([data-variant]) > [data-part="details"],
+[data-ui="description-list"][data-divided]:not([data-variant]) > :where(div:not([data-ui])) > [data-part="details"] {
+  padding-bottom: var(--space-4);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+[data-ui="description-list"][data-divided][data-variant="vertical"] > [data-part="details"]:last-child,
+[data-ui="description-list"][data-divided][data-variant="vertical"] > :where(div:not([data-ui])) > [data-part="details"]:last-child,
+[data-ui="description-list"][data-divided]:not([data-variant]) > [data-part="details"]:last-child,
+[data-ui="description-list"][data-divided]:not([data-variant]) > :where(div:not([data-ui])) > [data-part="details"]:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+[data-ui="description-list"][data-divided][data-variant="horizontal"] > [data-part="term"],
+[data-ui="description-list"][data-divided][data-variant="horizontal"] > :where(div:not([data-ui])) > [data-part="term"],
+[data-ui="description-list"][data-divided][data-variant="horizontal"] > [data-part="details"],
+[data-ui="description-list"][data-divided][data-variant="horizontal"] > :where(div:not([data-ui])) > [data-part="details"] {
+  padding-bottom: var(--space-3);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+/* ── Size: Small ── */
+[data-ui="description-list"][data-size="sm"] {
+  gap: var(--space-2);
+}
+
+[data-ui="description-list"][data-size="sm"] > [data-part="term"],
+[data-ui="description-list"][data-size="sm"] > :where(div:not([data-ui])) > [data-part="term"] {
+  font-size: var(--text-xs);
+}
+
+[data-ui="description-list"][data-size="sm"] > [data-part="details"],
+[data-ui="description-list"][data-size="sm"] > :where(div:not([data-ui])) > [data-part="details"] {
+  font-size: var(--text-xs);
+}
+
+/* ── Size: Large ── */
+[data-ui="description-list"][data-size="lg"] {
+  gap: var(--space-6);
+}
+
+[data-ui="description-list"][data-size="lg"] > [data-part="term"],
+[data-ui="description-list"][data-size="lg"] > :where(div:not([data-ui])) > [data-part="term"] {
+  font-size: var(--text-base, 1rem);
+}
+
+[data-ui="description-list"][data-size="lg"] > [data-part="details"],
+[data-ui="description-list"][data-size="lg"] > :where(div:not([data-ui])) > [data-part="details"] {
+  font-size: var(--text-base, 1rem);
+}
+
+/* ── Print ── */
+@media print {
+  [data-ui="description-list"] {
+    break-inside: avoid;
+  }
+}

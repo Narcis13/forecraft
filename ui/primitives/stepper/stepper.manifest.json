@@ -1,0 +1,131 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "stepper",
+  "version": "1.1.1",
+  "kind": "primitive",
+  "category": "navigation",
+  "description": "Step indicator with numbered circles, connectors, and labels for multi-step flows",
+
+  "changes": [
+    {
+      "version": "1.1.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the steps, connectors, indicators and labels with descendant selectors, so a component in a step with a label part took the step label's size and colour. Parts are root > step > indicator and label, and root > connector. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "The label/connector responsive rule is mobile-first on the breakpoint canon: labels are hidden in the base and revealed from sm (40rem) up, and the connector's tight phone metrics are the base rather than an override. Identical design at the identical threshold; the boundary moves to the wide side, so at exactly 640px labels now show.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='stepper']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "step": {
+      "selector": "[data-part='step']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Individual step container"
+    },
+    "indicator": {
+      "selector": "[data-part='indicator']",
+      "required": true,
+      "tag_hint": "span",
+      "description": "Numbered circle or checkmark"
+    },
+    "label": {
+      "selector": "[data-part='label']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Step label text"
+    },
+    "connector": {
+      "selector": "[data-part='connector']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Line connecting steps"
+    }
+  },
+
+  "variants": {
+    "variant": {
+      "values": ["horizontal", "vertical"],
+      "default": "horizontal",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size"
+    }
+  },
+
+  "states": {
+    "active": {
+      "attr": "data-state",
+      "default": false,
+      "transient": false,
+      "applied_to": "step"
+    },
+    "completed": {
+      "attr": "data-state",
+      "default": false,
+      "transient": false,
+      "applied_to": "step"
+    }
+  },
+
+  "a11y": {
+    "role": "navigation",
+    "required_attrs": ["aria-label"],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-primary", "color-primary-fg", "color-bg-muted",
+    "color-fg-muted", "color-success", "color-success-subtle", "color-border",
+    "text-sm", "text-xs", "weight-medium",
+    "radius-full", "space-1", "space-2", "space-4", "space-6",
+    "border-width-strong"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"stepper\"><div data-part=\"step\" data-state=\"{state}\"><span data-part=\"indicator\">{number}</span><span data-part=\"label\">{label}</span></div></div>"
+  },
+
+  "safe_transforms": [
+    "Change step data-state to active or completed",
+    "Add or remove label slot",
+    "Change indicator content",
+    "Add or remove connector slots"
+  ],
+  "unsafe_transforms": [
+    "Remove data-ui attribute",
+    "Remove step or indicator slots"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": []
+  },
+
+  "files": {
+    "html": "stepper.html",
+    "css": "stepper.css",
+    "manifest": "stepper.manifest.json"
+  },
+
+  "tests": [
+    "Renders step indicators with numbers",
+    "Active state highlights current step",
+    "Completed state shows checkmark style",
+    "Connectors change color when completed",
+    "Vertical variant stacks steps"
+  ]
+}

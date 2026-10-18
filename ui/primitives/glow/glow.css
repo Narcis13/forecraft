@@ -1,0 +1,132 @@
+/* @ui:component glow */
+/* @ui:tokens color-primary color-info color-border card-radius border-width-md motion-ambient-duration motion-ambient-play ease-linear ease-default duration-slow */
+
+/* The orbit is an angle, and an angle only animates if the browser knows it is
+   one: an unregistered custom property flips between its two values instead of
+   sweeping. Where `@property` is not understood the ring simply holds still —
+   a gradient border without the orbit, never a broken one. */
+@property --faqir-glow-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+/* ── Root ──
+   A glow wraps one box — a card, a button, an image — and draws light around
+   it. The ring is painted OUTSIDE the child by a masked pseudo-element, so the
+   child keeps its own background, border and padding untouched, and may even
+   be transparent. The root's radius is the only thing the two have to agree
+   on; it defaults to the card's, the thing a glow most often wraps. */
+[data-ui="glow"] {
+  --faqir-glow-a: var(--glow-color-1, var(--color-primary));
+  --faqir-glow-b: var(--glow-color-2, var(--color-info));
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  border-radius: var(--glow-radius, var(--card-radius));
+}
+
+/* A <span> root wraps inline-level things — a button in a row of buttons. */
+span[data-ui="glow"] {
+  display: inline-grid;
+}
+
+/* ── Ring ──
+   The gradient is written on the pseudo-elements themselves, not handed down
+   from the root in a custom property: the angle is animated HERE, and a
+   property resolves its var() on the element that declares it — a paint
+   declared on the root would be frozen at the root's angle. */
+[data-ui="glow"]::before,
+[data-ui="glow"]::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--glow-width, var(--border-width-md)) * -1);
+  border-radius: calc(var(--glow-radius, var(--card-radius)) + var(--glow-width, var(--border-width-md)));
+  background-image: conic-gradient(from var(--faqir-glow-angle), var(--faqir-glow-a), var(--faqir-glow-b), var(--faqir-glow-a));
+  pointer-events: none;
+  animation: faqir-glow-orbit calc(var(--glow-duration, var(--motion-ambient-duration)) / 4) var(--ease-linear) infinite;
+  animation-play-state: var(--motion-ambient-play);
+  transition: opacity var(--duration-slow) var(--ease-default);
+}
+
+/* The ring itself: the gradient, with everything but a border's width of it
+   masked away. Two mask layers, the second covering the content box, the pair
+   combined by exclusion — what is left is the frame. */
+[data-ui="glow"]::before {
+  z-index: 1;
+  padding: var(--glow-width, var(--border-width-md));
+  -webkit-mask: linear-gradient(black 0 0) content-box, linear-gradient(black 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(black 0 0) content-box exclude, linear-gradient(black 0 0);
+}
+
+/* ── Halo ──
+   The same paint, blurred, behind the child: the light the ring casts. Off
+   unless asked for — a ring alone is a border, a ring with a halo is a lamp. */
+[data-ui="glow"]::after {
+  z-index: -1;
+  display: none;
+  filter: blur(var(--glow-blur, 1.25rem));
+  opacity: var(--glow-opacity, 0.5);
+}
+
+[data-ui="glow"][data-halo]::after {
+  display: block;
+}
+
+@keyframes faqir-glow-orbit {
+  to { --faqir-glow-angle: 360deg; }
+}
+
+/* ── Variant: beam ──
+   Not a full ring but one bright arc travelling a quiet border — the eye
+   follows it round the box. */
+[data-ui="glow"][data-variant="beam"]::before {
+  background-image: conic-gradient(from var(--faqir-glow-angle), transparent 0 62%, var(--faqir-glow-a) 82%, var(--faqir-glow-b) 94%, transparent 100%), linear-gradient(var(--color-border), var(--color-border));
+}
+
+[data-ui="glow"][data-variant="beam"]::after {
+  background-image: conic-gradient(from var(--faqir-glow-angle), transparent 0 62%, var(--faqir-glow-a) 82%, var(--faqir-glow-b) 94%, transparent 100%);
+}
+
+/* ── Trigger: hover ──
+   The light is off until the pointer or the keyboard arrives, and fades in.
+   The orbit keeps running underneath, so it never starts from a standstill. */
+[data-ui="glow"][data-trigger="hover"]::before,
+[data-ui="glow"][data-trigger="hover"]::after {
+  opacity: 0;
+}
+
+[data-ui="glow"][data-trigger="hover"]:hover::before,
+[data-ui="glow"][data-trigger="hover"]:focus-within::before {
+  opacity: 1;
+}
+
+[data-ui="glow"][data-trigger="hover"]:hover::after,
+[data-ui="glow"][data-trigger="hover"]:focus-within::after {
+  opacity: var(--glow-opacity, 0.5);
+}
+
+/* ── Static ── */
+[data-ui="glow"][data-static]::before,
+[data-ui="glow"][data-static]::after {
+  animation: none;
+}
+
+/* ── Motion ──
+   The ring stays — it is a border — and stops turning. */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="glow"]::before,
+  [data-ui="glow"]::after {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* ── Forced colours and print ── */
+@media (forced-colors: active), print {
+  [data-ui="glow"]::before,
+  [data-ui="glow"]::after {
+    display: none;
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "glow",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "marketing",
+  "description": "Animated light around one box: a rotating gradient ring or a single orbiting beam, with an optional blurred halo behind the child. The ring is drawn outside the wrapped element by a masked pseudo-element, so the child keeps its own background and border. Pure CSS (a registered angle property drives the orbit); always on, or only under the pointer and keyboard.",
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='glow']",
+    "content_model": "block"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "style": {
+      "values": ["gradient", "beam"],
+      "default": "gradient",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "trigger": {
+      "values": ["always", "hover"],
+      "default": "always",
+      "attr": "data-trigger",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "halo": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-halo",
+      "description": "Add the blurred copy of the ring behind the child — the light the ring casts. The child needs an opaque background for the halo to read as a glow around it rather than through it."
+    },
+    "static": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-static",
+      "description": "Stop the orbit and keep the gradient border."
+    },
+    "--glow-radius": {
+      "type": "string",
+      "default": "var(--card-radius)",
+      "description": "Corner radius of the wrapped child (custom property). Must match the child: var(--button-radius) around a button, var(--radius-full) around an avatar."
+    },
+    "--glow-width": {
+      "type": "string",
+      "default": "var(--border-width-md)",
+      "description": "Thickness of the ring (custom property). Pass a border-width token."
+    },
+    "--glow-color-1": {
+      "type": "string",
+      "default": "var(--color-primary)",
+      "description": "First colour of the ring (custom property)."
+    },
+    "--glow-color-2": {
+      "type": "string",
+      "default": "var(--color-info)",
+      "description": "Second colour of the ring (custom property)."
+    },
+    "--glow-blur": {
+      "type": "string",
+      "default": "1.25rem",
+      "description": "With data-halo: how far the halo spreads (custom property)."
+    },
+    "--glow-opacity": {
+      "type": "string",
+      "default": "0.5",
+      "description": "With data-halo: strength of the halo, 0–1 (custom property)."
+    },
+    "--glow-duration": {
+      "type": "string",
+      "default": "var(--motion-ambient-duration)",
+      "description": "The ambient duration the orbit is cut from (custom property): one turn takes a quarter of it."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "notes": "Decoration only: no role, no accessible name, no focus stop, and the ring ignores pointer events. data-trigger=\"hover\" also lights on :focus-within, so keyboard users get the same cue. The orbit stops under prefers-reduced-motion (the border stays); forced colours and print drop it.",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-primary", "color-info", "color-border", "card-radius", "border-width-md",
+    "motion-ambient-duration", "motion-ambient-play", "ease-linear", "ease-default",
+    "duration-slow"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"glow\">{child}</div>",
+    "html_halo": "<div data-ui=\"glow\" data-halo>{child}</div>",
+    "html_beam": "<div data-ui=\"glow\" data-variant=\"beam\">{child}</div>",
+    "html_hover": "<div data-ui=\"glow\" data-trigger=\"hover\" data-halo>{child}</div>",
+    "html_button": "<span data-ui=\"glow\" data-halo style=\"--glow-radius: var(--button-radius)\">{button}</span>"
+  },
+
+  "safe_transforms": [
+    "change-style",
+    "change-trigger",
+    "toggle-halo",
+    "toggle-static",
+    "change-custom-property-colors",
+    "match-radius-to-the-wrapped-component"
+  ],
+
+  "unsafe_transforms": [
+    "wrap-more-than-one-child",
+    "leave-the-radius-mismatched-with-the-child",
+    "use-as-the-only-focus-indicator",
+    "pass-a-hardcoded-color-instead-of-a-token"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["cta", "pricing"],
+    "notes": [
+      "One child. The root is a one-cell grid, so the child fills it; a second child would sit in a second row inside the same ring.",
+      "The ring sits outside the child by --glow-width, so leave that much room in a tight grid, or the neighbours' gap absorbs it.",
+      "Use a <span data-ui=\"glow\"> around inline-level things (a button in a row of buttons) and a <div> around blocks.",
+      "The featured tier of a pricing table, the primary call to action, one card in a bento: a glow marks the ONE thing on the screen that matters most. Two of them cancel out."
+    ]
+  },
+
+  "files": {
+    "html": "glow.html",
+    "css": "glow.css",
+    "manifest": "glow.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-wrapper-around-one-child",
+    "ring-is-drawn-outside-the-child-by-a-masked-pseudo-element",
+    "radius-defaults-to-the-card-radius",
+    "orbit-animates-a-registered-angle",
+    "beam-variant-keeps-a-quiet-base-border",
+    "halo-is-opt-in",
+    "hover-trigger-also-lights-on-focus-within",
+    "static-and-reduced-motion-stop-the-orbit-and-keep-the-ring",
+    "forced-colors-and-print-drop-the-ring"
+  ]
+}

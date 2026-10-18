@@ -1,0 +1,144 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "reveal",
+  "version": "1.0.1",
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Fix: the reduced-motion block now repeats every trigger selector. `[data-ui=\"reveal\"]` alone (0,1,0) lost to the load and scroll triggers (0,2,0 to 0,4,0), so reveals still played under prefers-reduced-motion: reduce.",
+      "breaking": false
+    }
+  ],
+  "kind": "primitive",
+  "category": "layout",
+  "description": "Entrance choreography for any content: seven effects, three triggers (on load, scrubbed by scroll, or released by a state), and a staggered mode that brings a group's children in one after another. Pure CSS — a view timeline where supported, a load entrance where not — and every distance, duration and easing is a motion token a theme can re-point.",
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='reveal']",
+    "content_model": "block"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "effect": {
+      "values": ["fade", "rise", "fall", "slide-start", "slide-end", "zoom", "blur"],
+      "default": "rise",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "trigger": {
+      "values": ["load", "scroll"],
+      "default": "load",
+      "attr": "data-trigger",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "stagger": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-stagger",
+      "description": "Move the entrance from the root to its direct children: each child arrives --motion-stagger after the sibling before it. Twelve steps are counted; children past the twelfth arrive with it."
+    },
+    "--reveal-delay": {
+      "type": "string",
+      "default": "0s",
+      "description": "Time before the entrance starts (custom property). Added to the stagger offset. Ignored by the scroll trigger, where the scrollbar is the clock."
+    },
+    "--reveal-duration": {
+      "type": "string",
+      "default": "var(--motion-reveal-duration)",
+      "description": "Length of the entrance for this instance (custom property)."
+    },
+    "--reveal-ease": {
+      "type": "string",
+      "default": "var(--motion-reveal-ease)",
+      "description": "Easing of the entrance for this instance (custom property). Pass an easing token, e.g. var(--ease-spring)."
+    },
+    "--reveal-distance": {
+      "type": "string",
+      "default": "var(--motion-reveal-distance)",
+      "description": "How far rise, fall and the two slides travel (custom property)."
+    },
+    "--reveal-range-start": {
+      "type": "string",
+      "default": "5%",
+      "description": "Scroll trigger only: how far into the viewport's entry edge the element is when the entrance begins (custom property, a percentage of the entry range)."
+    },
+    "--reveal-range-end": {
+      "type": "string",
+      "default": "70%",
+      "description": "Scroll trigger only: the point of the entry range at which the entrance is complete (custom property)."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true },
+    "hidden": { "attr": "data-state=\"hidden\"" },
+    "shown": { "attr": "data-state=\"shown\"" }
+  },
+
+  "a11y": {
+    "notes": "Motion only: a reveal adds no role, no name and no focus stop, and never removes its content from the accessibility tree. Under prefers-reduced-motion and in print every trigger resolves to the final state, including a hidden state a script has not released.",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "motion-reveal-distance", "motion-reveal-scale", "motion-reveal-blur", "motion-reveal-duration",
+    "motion-reveal-ease", "motion-stagger", "ease-linear"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"reveal\" data-variant=\"{effect}\">{children}</div>",
+    "html_stagger": "<div data-ui=\"reveal\" data-variant=\"{effect}\" data-stagger>{children}</div>",
+    "html_scroll": "<div data-ui=\"reveal\" data-variant=\"{effect}\" data-trigger=\"scroll\">{children}</div>",
+    "html_on_view": "<div data-ui=\"reveal\" data-variant=\"{effect}\" l-data=\"{ seen: false }\" :data-state=\"seen ? 'shown' : 'hidden'\" l-intersect.once=\"seen = true\">{children}</div>"
+  },
+
+  "safe_transforms": [
+    "change-effect",
+    "change-trigger",
+    "toggle-stagger",
+    "change-custom-property-timing",
+    "wrap-existing-content",
+    "unwrap-content"
+  ],
+
+  "unsafe_transforms": [
+    "author-data-state-hidden-without-a-script-that-releases-it",
+    "put-focusable-content-in-a-reveal-that-never-arrives",
+    "nest-a-fixed-or-sticky-element-inside-a-reveal"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["bento", "cta", "logo-cloud", "testimonials"],
+    "notes": [
+      "A reveal wraps; it never styles what it wraps. Put the grid, stack or card inside it — or put data-ui=\"reveal\" on a wrapper around a single component. An element cannot be two components, so a reveal is always its own element.",
+      "data-trigger=\"scroll\" needs no script: it is a view timeline, scrubbed by the scrollbar, and it reverses when the element leaves the way it came. For an entrance that plays ONCE on a clock when the element is first seen, load the faqir-intersect plugin and use the html_on_view template — the page writes data-state, the stylesheet does the rest.",
+      "While an entrance is running the element (or, with data-stagger, each child) carries a transform, so it is the containing block for fixed descendants. Keep sticky headers and fixed overlays outside a reveal.",
+      "Stagger order is source order. Reorder the children to reorder the entrance."
+    ]
+  },
+
+  "files": {
+    "html": "reveal.html",
+    "css": "reveal.css",
+    "manifest": "reveal.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "rise-is-the-default-effect",
+    "every-effect-reads-the-motion-reveal-family",
+    "stagger-moves-the-entrance-to-the-children",
+    "scroll-trigger-is-guarded-by-supports-and-falls-back-to-load",
+    "hidden-state-holds-the-from-state-and-shown-releases-it",
+    "markup-without-data-state-is-never-hidden",
+    "reduced-motion-and-print-resolve-to-the-final-state",
+    "nested-reveals-do-not-inherit-the-parents-travel"
+  ]
+}

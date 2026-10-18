@@ -1,0 +1,280 @@
+<!-- @ui:component dashboard-shell -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots sidebar nav nav-item header logo search user-menu content footer sidebar-toggle nav-icon nav-label sidebar-user sidebar-user-name header-actions metric activity-item -->
+<!-- @ui:variants sidebar-position=left|right sidebar-state=expanded|collapsed -->
+<!-- @ui:composition card grid avatar dropdown button separator badge -->
+
+<!-- Default: Sidebar Left, Expanded -->
+<!-- @ui:scaffold admin-dashboard -->
+<div data-ui="dashboard-shell">
+
+  <!-- ── Sidebar ── -->
+  <aside data-part="sidebar" data-state="expanded">
+
+    <!-- Logo -->
+    <div data-part="logo">
+      <svg aria-hidden="true" width="32" height="32" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="currentColor"/></svg>
+      <span>Acme</span>
+    </div>
+
+    <hr data-ui="separator">
+
+    <!-- Navigation -->
+    <nav data-part="nav" role="navigation" aria-label="Main navigation">
+      <a data-part="nav-item" href="#" aria-current="page">
+        <svg data-part="nav-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1L1 6v9h5v-5h4v5h5V6L8 1z"/></svg>
+        <span data-part="nav-label">Dashboard</span>
+      </a>
+      <a data-part="nav-item" href="#">
+        <svg data-part="nav-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg>
+        <span data-part="nav-label">Orders</span>
+        <span data-ui="badge" data-variant="primary" data-size="sm">12</span>
+      </a>
+      <a data-part="nav-item" href="#">
+        <svg data-part="nav-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 2a2 2 0 110 4 2 2 0 010-4zm0 10c-2 0-3.8-1-4.9-2.5C4.6 9.2 11.4 9.2 12.9 10.5 11.8 12 10 13 8 13z"/></svg>
+        <span data-part="nav-label">Customers</span>
+      </a>
+      <a data-part="nav-item" href="#">
+        <svg data-part="nav-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M3 1h10a2 2 0 012 2v10a2 2 0 01-2 2H3a2 2 0 01-2-2V3a2 2 0 012-2zm1 3v2h8V4H4zm0 4v2h5V8H4z"/></svg>
+        <span data-part="nav-label">Products</span>
+        <span data-ui="badge" data-variant="warning" data-size="sm">3</span>
+      </a>
+      <a data-part="nav-item" href="#">
+        <svg data-part="nav-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M2 2h5v5H2zm7 0h5v5H9zM2 9h5v5H2zm7 0h5v5H9z"/></svg>
+        <span data-part="nav-label">Analytics</span>
+      </a>
+
+      <hr data-ui="separator">
+
+      <a data-part="nav-item" href="#">
+        <svg data-part="nav-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1a7 7 0 100 14A7 7 0 008 1zm1 4.5a1 1 0 11-2 0 1 1 0 012 0zM7 7h2v5H7V7z"/></svg>
+        <span data-part="nav-label">Settings</span>
+      </a>
+    </nav>
+
+    <hr data-ui="separator">
+
+    <!-- Sidebar User -->
+    <div data-part="sidebar-user">
+      <span data-ui="avatar" data-size="sm">
+        <img data-part="image" src="https://example.com/user.jpg" alt="Jane Doe">
+        <span data-part="fallback" hidden>JD</span>
+      </span>
+      <span data-part="sidebar-user-name">Jane Doe</span>
+    </div>
+  </aside>
+
+  <!-- ── Header ── -->
+  <header data-part="header" role="banner">
+
+    <!-- Sidebar Toggle -->
+    <button data-ui="button" data-variant="ghost" data-part="sidebar-toggle" aria-label="Toggle sidebar">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M1 3h14v2H1zm0 4h14v2H1zm0 4h14v2H1z"/></svg>
+    </button>
+
+    <!-- Search -->
+    <div data-part="search">
+      <div data-ui="input-group">
+        <span data-part="prefix">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M11.5 7a4.5 4.5 0 10-1.57 3.43l3.07 3.07 1.5-1.5-3.07-3.07A4.5 4.5 0 0011.5 7zM7 3.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z"/></svg>
+        </span>
+        <input data-ui="input" type="search" placeholder="Search...">
+      </div>
+    </div>
+
+    <!-- Header Actions -->
+    <div data-part="header-actions">
+
+      <!-- Notifications -->
+      <button data-ui="button" data-variant="ghost" aria-label="Notifications">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1a1 1 0 011 1v.3A5 5 0 0113 7v3l1 2H2l1-2V7a5 5 0 014-4.7V2a1 1 0 011-1zM6 13h4a2 2 0 01-4 0z"/></svg>
+        <span data-ui="badge" data-variant="destructive" data-size="sm">4</span>
+      </button>
+
+      <hr data-ui="separator" data-variant="vertical" aria-orientation="vertical">
+
+      <!-- User Dropdown Menu -->
+      <div data-part="user-menu">
+        <div data-ui="dropdown" data-state="closed">
+          <button data-part="trigger" aria-haspopup="true" aria-expanded="false">
+            <span data-ui="avatar" data-size="sm">
+              <img data-part="image" src="https://example.com/user.jpg" alt="Jane Doe">
+              <span data-part="fallback" hidden>JD</span>
+            </span>
+            <span>Jane Doe</span>
+          </button>
+          <div data-part="menu" data-variant="end" role="menu" hidden>
+            <button data-part="item" role="menuitem">Profile</button>
+            <button data-part="item" role="menuitem">Account Settings</button>
+            <button data-part="item" role="menuitem">Billing</button>
+            <hr data-part="separator">
+            <button data-part="item" role="menuitem">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Content ── -->
+  <main data-part="content" role="main">
+    <div data-ui="grid" data-cols="1" data-cols-md="3" data-gap="6">
+
+      <!-- Summary Card: Revenue -->
+      <div data-ui="card">
+        <div data-part="header">
+          <h3 data-part="title">Total Revenue</h3>
+          <p data-part="description">Last 30 days</p>
+        </div>
+        <div data-part="body">
+          <span data-part="metric">$45,231.89</span>
+          <span data-ui="badge" data-variant="success" data-size="sm">+20.1%</span>
+        </div>
+      </div>
+
+      <!-- Summary Card: Users -->
+      <div data-ui="card">
+        <div data-part="header">
+          <h3 data-part="title">Active Users</h3>
+          <p data-part="description">Currently online</p>
+        </div>
+        <div data-part="body">
+          <span data-part="metric">2,350</span>
+          <span data-ui="badge" data-variant="success" data-size="sm">+180</span>
+        </div>
+      </div>
+
+      <!-- Summary Card: Orders -->
+      <div data-ui="card">
+        <div data-part="header">
+          <h3 data-part="title">Pending Orders</h3>
+          <p data-part="description">Awaiting fulfillment</p>
+        </div>
+        <div data-part="body">
+          <span data-part="metric">12</span>
+          <span data-ui="badge" data-variant="warning" data-size="sm">3 urgent</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Detail Section -->
+    <div data-ui="grid" data-cols="1" data-cols-md="2" data-gap="6">
+
+      <!-- Recent Activity Card -->
+      <div data-ui="card">
+        <div data-part="header">
+          <h3 data-part="title">Recent Activity</h3>
+        </div>
+        <div data-part="body">
+          <div data-part="activity-item">
+            <span data-ui="avatar" data-size="sm">
+              <span data-part="fallback">AK</span>
+            </span>
+            <span>Alex Kim placed an order</span>
+            <span data-ui="badge" data-size="sm">New</span>
+          </div>
+          <hr data-ui="separator">
+          <div data-part="activity-item">
+            <span data-ui="avatar" data-size="sm">
+              <span data-part="fallback">ML</span>
+            </span>
+            <span>Morgan Lee updated profile</span>
+          </div>
+          <hr data-ui="separator">
+          <div data-part="activity-item">
+            <span data-ui="avatar" data-size="sm">
+              <span data-part="fallback">RP</span>
+            </span>
+            <span>Riley Park requested refund</span>
+            <span data-ui="badge" data-variant="destructive" data-size="sm">Action</span>
+          </div>
+        </div>
+        <div data-part="footer">
+          <button data-ui="button" data-variant="ghost">View All Activity</button>
+        </div>
+      </div>
+
+      <!-- Quick Actions Card -->
+      <div data-ui="card">
+        <div data-part="header">
+          <h3 data-part="title">Quick Actions</h3>
+        </div>
+        <div data-part="body">
+          <button data-ui="button" data-variant="primary">Create Order</button>
+          <button data-ui="button" data-variant="outline">Add Customer</button>
+          <button data-ui="button" data-variant="outline">Generate Report</button>
+          <button data-ui="button" data-variant="outline">Export Data</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- @ui:scaffold-slot -->
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer data-part="footer">
+    <span>Acme Inc.</span>
+    <hr data-ui="separator" data-variant="vertical" aria-orientation="vertical">
+    <span>Version 2.4.1</span>
+  </footer>
+
+</div>
+<!-- @ui:scaffold-end -->
+
+<!-- Sidebar Right Variant -->
+<div data-ui="dashboard-shell" data-variant="right">
+  <aside data-part="sidebar" data-state="expanded">
+    <div data-part="logo">
+      <span>Acme</span>
+    </div>
+    <nav data-part="nav" role="navigation" aria-label="Main navigation">
+      <a data-part="nav-item" href="#" aria-current="page">
+        <span data-part="nav-label">Dashboard</span>
+      </a>
+      <a data-part="nav-item" href="#">
+        <span data-part="nav-label">Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <header data-part="header" role="banner">
+    <div data-part="search">
+      <input data-ui="input" type="search" placeholder="Search...">
+    </div>
+  </header>
+  <main data-part="content" role="main">
+    <p>Content area with sidebar on the right.</p>
+  </main>
+</div>
+
+<!-- Collapsed Sidebar -->
+<div data-ui="dashboard-shell">
+  <aside data-part="sidebar" data-state="collapsed">
+    <div data-part="logo">
+      <svg aria-hidden="true" width="32" height="32" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="currentColor"/></svg>
+    </div>
+    <nav data-part="nav" role="navigation" aria-label="Main navigation">
+      <a data-part="nav-item" href="#" aria-current="page" aria-label="Dashboard">
+        <svg data-part="nav-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1L1 6v9h5v-5h4v5h5V6L8 1z"/></svg>
+      </a>
+      <a data-part="nav-item" href="#" aria-label="Orders">
+        <svg data-part="nav-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg>
+        <span data-ui="badge" data-variant="primary" data-size="sm">12</span>
+      </a>
+      <a data-part="nav-item" href="#" aria-label="Customers">
+        <svg data-part="nav-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 2a2 2 0 110 4 2 2 0 010-4zm0 10c-2 0-3.8-1-4.9-2.5C4.6 9.2 11.4 9.2 12.9 10.5 11.8 12 10 13 8 13z"/></svg>
+      </a>
+    </nav>
+  </aside>
+  <header data-part="header" role="banner">
+    <button data-ui="button" data-variant="ghost" data-part="sidebar-toggle" aria-label="Toggle sidebar">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M1 3h14v2H1zm0 4h14v2H1zm0 4h14v2H1z"/></svg>
+    </button>
+    <div data-part="search">
+      <input data-ui="input" type="search" placeholder="Search...">
+    </div>
+  </header>
+  <main data-part="content" role="main">
+    <p>Content with collapsed sidebar.</p>
+  </main>
+</div>

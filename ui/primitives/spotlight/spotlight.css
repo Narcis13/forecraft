@@ -1,0 +1,87 @@
+/* @ui:component spotlight */
+/* @ui:tokens border-width card-radius color-primary duration-slow ease-default */
+
+/* ── Root ──
+   A spotlight wraps one box — a card, a tile, or a whole grid of them — and puts
+   a pool of the accent on it while the pointer is over it (or focus is inside
+   it). The root paints nothing of its own: no background, no border, no
+   padding. Its radius is the only thing it shares with the child, so the light
+   is clipped to the same silhouette; it defaults to the card's.
+
+   The pool sits at --spotlight-x / --spotlight-y, which default to the top
+   centre. CSS cannot read the pointer, so a page that wants the light to FOLLOW
+   it writes those two properties itself — one `@pointermove` statement, shown
+   in the manifest's `html_follow` template — and no controller ships with the
+   engine for it. Without that line the light is a hover glow from the top edge.
+
+   Under reduced motion, on a touch screen, in forced colours or in print there
+   is no light at all: the child renders as if the wrapper were not there. */
+[data-ui="spotlight"] {
+  --faqir-spotlight-color: var(--spotlight-color, var(--color-primary));
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-radius: var(--spotlight-radius, var(--card-radius));
+}
+
+/* A <span> root wraps inline-level things. */
+span[data-ui="spotlight"] {
+  display: inline-grid;
+}
+
+/* ── The effect ──
+   Only for a reader with a real pointer who has not asked for less motion. */
+@media screen and (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) and (forced-colors: none) {
+  /* ── Light (default) ──
+     A pool of the accent, painted above the child and ignoring every pointer
+     event — a click lands on the card, not on the light. Invisible at rest,
+     faded in on hover or when focus moves inside. */
+  [data-ui="spotlight"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    background: radial-gradient(
+      circle var(--spotlight-size, 22rem) at var(--spotlight-x, 50%) var(--spotlight-y, 0%),
+      var(--faqir-spotlight-color),
+      color-mix(in oklch, var(--faqir-spotlight-color) 35%, transparent) 45%,
+      transparent
+    );
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-slow) var(--ease-default);
+  }
+
+  [data-ui="spotlight"]:hover::after,
+  [data-ui="spotlight"]:focus-within::after {
+    opacity: var(--spotlight-opacity, 0.18);
+  }
+
+  /* ── Variant: border ──
+     The light does not fall on the surface, only on its edge. The same pool,
+     masked down to a border's width: two mask layers, the second covering the
+     content box, combined by exclusion — what is left is the frame. A ring is a
+     thin thing, so it is lit more strongly than a surface would be. */
+  [data-ui="spotlight"][data-variant="border"]::after {
+    padding: var(--border-width);
+    -webkit-mask: linear-gradient(black 0 0) content-box, linear-gradient(black 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(black 0 0) content-box exclude, linear-gradient(black 0 0);
+  }
+
+  [data-ui="spotlight"][data-variant="border"]:hover::after,
+  [data-ui="spotlight"][data-variant="border"]:focus-within::after {
+    opacity: min(1, calc(var(--spotlight-opacity, 0.18) * 5));
+  }
+}
+
+/* ── Reduced motion, forced colours, print ──
+   The content and nothing else. */
+@media (prefers-reduced-motion: reduce), (forced-colors: active), print {
+  [data-ui="spotlight"]::after {
+    display: none;
+    transition: none;
+  }
+}

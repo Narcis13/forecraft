@@ -1,0 +1,226 @@
+/* @ui:component highlight */
+/* @ui:tokens color-primary color-info color-fg-muted color-fg color-primary-active color-primary-hover color-bg color-warning motion-ambient-duration motion-ambient-play motion-reveal-duration motion-reveal-ease ease-in-out ease-linear radius-sm border-width-lg border-width-strong duration-slow */
+
+/* ── Root ──
+   An inline run of text the eye should land on. Every variant is a background
+   under (or clipped to) the glyphs — never a second copy of the text — so the
+   words stay selectable, searchable and read once by a screen reader.
+   `box-decoration-break: clone` makes a highlight that wraps restart on each
+   line instead of stretching one painting across all of them. */
+[data-ui="highlight"] {
+  --faqir-highlight-ink: var(--highlight-color, var(--color-primary));
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background-repeat: no-repeat;
+}
+
+/* ── Variant: gradient (default) ──
+   The accent gradient, clipped to the letters. `--gradient-accent` is the
+   theme's signature gradient where a theme states one (aurora does); the
+   fallback builds it from the accent and info colours every theme has. */
+[data-ui="highlight"]:not([data-variant]),
+[data-ui="highlight"][data-variant="gradient"] {
+  background-image: var(--highlight-gradient, var(--gradient-accent, linear-gradient(135deg, var(--color-primary), var(--color-info))));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+[data-ui="highlight"]:not([data-variant])[data-animate],
+[data-ui="highlight"][data-variant="gradient"][data-animate] {
+  background-size: 220% 100%;
+  animation: faqir-highlight-pan calc(var(--motion-ambient-duration) / 4) var(--ease-in-out) infinite alternate;
+  animation-play-state: var(--motion-ambient-play);
+}
+
+/* ── Variant: shimmer ──
+   Muted text with a band of full-strength ink passing through it. */
+[data-ui="highlight"][data-variant="shimmer"] {
+  background-image: linear-gradient(110deg, var(--color-fg-muted) 38%, var(--color-fg) 50%, var(--color-fg-muted) 62%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: faqir-highlight-pan calc(var(--motion-ambient-duration) / 8) var(--ease-linear) infinite;
+  animation-play-state: var(--motion-ambient-play);
+}
+
+@keyframes faqir-highlight-pan {
+  from { background-position: 100% 50%; }
+  to   { background-position: 0% 50%; }
+}
+
+/* ── Variant: marker ──
+   A highlighter stroke across the lower half of the line, in the accent at low
+   strength, so the text keeps its own colour and its contrast. */
+[data-ui="highlight"][data-variant="marker"] {
+  margin-inline: -0.15em;
+  padding-inline: 0.15em;
+  border-radius: var(--radius-sm);
+  background-image: linear-gradient(color-mix(in oklch, var(--faqir-highlight-ink) 30%, transparent), color-mix(in oklch, var(--faqir-highlight-ink) 30%, transparent));
+  background-position: 0 88%;
+  background-size: 100% 46%;
+}
+
+/* ── Variant: underline ──
+   A rule under the words, as heavy as the theme's heaviest edge. */
+[data-ui="highlight"][data-variant="underline"] {
+  padding-block-end: 0.08em;
+  background-image: linear-gradient(var(--faqir-highlight-ink), var(--faqir-highlight-ink));
+  background-position: 0 100%;
+  background-size: 100% var(--border-width-lg);
+}
+
+/* ── Variant: foil ──
+   Metallic display text: banded light and dark, with a glint that drifts across
+   it. The bands repeat every 3.9em (a long fall to a bright edge, then a sharp
+   drop back to dark, as light does across a curved foil), so they scale with
+   the type. They are built from the theme's primary ramp only, and the ramp
+   already runs the right way in either scheme: --color-primary-hover and
+   --color-primary-active step AWAY from the page (darker on a light theme,
+   lighter on a dark one), so the extreme band stays legible against its
+   ground whichever way the theme faces. The glint band is the opposite step,
+   primary eased a quarter of the way toward the page; it is the lowest-
+   contrast stop (about 3.5:1 on the default theme's light ground and 3.9:1 on
+   its dark one, above the 3:1 large-text bar: foil is display type, not body
+   copy). Without background-clip the text keeps its plain primary colour. */
+[data-ui="highlight"][data-variant="foil"] {
+  color: var(--color-primary);
+}
+
+/* The bands only exist where they can be clipped to the glyphs; painted
+   behind unclipped text they would be a stripe the words sit on. */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  [data-ui="highlight"][data-variant="foil"] {
+    background-image: repeating-linear-gradient(100deg,
+      var(--color-primary-active) 0,
+      var(--color-primary-hover) 0.7em,
+      var(--color-primary) 1.3em,
+      color-mix(in oklch, var(--color-primary) 75%, var(--color-bg)) 1.8em,
+      var(--color-primary) 1.95em,
+      var(--color-primary-active) 2.1em,
+      var(--color-primary-hover) 2.7em,
+      var(--color-primary) 3.1em,
+      var(--color-primary-hover) 3.5em,
+      var(--color-primary-active) 3.9em);
+    background-size: 200% 100%;
+    background-position: 30% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+}
+
+/* ── Variant: outline ──
+   Display text drawn as its contour: a stroke in the ink colour, nothing
+   inside. Without text-stroke support the words are simply the page's solid
+   text, so the block sits inside the @supports. Stroke first, then fill, so
+   the fill (transparent) never eats into the stroke. */
+@supports (-webkit-text-stroke: 1px) {
+  [data-ui="highlight"][data-variant="outline"] {
+    -webkit-text-stroke: var(--border-width-strong) var(--faqir-highlight-ink);
+    -webkit-text-fill-color: transparent;
+    paint-order: stroke fill;
+  }
+}
+
+/* ── Variant: echo ──
+   Two hard copies of the text's shadow, stepping away along the diagonal: the
+   Memphis / neo-brutalist double print. Offsets are em, so the echo scales with
+   the type; the second colour is --highlight-echo (warning, so it stays apart
+   from the primary at any theme). The text keeps its own colour and contrast. */
+[data-ui="highlight"][data-variant="echo"] {
+  text-shadow:
+    0.04em 0.04em 0 var(--faqir-highlight-ink),
+    0.08em 0.08em 0 var(--highlight-echo, var(--color-warning));
+}
+
+/* The stroke starts where the line starts: the far edge in a right-to-left page. */
+[data-ui="highlight"][data-variant="marker"]:dir(rtl) {
+  background-position: 100% 88%;
+}
+
+[data-ui="highlight"][data-variant="underline"]:dir(rtl) {
+  background-position: 100% 100%;
+}
+
+/* Drawn in, once, like a pen stroke. Only a `from`: each ends on the size above. */
+[data-ui="highlight"][data-variant="marker"][data-animate] {
+  animation: faqir-highlight-draw var(--motion-reveal-duration) var(--motion-reveal-ease) both;
+  animation-delay: var(--highlight-delay, var(--duration-slow));
+}
+
+[data-ui="highlight"][data-variant="underline"][data-animate] {
+  animation: faqir-highlight-rule var(--motion-reveal-duration) var(--motion-reveal-ease) both;
+  animation-delay: var(--highlight-delay, var(--duration-slow));
+}
+
+@keyframes faqir-highlight-draw {
+  from { background-size: 0% 46%; }
+}
+
+@keyframes faqir-highlight-rule {
+  from { background-size: 0% var(--border-width-lg); }
+}
+
+/* ── Motion ──
+   Foil's glint exists only where motion is welcome: the bands pan across the
+   glyphs on the same loop as the gradient's, cut from the ambient duration and
+   frozen by --motion-ambient-play. Reduced motion leaves the bands where the
+   rule above put them. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-ui="highlight"][data-variant="foil"] {
+    animation: faqir-highlight-pan calc(var(--motion-ambient-duration) / 3) var(--ease-in-out) infinite alternate;
+    animation-play-state: var(--motion-ambient-play);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The [data-animate] selectors are repeated so this rule matches their
+     specificity; `[data-ui="highlight"]` alone (0,1,0) lost to them (0,3,0). */
+  [data-ui="highlight"],
+  [data-ui="highlight"]:not([data-variant])[data-animate],
+  [data-ui="highlight"][data-variant="gradient"][data-animate],
+  [data-ui="highlight"][data-variant="marker"][data-animate],
+  [data-ui="highlight"][data-variant="underline"][data-animate] {
+    animation: none;
+  }
+
+  /* A shimmer that does not move is just dim text; give it its ink back. */
+  [data-ui="highlight"][data-variant="shimmer"] {
+    background-image: none;
+    -webkit-text-fill-color: currentColor;
+    color: inherit;
+  }
+}
+
+/* ── Forced colours ──
+   A clipped gradient is invisible on a system palette. Hand the text back. */
+@media (forced-colors: active) {
+  [data-ui="highlight"] {
+    background-image: none;
+    -webkit-text-fill-color: currentColor;
+    color: inherit;
+    animation: none;
+  }
+
+  /* The variants paint at a specificity the rule above does not reach, so each
+     is named: the gradient's and shimmer's clipped fill, the foil's, the
+     outline's stroke and the echo's shadow all go; the text is the system colour. */
+  [data-ui="highlight"]:not([data-variant]),
+  [data-ui="highlight"][data-variant="gradient"],
+  [data-ui="highlight"][data-variant="shimmer"],
+  [data-ui="highlight"][data-variant="foil"],
+  [data-ui="highlight"][data-variant="outline"],
+  [data-ui="highlight"][data-variant="echo"] {
+    background-image: none;
+    -webkit-text-fill-color: currentColor;
+    -webkit-text-stroke: 0;
+    text-shadow: none;
+    color: inherit;
+    animation: none;
+  }
+}

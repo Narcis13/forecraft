@@ -1,0 +1,80 @@
+<!-- @ui:component card -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots header title description divider body footer -->
+<!-- @ui:variants variant=default|outlined|filled size=sm|md|lg -->
+<!--
+  A card stays an intrinsic flex column by default. For cross-card alignment,
+  put cards directly in grid[data-align-rows] and give every card exactly four
+  direct rows in this order: header, divider, body, footer. Pricing is the
+  canonical unequal-content example and documents the stacking fallback.
+-->
+
+<!-- Default Card -->
+<div data-ui="card">
+  <div data-part="header">
+    <h3 data-part="title">Card Title</h3>
+    <p data-part="description">A brief description of the card content.</p>
+  </div>
+  <div data-part="body">
+    <p>Card body content goes here.</p>
+  </div>
+  <div data-part="footer">
+    <button data-ui="button" data-variant="outline">Cancel</button>
+    <button data-ui="button" data-variant="primary">Save</button>
+  </div>
+</div>
+
+<!-- Outlined -->
+<div data-ui="card" data-variant="outlined">
+  <div data-part="header">
+    <h3 data-part="title">Outlined Card</h3>
+  </div>
+  <div data-part="body">
+    <p>Content with outlined style.</p>
+  </div>
+</div>
+
+<!-- Filled -->
+<div data-ui="card" data-variant="filled">
+  <div data-part="header">
+    <h3 data-part="title">Filled Card</h3>
+  </div>
+  <div data-part="body">
+    <p>Content with filled background.</p>
+  </div>
+</div>
+
+<!-- Simple Card (body only) -->
+<div data-ui="card">
+  <div data-part="body">
+    <p>A simple card with just body content.</p>
+  </div>
+</div>
+
+<!-- Media across the top, with the card leaning into its picture on hover -->
+<div data-ui="card" data-hover="zoom">
+  <figure data-part="media">
+    <img src="https://example.com/launch.jpg" alt="A rocket on the pad at dawn">
+  </figure>
+  <div data-part="header">
+    <h3 data-part="title">Launch week</h3>
+    <p data-part="description">Seven releases in seven days.</p>
+  </div>
+  <div data-part="body">
+    <p>The picture is cut to --card-media-ratio and covers the frame.</p>
+  </div>
+</div>
+
+<!-- Hover: raise (rises and climbs the shadow ramp) — a card that is a link -->
+<div data-ui="card" data-hover="raise">
+  <div data-part="body">
+    <p><a data-ui="link" href="#raise">Read the field notes</a></p>
+  </div>
+</div>
+
+<!-- Hover: tint (the accent along its edge) -->
+<div data-ui="card" data-variant="outlined" data-hover="tint">
+  <div data-part="body">
+    <p>The border takes the accent under the pointer.</p>
+  </div>
+</div>

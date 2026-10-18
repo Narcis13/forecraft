@@ -1,0 +1,139 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "switch",
+  "version": "1.1.1",
+  "kind": "primitive",
+  "category": "forms",
+  "description": "Toggle switch with on/off states, disabled state, and size variants; compose sibling labeled switches in a cluster with data-gap=4 while one may stand alone",
+  "changes": [
+    {
+      "version": "1.1.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the thumb with descendant selectors, so a component nested inside with parts of the same name took this one's styles. The thumb is the switch's child, and the rule that hides the pseudo-thumb asks :has(> thumb). Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "Canonical switch rows now use cluster data-gap='4', keeping the inter-control step wider than each label's internal space-2 step; a single labeled switch remains valid without a cluster.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "button",
+    "selector": "[data-ui='switch']",
+    "content_model": "inline"
+  },
+  "slots": {
+    "label": {
+      "selector": "[data-part='label']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Text label displayed next to the switch"
+    },
+    "thumb": {
+      "selector": "[data-part='thumb']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "The sliding knob the track moves; styled by switch.css, never authored empty"
+    }
+  },
+  "variants": {
+    "size": {
+      "values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+  "states": {
+    "off": {
+      "attr": "aria-checked=\"false\"",
+      "default": true
+    },
+    "on": {
+      "attr": "data-state=\"on\""
+    },
+    "disabled": {
+      "attr": "disabled"
+    }
+  },
+  "props": {
+    "checked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the switch is on"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the switch is disabled"
+    },
+    "label": {
+      "type": "string",
+      "default": "",
+      "description": "Switch label text"
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "role=\"switch\" on the button element",
+      "aria-checked=\"true\" or aria-checked=\"false\"",
+      "aria-label or associated label for context"
+    ],
+    "keyboard": {
+      "Tab": "focus switch",
+      "Space": "toggle on/off",
+      "Enter": "toggle on/off"
+    },
+    "notes": "A single labeled switch may stand alone. When two or more switch items share an inline row, wrap the complete label items in cluster data-gap=\"4\"; switch-label keeps the label-to-track gap at space-2."
+  },
+  "tokens_used": [
+    "color-bg-muted", "color-primary", "color-primary-fg", "color-border", "color-ring",
+    "shadow-xs", "space-0h", "space-2", "duration-fast", "ease-default", "border-width",
+    "focus-ring-width", "focus-ring-offset", "focus-ring-style", "focus-ring-color", "focus-shadow",
+    "switch-radius", "switch-width", "switch-height", "switch-thumb", "switch-travel", "switch-bg",
+    "switch-thumb-shadow", "disabled-opacity"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"cluster\" data-gap=\"4\">\n  <label data-ui=\"switch-label\" for=\"{id1}\"><button type=\"button\" data-ui=\"switch\" id=\"{id1}\" role=\"switch\" aria-checked=\"false\"><span data-part=\"thumb\"></span></button><span data-part=\"label\">{label1}</span></label>\n  <label data-ui=\"switch-label\" for=\"{id2}\"><button type=\"button\" data-ui=\"switch\" id=\"{id2}\" role=\"switch\" aria-checked=\"false\"><span data-part=\"thumb\"></span></button><span data-part=\"label\">{label2}</span></label>\n</div>",
+    "html_single": "<label data-ui=\"switch-label\" for=\"{id}\">\n  <button type=\"button\" data-ui=\"switch\" id=\"{id}\" role=\"switch\" aria-checked=\"false\">\n    <span data-part=\"thumb\"></span>\n  </button>\n  <span data-part=\"label\">{label}</span>\n</label>",
+    "html_with_label": "<label data-ui=\"switch-label\" for=\"{id}\">\n  <button type=\"button\" data-ui=\"switch\" id=\"{id}\" role=\"switch\" aria-checked=\"false\">\n    <span data-part=\"thumb\"></span>\n  </button>\n  <span data-part=\"label\">{label}</span>\n</label>",
+    "html_unlabeled": "<button type=\"button\" data-ui=\"switch\" role=\"switch\" aria-checked=\"false\" aria-label=\"{label}\">\n  <span data-part=\"thumb\"></span>\n</button>"
+  },
+  "safe_transforms": [
+    "change-size",
+    "toggle-state",
+    "toggle-disabled",
+    "change-label-text"
+  ],
+  "unsafe_transforms": [
+    "remove-button-element",
+    "remove-role-switch",
+    "remove-aria-checked"
+  ],
+  "composition": {
+    "contains": [],
+    "used_in": [
+      "settings-page"
+    ]
+  },
+  "files": {
+    "html": "switch.html",
+    "css": "switch.css",
+    "manifest": "switch.manifest.json"
+  },
+  "tests": [
+    "renders-as-button-with-role-switch",
+    "off-state-has-aria-checked-false",
+    "on-state-has-aria-checked-true",
+    "thumb-translates-on-state-change",
+    "disabled-state-has-disabled-attribute",
+    "sm-size-sets-correct-dimensions",
+    "lg-size-sets-correct-dimensions",
+    "control-rows-use-cluster-gap-4",
+    "single-labeled-control-may-stand-alone"
+  ]
+}

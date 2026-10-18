@@ -1,0 +1,270 @@
+/* @ui:component popover */
+/* @ui:tokens color-bg color-fg color-border color-bg-muted color-fg-muted panel-bg shadow-md radius-lg radius-md space-3 space-4 space-2 z-dropdown duration-fast ease-default font-ui border-width focus-ring-width focus-ring-style focus-ring-color focus-ring-offset surface-backdrop text-sm text-xs weight-medium */
+
+/* ── Root ── */
+[data-ui="popover"] {
+  position: relative;
+  display: inline-block;
+}
+
+/* ── Trigger ── */
+[data-ui="popover"] > [data-part="trigger"] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  padding: var(--space-2, 0.5rem) var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md, 0.375rem);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--weight-medium, 500);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--duration-fast) var(--ease-default),
+              border-color var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="popover"] > [data-part="trigger"]:hover {
+  background: var(--color-bg-muted, oklch(0.96 0.004 260));
+}
+
+[data-ui="popover"] > [data-part="trigger"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ── Content ── */
+[data-ui="popover"] > [data-part="content"] {
+  position: absolute;
+  z-index: var(--z-dropdown);
+  /* Sized by its content, not by the trigger-wide root it is positioned in —
+     which squeezed every popover into a 200px column. */
+  width: max-content;
+  min-width: 200px;
+  max-width: min(20rem, calc(100vw - 2 * var(--space-4)));
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--panel-bg);
+  color: var(--color-fg);
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity var(--duration-fast) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1rem)) or (backdrop-filter: blur(1rem))) {
+  [data-ui="popover"] > [data-part="content"] {
+    -webkit-backdrop-filter: var(--surface-backdrop);
+    backdrop-filter: var(--surface-backdrop);
+  }
+}
+
+[data-ui="popover"][data-state="open"] > [data-part="content"] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── Position: Bottom (default) ── */
+[data-ui="popover"] > [data-part="content"][data-variant="bottom"] {
+  top: 100%;
+  margin-top: var(--space-2, 0.5rem);
+}
+
+/* ── Position: Top ── */
+[data-ui="popover"] > [data-part="content"][data-variant="top"] {
+  bottom: 100%;
+  margin-bottom: var(--space-2, 0.5rem);
+}
+
+/* ── Position: Left ── */
+[data-ui="popover"] > [data-part="content"][data-variant="left"] {
+  inset-inline-end: 100%;
+  top: 0;
+  margin-inline-end: var(--space-2, 0.5rem);
+}
+
+/* ── Position: Right ── */
+[data-ui="popover"] > [data-part="content"][data-variant="right"] {
+  inset-inline-start: 100%;
+  top: 0;
+  margin-inline-start: var(--space-2, 0.5rem);
+}
+
+/* ── Align: Start ── */
+[data-ui="popover"] > [data-part="content"][data-align="start"][data-variant="bottom"],
+[data-ui="popover"] > [data-part="content"][data-align="start"][data-variant="top"] {
+  inset-inline-start: 0;
+}
+
+/* ── Align: Center ── */
+[data-ui="popover"] > [data-part="content"][data-align="center"][data-variant="bottom"],
+[data-ui="popover"] > [data-part="content"][data-align="center"][data-variant="top"] {
+  inset-inline-start: 50%;
+  transform: translateX(-50%) scale(0.95);
+}
+
+[data-ui="popover"][data-state="open"] > [data-part="content"][data-align="center"][data-variant="bottom"],
+[data-ui="popover"][data-state="open"] > [data-part="content"][data-align="center"][data-variant="top"] {
+  transform: translateX(-50%) scale(1);
+}
+
+/* ── Align: End ── */
+[data-ui="popover"] > [data-part="content"][data-align="end"][data-variant="bottom"],
+[data-ui="popover"] > [data-part="content"][data-align="end"][data-variant="top"] {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
+/* ── Align for Left/Right positions: Start ── */
+[data-ui="popover"] > [data-part="content"][data-align="start"][data-variant="left"],
+[data-ui="popover"] > [data-part="content"][data-align="start"][data-variant="right"] {
+  top: 0;
+}
+
+/* ── Align for Left/Right positions: Center ── */
+[data-ui="popover"] > [data-part="content"][data-align="center"][data-variant="left"],
+[data-ui="popover"] > [data-part="content"][data-align="center"][data-variant="right"] {
+  top: 50%;
+  transform: translateY(-50%) scale(0.95);
+}
+
+[data-ui="popover"][data-state="open"] > [data-part="content"][data-align="center"][data-variant="left"],
+[data-ui="popover"][data-state="open"] > [data-part="content"][data-align="center"][data-variant="right"] {
+  transform: translateY(-50%) scale(1);
+}
+
+/* ── Align for Left/Right positions: End ── */
+[data-ui="popover"] > [data-part="content"][data-align="end"][data-variant="left"],
+[data-ui="popover"] > [data-part="content"][data-align="end"][data-variant="right"] {
+  top: auto;
+  bottom: 0;
+}
+
+/* ── Arrow ── */
+[data-ui="popover"] > [data-part="content"]::before {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--panel-bg);
+  border: var(--border-width) solid var(--color-border);
+  transform: rotate(45deg);
+}
+
+/* Arrow for bottom position */
+[data-ui="popover"] > [data-part="content"][data-variant="bottom"]::before {
+  top: -5px;
+  inset-inline-start: var(--space-4);
+  border-inline-end: none;
+  border-bottom: none;
+}
+
+[data-ui="popover"] > [data-part="content"][data-align="center"][data-variant="bottom"]::before {
+  inset-inline-start: 50%;
+  margin-inline-start: -4px;
+}
+
+[data-ui="popover"] > [data-part="content"][data-align="end"][data-variant="bottom"]::before {
+  inset-inline-start: auto;
+  inset-inline-end: var(--space-4);
+}
+
+/* Arrow for top position */
+[data-ui="popover"] > [data-part="content"][data-variant="top"]::before {
+  bottom: -5px;
+  inset-inline-start: var(--space-4);
+  border-inline-start: none;
+  border-top: none;
+}
+
+[data-ui="popover"] > [data-part="content"][data-align="center"][data-variant="top"]::before {
+  inset-inline-start: 50%;
+  margin-inline-start: -4px;
+}
+
+[data-ui="popover"] > [data-part="content"][data-align="end"][data-variant="top"]::before {
+  inset-inline-start: auto;
+  inset-inline-end: var(--space-4);
+}
+
+/* Arrow for left position */
+[data-ui="popover"] > [data-part="content"][data-variant="left"]::before {
+  inset-inline-end: -5px;
+  top: var(--space-4);
+  border-inline-start: none;
+  border-bottom: none;
+}
+
+[data-ui="popover"] > [data-part="content"][data-align="center"][data-variant="left"]::before {
+  top: 50%;
+  margin-top: -4px;
+}
+
+[data-ui="popover"] > [data-part="content"][data-align="end"][data-variant="left"]::before {
+  top: auto;
+  bottom: var(--space-4);
+}
+
+/* Arrow for right position */
+[data-ui="popover"] > [data-part="content"][data-variant="right"]::before {
+  inset-inline-start: -5px;
+  top: var(--space-4);
+  border-inline-end: none;
+  border-top: none;
+}
+
+[data-ui="popover"] > [data-part="content"][data-align="center"][data-variant="right"]::before {
+  top: 50%;
+  margin-top: -4px;
+}
+
+[data-ui="popover"] > [data-part="content"][data-align="end"][data-variant="right"]::before {
+  top: auto;
+  bottom: var(--space-4);
+}
+
+/* ── Close Button ── */
+[data-ui="popover"] > :where([data-part="content"]) > [data-part="close"] {
+  position: absolute;
+  top: var(--space-2, 0.5rem);
+  inset-inline-end: var(--space-2, 0.5rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-md, 0.375rem);
+  background: transparent;
+  color: var(--color-fg-muted, oklch(0.55 0 0));
+  font-size: var(--text-xs, 0.75rem);
+  cursor: pointer;
+}
+
+/* The close button sits in the corner; keep the content's text out from under it. */
+[data-ui="popover"] > [data-part="content"]:has(> [data-part="close"]) {
+  padding-inline-end: calc(var(--space-2, 0.5rem) * 2 + 24px);
+}
+
+[data-ui="popover"] > :where([data-part="content"]) > [data-part="close"]:hover {
+  background: var(--color-bg-muted, oklch(0.96 0.004 260));
+  color: var(--color-fg);
+}
+
+[data-ui="popover"] > :where([data-part="content"]) > [data-part="close"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="popover"] > [data-part="content"],
+  [data-ui="popover"] > [data-part="trigger"] {
+    transition: none;
+  }
+}

@@ -1,0 +1,91 @@
+/* @ui:component progress */
+/* @ui:tokens color-primary color-bg-muted color-success color-warning color-destructive color-fg-muted radius-full text-sm space-1 space-2 duration-normal ease-default border-width */
+
+/* ── Base ── */
+[data-ui="progress"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-inline-size: 0;
+}
+
+/* Child combinators: `label` is a common part name, and a descendant rule
+   would style the label of whatever a bespoke progress indicator nests. The
+   `track` hop is `:where()` so the fill rules keep their specificity. [1.1F-20] */
+
+/* ── Track ── */
+[data-ui="progress"] > [data-part="track"] {
+  flex: 1;
+  min-inline-size: 0;
+  height: 0.5rem;
+  background: var(--color-bg-muted);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+/* ── Fill ── */
+[data-ui="progress"] > :where([data-part="track"]) > [data-part="fill"] {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: width var(--duration-normal) var(--ease-default);
+}
+
+/* ── Variants ── */
+[data-ui="progress"][data-variant="success"] > :where([data-part="track"]) > [data-part="fill"] {
+  background: var(--color-success);
+}
+
+[data-ui="progress"][data-variant="warning"] > :where([data-part="track"]) > [data-part="fill"] {
+  background: var(--color-warning);
+}
+
+[data-ui="progress"][data-variant="destructive"] > :where([data-part="track"]) > [data-part="fill"] {
+  background: var(--color-destructive);
+}
+
+/* ── Sizes ── */
+[data-ui="progress"][data-size="sm"] > [data-part="track"] {
+  height: 0.25rem;
+}
+
+[data-ui="progress"][data-size="lg"] > [data-part="track"] {
+  height: 0.75rem;
+}
+
+/* ── Label ── */
+[data-ui="progress"] > [data-part="label"] {
+  flex: 0 0 auto;
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+  min-inline-size: 4ch;
+  padding-inline-end: var(--space-1);
+  text-align: end;
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="progress"] > :where([data-part="track"]) > [data-part="fill"] {
+    transition: none;
+  }
+}
+
+/* ── Forced colors (Windows High Contrast) ──
+   The OS drops every background, so the track and the fill became the same
+   nothing: a progress bar that showed no progress, at any value. The fill is
+   the one element here that MUST keep a colour, so it opts out of the
+   substitution and paints `Highlight`; the track keeps a visible boundary. [W3-3] */
+@media (forced-colors: active) {
+  [data-ui="progress"] > [data-part="track"] {
+    border: var(--border-width) solid ButtonText;
+  }
+
+  [data-ui="progress"] > :where([data-part="track"]) > [data-part="fill"],
+  [data-ui="progress"][data-variant="success"] > :where([data-part="track"]) > [data-part="fill"],
+  [data-ui="progress"][data-variant="warning"] > :where([data-part="track"]) > [data-part="fill"],
+  [data-ui="progress"][data-variant="destructive"] > :where([data-part="track"]) > [data-part="fill"] {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+}

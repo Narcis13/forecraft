@@ -1,0 +1,166 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "site-footer",
+  "version": "1.1.0",
+  "kind": "pattern",
+  "category": "marketing",
+  "description": "Marketing site footer: brand block with social links, titled link columns built from the nav primitive, and a bottom bar with copyright and legal links. Composition only: zero JavaScript, no controller, no reactive directives. The root is a real <footer>, so it is the page's contentinfo landmark.",
+
+  "anatomy": {
+    "tag": "footer",
+    "selector": "[data-ui='site-footer']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "brand": {
+      "selector": "[data-part='brand']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Brand column: wordmark, tagline, and social links"
+    },
+    "logo": {
+      "selector": "[data-part='logo']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Wordmark or logo. Keep it a paragraph or a link — not a heading, so the footer never enters the document outline"
+    },
+    "tagline": {
+      "selector": "[data-part='tagline']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "One-line positioning statement under the wordmark"
+    },
+    "social": {
+      "selector": "[data-part='social']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Row of icon-only links. Each link needs its own aria-label; the icon inside is aria-hidden"
+    },
+    "columns": {
+      "selector": "[data-part='columns']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Grid of link columns, mobile-first: stacked on a phone, paired from the sm floor, three across from lg"
+    },
+    "column": {
+      "selector": "[data-part='column']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "One titled link group — a column-title plus a nested data-ui='nav'"
+    },
+    "column-title": {
+      "selector": "[data-part='column-title']",
+      "required": false,
+      "tag_hint": "h2",
+      "description": "Group heading. Give it an id and point the sibling nav's aria-labelledby at it, so each navigation landmark has a name"
+    },
+    "bottom": {
+      "selector": "[data-part='bottom']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Bottom bar: copyright on one side, legal links on the other"
+    },
+    "copyright": {
+      "selector": "[data-part='copyright']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Copyright line. Leave the year out — a template with a hardcoded year is wrong every January"
+    },
+    "legal": {
+      "selector": "[data-part='legal']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Wrapper for the legal nav (privacy, terms, cookies)"
+    }
+  },
+
+  "variants": {
+    "layout": {
+      "values": ["columns", "compact"],
+      "default": "columns",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "the root is a <footer> element (contentinfo landmark)",
+      "every nested nav has an accessible name via aria-labelledby (column title) or aria-label",
+      "icon-only social links carry aria-label; their icons carry aria-hidden='true'"
+    ],
+    "keyboard": {
+      "Tab": "move through the social links, then each column's links, then the legal links, in source order"
+    }
+  },
+
+  "tokens_used": [
+    "color-bg-subtle", "color-fg", "color-fg-muted", "color-border", "space-2", "space-3",
+    "space-4", "space-6", "space-8", "space-10", "space-12", "font-body", "text-sm", "text-base",
+    "text-lg", "weight-semibold", "weight-bold", "leading-normal", "border-width"
+  ],
+
+  "templates": {
+    "html": "<footer data-ui=\"site-footer\" data-variant=\"{layout}\">\n  <div data-part=\"brand\">\n    <p data-part=\"logo\">{brand}</p>\n    <p data-part=\"tagline\">{tagline}</p>\n    <div data-part=\"social\">\n      <a data-ui=\"link\" data-variant=\"muted\" href=\"{social_href}\" aria-label=\"{social_label}\"><span data-ui=\"icon\" data-icon=\"{social_icon}\" aria-hidden=\"true\"></span></a>\n    </div>\n  </div>\n  <div data-part=\"columns\">\n    <div data-part=\"column\">\n      <h2 data-part=\"column-title\" id=\"{id}-group\">{group_title}</h2>\n      <nav data-ui=\"nav\" data-variant=\"vertical\" aria-labelledby=\"{id}-group\">\n        <a data-part=\"link\" href=\"{link_href}\">{link_label}</a>\n      </nav>\n    </div>\n  </div>\n  <hr data-ui=\"separator\">\n  <div data-part=\"bottom\">\n    <p data-part=\"copyright\">&copy; {company}. All rights reserved.</p>\n    <div data-part=\"legal\">\n      <nav data-ui=\"nav\" aria-label=\"Legal\">\n        <a data-part=\"link\" href=\"{legal_href}\">{legal_label}</a>\n      </nav>\n    </div>\n  </div>\n</footer>"
+  },
+
+  "safe_transforms": [
+    "change-layout-variant",
+    "add-link-column",
+    "remove-link-column",
+    "add-link-to-a-column",
+    "change-social-links",
+    "remove-tagline",
+    "change-copyright-text"
+  ],
+
+  "unsafe_transforms": [
+    "replace-footer-element-with-div",
+    "remove-accessible-name-from-a-nav",
+    "remove-aria-label-from-icon-only-links",
+    "promote-column-titles-into-the-page-outline",
+    "hardcode-a-copyright-year",
+    "add-custom-script"
+  ],
+
+  "composition": {
+    "contains": ["nav", "link", "icon", "separator"],
+    "used_in": ["landing-page"],
+    "notes": [
+      "Link groups nest the nav primitive: the <a> elements inside a nav are the NAV's [data-part='link'] slots, not site-footer's. The column title sits beside the nav (a site-footer part) and names it through aria-labelledby.",
+      "Nested primitives that carry their own data-variant (nav's vertical, link's muted) must not also carry a data-part — a part's data-variant is validated against site-footer's variant values.",
+      "`faqir scaffold landing-page` copies the block between the <!-- @ui:scaffold landing-page --> markers in site-footer.html verbatim."
+    ]
+  },
+
+  "files": {
+    "html": "site-footer.html",
+    "css": "site-footer.css",
+    "manifest": "site-footer.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-footer-with-data-ui-site-footer",
+    "every-nested-nav-has-an-accessible-name",
+    "icon-only-social-links-are-labelled",
+    "column-links-are-nav-slots",
+    "copyright-carries-no-hardcoded-year",
+    "columns-is-the-default-layout",
+    "ships-zero-javascript",
+    "columns-halve-under-1024px-and-stack-under-640px",
+    "reference-page-is-audit-clean"
+  ],
+
+  "changes": [
+    {
+      "version": "1.1.0",
+      "note": "The responsive ladder moves onto the breakpoint canon, mobile-first (task 0.8-09). The sheet's max-width media blocks became min-width floors on canon tiers (sm 40rem/640px, md 48rem/768px, lg 64rem/1024px), so every unconditional rule is now the PHONE case and a tier block only ever widens it. The link columns stack on a phone, pair at sm and reach three at lg; the brand column joins them at lg. The floors keep their values, so the only behavioural shift is at exactly a floor: 1024px now gets the wide layout rather than the narrow one.",
+      "breaking": false
+    }
+  ]
+}

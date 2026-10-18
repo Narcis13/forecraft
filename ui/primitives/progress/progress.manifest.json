@@ -1,0 +1,113 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "progress",
+  "version": "1.1.1",
+  "kind": "primitive",
+  "category": "feedback",
+  "description": "Progress bar with animated fill, color variants, and an optional percentage label",
+
+  "changes": [
+    {
+      "version": "1.1.1",
+      "note": "Nested components keep their own parts. The track, fill and label rules were descendant selectors. label is a common part name, so anything nested in a bespoke progress indicator with a label of its own took this component's label size, colour and reserved width. They are child chains now (root > track > fill, root > label), with the track hop in :where() so no rule changes specificity.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "Render the percentage label in every canonical visual variant, reserve four characters plus an inline-end inset for 100%, give the progressbar an accessible name, and complete the reference's visual-variant set. The label remains an explicitly optional slot for bespoke progress indicators.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='progress']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "track": {
+      "selector": "[data-part='track']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Background track container"
+    },
+    "fill": {
+      "selector": "[data-part='fill']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Filled portion — width set via inline style or reactive binding"
+    },
+    "label": {
+      "selector": "[data-part='label']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Optional visible text showing the current percentage or status; when present, sized to keep 100% fully inside the root"
+    }
+  },
+
+  "variants": {
+    "variant": {
+      "values": ["default", "success", "warning", "destructive"],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size"
+    }
+  },
+
+  "states": {},
+
+  "a11y": {
+    "role": "progressbar",
+    "required_attrs": ["aria-label", "aria-valuenow", "aria-valuemin", "aria-valuemax"],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-primary", "color-bg-muted", "color-success",
+    "color-warning", "color-destructive", "color-fg-muted",
+    "radius-full", "text-sm", "space-1", "space-2",
+    "duration-normal", "ease-default",
+    "border-width"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"progress\" data-variant=\"{variant}\" role=\"progressbar\" aria-label=\"Progress\" aria-valuenow=\"{value}\" aria-valuemin=\"0\" aria-valuemax=\"100\"><div data-part=\"track\"><div data-part=\"fill\" style=\"width: {value}%\"></div></div><span data-part=\"label\">{value}%</span></div>"
+  },
+
+  "safe_transforms": [
+    "Change data-variant to any listed variant",
+    "Change data-size to any listed size",
+    "Update fill width percentage and matching label text",
+    "Add or remove the label slot"
+  ],
+  "unsafe_transforms": [
+    "Remove data-ui attribute",
+    "Remove track or fill slots"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["dashboard-shell", "settings-page"]
+  },
+
+  "files": {
+    "html": "progress.html",
+    "css": "progress.css",
+    "manifest": "progress.manifest.json"
+  },
+
+  "tests": [
+    "Renders track and fill",
+    "Every variant renders track fill and label",
+    "Fill width reflects value",
+    "Variants change fill color",
+    "Sizes change track height",
+    "Labels stay fully within the root including 100 percent"
+  ]
+}

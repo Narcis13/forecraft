@@ -1,0 +1,45 @@
+/* @ui:component aspect-ratio */
+/* @ui:tokens color-bg-muted radius-none */
+
+/* ── Wrapper — holds a fixed width-to-height ratio and clips its child ── */
+[data-ui="aspect-ratio"] {
+  display: block;
+  inline-size: 100%;
+  aspect-ratio: var(--aspect-ratio-value, 1 / 1);
+  overflow: hidden;
+  border-radius: var(--aspect-ratio-radius, var(--radius-none));
+  background: var(--aspect-ratio-bg, var(--color-bg-muted));
+}
+
+/* The framed child (img, video, iframe, …) fills the box */
+[data-ui="aspect-ratio"] > * {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: var(--aspect-ratio-fit, cover);
+}
+
+/* ── Ratio variants — set the ratio via the shared custom property ── */
+[data-ui="aspect-ratio"][data-variant="square"] {
+  --aspect-ratio-value: 1 / 1;
+}
+
+[data-ui="aspect-ratio"][data-variant="16-9"] {
+  --aspect-ratio-value: 16 / 9;
+}
+
+[data-ui="aspect-ratio"][data-variant="4-3"] {
+  --aspect-ratio-value: 4 / 3;
+}
+
+[data-ui="aspect-ratio"][data-variant="3-2"] {
+  --aspect-ratio-value: 3 / 2;
+}
+
+[data-ui="aspect-ratio"][data-variant="21-9"] {
+  --aspect-ratio-value: 21 / 9;
+}
+
+[data-ui="aspect-ratio"][data-variant="portrait"] {
+  --aspect-ratio-value: 3 / 4;
+}

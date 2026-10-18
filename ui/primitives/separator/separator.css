@@ -1,0 +1,221 @@
+/* @ui:component separator */
+/* @ui:tokens color-border color-fg-muted color-primary space-4 space-3 space-2 font-ui text-xs border-width-strong divider-width divider-style */
+
+/* ── Base (horizontal) ── */
+[data-ui="separator"] {
+  border: none;
+  border-top: var(--divider-width) var(--divider-style) var(--color-border);
+  margin: 0;
+  width: 100%;
+}
+
+/* ── Vertical ── */
+[data-ui="separator"][data-variant="vertical"] {
+  border-top: none;
+  border-inline-start: var(--divider-width) var(--divider-style) var(--color-border);
+  width: auto;
+  height: 100%;
+  align-self: stretch;
+}
+
+/* ── With label ── */
+div[data-ui="separator"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  border-top: none;
+}
+
+div[data-ui="separator"]::before,
+div[data-ui="separator"]::after {
+  content: "";
+  flex: 1;
+  border-top: var(--divider-width) var(--divider-style) var(--color-border);
+}
+
+[data-ui="separator"] > [data-part="label"] {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  color: var(--color-fg-muted);
+  white-space: nowrap;
+}
+
+/* ── Style: Dashed ── */
+/* The root draws the line only on an hr: a labelled div draws it with ::before/::after,
+   and a style here would switch its own border back on at the default width. */
+hr[data-ui="separator"][data-style="dashed"] {
+  border-top-style: dashed;
+}
+
+[data-ui="separator"][data-style="dashed"][data-variant="vertical"] {
+  border-top-style: none;
+  border-inline-start-style: dashed;
+}
+
+div[data-ui="separator"][data-style="dashed"]::before,
+div[data-ui="separator"][data-style="dashed"]::after {
+  border-top-style: dashed;
+}
+
+/* ── Style: Dotted ── */
+hr[data-ui="separator"][data-style="dotted"] {
+  border-top-style: dotted;
+}
+
+[data-ui="separator"][data-style="dotted"][data-variant="vertical"] {
+  border-top-style: none;
+  border-inline-start-style: dotted;
+}
+
+div[data-ui="separator"][data-style="dotted"]::before,
+div[data-ui="separator"][data-style="dotted"]::after {
+  border-top-style: dotted;
+}
+
+/* ── Style: Thick ── */
+[data-ui="separator"][data-style="thick"] {
+  border-top-width: var(--border-width-strong);
+}
+
+[data-ui="separator"][data-style="thick"][data-variant="vertical"] {
+  border-top-width: 0;
+  border-inline-start-width: var(--border-width-strong);
+}
+
+div[data-ui="separator"][data-style="thick"]::before,
+div[data-ui="separator"][data-style="thick"]::after {
+  border-top-width: var(--border-width-strong);
+}
+
+/* ── Style: Ornament ──
+   A hairline that fades out toward both ends and meets in the middle at a small
+   diamond in the accent: the break between two movements of a landing page. A
+   centred mark with a rule running out each side, and nothing in the markup but
+   the separator itself. Horizontal only: every rule here excludes the vertical
+   variant, which keeps the solid line it already draws.
+
+   Two constructions, because the label and the diamond are the same slot.
+   · No label (an hr, or a div with no label part): the root paints the two
+     rules as backgrounds and ::before is the diamond; ::after is not needed.
+   · A label (a div holding a label part): the label takes the middle, and the
+     existing ::before / ::after rules, flex: 1 each, are the two fading lines.
+     That is the div's own construction, so it is the default for a div; the
+     diamond version of a div is the :has() rule that follows, and a browser
+     without :has() shows a labelled div correctly and an empty one as two
+     rules with a gap, never the diamond over a label.
+   Both fades are mirror images, so right-to-left needs nothing except the
+   labelled form's ::before, which sits on the other side there. */
+hr[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"]) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  block-size: var(--space-3);
+  border-top: none;
+  background-image:
+    linear-gradient(to right, transparent, var(--color-border)),
+    linear-gradient(to left, transparent, var(--color-border));
+  background-position: left center, right center;
+  background-size: calc(50% - var(--space-4)) var(--divider-width);
+  background-repeat: no-repeat;
+}
+
+hr[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"])::before {
+  content: "";
+  flex: none;
+  inline-size: var(--space-2);
+  block-size: var(--space-2);
+  background: var(--color-primary);
+  rotate: 45deg;
+}
+
+div[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"])::before,
+div[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"])::after {
+  border-top: none;
+  block-size: var(--divider-width);
+  background-image: linear-gradient(to right, transparent, var(--color-border));
+}
+
+div[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"])::after {
+  background-image: linear-gradient(to left, transparent, var(--color-border));
+}
+
+div[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"]):dir(rtl)::before {
+  background-image: linear-gradient(to left, transparent, var(--color-border));
+}
+
+div[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"]):dir(rtl)::after {
+  background-image: linear-gradient(to right, transparent, var(--color-border));
+}
+
+/* A div with no label is built like the hr above. Its own rule, not part of
+   the list there: a selector list with one :has() a browser cannot parse is
+   dropped whole. */
+div[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"]):not(:has(> [data-part="label"])) {
+  justify-content: center;
+  block-size: var(--space-3);
+  background-image:
+    linear-gradient(to right, transparent, var(--color-border)),
+    linear-gradient(to left, transparent, var(--color-border));
+  background-position: left center, right center;
+  background-size: calc(50% - var(--space-4)) var(--divider-width);
+  background-repeat: no-repeat;
+}
+
+div[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"]):not(:has(> [data-part="label"]))::before {
+  flex: none;
+  inline-size: var(--space-2);
+  block-size: var(--space-2);
+  background: var(--color-primary);
+  rotate: 45deg;
+}
+
+div[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"]):not(:has(> [data-part="label"]))::after {
+  display: none;
+}
+
+/* ── Vertical Sizes ── */
+[data-ui="separator"][data-variant="vertical"][data-size="sm"] {
+  height: 1rem;
+}
+
+[data-ui="separator"][data-variant="vertical"][data-size="md"] {
+  height: 1.5rem;
+}
+
+[data-ui="separator"][data-variant="vertical"][data-size="lg"] {
+  height: 2rem;
+}
+
+/* ── Forced colors ──
+   Gradients and a tinted fill do not survive a system palette. The ornament
+   becomes a plain rule with the diamond on it, drawn in system colours: the
+   rules in the hr and in the label-less div are the root's border, in the
+   labelled div the two flex pseudo-elements. */
+@media (forced-colors: active) {
+  hr[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"]) {
+    background-image: none;
+    block-size: 0;
+    border-block-start: var(--divider-width) solid CanvasText;
+  }
+
+  div[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"]):not(:has(> [data-part="label"])) {
+    background-image: none;
+    block-size: 0;
+    border-block-start: var(--divider-width) solid CanvasText;
+  }
+
+  div[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"])::before,
+  div[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"])::after,
+  hr[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"])::before {
+    background-image: none;
+    background-color: CanvasText;
+  }
+
+  /* The label-less div's diamond is drawn at a higher specificity (its
+     :not(:has()) counts), so it is named on its own — never in a list with the
+     hr, where an engine without :has() would drop the whole rule. */
+  div[data-ui="separator"][data-style="ornament"]:not([data-variant="vertical"]):not(:has(> [data-part="label"]))::before {
+    background-image: none;
+    background-color: CanvasText;
+  }
+}

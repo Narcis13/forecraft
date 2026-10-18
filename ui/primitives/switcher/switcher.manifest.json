@@ -1,0 +1,93 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "switcher",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "layout",
+  "description": "A row of equal-width peers that becomes a single column when the switcher itself is narrower than its threshold — driven by a container query on its own inline size, never by the viewport, so the same markup is correct full-bleed, in a sidebar and in a dialog",
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='switcher']",
+    "content_model": "block"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "threshold": {
+      "values": ["sm", "md", "lg", "xl"],
+      "default": "sm",
+      "attr": "data-threshold",
+      "applied_to": "root",
+      "responsive": false
+    },
+    "gap": {
+      "values": ["0", "1", "2", "3", "4", "6", "8", "10", "12", "16"],
+      "default": "4",
+      "attr": "data-gap",
+      "applied_to": "root",
+      "responsive": false
+    }
+  },
+
+  "props": {},
+
+  "states": {},
+
+  "a11y": {
+    "notes": "Layout-only primitive; no semantic role required. The flip is a CSS layout change with no DOM reorder, so the reading order is identical in both arrangements.",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "space-0", "space-1", "space-2", "space-3", "space-4", "space-6", "space-8",
+    "space-10", "space-12", "space-16"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"switcher\" data-threshold=\"{threshold}\" data-gap=\"{gap}\">{children}</div>",
+    "html_default": "<div data-ui=\"switcher\">{children}</div>"
+  },
+
+  "safe_transforms": [
+    "change-threshold",
+    "change-gap",
+    "add-children",
+    "remove-children"
+  ],
+
+  "unsafe_transforms": [
+    "change-display-property",
+    "remove-container-type",
+    "add-viewport-media-query"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": [],
+    "notes": [
+      "data-threshold names a length on the CANON ladder (sm 40rem · md 48rem · lg 64rem · xl 80rem, FAQIR-SPEC §15) measured on the switcher's own inline size — not on the viewport. A switcher in a 24rem sidebar is a column even on a 4K display, which is the point.",
+      "Nothing here takes a tier suffix. data-gap-md would make a container-driven component viewport-driven again; if a layout genuinely needs to answer to the page width, that is a pattern's job (§15 doctrine 3), not a switcher's.",
+      "The children become equal-width columns above the threshold (flex-basis: 0), so switcher suits peers — two panels, a row of actions, a form's field pair. For items of unequal importance that merely need to reflow, use cluster; for a fixed column count, use grid.",
+      "The root is a query container (container-type: inline-size, container-name: faqir-switcher) and therefore takes its width from its parent. Nested switchers each measure their own column: the inner one answers to the space the outer one gave it."
+    ]
+  },
+
+  "files": {
+    "html": "switcher.html",
+    "css": "switcher.css",
+    "manifest": "switcher.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "is-its-own-inline-size-query-container",
+    "column-below-the-threshold",
+    "row-at-and-above-the-threshold",
+    "threshold-values-are-the-canon-lengths",
+    "no-viewport-media-query-in-the-file",
+    "default-threshold-applies-without-the-attribute",
+    "gap-resolves-from-the-spacing-scale"
+  ]
+}

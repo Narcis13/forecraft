@@ -1,0 +1,179 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "bento",
+  "version": "1.0.1",
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Fix: the reduced-motion block now repeats the data-animate entrance selector. At its old specificity (0,2,0) it lost to the entrance (0,3,0), so tiles still scrubbed in under prefers-reduced-motion: reduce.",
+      "breaking": false
+    }
+  ],
+  "kind": "pattern",
+  "category": "marketing",
+  "description": "Bento feature grid for a marketing page: a section heading plus a real <ul> of card-like tiles that may span two columns, two rows or both, packed densely into a four-column mosaic from the lg floor. Composition only: zero JavaScript, no controller, no reactive directives — the spans, the hover spotlight and the optional staggered entrance are pure CSS.",
+
+  "anatomy": {
+    "tag": "section",
+    "selector": "[data-ui='bento']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "heading": {
+      "selector": "[data-part='heading']",
+      "required": true,
+      "tag_hint": "h2",
+      "description": "Section heading. Give it an id and point the section's aria-labelledby at it so the landmark is named"
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "A paragraph of copy. As a direct child of the section it is the intro under the heading, capped at the content measure; as a direct child of an item it is that tile's one or two sentences"
+    },
+    "items": {
+      "selector": "[data-part='items']",
+      "required": true,
+      "tag_hint": "ul",
+      "description": "The mosaic. Keep it a <ul> so the tiles are announced as a list; the marker is removed in CSS, not the semantics"
+    },
+    "item": {
+      "selector": "[data-part='item']",
+      "required": true,
+      "tag_hint": "li",
+      "description": "One tile — repeat once per feature, as a direct child of items. The card surface is drawn here (not by a nested card); its shape is data-span (wide | tall | large), written on this element"
+    },
+    "media": {
+      "selector": "[data-part='media']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Optional stretched visual area at the top of a tile; its single child fills it, so a nested data-ui='backdrop' (data-static, so only one scene on the page moves) paints the whole panel. It grows into the spare height of a tall tile. Decoration: mark it aria-hidden='true'"
+    },
+    "icon": {
+      "selector": "[data-part='icon']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Tinted plate WRAPPING a nested data-ui='icon' (the plate is never the icon itself). Mark the plate aria-hidden='true' — the meaning is carried by the title beside it"
+    },
+    "title": {
+      "selector": "[data-part='title']",
+      "required": true,
+      "tag_hint": "h3",
+      "description": "Tile heading, one level below the section heading so the outline never skips. Set in the heading face"
+    }
+  },
+
+  "variants": {},
+
+  "props": {
+    "span": {
+      "type": "enum",
+      "values": ["wide", "tall", "large"],
+      "attr": "data-span",
+      "description": "Written on an ITEM, never the root: wide spans two columns, tall spans two rows, large spans both. Columns are spanned from the md floor (two tracks) and rows from the lg floor (where grid-auto-rows gives a row real height); a phone always sees one clean column."
+    },
+    "animate": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-animate",
+      "description": "Stagger the tiles in, each one --motion-stagger after the sibling before it, reading the theme's --motion-reveal-* tokens. Where view timelines are supported the same entrance is scrubbed by the scrollbar as each tile enters the viewport; elsewhere it plays once on load. Reduced motion and print show every tile already arrived."
+    },
+    "--bento-gap": {
+      "type": "string",
+      "default": "var(--space-4)",
+      "description": "Gutter between tiles (custom property, set on the root). Pass a spacing token."
+    },
+    "--bento-row": {
+      "type": "string",
+      "default": "12rem",
+      "description": "Row floor of the mosaic from the lg tier (custom property, set on the root): the least height a row may have, so a tall or large tile has two rows of real height to span. Rows still grow to fit their content."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-labelledby on the section pointing at the heading id",
+      "aria-hidden='true' on every media area and icon plate — they are decoration",
+      "tile titles are real headings one level below the section heading"
+    ],
+    "notes": "The mosaic is visual only: `grid-auto-flow: dense` may place a later tile before an earlier one on screen, but the reading order stays the source order, so put the tiles in the order they should be read. The hover spotlight and lift also fire on focus-within, so a tile whose copy holds a link lights up for keyboard users. The entrance is removed under prefers-reduced-motion.",
+    "keyboard": {
+      "Tab": "move through any links inside the tiles in source order"
+    }
+  },
+
+  "tokens_used": [
+    "space-4", "space-12", "space-8", "space-3", "space-32", "space-10", "space-16", "space-6",
+    "font-body", "font-heading", "color-fg", "color-bg", "color-fg-muted", "color-primary",
+    "color-bg-subtle", "color-primary-subtle", "text-xl", "text-lg", "text-base", "text-3xl",
+    "heading-weight", "heading-tracking", "heading-transform", "heading-caps", "heading-leading",
+    "measure-content", "leading-relaxed", "leading-normal", "card-padding", "card-bg",
+    "card-border-width", "card-border", "card-radius", "texture-surface", "corner-shape",
+    "duration-fast", "duration-normal", "ease-default", "ease-linear", "motion-hover-lift",
+    "motion-reveal-duration", "motion-reveal-ease", "motion-stagger", "motion-reveal-distance",
+    "radius-md"
+  ],
+
+  "templates": {
+    "html": "<section data-ui=\"bento\" aria-labelledby=\"{id}-heading\">\n  <h2 data-part=\"heading\" id=\"{id}-heading\">{heading}</h2>\n  <p data-part=\"description\">{description}</p>\n  <ul data-part=\"items\">\n    <li data-part=\"item\" data-span=\"{span}\">\n      <span data-part=\"icon\" aria-hidden=\"true\"><span data-ui=\"icon\" data-icon=\"{icon}\"></span></span>\n      <h3 data-part=\"title\">{item_title}</h3>\n      <p data-part=\"description\">{item_description}</p>\n    </li>\n  </ul>\n</section>"
+  },
+
+  "safe_transforms": [
+    "add-item",
+    "remove-item",
+    "reorder-items",
+    "change-item-span",
+    "swap-icon-plate-for-media",
+    "change-item-icons",
+    "toggle-animate",
+    "add-section-description",
+    "remove-section-description",
+    "change-gap-or-row-floor"
+  ],
+
+  "unsafe_transforms": [
+    "replace-items-list-with-divs",
+    "replace-item-surface-with-a-nested-card",
+    "write-data-span-on-the-root",
+    "remove-aria-labelledby",
+    "remove-aria-hidden-from-media-or-icon-plate",
+    "promote-tile-titles-to-h2",
+    "add-custom-script"
+  ],
+
+  "composition": {
+    "contains": ["backdrop", "icon"],
+    "used_in": [],
+    "notes": [
+      "The tile surface is pattern CSS, not a nested data-ui='card': a nested component would take ownership of the data-part on its children, so [data-part='title'] would no longer belong to bento. The tile reads the same --card-* aliases a card does, so a theme that re-skins cards re-skins tiles.",
+      "A nested backdrop inside [data-part='media'] keeps the backdrop's own contract (data-variant, data-intensity, data-static) and must not carry a bento data-part. The media part is a grid whose single child stretches, so the backdrop needs no sizing of its own. Prefer data-static: one moving scene per screen.",
+      "The icon plate wraps the icon primitive instead of being it: an icon renders its glyph with background-color:currentColor behind a CSS mask, so a background on a data-ui='icon' element repaints the glyph rather than framing it. Style the wrapper; let the icon inherit colour and size.",
+      "The entrance copies the reveal primitive's stagger rather than nesting a reveal: a reveal with data-stagger animates ITS children, and the tiles are the items part's children, which a wrapper between <ul> and <li> cannot be."
+    ]
+  },
+
+  "files": {
+    "html": "bento.html",
+    "css": "bento.css",
+    "manifest": "bento.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-section-with-data-ui-bento",
+    "heading-items-and-title-slots-are-required",
+    "items-container-is-a-real-list",
+    "tile-surface-is-drawn-by-the-item-part",
+    "decorative-media-and-icon-plates-are-aria-hidden",
+    "span-is-written-on-an-item-not-the-root",
+    "one-column-on-a-phone-two-from-md-four-from-lg",
+    "spans-only-apply-where-the-tracks-exist",
+    "animate-staggers-tiles-by-source-order",
+    "ships-zero-javascript",
+    "reference-page-is-audit-clean"
+  ]
+}

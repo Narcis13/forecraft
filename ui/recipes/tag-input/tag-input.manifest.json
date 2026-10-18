@@ -1,0 +1,210 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "tag-input",
+  "version": "1.1.1",
+  "kind": "recipe",
+  "category": "forms",
+  "description": "Multi-value input composing the chip primitive and combobox listbox behaviour — type + Enter to add tags, Backspace to remove the last, dismiss buttons per tag, optional filtered suggestions, and a configurable duplicates policy",
+  "changes": [
+    {
+      "version": "1.1.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the tag list, input, listbox and options with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Parts are root > taglist > input and root > listbox > option and empty. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "data-highlighted and data-hidden are now declared. The controller has always written both onto the options (active descendant and filtered-out respectively) and the CSS has always styled them, but no manifest named them. They are states rather than props because a controller writes them: a state is the runtime's vocabulary, a prop is what an author types. 0.8-10's undeclared-attribute rule now makes this class of drift impossible: an attribute a component's CSS selects on that its manifest never declares fails the registry gate.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='tag-input']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "taglist": {
+      "selector": "[data-part='taglist']",
+      "required": true,
+      "tag_hint": "span",
+      "description": "The field box holding the committed tag chips and the text input"
+    },
+    "tag": {
+      "selector": "[data-part='tag']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "A committed tag — a data-ui=\"chip\" element (styled by chip.css) with a label and dismiss button; created and removed by the controller"
+    },
+    "input": {
+      "selector": "[data-part='input']",
+      "required": true,
+      "tag_hint": "input",
+      "description": "The text input for typing new tags; role=combobox when a suggestions listbox is present"
+    },
+    "listbox": {
+      "selector": "[data-part='listbox']",
+      "required": false,
+      "tag_hint": "ul",
+      "description": "Optional suggestions dropdown with role=listbox (combobox listbox contract)"
+    },
+    "option": {
+      "selector": "[data-part='option']",
+      "required": false,
+      "tag_hint": "li",
+      "description": "A suggestion with role=option"
+    },
+    "empty": {
+      "selector": "[data-part='empty']",
+      "required": false,
+      "tag_hint": "li",
+      "description": "Empty state shown when no suggestion matches the filter"
+    },
+    "value": {
+      "selector": "[data-part='value']",
+      "required": false,
+      "tag_hint": "input",
+      "description": "Hidden input mirroring the tag array as JSON; the controller fires native input events on it so l-model stays in sync"
+    }
+  },
+  "variants": {},
+  "states": {
+    "closed": {
+      "attr": "data-state=\"closed\"",
+      "default": true
+    },
+    "open": {
+      "attr": "data-state=\"open\""
+    },
+    "highlighted": {
+      "attr": "data-highlighted",
+      "applied_to": "option",
+      "description": "The active descendant of the suggestion listbox — the option arrow keys have moved to. The controller writes it; only one option carries it at a time"
+    },
+    "hidden": {
+      "attr": "data-hidden",
+      "applied_to": "option",
+      "description": "A suggestion filtered out by the current input, or already added as a tag. The controller writes it; hidden options are skipped by keyboard navigation"
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "getValue",
+        "params": ""
+      },
+      {
+        "name": "setValue",
+        "params": "next"
+      },
+      {
+        "name": "addTag",
+        "params": "raw"
+      },
+      {
+        "name": "removeTag",
+        "params": "value"
+      },
+      {
+        "name": "clear",
+        "params": ""
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "placeholder": {
+      "type": "string",
+      "default": "",
+      "description": "Text input placeholder"
+    },
+    "allowDuplicates": {
+      "type": "boolean",
+      "default": false,
+      "description": "When data-allow-duplicates is present, repeated tags are permitted (default: rejected, case-insensitive)"
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "role=\"group\" on taglist with an accessible name",
+      "type=\"button\" and aria-label on each chip dismiss button",
+      "role=\"combobox\", aria-autocomplete=\"list\", aria-expanded on the input when suggestions are present",
+      "role=\"listbox\" on listbox, role=\"option\" on each option, aria-controls linking input to listbox",
+      "aria-activedescendant on the combobox, naming the active option while the list is open"
+    ],
+    "keyboard": {
+      "Enter": "commit the highlighted suggestion, else the trimmed draft, as a tag",
+      "Backspace": "on an empty input, remove the last tag",
+      "ArrowDown/ArrowUp": "highlight the next/previous suggestion (opening the listbox)",
+      "Escape": "close the suggestions listbox"
+    },
+    "notes": "The taglist is a role=\"group\", not a role=\"list\": the combobox input shares the box with the chips, and role=\"list\" may only own role=\"listitem\" children (axe aria-required-children). Each chip is reachable through its own labelled dismiss button, so no list semantics are lost. Tags reuse the chip primitive's dismiss button (a <button type=\"button\"> with an aria-label). The suggestions listbox reuses the combobox listbox behaviour. The committed value is an array of strings, exposed via getValue(), the faqir:change event detail, and (serialized as JSON) the hidden [data-part=\"value\"] input for l-model."
+  },
+  "tokens_used": [
+    "color-bg",
+    "color-fg",
+    "color-fg-muted",
+    "color-border",
+    "color-primary-subtle",
+    "radius-md",
+    "radius-lg",
+    "shadow-md",
+    "space-1",
+    "space-1h",
+    "space-2",
+    "space-3",
+    "text-sm",
+    "z-dropdown",
+    "duration-fast",
+    "ease-default",
+    "font-ui",
+    "border-width",
+    "focus-ring-color",
+    "focus-ring-width"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"tag-input\" data-state=\"closed\">\n  <span data-part=\"taglist\" role=\"group\" aria-label=\"{label}\">\n    <input data-part=\"input\" type=\"text\" role=\"combobox\" aria-expanded=\"false\" aria-autocomplete=\"list\" placeholder=\"{placeholder}\">\n  </span>\n  <input data-part=\"value\" type=\"hidden\">\n</div>"
+  },
+  "safe_transforms": [
+    "add-suggestion-option",
+    "remove-suggestion-option",
+    "change-placeholder",
+    "toggle-allow-duplicates",
+    "seed-initial-tags",
+    "restyle-listbox-background"
+  ],
+  "unsafe_transforms": [
+    "remove-taglist-role-group",
+    "remove-dismiss-aria-label",
+    "remove-combobox-role-when-suggestions-present",
+    "remove-keyboard-handling"
+  ],
+  "composition": {
+    "contains": [
+      "chip"
+    ],
+    "used_in": []
+  },
+  "files": {
+    "html": "tag-input.html",
+    "css": "tag-input.css",
+    "js": "tag-input.js",
+    "manifest": "tag-input.manifest.json"
+  },
+  "tests": [
+    "type-and-enter-adds-a-tag",
+    "backspace-on-empty-removes-last-tag",
+    "dismiss-button-removes-a-tag",
+    "rejects-duplicate-tags-by-default",
+    "allows-duplicates-when-opted-in",
+    "getValue-returns-the-tag-array",
+    "setValue-rebuilds-the-chips",
+    "value-array-exposed-to-l-model",
+    "suggestion-arrow-and-enter-commits",
+    "suggestion-click-commits",
+    "reuses-chip-markup-for-tags",
+    "emits-faqir-change-on-add-and-remove"
+  ]
+}

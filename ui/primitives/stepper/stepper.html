@@ -1,0 +1,44 @@
+<!-- @ui:component stepper -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots step indicator label connector -->
+
+<!-- Horizontal stepper -->
+<div data-ui="stepper">
+  <div data-part="step" data-state="completed">
+    <span data-part="indicator">&#x2713;</span>
+    <span data-part="label">Account</span>
+  </div>
+  <div data-part="connector" data-state="completed"></div>
+  <div data-part="step" data-state="active">
+    <span data-part="indicator">2</span>
+    <span data-part="label">Project</span>
+  </div>
+  <div data-part="connector"></div>
+  <div data-part="step">
+    <span data-part="indicator">3</span>
+    <span data-part="label">Components</span>
+  </div>
+  <div data-part="connector"></div>
+  <div data-part="step">
+    <span data-part="indicator">4</span>
+    <span data-part="label">Review</span>
+  </div>
+</div>
+
+<!-- Vertical stepper -->
+<div data-ui="stepper" data-variant="vertical">
+  <div data-part="step" data-state="completed">
+    <span data-part="indicator">&#x2713;</span>
+    <span data-part="label">Account</span>
+  </div>
+  <div data-part="connector" data-state="completed"></div>
+  <div data-part="step" data-state="active">
+    <span data-part="indicator">2</span>
+    <span data-part="label">Project</span>
+  </div>
+  <div data-part="connector"></div>
+  <div data-part="step">
+    <span data-part="indicator">3</span>
+    <span data-part="label">Review</span>
+  </div>
+</div>

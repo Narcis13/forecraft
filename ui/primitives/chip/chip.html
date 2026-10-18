@@ -1,0 +1,28 @@
+<!-- @ui:component chip -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots label dismiss -->
+<!-- @ui:variants visual=default|primary|outline|destructive size=sm|md|lg -->
+
+<!-- Default -->
+<span data-ui="chip"><span data-part="label">Chip</span></span>
+
+<!-- Variants -->
+<span data-ui="chip" data-variant="primary"><span data-part="label">Primary</span></span>
+<span data-ui="chip" data-variant="outline"><span data-part="label">Outline</span></span>
+<span data-ui="chip" data-variant="destructive"><span data-part="label">Destructive</span></span>
+
+<!-- Sizes -->
+<span data-ui="chip" data-size="sm"><span data-part="label">Small</span></span>
+<span data-ui="chip"><span data-part="label">Medium</span></span>
+<span data-ui="chip" data-size="lg"><span data-part="label">Large</span></span>
+
+<!-- Dismissible -->
+<span data-ui="chip">
+  <span data-part="label">TypeScript</span>
+  <button data-part="dismiss" type="button" aria-label="Remove TypeScript">&times;</button>
+</span>
+
+<span data-ui="chip" data-variant="primary">
+  <span data-part="label">Design</span>
+  <button data-part="dismiss" type="button" aria-label="Remove Design">&times;</button>
+</span>

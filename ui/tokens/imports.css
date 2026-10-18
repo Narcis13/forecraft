@@ -1,0 +1,15 @@
+/* @ui:tokens index — aggregated token imports */
+
+@import './palette.css';
+@import './spacing.css';
+@import './typography.css';
+@import './effects.css';
+@import './textures.css';
+@import './motion.css';
+@import './semantic.css';
+@import './aliases.css';
+@import './document.css';
+@import './doc-aliases.css';
+/* density.css re-declares alias tokens under [data-density] — same specificity as
+   :root, so it must stay last. */
+@import './density.css';

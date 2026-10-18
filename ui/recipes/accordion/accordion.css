@@ -1,0 +1,108 @@
+/* @ui:component accordion */
+/* @ui:tokens color-fg color-fg-muted color-border color-bg-muted space-4 text-sm text-base weight-medium duration-normal ease-default radius-lg radius-sm font-ui border-width focus-ring-width focus-ring-style focus-ring-color focus-ring-offset */
+
+/* ── Root ── */
+[data-ui="accordion"] {
+  width: 100%;
+}
+
+/* Parts are reached by child combinators, never descendant ones, so an
+   accordion (or anything else with a `trigger`) nested in a section's content
+   keeps its own parts: an expanded section used to rotate every chevron below
+   it. A trigger is its item's child, or the child of a heading that is — the
+   APG shape, `<h3><button data-part="trigger">`. Hops sit in `:where()` so each
+   rule keeps its specificity. [1.1F-20] */
+
+/* ── Item ── */
+[data-ui="accordion"] > [data-part="item"] {
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+[data-ui="accordion"] > [data-part="item"]:last-child {
+  border-bottom: none;
+}
+
+/* ── Trigger ── */
+[data-ui="accordion"] > :where([data-part="item"]) > [data-part="trigger"],
+[data-ui="accordion"] > :where([data-part="item"]) > :where(h1, h2, h3, h4, h5, h6) > [data-part="trigger"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-4);
+  border: none;
+  background: transparent;
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  text-align: start;
+  cursor: pointer;
+  transition: color var(--duration-normal) var(--ease-default);
+}
+
+[data-ui="accordion"] > :where([data-part="item"]) > [data-part="trigger"]:hover,
+[data-ui="accordion"] > :where([data-part="item"]) > :where(h1, h2, h3, h4, h5, h6) > [data-part="trigger"]:hover {
+  color: var(--color-fg);
+  background: var(--color-bg-muted, oklch(0.96 0.004 260));
+}
+
+[data-ui="accordion"] > :where([data-part="item"]) > [data-part="trigger"]:focus-visible,
+[data-ui="accordion"] > :where([data-part="item"]) > :where(h1, h2, h3, h4, h5, h6) > [data-part="trigger"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: calc(-1 * var(--focus-ring-offset));
+  border-radius: var(--radius-sm, 0.25rem);
+}
+
+/* ── Icon (chevron) ── */
+[data-ui="accordion"] > :where([data-part="item"]) > :where([data-part="trigger"]) > [data-part="icon"],
+[data-ui="accordion"] > :where([data-part="item"]) > :where(h1, h2, h3, h4, h5, h6) > :where([data-part="trigger"]) > [data-part="icon"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--color-fg-muted);
+  font-size: var(--text-sm);
+  transition: transform var(--duration-normal) var(--ease-default);
+  transform: rotate(0deg);
+}
+
+[data-ui="accordion"] > [data-part="item"][data-state="expanded"] > :where([data-part="trigger"]) > [data-part="icon"],
+[data-ui="accordion"] > [data-part="item"][data-state="expanded"] > :where(h1, h2, h3, h4, h5, h6) > :where([data-part="trigger"]) > [data-part="icon"] {
+  transform: rotate(180deg);
+}
+
+/* ── Content ── */
+[data-ui="accordion"] > :where([data-part="item"]) > [data-part="content"] {
+  overflow: hidden;
+  padding: 0 var(--space-4) var(--space-4);
+  color: var(--color-fg-muted);
+  font-size: var(--text-sm);
+}
+
+/* ── Bordered Variant ── */
+[data-ui="accordion"][data-bordered="true"] {
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+[data-ui="accordion"][data-bordered="true"] > [data-part="item"] {
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+[data-ui="accordion"][data-bordered="true"] > [data-part="item"]:last-child {
+  border-bottom: none;
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="accordion"] > :where([data-part="item"]) > :where([data-part="trigger"]) > [data-part="icon"],
+  [data-ui="accordion"] > :where([data-part="item"]) > :where(h1, h2, h3, h4, h5, h6) > :where([data-part="trigger"]) > [data-part="icon"],
+  [data-ui="accordion"] > :where([data-part="item"]) > [data-part="trigger"],
+  [data-ui="accordion"] > :where([data-part="item"]) > :where(h1, h2, h3, h4, h5, h6) > [data-part="trigger"] {
+    transition: none;
+  }
+}

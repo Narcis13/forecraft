@@ -1,0 +1,117 @@
+<!-- @ui:component site-header -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots brand nav actions menu toggle panel -->
+<!-- @ui:variants style=plain|floating|glass -->
+<!-- @ui:composition nav link button -->
+<!--
+  Site header — composition only, zero JavaScript.
+    · The root is a real <header> at the top of the page, so it is the banner
+      landmark; the brand is a link home, not a heading, so the header never
+      enters the document outline.
+    · The links are written twice, on purpose: once in [data-part="nav"] (a
+      nested data-ui="nav", shown from the md floor) and once in the menu panel
+      (a vertical nav, shown below it). Only one copy is on screen at a time,
+      and the two navigation landmarks carry different names so a screen
+      reader's landmark list tells them apart.
+    · The phone menu is a native <details>: the <summary> is the toggle, so it
+      is a button to the keyboard and to assistive technology, and open/close
+      needs no script. The panel drops out of the bar as an overlay instead of
+      pushing the page down.
+    · data-sticky pins the bar; data-condense lets it start transparent over
+      the top of the page and settle into its fill as the reader scrolls — a
+      scroll timeline, no listener — and falls back to the plain sticky bar.
+    · Nested button and link primitives inside [data-part="actions"] keep their
+      own data-variant/data-size and carry no data-part of their own.
+-->
+
+<!-- Plain, sticky -->
+<header data-ui="site-header" data-variant="plain" data-sticky>
+  <a data-part="brand" href="#home">Acme</a>
+  <div data-part="nav">
+    <nav data-ui="nav" aria-label="Main">
+      <a data-part="link" data-state="active" href="#features">Features</a>
+      <a data-part="link" href="#pricing">Pricing</a>
+      <a data-part="link" href="#docs">Docs</a>
+      <a data-part="link" href="#blog">Blog</a>
+    </nav>
+  </div>
+  <div data-part="actions">
+    <a data-ui="link" data-variant="muted" href="#signin">Sign in</a>
+    <a data-ui="button" data-variant="primary" data-size="sm" href="#start">Get started</a>
+  </div>
+  <details data-part="menu">
+    <summary data-part="toggle">Menu</summary>
+    <div data-part="panel">
+      <nav data-ui="nav" data-variant="vertical" aria-label="Main menu">
+        <a data-part="link" data-state="active" href="#features">Features</a>
+        <a data-part="link" href="#pricing">Pricing</a>
+        <a data-part="link" href="#docs">Docs</a>
+        <a data-part="link" href="#blog">Blog</a>
+      </nav>
+      <div data-part="actions">
+        <a data-ui="button" data-variant="primary" href="#start">Get started</a>
+        <a data-ui="button" data-variant="outline" href="#signin">Sign in</a>
+      </div>
+    </div>
+  </details>
+</header>
+
+<!-- Floating: a pill inset from the page edges -->
+<header data-ui="site-header" data-variant="floating" data-sticky>
+  <a data-part="brand" href="#home-floating">Acme</a>
+  <div data-part="nav">
+    <nav data-ui="nav" aria-label="Main, floating header">
+      <a data-part="link" data-state="active" href="#product">Product</a>
+      <a data-part="link" href="#customers">Customers</a>
+      <a data-part="link" href="#changelog">Changelog</a>
+    </nav>
+  </div>
+  <div data-part="actions">
+    <a data-ui="button" data-variant="ghost" data-size="sm" href="#signin-floating">Sign in</a>
+    <a data-ui="button" data-variant="primary" data-size="sm" href="#start-floating">Start free</a>
+  </div>
+  <details data-part="menu">
+    <summary data-part="toggle">Menu</summary>
+    <div data-part="panel">
+      <nav data-ui="nav" data-variant="vertical" aria-label="Main menu, floating header">
+        <a data-part="link" data-state="active" href="#product">Product</a>
+        <a data-part="link" href="#customers">Customers</a>
+        <a data-part="link" href="#changelog">Changelog</a>
+      </nav>
+      <div data-part="actions">
+        <a data-ui="button" data-variant="primary" href="#start-floating">Start free</a>
+        <a data-ui="button" data-variant="outline" href="#signin-floating">Sign in</a>
+      </div>
+    </div>
+  </details>
+</header>
+
+<!-- Glass, condensing on scroll: transparent over the hero, frosted once the page moves -->
+<header data-ui="site-header" data-variant="glass" data-sticky data-condense>
+  <a data-part="brand" href="#home-glass">Acme</a>
+  <div data-part="nav">
+    <nav data-ui="nav" aria-label="Main, glass header">
+      <a data-part="link" data-state="active" href="#overview">Overview</a>
+      <a data-part="link" href="#showcase">Showcase</a>
+      <a data-part="link" href="#community">Community</a>
+    </nav>
+  </div>
+  <div data-part="actions">
+    <a data-ui="link" data-variant="muted" href="#signin-glass">Sign in</a>
+    <a data-ui="button" data-variant="primary" data-size="sm" href="#start-glass">Get started</a>
+  </div>
+  <details data-part="menu">
+    <summary data-part="toggle">Menu</summary>
+    <div data-part="panel">
+      <nav data-ui="nav" data-variant="vertical" aria-label="Main menu, glass header">
+        <a data-part="link" data-state="active" href="#overview">Overview</a>
+        <a data-part="link" href="#showcase">Showcase</a>
+        <a data-part="link" href="#community">Community</a>
+      </nav>
+      <div data-part="actions">
+        <a data-ui="button" data-variant="primary" href="#start-glass">Get started</a>
+        <a data-ui="button" data-variant="outline" href="#signin-glass">Sign in</a>
+      </div>
+    </div>
+  </details>
+</header>

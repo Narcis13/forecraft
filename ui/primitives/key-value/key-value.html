@@ -1,0 +1,60 @@
+<!-- @ui:component key-value -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots label value -->
+<!-- @ui:variants variant=horizontal|vertical|inline size=sm|md|lg -->
+
+<!-- Horizontal (default) -->
+<dl data-ui="key-value">
+  <dt data-part="label">Company</dt>
+  <dd data-part="value">SC ACME SRL</dd>
+  <dt data-part="label">CIF</dt>
+  <dd data-part="value">RO12345678</dd>
+  <dt data-part="label">Address</dt>
+  <dd data-part="value">Str. Exemplu Nr. 1, Bucuresti</dd>
+</dl>
+
+<!-- Vertical -->
+<dl data-ui="key-value" data-variant="vertical">
+  <dt data-part="label">Invoice Number</dt>
+  <dd data-part="value">INV-2024-0042</dd>
+  <dt data-part="label">Issue Date</dt>
+  <dd data-part="value">2024-03-15</dd>
+</dl>
+
+<!-- Inline -->
+<dl data-ui="key-value" data-variant="inline">
+  <dt data-part="label">Status</dt>
+  <dd data-part="value">Active</dd>
+  <dt data-part="label">Due</dt>
+  <dd data-part="value">2024-04-15</dd>
+  <dt data-part="label">Amount</dt>
+  <dd data-part="value">1,250.00 RON</dd>
+</dl>
+
+<!-- Grid: 2 columns -->
+<dl data-ui="key-value" data-cols="2">
+  <dt data-part="label">Company</dt>
+  <dd data-part="value">SC ACME SRL</dd>
+  <dt data-part="label">CIF</dt>
+  <dd data-part="value">RO12345678</dd>
+  <dt data-part="label">IBAN</dt>
+  <dd data-part="value">RO49AAAA1B31007593840000</dd>
+  <dt data-part="label">Bank</dt>
+  <dd data-part="value">Banca Transilvania</dd>
+</dl>
+
+<!-- Small size -->
+<dl data-ui="key-value" data-size="sm">
+  <dt data-part="label">Ref</dt>
+  <dd data-part="value">#12345</dd>
+  <dt data-part="label">Type</dt>
+  <dd data-part="value">Invoice</dd>
+</dl>
+
+<!-- Large size -->
+<dl data-ui="key-value" data-size="lg">
+  <dt data-part="label">Total Amount</dt>
+  <dd data-part="value">15,750.00 RON</dd>
+  <dt data-part="label">Payment Method</dt>
+  <dd data-part="value">Bank Transfer</dd>
+</dl>

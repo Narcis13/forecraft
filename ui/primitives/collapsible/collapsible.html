@@ -1,0 +1,32 @@
+<!-- @ui:component collapsible -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots trigger content -->
+<!-- @ui:variants visual=default|bordered -->
+
+<!-- Default (closed) — native <details>, zero JavaScript -->
+<details data-ui="collapsible">
+  <summary data-part="trigger">What is Faqir UI?</summary>
+  <div data-part="content">
+    Faqir UI is a zero-class, manifest-driven component framework. Components are
+    plain HTML with data attributes — no build step and no runtime required.
+  </div>
+</details>
+
+<!-- Open by default via the native `open` attribute -->
+<details data-ui="collapsible" open>
+  <summary data-part="trigger">How does theming work?</summary>
+  <div data-part="content">
+    Every color and spacing value is a CSS custom property (a token). Switch themes
+    by swapping a stylesheet — the components themselves never change.
+  </div>
+</details>
+
+<!-- Bordered variant -->
+<details data-ui="collapsible" data-variant="bordered">
+  <summary data-part="trigger">Is JavaScript required?</summary>
+  <div data-part="content">
+    No. The collapsible is built on the native &lt;details&gt;/&lt;summary&gt;
+    elements — it opens and closes with zero JavaScript, and animates via
+    ::details-content where the browser supports it.
+  </div>
+</details>

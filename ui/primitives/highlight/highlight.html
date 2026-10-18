@@ -1,0 +1,55 @@
+<!-- @ui:component highlight -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants style=gradient|shimmer|marker|underline|foil|outline|echo -->
+<!--
+  Highlight — the words a headline wants you to read first. CSS only.
+    · Inline: wrap a few words inside a heading or a paragraph.
+    · The text is real text. Every effect is a background under or clipped to
+      the glyphs, so it is selectable, searchable and announced once.
+    · data-animate plays the variant's motion: a gradient pans, a marker and an
+      underline are drawn in. A shimmer always moves (until reduced motion).
+-->
+
+<!-- Gradient (default) -->
+<p>Ship your interface, <span data-ui="highlight">not your design system</span>.</p>
+
+<!-- Gradient, panning -->
+<p>Built for <span data-ui="highlight" data-variant="gradient" data-animate>agents and humans</span> alike.</p>
+
+<!-- Marker — a highlighter stroke -->
+<p>Every value is a <span data-ui="highlight" data-variant="marker">design token</span> a theme can change.</p>
+
+<!-- Marker, drawn in after a delay, in a custom colour -->
+<p>Zero classes, <span data-ui="highlight" data-variant="marker" data-animate style="--highlight-color: var(--color-warning); --highlight-delay: 400ms">zero build step</span>.</p>
+
+<!-- Underline -->
+<p>The selector <span data-ui="highlight" data-variant="underline">is the documentation</span>.</p>
+
+<!-- Underline, drawn in -->
+<p>Audited <span data-ui="highlight" data-variant="underline" data-animate>before it ships</span>.</p>
+
+<!-- Shimmer — for a status line that is still working -->
+<p><span data-ui="highlight" data-variant="shimmer">Generating your theme…</span></p>
+
+
+<!-- Foil — metallic display text, banded from the primary ramp, with a slow glint
+     that only plays when motion is welcome. Display size only. -->
+<h2 data-ui="heading" data-size="1">The <span data-ui="highlight" data-variant="foil">Gold Edition</span> is here</h2>
+
+<!-- Foil on a dark ground: the same bands step lighter, not darker -->
+<div data-theme="dark" style="padding: var(--space-6); background: var(--color-bg); color: var(--color-fg)">
+  <h2 data-ui="heading" data-size="1">Struck in <span data-ui="highlight" data-variant="foil">pure metal</span></h2>
+</div>
+
+<!-- Outline — a contour and no fill; solid text where text-stroke is unsupported -->
+<h2 data-ui="heading" data-size="1">Made for <span data-ui="highlight" data-variant="outline">the loud ones</span></h2>
+
+<!-- Outline in another ink -->
+<h2 data-ui="heading" data-size="1"><span data-ui="highlight" data-variant="outline" style="--highlight-color: var(--color-fg)">Open</span> every day</h2>
+
+<!-- Echo — two hard offset copies, the second in --highlight-echo (warning by default) -->
+<h2 data-ui="heading" data-size="1">Make it <span data-ui="highlight" data-variant="echo">pop</span></h2>
+
+<!-- Echo, with the second shadow in another colour -->
+<h2 data-ui="heading" data-size="1">Play <span data-ui="highlight" data-variant="echo" style="--highlight-echo: var(--color-success)">loud</span></h2>

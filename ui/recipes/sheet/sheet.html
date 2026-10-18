@@ -1,0 +1,109 @@
+<!-- @ui:component sheet -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots trigger overlay panel header title body close -->
+<!-- @ui:variants side=bottom|top|left|right size=sm|md|lg -->
+<!-- @ui:controller sheet.js -->
+
+<!-- Default (bottom, medium) -->
+<div data-ui="sheet" data-state="closed" id="demo-sheet">
+  <button data-part="trigger" data-ui="button" data-variant="primary">Open Sheet</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    data-variant="bottom"
+    data-size="md"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="demo-sheet-title"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="demo-sheet-title" data-part="title">Sheet Title</h2>
+      <button data-part="close" aria-label="Close sheet">&#x2715;</button>
+    </div>
+    <div data-part="body">
+      <p>This is a bottom sheet. It slides up from the bottom of the screen.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Top sheet, small -->
+<div data-ui="sheet" data-state="closed" id="top-sheet">
+  <button data-part="trigger" data-ui="button" data-variant="outline">Open Top Sheet</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    data-variant="top"
+    data-size="sm"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="top-sheet-title"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="top-sheet-title" data-part="title">Notification</h2>
+      <button data-part="close" aria-label="Close sheet">&#x2715;</button>
+    </div>
+    <div data-part="body">
+      <p>A compact top sheet for notifications or alerts.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Left sheet, large -->
+<div data-ui="sheet" data-state="closed" id="left-sheet">
+  <button data-part="trigger" data-ui="button" data-variant="outline">Open Left Sheet</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    data-variant="left"
+    data-size="lg"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="left-sheet-title"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="left-sheet-title" data-part="title">Navigation</h2>
+      <button data-part="close" aria-label="Close sheet">&#x2715;</button>
+    </div>
+    <div data-part="body">
+      <p>A large side sheet for navigation or detailed content.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Right sheet, medium -->
+<div data-ui="sheet" data-state="closed" id="right-sheet">
+  <button data-part="trigger" data-ui="button" data-variant="outline">Open Right Sheet</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    data-variant="right"
+    data-size="md"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="right-sheet-title"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="right-sheet-title" data-part="title">Details</h2>
+      <button data-part="close" aria-label="Close sheet">&#x2715;</button>
+    </div>
+    <div data-part="body">
+      <p>A side sheet sliding in from the right edge.</p>
+    </div>
+  </div>
+</div>

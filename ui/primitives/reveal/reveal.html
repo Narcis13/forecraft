@@ -1,0 +1,67 @@
+<!-- @ui:component reveal -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants effect=fade|rise|fall|slide-start|slide-end|zoom|blur trigger=load|scroll -->
+<!--
+  Reveal — how content arrives. CSS only, zero JavaScript.
+    · The default trigger plays once when the element is first rendered.
+    · data-trigger="scroll" scrubs the same entrance with the scrollbar as the
+      element crosses the viewport (a view timeline); where view timelines are
+      not supported it falls back to the load entrance, never to hidden content.
+    · data-stagger moves the entrance from the root to its children, in order.
+    · Reduced motion and print resolve every reveal to "already arrived".
+-->
+
+<!-- Rise (default) — plays once on load -->
+<div data-ui="reveal">
+  <p>Every entrance reads the theme's reveal tokens.</p>
+</div>
+
+<!-- Fade -->
+<div data-ui="reveal" data-variant="fade">
+  <p>Opacity only — the quietest entrance.</p>
+</div>
+
+<!-- Fall, with a per-instance delay -->
+<div data-ui="reveal" data-variant="fall" style="--reveal-delay: 150ms">
+  <p>Drops in from above, a beat after its neighbours.</p>
+</div>
+
+<!-- Slide from the start edge (left in LTR, right in RTL) -->
+<div data-ui="reveal" data-variant="slide-start">
+  <p>Enters from the side the reading direction starts on.</p>
+</div>
+
+<!-- Slide from the end edge -->
+<div data-ui="reveal" data-variant="slide-end">
+  <p>Enters from the far side.</p>
+</div>
+
+<!-- Zoom -->
+<div data-ui="reveal" data-variant="zoom">
+  <p>Grows into place.</p>
+</div>
+
+<!-- Blur -->
+<div data-ui="reveal" data-variant="blur">
+  <p>Arrives out of focus and sharpens.</p>
+</div>
+
+<!-- Staggered group — the children arrive one after another -->
+<div data-ui="reveal" data-variant="rise" data-stagger>
+  <div data-ui="card"><div data-part="body">First</div></div>
+  <div data-ui="card"><div data-part="body">Second</div></div>
+  <div data-ui="card"><div data-part="body">Third</div></div>
+</div>
+
+<!-- Scroll-linked — scrubbed by the scrollbar as it enters the viewport -->
+<div data-ui="reveal" data-variant="zoom" data-trigger="scroll">
+  <p>Scroll me into view.</p>
+</div>
+
+<!-- Scroll-linked and staggered -->
+<div data-ui="reveal" data-variant="rise" data-trigger="scroll" data-stagger>
+  <div data-ui="card"><div data-part="body">One</div></div>
+  <div data-ui="card"><div data-part="body">Two</div></div>
+  <div data-ui="card"><div data-part="body">Three</div></div>
+</div>

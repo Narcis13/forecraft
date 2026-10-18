@@ -1,0 +1,195 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "pricing",
+  "version": "1.3.0",
+  "kind": "pattern",
+  "category": "marketing",
+  "description": "Pricing table composing a row-aligned grid of card tiers with stat prices, highlight badges, separators, icon-ticked feature lists, and one call-to-action per tier. An optional monthly/yearly billing switch swaps every price with :has() over native radios. Composition only: zero JavaScript. A highlighted tier is data-state='featured' on the tier card.",
+
+  "anatomy": {
+    "tag": "section",
+    "selector": "[data-ui='pricing']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "heading": {
+      "selector": "[data-part='heading']",
+      "required": true,
+      "tag_hint": "h2",
+      "description": "Section heading. Give it an id and point the section's aria-labelledby at it"
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Optional intro paragraph. Must be a direct child of the section — the tiers' own card descriptions are card slots, not this one"
+    },
+    "billing": {
+      "selector": "[data-part='billing']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Optional monthly/yearly switch, centred between the description and the tiers. Must be a DIRECT child of the section. Holds a data-ui='toggle-group' with data-mode='single', data-variant='segmented' and role='radiogroup' whose two radio controls carry value='monthly' (checked) and value='yearly', plus optionally a badge ('Save 20%'). Shown only where :has() is supported; elsewhere it is display:none and the monthly prices stand"
+    },
+    "monthly": {
+      "selector": "[data-part='monthly']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Wrapper around the monthly version of a price — shown by default, hidden while the billing switch's value='yearly' radio is checked. Canonically a <span> inside the tier stat's value and another inside its label, paired with a yearly sibling; any element anywhere inside the section works (a block wrapper keeps its own display). Only ever paired with a yearly wrapper"
+    },
+    "yearly": {
+      "selector": "[data-part='yearly']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Wrapper around the yearly version of a price — the sibling of a monthly wrapper, hidden until the billing switch's value='yearly' radio is checked (and always hidden where :has() is unsupported). Placed exactly like its monthly pair"
+    },
+    "tiers": {
+      "selector": "[data-part='tiers']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "The tier grid — a nested data-ui='grid' with data-align-rows and a mirrored mobile-first column ladder. Manifest-aware slot ownership leaves this part and its tier children with pricing because grid declares neither slot"
+    },
+    "tier": {
+      "selector": "[data-part='tier']",
+      "required": true,
+      "tag_hint": "article",
+      "description": "One plan — a direct card child of the tier grid with exactly four direct rows in order: header, divider, body, footer. Inside a tier, those rows and title/description are card slots, never pricing slots"
+    },
+    "footnote": {
+      "selector": "[data-part='footnote']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Fine print under the tiers (taxes, cancellation, currency)"
+    }
+  },
+
+  "variants": {
+    "columns": {
+      "values": ["2", "3"],
+      "default": "3",
+      "attr": "data-cols",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true },
+    "featured": {
+      "attr": "data-state=\"featured\"",
+      "applied_to": "tier",
+      "description": "Highlights one tier with a primary ring, a lifted shadow and a faint accent wash from its top edge. Pair it with an in-content badge ('Most popular') so the emphasis is not colour-only"
+    }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-labelledby on the section pointing at the heading id",
+      "aria-labelledby on each tier pointing at that tier's title id",
+      "aria-hidden='true' on the decorative feature tick icons",
+      "the featured tier states its emphasis in text, not only with colour",
+      "with a billing switch: role='radiogroup' and an aria-label (e.g. 'Billing period') on its toggle-group, and every yearly price stating its period in words ('per month, billed yearly')"
+    ],
+    "keyboard": {
+      "Tab": "move through the billing switch (one tab stop — the checked radio) and then the tier call-to-action links in source order",
+      "ArrowLeft/ArrowRight/ArrowUp/ArrowDown": "inside the billing switch: move between Monthly and Yearly and select it — native radio-group behaviour, so it works with no script"
+    },
+    "notes": "The hidden half of each monthly/yearly pair is display:none, so it leaves the accessibility tree and a screen reader reads exactly one price per tier. The tiers are deliberately NOT an aria-live region: a live grid would announce a run of bare amounts with no tier names on every flip. The radio announces the new period itself ('Yearly, selected'), and the prices below then read in their normal place and order, each with its period in words."
+  },
+
+  "tokens_used": [
+    "color-bg", "color-fg", "color-fg-muted", "color-primary", "color-surface-1", "space-1",
+    "space-2", "space-4", "space-6", "space-8", "space-12", "space-16", "space-3", "space-48",
+    "font-heading", "font-body", "heading-tracking", "heading-transform", "heading-caps",
+    "heading-leading", "heading-weight", "text-sm", "text-base", "text-lg", "text-3xl", "text-2xl",
+    "weight-semibold", "weight-bold", "leading-tight", "leading-normal", "leading-relaxed",
+    "shadow-md", "border-width-strong", "motion-enter-duration", "motion-enter-ease",
+    "motion-slide-distance", "texture-surface", "card-bg"
+  ],
+
+  "templates": {
+    "html": "<section data-ui=\"pricing\" data-cols=\"{columns}\" aria-labelledby=\"{id}-heading\">\n  <h2 data-part=\"heading\" id=\"{id}-heading\">{heading}</h2>\n  <p data-part=\"description\">{description}</p>\n  <div data-ui=\"grid\" data-part=\"tiers\" data-cols=\"1\" data-cols-sm=\"2\" data-cols-lg=\"{columns}\" data-gap=\"6\" data-align-rows>\n    <article data-ui=\"card\" data-part=\"tier\" aria-labelledby=\"{id}-tier\">\n      <div data-part=\"header\">\n        <h3 data-part=\"title\" id=\"{id}-tier\">{tier_name}</h3>\n        <p data-part=\"description\">{tier_blurb}</p>\n        <div data-ui=\"stat\" data-size=\"lg\">\n          <div data-part=\"value\">{price}</div>\n          <div data-part=\"label\">{period}</div>\n        </div>\n      </div>\n      <hr data-ui=\"separator\" data-part=\"divider\">\n      <div data-part=\"body\">\n        <ul>\n          <li><span data-ui=\"icon\" data-icon=\"check\" aria-hidden=\"true\"></span>{feature}</li>\n        </ul>\n      </div>\n      <div data-part=\"footer\">\n        <a data-ui=\"button\" data-variant=\"outline\" href=\"{href}\">{cta}</a>\n      </div>\n    </article>\n  </div>\n  <p data-part=\"footnote\">{footnote}</p>\n</section>",
+    "html_billing": "<section data-ui=\"pricing\" data-cols=\"{columns}\" aria-labelledby=\"{id}-heading\">\n  <h2 data-part=\"heading\" id=\"{id}-heading\">{heading}</h2>\n  <p data-part=\"description\">{description}</p>\n  <div data-part=\"billing\">\n    <div data-ui=\"toggle-group\" data-mode=\"single\" data-variant=\"segmented\" role=\"radiogroup\" aria-label=\"Billing period\">\n      <label data-part=\"item\" data-state=\"on\"><input data-part=\"control\" type=\"radio\" name=\"{id}-billing\" value=\"monthly\" checked><span data-part=\"label\">Monthly</span></label>\n      <label data-part=\"item\" data-state=\"off\"><input data-part=\"control\" type=\"radio\" name=\"{id}-billing\" value=\"yearly\"><span data-part=\"label\">Yearly</span></label>\n    </div>\n    <span data-ui=\"badge\" data-variant=\"success\">{saving}</span>\n  </div>\n  <div data-ui=\"grid\" data-part=\"tiers\" data-cols=\"1\" data-cols-sm=\"2\" data-cols-lg=\"{columns}\" data-gap=\"6\" data-align-rows>\n    <article data-ui=\"card\" data-part=\"tier\" aria-labelledby=\"{id}-tier\">\n      <div data-part=\"header\">\n        <h3 data-part=\"title\" id=\"{id}-tier\">{tier_name}</h3>\n        <p data-part=\"description\">{tier_blurb}</p>\n        <div data-ui=\"stat\" data-size=\"lg\">\n          <div data-part=\"value\"><span data-part=\"monthly\">{monthly_price}</span><span data-part=\"yearly\">{yearly_price}</span></div>\n          <div data-part=\"label\"><span data-part=\"monthly\">{monthly_period}</span><span data-part=\"yearly\">{yearly_period}</span></div>\n        </div>\n      </div>\n      <hr data-ui=\"separator\" data-part=\"divider\">\n      <div data-part=\"body\">\n        <ul>\n          <li><span data-ui=\"icon\" data-icon=\"check\" aria-hidden=\"true\"></span>{feature}</li>\n        </ul>\n      </div>\n      <div data-part=\"footer\">\n        <a data-ui=\"button\" data-variant=\"outline\" href=\"{href}\">{cta}</a>\n      </div>\n    </article>\n  </div>\n</section>"
+  },
+
+  "safe_transforms": [
+    "add-tier",
+    "remove-tier",
+    "change-column-count",
+    "move-featured-state-to-another-tier",
+    "change-prices-and-periods",
+    "add-feature-to-a-tier",
+    "change-tier-call-to-action",
+    "add-footnote",
+    "add-billing-switch-with-monthly-and-yearly-prices",
+    "remove-billing-switch-and-yearly-wrappers",
+    "change-the-saving-badge-text"
+  ],
+
+  "unsafe_transforms": [
+    "add-pricing-data-parts-inside-a-tier-card",
+    "remove-aria-labelledby",
+    "signal-the-featured-tier-with-colour-only",
+    "replace-feature-lists-with-divs",
+    "add-custom-script",
+    "change-billing-radio-values-from-monthly-and-yearly",
+    "nest-the-billing-part-below-a-wrapper",
+    "add-a-yearly-wrapper-without-its-monthly-pair",
+    "make-the-tier-grid-an-aria-live-region"
+  ],
+
+  "composition": {
+    "contains": ["grid", "card", "badge", "stat", "separator", "button", "icon", "toggle-group"],
+    "used_in": ["landing-page"],
+    "notes": [
+      "A data-part belongs to the nearest enclosing component that declares it. The nested grid declares neither tiers nor tier, so those remain pricing slots; inside a tier, header/divider/body/footer belong to card.",
+      "The price is a nested data-ui='stat' (value = amount, label = period). Pricing re-orders the stat label so the amount leads and uses auto space above the stat so prices share the bottom edge of the aligned header track.",
+      "data-align-rows fixes four direct card rows (header, divider, body, footer) per wrapped grid line. Without subgrid the grid mode makes every tier span the full width, so the fallback is a correct intrinsic stack rather than misaligned side-by-side cards.",
+      "`faqir scaffold landing-page` copies the block between the <!-- @ui:scaffold landing-page --> markers in pricing.html verbatim.",
+      "The billing switch is CSS only. [data-part=\"billing\"] is a direct child of the section holding a segmented single-mode toggle-group whose radios carry value=\"monthly\" and value=\"yearly\" (exactly those values — the sheet reads them). While the yearly radio is :checked every [data-part=\"yearly\"] in the section is shown and every [data-part=\"monthly\"] hidden; otherwise the reverse. Without :has() the billing part and every yearly wrapper are display:none, so the page is a plain monthly price list.",
+      "The monthly and yearly wrappers are the one exception to keeping pricing parts out of a tier: they go INSIDE the tier's stat — a <span> pair in the stat's value and another in its label — so the stat keeps its own value/label parts as direct children and the card keeps only card rows. Neither stat nor card declares monthly/yearly, so the ownership walk hands them back to pricing. A span wrapper is laid out inline-block so the swapped price can rise in.",
+      "The swapped-in price fades and rises half of --motion-slide-distance over --motion-enter-duration/--motion-enter-ease. It replays whenever a wrapper leaves display:none — on each flip, and once at first paint for the initially checked period. Reduced motion and print drop it."
+    ]
+  },
+
+  "files": {
+    "html": "pricing.html",
+    "css": "pricing.css",
+    "manifest": "pricing.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-section-with-data-ui-pricing",
+    "heading-and-tiers-slots-are-required",
+    "every-tier-is-a-card",
+    "the-price-is-a-stat-primitive",
+    "featured-tier-carries-data-state-featured",
+    "featured-emphasis-is-also-stated-in-content",
+    "feature-ticks-are-aria-hidden-icons",
+    "ships-zero-javascript",
+    "one-tier-per-row-below-sm-two-from-sm-and-the-declared-count-from-lg",
+    "tier-grid-declares-four-row-card-alignment",
+    "non-subgrid-fallback-stacks-complete-tier-cards",
+    "reference-page-is-audit-clean",
+    "billing-switch-swaps-monthly-and-yearly-prices-with-has",
+    "billing-switch-is-hidden-without-has-support",
+    "only-one-price-per-tier-is-in-the-accessibility-tree"
+  ],
+
+  "changes": [
+    {
+      "version": "1.3.0",
+      "note": "An optional zero-JavaScript monthly/yearly billing switch: three new slots — billing (a direct-child container for a segmented toggle-group whose radios carry value=\"monthly\" and value=\"yearly\", plus an optional saving badge) and the monthly/yearly price wrappers inside each tier's stat. :has() shows one wrapper of each pair and hides the other with display:none, so exactly one price per tier is announced; the arriving price settles in on the enter motion tokens (none under reduced motion or in print). Without :has() the switch is hidden and the monthly prices stand. The featured tier also gains a faint accent wash from its top edge and paints above its neighbours. The heading now speaks in the theme's heading voice (--font-heading, --heading-weight, -tracking, -transform, -caps), as bento's does, and steps down to --text-2xl below the sm tier. Markup without the new slots renders as before, apart from the featured wash and that heading voice.",
+      "breaking": false
+    },
+    {
+      "version": "1.2.0",
+      "note": "Tier containers now compose the grid primitive with its declared data-align-rows mode. Every tier card exposes four direct rows (header, divider, body, footer); supporting engines share those tracks through subgrid, and the price is bottom-aligned inside the shared header track. The grid's no-subgrid fallback stacks complete cards at full width, preserving truthful content relationships. The root data-cols contract remains mirrored into the nested grid ladder.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "The responsive ladder moves onto the breakpoint canon, mobile-first (task 0.8-09). The sheet's max-width media blocks became min-width floors on canon tiers (sm 40rem/640px, md 48rem/768px, lg 64rem/1024px), so every unconditional rule is now the PHONE case and a tier block only ever widens it. The tier grid follows grid's mobile-first semantics (0.8-04): data-cols names the WIDEST count, reached at lg, with two columns from sm and one on a phone. The floors keep their values, so the only behavioural shift is at exactly a floor: 1024px now gets the wide layout rather than the narrow one.",
+      "breaking": false
+    }
+  ]
+}

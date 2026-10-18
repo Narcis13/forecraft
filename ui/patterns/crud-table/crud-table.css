@@ -1,0 +1,222 @@
+/* @ui:component crud-table */
+/* @ui:tokens color-bg color-bg-subtle color-fg color-fg-muted color-border color-destructive radius-md radius-lg space-1 space-2 space-3 space-4 space-6 space-8 font-body text-sm text-base text-lg weight-medium weight-semibold duration-fast ease-default border-width */
+
+/* ── Root ── */
+[data-ui="crud-table"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  font-family: var(--font-body);
+}
+
+/* ── Toolbar ── */
+[data-ui="crud-table"] [data-part="toolbar"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+[data-ui="crud-table"] [data-part="search"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 320px;
+}
+
+[data-ui="crud-table"] [data-part="filters"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+[data-ui="crud-table"] [data-part="filters"] [data-part="dismiss"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline-start: var(--space-1);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="crud-table"] [data-part="filters"] [data-part="dismiss"]:hover {
+  opacity: 1;
+}
+
+[data-ui="crud-table"] [data-part="actions"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+  flex-shrink: 0;
+}
+
+/* ── Bulk Actions ── */
+[data-ui="crud-table"] [data-part="bulk-actions"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-subtle);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+[data-ui="crud-table"] [data-part="bulk-actions"] [data-part="selection-count"] {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-fg);
+  margin-inline-end: auto;
+}
+
+/* ── Table Wrapper ── */
+[data-ui="crud-table"] [data-part="table-wrapper"] {
+  width: 100%;
+  overflow-x: auto;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+}
+
+/* ── Row Actions ── */
+[data-ui="crud-table"] [data-part="row-actions"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-wrap: nowrap;
+}
+
+/* ── Pagination Wrapper ── */
+[data-ui="crud-table"] [data-part="pagination"] {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* ── Empty State ── */
+[data-ui="crud-table"] [data-part="empty-state"] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  min-height: 240px;
+  border: var(--border-width) dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+}
+
+[data-ui="crud-table"] [data-part="empty-icon"] {
+  font-size: var(--text-lg);
+  color: var(--color-fg-muted);
+  opacity: 0.6;
+}
+
+[data-ui="crud-table"] [data-part="empty-title"] {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-fg);
+}
+
+[data-ui="crud-table"] [data-part="empty-description"] {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+  max-width: 360px;
+}
+
+/* ── Edit Dialog Form Fields ── */
+[data-ui="crud-table"] [data-part="edit-dialog"] [data-part="body"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+[data-ui="crud-table"] [data-part="edit-dialog"] [data-part="field"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ── Loading State ── */
+[data-ui="crud-table"][data-state="loading"] [data-part="table-wrapper"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ── Empty State Visibility ── */
+[data-ui="crud-table"][data-state="empty"] [data-part="table-wrapper"] {
+  display: none;
+}
+
+[data-ui="crud-table"][data-state="empty"] [data-part="pagination"] {
+  display: none;
+}
+
+[data-ui="crud-table"][data-state="empty"] [data-part="empty-state"] {
+  display: flex;
+}
+
+/* ── Error State ── */
+[data-ui="crud-table"][data-state="error"] [data-part="table-wrapper"] {
+  border-color: var(--color-destructive);
+}
+
+/* ── Density: Compact ── */
+[data-ui="crud-table"][data-variant="compact"] {
+  gap: var(--space-2);
+}
+
+[data-ui="crud-table"][data-variant="compact"] [data-part="toolbar"] {
+  gap: var(--space-2);
+}
+
+[data-ui="crud-table"][data-variant="compact"] [data-part="bulk-actions"] {
+  padding: var(--space-2) var(--space-3);
+}
+
+[data-ui="crud-table"][data-variant="compact"] [data-part="empty-state"] {
+  padding: var(--space-6) var(--space-3);
+  min-height: 160px;
+}
+
+/* ── Density: Comfortable ── */
+[data-ui="crud-table"][data-variant="comfortable"] {
+  gap: var(--space-6);
+}
+
+[data-ui="crud-table"][data-variant="comfortable"] [data-part="toolbar"] {
+  gap: var(--space-4);
+}
+
+[data-ui="crud-table"][data-variant="comfortable"] [data-part="bulk-actions"] {
+  padding: var(--space-4) var(--space-6);
+}
+
+[data-ui="crud-table"][data-variant="comfortable"] [data-part="empty-state"] {
+  padding: var(--space-8) var(--space-6);
+  min-height: 320px;
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="crud-table"] [data-part="filters"] [data-part="dismiss"],
+  [data-ui="crud-table"] [data-part="table-wrapper"],
+  [data-ui="crud-table"] [data-part="bulk-actions"] {
+    transition: none;
+  }
+}

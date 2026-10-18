@@ -1,0 +1,160 @@
+/* @ui:component callout */
+/* @ui:tokens color-fg color-fg-muted color-info color-info-subtle color-warning color-warning-subtle color-destructive color-destructive-subtle color-success color-success-subtle color-border color-ring space-1 space-3 space-4 space-2 radius-sm radius-md text-sm font-heading font-body weight-semibold focus-ring-width focus-ring-offset focus-ring-style focus-ring-color focus-shadow callout-padding-y callout-padding-x callout-radius callout-border-left-width callout-font-size callout-icon-size callout-fg callout-bg callout-border-width doc-font doc-line-height doc-label-gap doc-print-border-color */
+
+/* ── Base ── */
+[data-ui="callout"] {
+  display: flex;
+  gap: var(--callout-padding-y);
+  padding: var(--callout-padding-y) var(--callout-padding-x);
+  border-radius: var(--callout-radius);
+  border-inline-start: var(--callout-border-left-width) solid;
+  font-family: var(--doc-font, var(--font-body));
+  font-size: var(--callout-font-size);
+  line-height: var(--doc-line-height, 1.5);
+}
+
+/* Parts are reached by child combinators: a callout nested in another's
+   content keeps its own icon colour (a warning used to recolour the icon of
+   an info callout inside it), and so does any component with an `icon` or a
+   `title`. The `content` hop before the title is `:where()` so the rule keeps
+   its specificity. Paragraph spacing stays a descendant rule on purpose: it
+   targets prose, not a part. [1.1F-20] */
+
+/* ── Icon ── */
+[data-ui="callout"] > [data-part="icon"] {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 1px;
+  font-size: var(--callout-icon-size);
+}
+
+/* ── Content ── */
+[data-ui="callout"] > [data-part="content"] {
+  flex: 1;
+  min-width: 0;
+}
+
+[data-ui="callout"] > [data-part="content"] p {
+  margin: 0;
+}
+
+[data-ui="callout"] > [data-part="content"] p + p {
+  margin-top: var(--space-2, 0.5rem);
+}
+
+/* ── Title ── */
+[data-ui="callout"] > :where([data-part="content"]) > [data-part="title"] {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: var(--weight-semibold);
+  margin-bottom: var(--doc-label-gap, var(--space-1, 0.25rem));
+}
+
+/* ── Dismiss (optional close button) ── */
+[data-ui="callout"] > [data-part="dismiss"] {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-inline-start: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1, 0.25rem);
+  border: none;
+  border-radius: var(--radius-sm, 4px);
+  background: transparent;
+  color: inherit;
+  opacity: 0.65;
+  cursor: pointer;
+}
+
+[data-ui="callout"] > [data-part="dismiss"]:hover {
+  opacity: 1;
+}
+
+[data-ui="callout"] > [data-part="dismiss"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-shadow);
+  opacity: 1;
+}
+
+/* ── Variant: Info (default) ── */
+[data-ui="callout"][data-variant="info"],
+[data-ui="callout"]:not([data-variant]) {
+  border-inline-start-color: var(--color-info, oklch(0.55 0.18 240));
+  background: var(--color-info-subtle, oklch(0.96 0.03 240));
+  color: var(--callout-fg);
+}
+
+[data-ui="callout"][data-variant="info"] > [data-part="icon"],
+[data-ui="callout"]:not([data-variant]) > [data-part="icon"] {
+  color: var(--color-info, oklch(0.55 0.18 240));
+}
+
+/* ── Variant: Warning ── */
+[data-ui="callout"][data-variant="warning"] {
+  border-inline-start-color: var(--color-warning, oklch(0.72 0.17 70));
+  background: var(--color-warning-subtle, oklch(0.97 0.04 85));
+  color: var(--callout-fg);
+}
+
+[data-ui="callout"][data-variant="warning"] > [data-part="icon"] {
+  color: var(--color-warning, oklch(0.72 0.17 70));
+}
+
+/* ── Variant: Destructive ── */
+[data-ui="callout"][data-variant="destructive"] {
+  border-inline-start-color: var(--color-destructive, oklch(0.58 0.22 27));
+  background: var(--color-destructive-subtle, oklch(0.97 0.03 25));
+  color: var(--callout-fg);
+}
+
+[data-ui="callout"][data-variant="destructive"] > [data-part="icon"] {
+  color: var(--color-destructive, oklch(0.58 0.22 27));
+}
+
+/* ── Variant: Success ── */
+[data-ui="callout"][data-variant="success"] {
+  border-inline-start-color: var(--color-success, oklch(0.62 0.19 145));
+  background: var(--color-success-subtle, oklch(0.97 0.03 150));
+  color: var(--callout-fg);
+}
+
+[data-ui="callout"][data-variant="success"] > [data-part="icon"] {
+  color: var(--color-success, oklch(0.62 0.19 145));
+}
+
+/* ── Variant: Muted ── */
+[data-ui="callout"][data-variant="muted"] {
+  /* A semantic foreground keeps the legal/disclaimer accent visible even when
+     a theme makes its ordinary hairline border blend into the surface. */
+  border-inline-start-color: var(--color-fg-muted);
+  background: var(--callout-bg);
+  color: var(--color-fg-muted);
+}
+
+[data-ui="callout"][data-variant="muted"] > [data-part="icon"] {
+  color: var(--color-fg-muted);
+}
+
+/* ── Print ── */
+@media print {
+  [data-ui="callout"] {
+    background: none;
+    border: var(--callout-border-width) solid var(--doc-print-border-color, var(--color-border, #ccc));
+    border-inline-start: var(--callout-border-left-width) solid;
+    break-inside: avoid;
+  }
+
+  /* Match the variant selectors' specificity without relying on !important. */
+  [data-ui="callout"][data-variant],
+  [data-ui="callout"]:not([data-variant]) {
+    background: none;
+  }
+
+  /* Interactive dismiss control is meaningless on paper. */
+  [data-ui="callout"] > [data-part="dismiss"] {
+    display: none;
+  }
+}

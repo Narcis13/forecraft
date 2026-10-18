@@ -1,0 +1,155 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "tooltip",
+  "version": "1.0.2",
+  "kind": "recipe",
+  "category": "overlay",
+  "description": "Informational popup shown on hover or focus of trigger element",
+  "changes": [
+    {
+      "version": "1.0.2",
+      "note": "Nested components keep their own parts. The content rule was a descendant selector, so a component used as the trigger lost its own content part: a collapsible's content was positioned and hidden as the tooltip. It is now root > content. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. When the trigger was itself a component with a content part (a collapsible, a popover), the tooltip took that content as its own and showed and hid it. The tooltip's content now goes through the owner guard.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='tooltip']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "trigger": {
+      "selector": "[data-part='trigger']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Element that activates the tooltip on hover or focus. Carries data-ui=\"button\": a trigger part is either a component in its own right or styled by its own recipe (the trigger contract, audit rule `trigger-contract`)."
+    },
+    "content": {
+      "selector": "[data-part='content']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Tooltip content with role=tooltip, linked via aria-describedby on trigger"
+    }
+  },
+  "variants": {
+    "position": {
+      "values": [
+        "top",
+        "bottom",
+        "left",
+        "right"
+      ],
+      "default": "top",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+  "states": {
+    "hidden": {
+      "attr": "data-state=\"hidden\"",
+      "default": true
+    },
+    "visible": {
+      "attr": "data-state=\"visible\""
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "show",
+        "params": ""
+      },
+      {
+        "name": "hide",
+        "params": ""
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "content": {
+      "type": "string",
+      "default": "",
+      "description": "Tooltip text content"
+    },
+    "delay": {
+      "type": "number",
+      "default": 200,
+      "description": "Show delay in milliseconds"
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "role=\"tooltip\" on content",
+      "aria-describedby on trigger pointing to content id"
+    ],
+    "keyboard": {
+      "Escape": "hide tooltip"
+    }
+  },
+  "tokens_used": [
+    "color-bg",
+    "color-fg",
+    "radius-md",
+    "space-1h",
+    "space-2",
+    "text-xs",
+    "z-dropdown",
+    "duration-fast",
+    "ease-default",
+    "font-ui",
+    "surface-backdrop"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"tooltip\" data-variant=\"{position}\" data-state=\"hidden\">\n  <button data-part=\"trigger\" aria-describedby=\"{id}-content\">{trigger_text}</button>\n  <div data-part=\"content\" id=\"{id}-content\" role=\"tooltip\" hidden>{tooltip_text}</div>\n</div>"
+  },
+  "safe_transforms": [
+    "change-position",
+    "restyle-tooltip-background",
+    "change-tooltip-text",
+    "adjust-delay",
+    "customize-arrow"
+  ],
+  "unsafe_transforms": [
+    "remove-role-tooltip",
+    "remove-aria-describedby",
+    "remove-escape-handler",
+    "remove-focus-trigger"
+  ],
+  "composition": {
+    "contains": [
+      "button"
+    ],
+    "used_in": []
+  },
+  "files": {
+    "html": "tooltip.html",
+    "css": "tooltip.css",
+    "js": "tooltip.js",
+    "manifest": "tooltip.manifest.json"
+  },
+  "tests": [
+    "shows-on-trigger-mouseenter-after-delay",
+    "hides-on-trigger-mouseleave-after-delay",
+    "shows-on-trigger-focusin",
+    "hides-on-trigger-focusout",
+    "hides-on-escape",
+    "content-has-role-tooltip",
+    "trigger-has-aria-describedby",
+    "content-is-hidden-by-default",
+    "sets-data-state-visible-when-shown",
+    "sets-data-state-hidden-when-hidden",
+    "top-variant-positions-above-trigger",
+    "bottom-variant-positions-below-trigger",
+    "left-variant-positions-left-of-trigger",
+    "right-variant-positions-right-of-trigger"
+  ]
+}

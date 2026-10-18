@@ -1,0 +1,156 @@
+/* @ui:component key-value */
+/* @ui:tokens color-fg color-fg-muted space-1 space-2 space-3 space-4 text-xs text-sm text-base font-body weight-medium kv-pair-gap kv-label-size kv-label-weight kv-label-color kv-value-size kv-value-weight kv-value-color kv-gap kv-grid-gap doc-font */
+
+/* ── Base ── */
+[data-ui="key-value"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kv-pair-gap);
+  margin: 0;
+  padding: 0;
+  font-family: var(--doc-font, var(--font-body));
+}
+
+/* A label or value is the list's child, or the child of a plain <div> that
+   groups one pair (HTML allows `dl > div > dt + dd`). Never a descendant
+   further down: `label` is a common part name, and a progress bar in a value
+   used to take this list's label size and weight. The <div> hop is `:where()`,
+   so both shapes weigh the same, and `:not([data-ui])` keeps a component out
+   of the grouping role. [1.1F-20] */
+
+/* ── Label ── */
+[data-ui="key-value"] > [data-part="label"],
+[data-ui="key-value"] > :where(div:not([data-ui])) > [data-part="label"] {
+  font-size: var(--kv-label-size);
+  font-weight: var(--kv-label-weight);
+  color: var(--kv-label-color);
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+/* ── Value ──
+   The value is the cell that carries unbreakable data: an IBAN, a reference, a
+   hash. In the `1fr` track of the grid variants its automatic minimum size is
+   its min-content width, so one 24-character IBAN sizes the whole grid wider
+   than a phone window and every later row bleeds with it. `anywhere` (not
+   `break-word`, which is ignored when min-content is computed) lets the track
+   floor drop, and `min-inline-size: 0` removes the grid item's own floor. */
+[data-ui="key-value"] > [data-part="value"],
+[data-ui="key-value"] > :where(div:not([data-ui])) > [data-part="value"] {
+  font-size: var(--kv-value-size);
+  font-weight: var(--kv-value-weight);
+  color: var(--kv-value-color);
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ── Variant: Horizontal (default) ── */
+[data-ui="key-value"][data-variant="horizontal"],
+[data-ui="key-value"]:not([data-variant]) {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--kv-gap) var(--kv-grid-gap);
+  align-items: baseline;
+}
+
+[data-ui="key-value"][data-variant="horizontal"] > [data-part="value"],
+[data-ui="key-value"][data-variant="horizontal"] > :where(div:not([data-ui])) > [data-part="value"],
+[data-ui="key-value"]:not([data-variant]) > [data-part="value"],
+[data-ui="key-value"]:not([data-variant]) > :where(div:not([data-ui])) > [data-part="value"] {
+  text-align: end;
+}
+
+/* ── Variant: Vertical ── */
+[data-ui="key-value"][data-variant="vertical"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kv-pair-gap);
+}
+
+[data-ui="key-value"][data-variant="vertical"] > [data-part="label"],
+[data-ui="key-value"][data-variant="vertical"] > :where(div:not([data-ui])) > [data-part="label"] {
+  margin-bottom: calc(-1 * var(--kv-gap));
+}
+
+/* ── Variant: Inline ── */
+[data-ui="key-value"][data-variant="inline"] {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--kv-gap);
+  align-items: baseline;
+}
+
+[data-ui="key-value"][data-variant="inline"] > [data-part="label"]::after,
+[data-ui="key-value"][data-variant="inline"] > :where(div:not([data-ui])) > [data-part="label"]::after {
+  content: ":";
+}
+
+[data-ui="key-value"][data-variant="inline"] > [data-part="value"],
+[data-ui="key-value"][data-variant="inline"] > :where(div:not([data-ui])) > [data-part="value"] {
+  margin-inline-end: var(--kv-grid-gap);
+}
+
+/* ── Grid Columns ── */
+[data-ui="key-value"][data-cols="2"] {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr;
+  gap: var(--kv-gap) var(--kv-grid-gap);
+  align-items: baseline;
+}
+
+[data-ui="key-value"][data-cols="3"] {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr auto 1fr;
+  gap: var(--kv-gap) var(--kv-grid-gap);
+  align-items: baseline;
+}
+
+[data-ui="key-value"][data-cols="4"] {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr auto 1fr auto 1fr;
+  gap: var(--kv-gap) var(--kv-grid-gap);
+  align-items: baseline;
+}
+
+[data-ui="key-value"][data-cols] > [data-part="value"],
+[data-ui="key-value"][data-cols] > :where(div:not([data-ui])) > [data-part="value"] {
+  text-align: end;
+}
+
+/* ── Size: Small ── */
+[data-ui="key-value"][data-size="sm"] {
+  gap: var(--space-1) var(--space-2);
+}
+
+[data-ui="key-value"][data-size="sm"] > [data-part="label"],
+[data-ui="key-value"][data-size="sm"] > :where(div:not([data-ui])) > [data-part="label"],
+[data-ui="key-value"][data-size="sm"] > [data-part="value"],
+[data-ui="key-value"][data-size="sm"] > :where(div:not([data-ui])) > [data-part="value"] {
+  font-size: var(--text-xs);
+}
+
+/* ── Size: Large ── */
+[data-ui="key-value"][data-size="lg"] {
+  gap: var(--kv-pair-gap) var(--kv-grid-gap);
+}
+
+[data-ui="key-value"][data-size="lg"] > [data-part="label"],
+[data-ui="key-value"][data-size="lg"] > :where(div:not([data-ui])) > [data-part="label"] {
+  font-size: var(--text-sm);
+}
+
+[data-ui="key-value"][data-size="lg"] > [data-part="value"],
+[data-ui="key-value"][data-size="lg"] > :where(div:not([data-ui])) > [data-part="value"] {
+  font-size: var(--text-base, 1rem);
+}
+
+/* ── Print ── */
+@media print {
+  [data-ui="key-value"] {
+    break-inside: avoid;
+  }
+}

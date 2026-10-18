@@ -1,0 +1,106 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "label",
+  "version": "1.1.1",
+  "kind": "primitive",
+  "category": "forms",
+  "description": "Form label with optional required/optional indicator; spacing to a control belongs to the containing field-group rather than the label itself",
+
+  "changes": [
+    {
+      "version": "1.1.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the required indicator with descendant selectors, so a component nested inside with parts of the same name took this one's styles. The indicator is the label's child. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "Removed the label's external margin so it no longer competes with field-group's density-aware inner step or the default rhythm's sibling-field step.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "label",
+    "selector": "[data-ui='label']",
+    "content_model": "inline"
+  },
+
+  "slots": {
+    "indicator": {
+      "selector": "[data-part='indicator']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Required asterisk or '(optional)' text"
+    }
+  },
+
+  "variants": {
+    "visual": {
+      "values": ["default", "required"],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "default": { "attr": "data-state=\"default\"", "default": true },
+    "disabled": { "attr": "data-state=\"disabled\"" }
+  },
+
+  "props": {
+    "text": { "type": "string", "default": "", "description": "Label text content" },
+    "required": { "type": "boolean", "default": false, "description": "Whether the field is required" }
+  },
+
+  "a11y": {
+    "required_attrs": ["for attribute matching input id"],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted", "color-destructive", "font-ui", "text-xs", "text-sm", "text-base",
+    "weight-medium", "weight-normal", "disabled-opacity"
+  ],
+
+  "templates": {
+    "html": "<label data-ui=\"label\" for=\"{for}\">{text}</label>",
+    "html_required": "<label data-ui=\"label\" for=\"{for}\" data-variant=\"required\">{text} <span data-part=\"indicator\" aria-hidden=\"true\">*</span></label>"
+  },
+
+  "safe_transforms": [
+    "change-size",
+    "add-required-indicator",
+    "change-text-content"
+  ],
+
+  "unsafe_transforms": [
+    "remove-for-attribute",
+    "change-to-div"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["auth-form", "settings-page"]
+  },
+
+  "files": {
+    "html": "label.html",
+    "css": "label.css",
+    "manifest": "label.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-label-element",
+    "has-for-attribute",
+    "required-variant-shows-asterisk",
+    "indicator-slot-is-optional",
+    "disabled-state-reduces-opacity"
+  ]
+}

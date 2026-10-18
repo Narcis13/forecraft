@@ -1,0 +1,114 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "checkbox",
+  "version": "1.1.0",
+  "kind": "primitive",
+  "category": "forms",
+  "description": "Custom styled checkbox with checked, indeterminate, disabled states and size variants; compose sibling items in a cluster with data-gap=4 while a single labeled checkbox may stand alone",
+
+  "changes": [
+    {
+      "version": "1.1.0",
+      "note": "Canonical checkbox rows now use cluster data-gap='4', keeping the inter-control step wider than each label's internal space-2 step; a single labeled checkbox remains valid without a cluster.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "input",
+    "selector": "[data-ui='checkbox']",
+    "content_model": "inline"
+  },
+
+  "slots": {
+    "label": {
+      "selector": "[data-part='label']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Text label displayed next to the checkbox"
+    }
+  },
+
+  "variants": {
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "default": { "attr": "data-state=\"default\"", "default": true },
+    "checked": { "attr": "checked" },
+    "indeterminate": { "attr": "data-state=\"indeterminate\"" },
+    "disabled": { "attr": "disabled" }
+  },
+
+  "props": {
+    "checked": { "type": "boolean", "default": false, "description": "Whether the checkbox is checked" },
+    "disabled": { "type": "boolean", "default": false, "description": "Whether the checkbox is disabled" },
+    "label": { "type": "string", "default": "", "description": "Checkbox label text" }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "must be wrapped in label or have aria-label",
+      "type=\"checkbox\" required on input element"
+    ],
+    "keyboard": {
+      "Tab": "focus checkbox",
+      "Space": "toggle checked state"
+    },
+    "notes": "A single labeled checkbox may stand alone. When two or more checkbox items share an inline row, wrap the complete label items in cluster data-gap=\"4\"; checkbox-label keeps the label-to-box gap at space-2, so visual proximity agrees with the label association."
+  },
+
+  "tokens_used": [
+    "color-bg", "color-primary", "color-primary-fg", "color-border", "color-border-strong",
+    "color-ring", "space-2", "duration-fast", "ease-default", "border-width", "focus-ring-width",
+    "focus-ring-offset", "focus-ring-style", "focus-ring-color", "focus-shadow", "checkbox-radius",
+    "checkbox-size", "disabled-opacity"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"cluster\" data-gap=\"4\">\n  <label data-ui=\"checkbox-label\" for=\"{id1}\"><input data-ui=\"checkbox\" id=\"{id1}\" type=\"checkbox\"><span data-part=\"label\">{label1}</span></label>\n  <label data-ui=\"checkbox-label\" for=\"{id2}\"><input data-ui=\"checkbox\" id=\"{id2}\" type=\"checkbox\"><span data-part=\"label\">{label2}</span></label>\n</div>",
+    "html_single": "<label data-ui=\"checkbox-label\" for=\"{id}\">\n  <input data-ui=\"checkbox\" id=\"{id}\" type=\"checkbox\">\n  <span data-part=\"label\">{label}</span>\n</label>"
+  },
+
+  "safe_transforms": [
+    "change-size",
+    "toggle-checked",
+    "toggle-disabled",
+    "set-indeterminate",
+    "change-label-text"
+  ],
+
+  "unsafe_transforms": [
+    "remove-input-element",
+    "remove-label-wrapper",
+    "change-type-attribute"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["settings-page", "crud-table"]
+  },
+
+  "files": {
+    "html": "checkbox.html",
+    "css": "checkbox.css",
+    "manifest": "checkbox.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-input-checkbox",
+    "checked-state-shows-checkmark",
+    "indeterminate-state-shows-dash",
+    "disabled-state-has-disabled-attribute",
+    "sm-size-sets-data-size-sm",
+    "wrapped-in-label-for-accessibility",
+    "native-appearance-is-none",
+    "control-rows-use-cluster-gap-4",
+    "single-labeled-control-may-stand-alone"
+  ]
+}

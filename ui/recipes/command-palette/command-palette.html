@@ -1,0 +1,148 @@
+<!-- @ui:component command-palette -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots overlay panel search list group item empty kbd search-wrapper group-label item-label -->
+<!-- @ui:variants size=sm|md|lg -->
+<!-- @ui:controller command-palette.js -->
+
+<!-- Default (medium) -->
+<div data-ui="command-palette" data-state="closed">
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Command palette"
+    data-size="md"
+    hidden
+  >
+    <div data-part="search-wrapper">
+      <input
+        data-part="search"
+        type="text"
+        role="combobox"
+        aria-expanded="true"
+        aria-autocomplete="list"
+        aria-controls="cmd-palette-list-1"
+        placeholder="Type a command or search..."
+      >
+    </div>
+
+    <div data-part="list" role="listbox" id="cmd-palette-list-1">
+      <div data-part="group">
+        <div data-part="group-label">Navigation</div>
+        <div data-part="item" role="option" aria-selected="false">
+          <span data-part="item-label">Go to Dashboard</span>
+          <kbd data-part="kbd">G D</kbd>
+        </div>
+        <div data-part="item" role="option" aria-selected="false">
+          <span data-part="item-label">Go to Settings</span>
+          <kbd data-part="kbd">G S</kbd>
+        </div>
+      </div>
+
+      <div data-part="group">
+        <div data-part="group-label">Actions</div>
+        <div data-part="item" role="option" aria-selected="false">
+          <span data-part="item-label">Create New Project</span>
+          <kbd data-part="kbd">C P</kbd>
+        </div>
+        <div data-part="item" role="option" aria-selected="false">
+          <span data-part="item-label">Toggle Dark Mode</span>
+          <kbd data-part="kbd">T D</kbd>
+        </div>
+        <div data-part="item" role="option" aria-selected="false">
+          <span data-part="item-label">Open File</span>
+          <kbd data-part="kbd">&#x2318;O</kbd>
+        </div>
+      </div>
+
+      <div data-part="empty" hidden>No commands found</div>
+    </div>
+  </div>
+</div>
+
+<!-- Small panel — opened from code: only one palette on a page should own Cmd/Ctrl+K -->
+<div data-ui="command-palette" data-state="closed" data-no-shortcut>
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Quick actions"
+    data-size="sm"
+    hidden
+  >
+    <div data-part="search-wrapper">
+      <input
+        data-part="search"
+        type="text"
+        role="combobox"
+        aria-expanded="true"
+        aria-autocomplete="list"
+        aria-controls="cmd-palette-list-2"
+        placeholder="Quick actions..."
+      >
+    </div>
+
+    <div data-part="list" role="listbox" id="cmd-palette-list-2">
+      <div data-part="group">
+        <div data-part="group-label">Recent</div>
+        <div data-part="item" role="option" aria-selected="false">
+          <span data-part="item-label">Undo</span>
+          <kbd data-part="kbd">&#x2318;Z</kbd>
+        </div>
+        <div data-part="item" role="option" aria-selected="false">
+          <span data-part="item-label">Redo</span>
+          <kbd data-part="kbd">&#x2318;&#x21E7;Z</kbd>
+        </div>
+      </div>
+
+      <div data-part="empty" hidden>No commands found</div>
+    </div>
+  </div>
+</div>
+
+<!-- Large panel — opened from code: only one palette on a page should own Cmd/Ctrl+K -->
+<div data-ui="command-palette" data-state="closed" data-no-shortcut>
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Command palette"
+    data-size="lg"
+    hidden
+  >
+    <div data-part="search-wrapper">
+      <input
+        data-part="search"
+        type="text"
+        role="combobox"
+        aria-expanded="true"
+        aria-autocomplete="list"
+        aria-controls="cmd-palette-list-3"
+        placeholder="Type a command or search..."
+      >
+    </div>
+
+    <div data-part="list" role="listbox" id="cmd-palette-list-3">
+      <div data-part="group">
+        <div data-part="group-label">Pages</div>
+        <div data-part="item" role="option" aria-selected="false">
+          <span data-part="item-label">Home</span>
+        </div>
+        <div data-part="item" role="option" aria-selected="false">
+          <span data-part="item-label">Analytics</span>
+        </div>
+        <div data-part="item" role="option" aria-selected="false">
+          <span data-part="item-label">Reports</span>
+        </div>
+      </div>
+
+      <div data-part="empty" hidden>No commands found</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,167 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "field-group",
+  "version": "2.1.1",
+  "kind": "primitive",
+  "category": "forms",
+  "description": "Form field wrapper combining label, control, and help/error text with a tight density-aware inner step; the surrounding default rhythm owns the looser step between fields. Includes the normalized §7.1 validation contract (invalid | validating | disabled).",
+
+  "changes": [
+    {
+      "version": "2.1.1",
+      "note": "Nested components keep their own parts. The stylesheet reached its label, input, description and error with descendant selectors, so a radio-group or checkbox-group in the input slot (the shape @faqir-ui/forms renders) had every option's <span data-part=\"label\"> styled as the field's label — its size, weight and colour, red when the field was invalid, and a required marker after each option under the legacy data-required — and a date-picker's input took the input slot's flex layout. Label, input, description and error are the root's children; required is the label's. Options now look as a radio-group or checkbox-group does anywhere else, so on the form-page pattern and on @faqir-ui/forms pages their text is the page's body size and weight, no longer the field label's. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "2.1.0",
+      "note": "Field spacing now uses density-aware --space-* rungs for every size. field-group owns only the tight label → control → description/error step; the surrounding flow root owns the looser sibling-field step through --flow-space/--section-gap-sm. The horizontal label-beside-control layout remains an explicit data-variant value rather than incidental markup.",
+      "breaking": false
+    },
+    {
+      "version": "2.0.0",
+      "note": "BREAKING: validation state vocabulary normalized to invalid | validating | disabled — the shipped data-state=\"error\" is renamed to data-state=\"invalid\" to align with the framework's naming; new validating and disabled states added. The required marker is standardized as a [data-part=\"required\"] element inside the label (the legacy [data-required] attribute still renders a marker for backward compatibility). Migration: replace data-state=\"error\" with data-state=\"invalid\" on every field-group (faqir upgrade three-way merges the CSS; page markup using the old state must be updated by hand — the field-wiring audit rule accepts both names during the transition).",
+      "breaking": true
+    }
+  ],
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='field-group']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "label": {
+      "selector": "[data-part='label']",
+      "required": true,
+      "tag_hint": "label",
+      "description": "Field label text"
+    },
+    "required": {
+      "selector": "[data-part='required']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Standardized required marker (§7.1). Placed inside the label, e.g. <span data-part=\"required\">*</span>; carries the marker color and is announced/hidden with the label. Canonical alternative to the legacy [data-required] attribute."
+    },
+    "input": {
+      "selector": "[data-part='input']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Slot for the input element (input, select, textarea, etc.)"
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Helper text below the control, separated by the same tight intra-field step as label → control"
+    },
+    "error": {
+      "selector": "[data-part='error']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Error message shown in invalid state, occupying the help-text position in the intra-field rhythm"
+    }
+  },
+
+  "variants": {
+    "layout": {
+      "values": ["vertical", "horizontal"],
+      "default": "vertical",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "default": { "attr": "data-state=\"default\"", "default": true },
+    "invalid": { "attr": "data-state=\"invalid\"", "description": "Constraint failed: destructive border, label recolored, and the [data-part=\"error\"] message revealed by CSS (no JS). Control must carry aria-invalid=\"true\" (field-wiring audit). Renamed from the pre-2.0.0 \"error\" state." },
+    "validating": { "attr": "data-state=\"validating\"", "description": "Async constraint in flight (e.g. server-side uniqueness): neutral muted border, error not shown yet. Pair with aria-busy=\"true\" on the control." },
+    "valid": { "attr": "data-state=\"valid\"", "description": "Green accent indicating valid input" },
+    "disabled": { "attr": "data-state=\"disabled\"", "description": "Whole group non-interactive: dimmed via --field-disabled-opacity, not-allowed cursor. The control itself is also [disabled]." }
+  },
+
+  "props": {
+    "required": { "type": "boolean", "default": false, "description": "Shows asterisk after label (data-required attribute)" }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "label must have for attribute matching input id",
+      "aria-describedby on input pointing to description/error id",
+      "aria-invalid=\"true\" on input in error state",
+      "aria-required=\"true\" on required inputs"
+    ],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted", "color-destructive", "color-success", "field-validating-color",
+    "field-disabled-opacity", "field-label-size", "field-label-weight", "field-label-color",
+    "field-required-color", "field-required-marker", "field-description-size",
+    "field-description-color", "field-error-size", "field-error-color", "space-1", "space-2",
+    "space-3", "space-4", "text-xs", "text-sm", "font-body", "weight-medium", "border-width",
+    "doc-font"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"field-group\">\n  <label data-part=\"label\" for=\"{id}\">{label}</label>\n  <div data-part=\"input\">\n    <input data-ui=\"input\" id=\"{id}\" name=\"{name}\">\n  </div>\n  <p data-part=\"description\">{description}</p>\n</div>",
+    "html_with_error": "<div data-ui=\"field-group\" data-state=\"invalid\">\n  <label data-part=\"label\" for=\"{id}\">{label}</label>\n  <div data-part=\"input\">\n    <input data-ui=\"input\" id=\"{id}\" name=\"{name}\" aria-invalid=\"true\" aria-describedby=\"{id}-error\">\n  </div>\n  <p data-part=\"error\" id=\"{id}-error\">{error}</p>\n</div>",
+    "html_required": "<div data-ui=\"field-group\">\n  <label data-part=\"label\" for=\"{id}\">{label} <span data-part=\"required\">*</span></label>\n  <div data-part=\"input\">\n    <input data-ui=\"input\" id=\"{id}\" name=\"{name}\" required aria-required=\"true\">\n  </div>\n</div>"
+  },
+
+  "safe_transforms": [
+    "change-label-text",
+    "add-description",
+    "remove-description",
+    "set-invalid-state",
+    "set-validating-state",
+    "set-valid-state",
+    "set-disabled-state",
+    "toggle-required",
+    "change-size",
+    "change-layout",
+    "swap-input-type"
+  ],
+
+  "unsafe_transforms": [
+    "remove-label",
+    "remove-for-attribute",
+    "remove-aria-describedby"
+  ],
+
+  "composition": {
+    "contains": ["input", "select", "textarea", "checkbox", "radio", "switch"],
+    "used_in": ["auth-form", "settings-page", "document"]
+  },
+
+  "files": {
+    "html": "field-group.html",
+    "css": "field-group.css",
+    "manifest": "field-group.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "label-slot-is-required",
+    "input-slot-is-required",
+    "description-slot-is-optional",
+    "error-slot-is-optional",
+    "invalid-state-shows-red-border",
+    "invalid-state-shows-error-message",
+    "error-part-hidden-by-default",
+    "validating-state-shows-muted-border",
+    "disabled-state-dims-group",
+    "valid-state-shows-green-accent",
+    "required-part-standardized",
+    "required-shows-asterisk-after-label",
+    "label-has-for-attribute",
+    "horizontal-layout-side-by-side",
+    "sm-size-reduces-spacing"
+  ]
+}

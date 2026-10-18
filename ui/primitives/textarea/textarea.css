@@ -1,0 +1,79 @@
+/* @ui:component textarea */
+/* @ui:tokens color-fg color-fg-muted color-border color-border-strong color-ring color-destructive radius-md space-2 space-3 space-4 font-ui text-xs text-sm text-base duration-fast ease-default border-width focus-ring-width focus-ring-style focus-ring-color focus-shadow input-border-width input-fill disabled-opacity */
+
+/* -- Base -- */
+[data-ui="textarea"] {
+  display: block;
+  width: 100%;
+  min-height: var(--textarea-min-height, 80px);
+  padding: var(--space-2) var(--space-3);
+  /* Longhands, not the `border:` shorthand: the shorthand's width slot takes
+     ONE value, and `controls.input: underline` (1.1A-10) states the silhouette
+     as a four-value box — `0 0 var(--border-width) 0` — so only a bottom rule
+     is drawn. Identical to the shorthand at every other value of the token. */
+  border-style: solid;
+  border-color: var(--color-border);
+  border-width: var(--input-border-width);
+  border-radius: var(--textarea-radius, var(--radius-md));
+  background: var(--textarea-bg, var(--input-fill));
+  color: var(--color-fg);
+  font-family: var(--textarea-font, var(--font-ui));
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color var(--duration-fast) var(--ease-default),
+              box-shadow var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="textarea"]::placeholder {
+  color: var(--color-fg-muted);
+}
+
+[data-ui="textarea"]:hover {
+  border-color: var(--color-border-strong);
+}
+
+[data-ui="textarea"]:focus {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  /* The ring replaces the border rather than sitting outside it: inset by
+     exactly the edge it covers, so a heavier shape theme stays aligned. */
+  outline-offset: calc(-1 * var(--input-border-width));
+  box-shadow: var(--focus-shadow);
+  border-color: transparent;
+}
+
+/* -- Sizes -- */
+[data-ui="textarea"][data-size="sm"] {
+  min-height: 60px;
+  padding: var(--space-2);
+  font-size: var(--text-xs);
+}
+
+[data-ui="textarea"][data-size="lg"] {
+  min-height: 120px;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+}
+
+/* -- States -- */
+[data-ui="textarea"][data-state="error"],
+[data-ui="textarea"][aria-invalid="true"] {
+  border-color: var(--color-destructive);
+}
+[data-ui="textarea"][data-state="error"]:focus,
+[data-ui="textarea"][aria-invalid="true"]:focus {
+  outline-color: var(--color-destructive);
+}
+
+[data-ui="textarea"]:disabled {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+  resize: none;
+}
+
+/* -- Motion -- */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="textarea"] {
+    transition: none;
+  }
+}

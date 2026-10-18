@@ -1,0 +1,83 @@
+<!-- @ui:component toggle-group -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots item control label -->
+<!-- @ui:controller toggle-group.js -->
+<!-- @ui:variants mode=single|multi style=default|segmented -->
+
+<!-- Single select (radiogroup) — exactly one control checked at a time.
+     The committed value is the checked radio's `value` (a string); bind it
+     with `l-model` on the radios. -->
+<div data-ui="toggle-group" data-mode="single" role="radiogroup" aria-label="Text alignment">
+  <label data-part="item" data-state="on">
+    <input data-part="control" type="radio" name="align" value="left" checked>
+    <span data-part="label">Left</span>
+  </label>
+  <label data-part="item" data-state="off">
+    <input data-part="control" type="radio" name="align" value="center">
+    <span data-part="label">Center</span>
+  </label>
+  <label data-part="item" data-state="off">
+    <input data-part="control" type="radio" name="align" value="right">
+    <span data-part="label">Right</span>
+  </label>
+</div>
+
+<!-- Multi select (group) — controls toggle independently. The committed value
+     is the array of checked `value`s; bind it with `l-model` on the checkboxes. -->
+<div data-ui="toggle-group" data-mode="multi" role="group" aria-label="Text format">
+  <label data-part="item" data-state="on">
+    <input data-part="control" type="checkbox" value="bold" checked>
+    <span data-part="label">Bold</span>
+  </label>
+  <label data-part="item" data-state="off">
+    <input data-part="control" type="checkbox" value="italic">
+    <span data-part="label">Italic</span>
+  </label>
+  <label data-part="item" data-state="on">
+    <input data-part="control" type="checkbox" value="underline" checked>
+    <span data-part="label">Underline</span>
+  </label>
+</div>
+
+<!-- Segmented (data-variant="segmented") — one track, equal-width items and a
+     single thumb that slides under the checked item: the monthly/yearly
+     switch of a pricing page. Pure CSS over the native radios, so it also
+     works with no script at all. Single mode only. -->
+<div data-ui="toggle-group" data-mode="single" data-variant="segmented" role="radiogroup" aria-label="Billing period">
+  <label data-part="item" data-state="on">
+    <input data-part="control" type="radio" name="billing-period" value="monthly" checked>
+    <span data-part="label">Monthly</span>
+  </label>
+  <label data-part="item" data-state="off">
+    <input data-part="control" type="radio" name="billing-period" value="yearly">
+    <span data-part="label">Yearly</span>
+  </label>
+</div>
+
+<!-- Segmented with three options — the thumb is always one column wide -->
+<div data-ui="toggle-group" data-mode="single" data-variant="segmented" role="radiogroup" aria-label="Chart range">
+  <label data-part="item" data-state="off">
+    <input data-part="control" type="radio" name="range" value="day">
+    <span data-part="label">Day</span>
+  </label>
+  <label data-part="item" data-state="on">
+    <input data-part="control" type="radio" name="range" value="week" checked>
+    <span data-part="label">Week</span>
+  </label>
+  <label data-part="item" data-state="off">
+    <input data-part="control" type="radio" name="range" value="month">
+    <span data-part="label">Month</span>
+  </label>
+</div>
+
+<!-- Disabled control — skipped by roving-tabindex navigation -->
+<div data-ui="toggle-group" data-mode="single" role="radiogroup" aria-label="View density">
+  <label data-part="item" data-state="on">
+    <input data-part="control" type="radio" name="density" value="comfortable" checked>
+    <span data-part="label">Comfortable</span>
+  </label>
+  <label data-part="item" data-state="off">
+    <input data-part="control" type="radio" name="density" value="compact" disabled>
+    <span data-part="label">Compact</span>
+  </label>
+</div>

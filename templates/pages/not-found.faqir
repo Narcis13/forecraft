@@ -1,0 +1,13 @@
+layout "layouts/base.faqir"
+
+block title
+  | Not found — forecraft
+
+block body
+  main#main
+    div(data-ui="container" data-measure="narrow")
+      div(data-ui="empty-state")
+        h1(data-part="title") Nothing here
+        p(data-part="description") The page you asked for does not exist, or it moved.
+        div(data-part="actions")
+          a(data-ui="button" data-variant="primary" href="/") Back to forecraft

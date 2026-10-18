@@ -1,0 +1,84 @@
+/* @ui:component toggle */
+/* @ui:tokens color-bg color-bg-muted color-fg color-fg-muted color-border color-primary color-primary-subtle color-ring radius-md space-1 space-1h space-2 space-3 space-4 text-xs text-sm text-base font-ui weight-medium duration-fast ease-default border-width focus-ring-width focus-ring-offset focus-ring-style focus-ring-color focus-shadow disabled-opacity */
+
+/* ── Base (off / unpressed) ── */
+[data-ui="toggle"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1h);
+  padding: var(--toggle-pad-y, var(--space-1h)) var(--toggle-pad-x, var(--space-3));
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--toggle-radius, var(--radius-md));
+  background: var(--color-bg);
+  color: var(--color-fg-muted);
+  font-family: var(--toggle-font, var(--font-ui));
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--duration-fast) var(--ease-default),
+              border-color var(--duration-fast) var(--ease-default),
+              color var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="toggle"]:hover {
+  background: var(--color-bg-muted);
+  color: var(--color-fg);
+}
+
+[data-ui="toggle"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-shadow);
+}
+
+/* ── Pressed / on — styled entirely off aria-pressed, no JS ── */
+[data-ui="toggle"][aria-pressed="true"] {
+  background: var(--color-primary-subtle);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+[data-ui="toggle"][aria-pressed="true"]:hover {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+
+/* ── Disabled ── */
+[data-ui="toggle"]:disabled {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+}
+
+/* ── Sizes ── */
+[data-ui="toggle"][data-size="sm"] {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
+}
+
+[data-ui="toggle"][data-size="lg"] {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-base);
+}
+
+/* ── Forced colors (Windows High Contrast) ──
+   Pressed is carried by colour alone, and the OS replaces all three colours
+   with the ones an unpressed toggle gets. System colours are the ones it
+   keeps; the :hover twin is listed because it is the more specific rule. */
+@media (forced-colors: active) {
+  [data-ui="toggle"][aria-pressed="true"],
+  [data-ui="toggle"][aria-pressed="true"]:hover {
+    background: Highlight;
+    border-color: Highlight;
+    color: HighlightText;
+  }
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="toggle"] {
+    transition: none;
+  }
+}

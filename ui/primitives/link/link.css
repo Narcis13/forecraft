@@ -1,0 +1,98 @@
+/* @ui:component link */
+/* @ui:tokens color-primary color-primary-hover color-primary-active color-fg color-fg-muted color-ring radius-sm space-1 focus-ring-width focus-ring-offset focus-ring-style focus-ring-color focus-shadow link-decoration link-thickness link-underline-offset duration-normal ease-out */
+
+/* ── Base ── */
+[data-ui="link"] {
+  color: var(--color-primary);
+  font-family: inherit;
+  text-decoration-line: var(--link-decoration);
+  text-decoration-thickness: var(--link-thickness);
+  text-underline-offset: var(--link-underline-offset);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+[data-ui="link"]:hover {
+  color: var(--color-primary-hover);
+}
+
+[data-ui="link"]:active {
+  color: var(--color-primary-active);
+}
+
+[data-ui="link"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-shadow);
+}
+
+/* ── Variants ── */
+[data-ui="link"][data-variant="muted"] {
+  color: var(--color-fg-muted);
+}
+
+[data-ui="link"][data-variant="muted"]:hover {
+  color: var(--color-fg);
+}
+
+/* External links get a CSS-only indicator */
+[data-ui="link"][data-variant="external"]::after {
+  content: "\2197";
+  display: inline-block;
+  margin-inline-start: var(--space-1);
+  font-size: 0.75em;
+  line-height: 1;
+  text-decoration: none;
+}
+
+/* ── Effects ──
+   `slide` draws the underline in from the start of the text on hover instead
+   of switching it on: the text-decoration goes and a background rule, as
+   thick as the link family says, grows under the words. `arrow` appends an
+   arrow that nudges forward — the "read more" gesture. */
+[data-ui="link"][data-effect="slide"] {
+  text-decoration-line: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% var(--link-thickness);
+  transition: background-size var(--duration-normal) var(--ease-out);
+}
+
+[data-ui="link"][data-effect="slide"]:dir(rtl) {
+  background-position: 100% 100%;
+}
+
+[data-ui="link"][data-effect="slide"]:hover,
+[data-ui="link"][data-effect="slide"]:focus-visible {
+  background-size: 100% var(--link-thickness);
+}
+
+[data-ui="link"][data-effect="arrow"]::after {
+  content: "\2192";
+  display: inline-block;
+  margin-inline-start: var(--space-1);
+  text-decoration: none;
+  transition: translate var(--duration-normal) var(--ease-out);
+}
+
+[data-ui="link"][data-effect="arrow"]:dir(rtl)::after {
+  content: "\2190";
+}
+
+[data-ui="link"][data-effect="arrow"]:hover::after,
+[data-ui="link"][data-effect="arrow"]:focus-visible::after {
+  translate: var(--space-1) 0;
+}
+
+[data-ui="link"][data-effect="arrow"]:dir(rtl):hover::after,
+[data-ui="link"][data-effect="arrow"]:dir(rtl):focus-visible::after {
+  translate: calc(var(--space-1) * -1) 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="link"][data-effect="slide"],
+  [data-ui="link"][data-effect="arrow"]::after {
+    transition: none;
+  }
+}

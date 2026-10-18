@@ -1,0 +1,409 @@
+<!-- @ui:component auth-form -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots header title description form email-field password-field name-field submit social separator footer error -->
+<!-- @ui:variants mode=login|register|forgot-password size=sm|md|lg -->
+<!-- @ui:composition card input button separator label -->
+
+<!-- ============================================ -->
+<!-- Login Mode (default)                         -->
+<!-- ============================================ -->
+<div data-ui="auth-form" data-variant="login" data-size="md" data-state="default">
+  <div data-ui="card">
+    <div data-part="header">
+      <h2 data-part="title">Sign in to your account</h2>
+      <p data-part="description">Enter your credentials to continue</p>
+    </div>
+
+    <div data-part="body">
+      <!-- Error message (hidden by default, shown via data-state="error") -->
+      <div data-part="error" role="alert" hidden>
+        <p>Invalid email or password. Please try again.</p>
+      </div>
+
+      <form data-part="form" aria-label="Sign in">
+        <!-- Email field -->
+        <div data-part="email-field">
+          <label data-ui="label" for="login-email" data-variant="required">
+            Email
+            <span data-part="indicator" aria-hidden="true">*</span>
+          </label>
+          <input
+            data-ui="input"
+            type="email"
+            id="login-email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <!-- Password field -->
+        <div data-part="password-field">
+          <label data-ui="label" for="login-password" data-variant="required">
+            Password
+            <span data-part="indicator" aria-hidden="true">*</span>
+          </label>
+          <input
+            data-ui="input"
+            type="password"
+            id="login-password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <!-- Submit button -->
+        <button
+          data-ui="button"
+          data-variant="primary"
+          data-part="submit"
+          type="submit"
+        >
+          Sign in
+        </button>
+      </form>
+
+      <!-- Separator -->
+      <div data-part="separator">
+        <div data-ui="separator" role="separator">
+          <span data-part="label">OR</span>
+        </div>
+      </div>
+
+      <!-- Social auth buttons -->
+      <div data-part="social">
+        <button data-ui="button" data-variant="outline" type="button">
+          Continue with Google
+        </button>
+        <button data-ui="button" data-variant="outline" type="button">
+          Continue with GitHub
+        </button>
+      </div>
+
+      <!-- Footer -->
+    </div>
+    <div data-part="footer">
+      <p>Don't have an account? <a href="#register">Sign up</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Register Mode                                -->
+<!-- ============================================ -->
+<div data-ui="auth-form" data-variant="register" data-size="md" data-state="default">
+  <div data-ui="card">
+    <div data-part="header">
+      <h2 data-part="title">Create an account</h2>
+      <p data-part="description">Fill in your details to get started</p>
+    </div>
+
+    <div data-part="body">
+      <!-- Error message -->
+      <div data-part="error" role="alert" hidden>
+        <p>Could not create account. Please check your details.</p>
+      </div>
+
+      <form data-part="form" aria-label="Create account">
+        <!-- Name field (register only) -->
+        <div data-part="name-field">
+          <label data-ui="label" for="register-name" data-variant="required">
+            Full name
+            <span data-part="indicator" aria-hidden="true">*</span>
+          </label>
+          <input
+            data-ui="input"
+            type="text"
+            id="register-name"
+            placeholder="Jane Doe"
+            autocomplete="name"
+            required
+          >
+        </div>
+
+        <!-- Email field -->
+        <div data-part="email-field">
+          <label data-ui="label" for="register-email" data-variant="required">
+            Email
+            <span data-part="indicator" aria-hidden="true">*</span>
+          </label>
+          <input
+            data-ui="input"
+            type="email"
+            id="register-email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <!-- Password field -->
+        <div data-part="password-field">
+          <label data-ui="label" for="register-password" data-variant="required">
+            Password
+            <span data-part="indicator" aria-hidden="true">*</span>
+          </label>
+          <input
+            data-ui="input"
+            type="password"
+            id="register-password"
+            placeholder="Create a password"
+            autocomplete="new-password"
+            required
+          >
+        </div>
+
+        <!-- Submit button -->
+        <button
+          data-ui="button"
+          data-variant="primary"
+          data-part="submit"
+          type="submit"
+        >
+          Create account
+        </button>
+      </form>
+
+      <!-- Footer -->
+    </div>
+    <div data-part="footer">
+      <p>Already have an account? <a href="#login">Sign in</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Forgot Password Mode                         -->
+<!-- ============================================ -->
+<div data-ui="auth-form" data-variant="forgot-password" data-size="md" data-state="default">
+  <div data-ui="card">
+    <div data-part="header">
+      <h2 data-part="title">Reset your password</h2>
+      <p data-part="description">Enter your email and we'll send you a reset link</p>
+    </div>
+
+    <div data-part="body">
+      <!-- Error message -->
+      <div data-part="error" role="alert" hidden>
+        <p>No account found with that email address.</p>
+      </div>
+
+      <form data-part="form" aria-label="Reset password">
+        <!-- Email field -->
+        <div data-part="email-field">
+          <label data-ui="label" for="forgot-email" data-variant="required">
+            Email
+            <span data-part="indicator" aria-hidden="true">*</span>
+          </label>
+          <input
+            data-ui="input"
+            type="email"
+            id="forgot-email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <!-- Submit button -->
+        <button
+          data-ui="button"
+          data-variant="primary"
+          data-part="submit"
+          type="submit"
+        >
+          Send reset link
+        </button>
+      </form>
+
+      <!-- Footer -->
+    </div>
+    <div data-part="footer">
+      <p><a href="#login">Back to sign in</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Loading State Example                        -->
+<!-- ============================================ -->
+<div data-ui="auth-form" data-variant="login" data-size="md" data-state="loading">
+  <div data-ui="card">
+    <div data-part="header">
+      <h2 data-part="title">Sign in to your account</h2>
+      <p data-part="description">Enter your credentials to continue</p>
+    </div>
+
+    <div data-part="body">
+      <form data-part="form" aria-label="Sign in" aria-busy="true">
+        <div data-part="email-field">
+          <label data-ui="label" for="loading-email">Email</label>
+          <input
+            data-ui="input"
+            type="email"
+            id="loading-email"
+            value="user@example.com"
+            autocomplete="email"
+            disabled
+          >
+        </div>
+
+        <div data-part="password-field">
+          <label data-ui="label" for="loading-password">Password</label>
+          <input
+            data-ui="input"
+            type="password"
+            id="loading-password"
+            autocomplete="current-password"
+            disabled
+          >
+        </div>
+
+        <button
+          data-ui="button"
+          data-variant="primary"
+          data-part="submit"
+          data-state="loading"
+          type="submit"
+          disabled
+        >
+          Signing in...
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Error State Example                          -->
+<!-- ============================================ -->
+<div data-ui="auth-form" data-variant="login" data-size="md" data-state="error">
+  <div data-ui="card">
+    <div data-part="header">
+      <h2 data-part="title">Sign in to your account</h2>
+      <p data-part="description">Enter your credentials to continue</p>
+    </div>
+
+    <div data-part="body">
+      <div data-part="error" role="alert">
+        <p>Invalid email or password. Please try again.</p>
+      </div>
+
+      <form data-part="form" aria-label="Sign in">
+        <div data-part="email-field">
+          <label data-ui="label" for="error-email">Email</label>
+          <input
+            data-ui="input"
+            type="email"
+            id="error-email"
+            data-state="error"
+            aria-invalid="true"
+            aria-describedby="error-msg"
+            value="user@example.com"
+            autocomplete="email"
+          >
+        </div>
+
+        <div data-part="password-field">
+          <label data-ui="label" for="error-password">Password</label>
+          <input
+            data-ui="input"
+            type="password"
+            id="error-password"
+            data-state="error"
+            aria-invalid="true"
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button
+          data-ui="button"
+          data-variant="primary"
+          data-part="submit"
+          type="submit"
+        >
+          Sign in
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Size Variants                                -->
+<!-- ============================================ -->
+
+<!-- Small -->
+<div data-ui="auth-form" data-variant="login" data-size="sm" data-state="default">
+  <div data-ui="card" data-size="sm">
+    <div data-part="header">
+      <h2 data-part="title">Sign in</h2>
+    </div>
+
+    <div data-part="body">
+      <form data-part="form" aria-label="Sign in">
+        <div data-part="email-field">
+          <label data-ui="label" for="sm-email" data-size="sm">Email</label>
+          <input data-ui="input" type="email" id="sm-email" data-size="sm" autocomplete="email">
+        </div>
+
+        <div data-part="password-field">
+          <label data-ui="label" for="sm-password" data-size="sm">Password</label>
+          <input data-ui="input" type="password" id="sm-password" data-size="sm" autocomplete="current-password">
+        </div>
+
+        <button data-ui="button" data-variant="primary" data-part="submit" data-size="sm" type="submit">
+          Sign in
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Large -->
+<div data-ui="auth-form" data-variant="login" data-size="lg" data-state="default">
+  <div data-ui="card" data-size="lg">
+    <div data-part="header">
+      <h2 data-part="title">Welcome back</h2>
+      <p data-part="description">Sign in to your account to continue</p>
+    </div>
+
+    <div data-part="body">
+      <form data-part="form" aria-label="Sign in">
+        <div data-part="email-field">
+          <label data-ui="label" for="lg-email" data-size="lg">Email</label>
+          <input data-ui="input" type="email" id="lg-email" data-size="lg" placeholder="you@example.com" autocomplete="email">
+        </div>
+
+        <div data-part="password-field">
+          <label data-ui="label" for="lg-password" data-size="lg">Password</label>
+          <input data-ui="input" type="password" id="lg-password" data-size="lg" placeholder="Enter your password" autocomplete="current-password">
+        </div>
+
+        <button data-ui="button" data-variant="primary" data-part="submit" data-size="lg" type="submit">
+          Sign in
+        </button>
+      </form>
+
+      <div data-part="separator">
+        <div data-ui="separator" role="separator">
+          <span data-part="label">OR</span>
+        </div>
+      </div>
+
+      <div data-part="social">
+        <button data-ui="button" data-variant="outline" data-size="lg" type="button">
+          Continue with Google
+        </button>
+        <button data-ui="button" data-variant="outline" data-size="lg" type="button">
+          Continue with GitHub
+        </button>
+      </div>
+    </div>
+
+    <div data-part="footer">
+      <p>Don't have an account? <a href="#register">Sign up</a></p>
+    </div>
+  </div>
+</div>

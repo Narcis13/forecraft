@@ -1,0 +1,44 @@
+<!-- @ui:component pagination -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots nav prev next page ellipsis -->
+<!-- @ui:variants size=sm|md|lg -->
+<!-- @ui:controller pagination.js -->
+
+<!-- Default (medium) -->
+<div data-ui="pagination" data-size="md">
+  <nav data-part="nav" role="navigation" aria-label="Pagination">
+    <button data-part="prev" aria-label="Previous page" disabled>&laquo; Prev</button>
+    <button data-part="page" data-page="1" data-state="active" aria-current="page">1</button>
+    <button data-part="page" data-page="2">2</button>
+    <button data-part="page" data-page="3">3</button>
+    <span data-part="ellipsis">&hellip;</span>
+    <button data-part="page" data-page="10">10</button>
+    <button data-part="next" aria-label="Next page">Next &raquo;</button>
+  </nav>
+</div>
+
+<!-- Small size -->
+<div data-ui="pagination" data-size="sm">
+  <nav data-part="nav" role="navigation" aria-label="Pagination">
+    <button data-part="prev" aria-label="Previous page" disabled>&laquo; Prev</button>
+    <button data-part="page" data-page="1" data-state="active" aria-current="page">1</button>
+    <button data-part="page" data-page="2">2</button>
+    <button data-part="page" data-page="3">3</button>
+    <button data-part="next" aria-label="Next page">Next &raquo;</button>
+  </nav>
+</div>
+
+<!-- Large size -->
+<div data-ui="pagination" data-size="lg">
+  <nav data-part="nav" role="navigation" aria-label="Pagination">
+    <button data-part="prev" aria-label="Previous page">&laquo; Prev</button>
+    <button data-part="page" data-page="1">1</button>
+    <button data-part="page" data-page="2" data-state="active" aria-current="page">2</button>
+    <button data-part="page" data-page="3">3</button>
+    <span data-part="ellipsis">&hellip;</span>
+    <button data-part="page" data-page="8">8</button>
+    <button data-part="page" data-page="9">9</button>
+    <button data-part="page" data-page="10">10</button>
+    <button data-part="next" aria-label="Next page">Next &raquo;</button>
+  </nav>
+</div>

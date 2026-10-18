@@ -1,0 +1,200 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "dropdown",
+  "version": "1.0.1",
+  "kind": "recipe",
+  "category": "navigation",
+  "description": "Dropdown menu with keyboard navigation and click-outside-to-close",
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the trigger, menu and items with descendant selectors, so a component in a menu with parts of the same name (another dropdown, a popover's trigger) took this dropdown's styles and size. Parts are now root > trigger, root > menu > item and separator. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='dropdown']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "trigger": {
+      "selector": "[data-part='trigger']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Button that toggles the dropdown menu"
+    },
+    "menu": {
+      "selector": "[data-part='menu']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "The dropdown menu container with role=menu"
+    },
+    "item": {
+      "selector": "[data-part='item']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Individual menu item with role=menuitem"
+    },
+    "separator": {
+      "selector": "[data-part='separator']",
+      "required": false,
+      "tag_hint": "hr",
+      "description": "Visual separator between menu item groups"
+    }
+  },
+  "variants": {
+    "align": {
+      "values": [
+        "start",
+        "end"
+      ],
+      "default": "start",
+      "attr": "data-variant",
+      "applied_to": "menu"
+    },
+    "size": {
+      "values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+  "states": {
+    "closed": {
+      "attr": "data-state=\"closed\"",
+      "default": true
+    },
+    "open": {
+      "attr": "data-state=\"open\""
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "open",
+        "params": "options = {}"
+      },
+      {
+        "name": "close",
+        "params": "options = {}"
+      },
+      {
+        "name": "toggle",
+        "params": ""
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "triggerText": {
+      "type": "string",
+      "default": "Menu",
+      "description": "Text for the trigger button"
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "role=\"menu\" on menu",
+      "role=\"menuitem\" on each item",
+      "aria-expanded on trigger",
+      "aria-haspopup=\"true\" on trigger"
+    ],
+    "keyboard": {
+      "Enter": "open menu / activate item",
+      "Space": "open menu / activate item",
+      "Escape": "close menu",
+      "ArrowDown": "focus next item",
+      "ArrowUp": "focus previous item",
+      "Home": "focus first item",
+      "End": "focus last item"
+    }
+  },
+  "tokens_used": [
+    "color-bg",
+    "color-fg",
+    "color-border",
+    "color-primary-subtle",
+    "color-primary",
+    "color-bg-muted",
+    "panel-bg",
+    "space-1",
+    "space-2",
+    "space-3",
+    "space-4",
+    "radius-md",
+    "radius-lg",
+    "shadow-md",
+    "text-sm",
+    "text-xs",
+    "text-base",
+    "weight-medium",
+    "duration-fast",
+    "ease-default",
+    "ease-out",
+    "z-dropdown",
+    "font-ui",
+    "border-width",
+    "focus-ring-width",
+    "focus-ring-style",
+    "focus-ring-color",
+    "focus-ring-offset",
+    "surface-backdrop",
+    "disabled-opacity"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"dropdown\" data-state=\"closed\">\n  <button data-part=\"trigger\" aria-haspopup=\"true\" aria-expanded=\"false\">{trigger_text}</button>\n  <div data-part=\"menu\" role=\"menu\" hidden>\n    <button data-part=\"item\" role=\"menuitem\">{item1}</button>\n    <button data-part=\"item\" role=\"menuitem\">{item2}</button>\n    <hr data-part=\"separator\">\n    <button data-part=\"item\" role=\"menuitem\">{item3}</button>\n  </div>\n</div>"
+  },
+  "safe_transforms": [
+    "add-menu-item",
+    "remove-menu-item",
+    "add-separator",
+    "change-alignment",
+    "change-size",
+    "restyle-menu-background"
+  ],
+  "unsafe_transforms": [
+    "remove-menu-role",
+    "remove-menuitem-role",
+    "remove-aria-expanded",
+    "remove-keyboard-navigation",
+    "remove-click-outside-handler"
+  ],
+  "composition": {
+    "contains": [],
+    "used_in": [
+      "dashboard-shell",
+      "crud-table"
+    ]
+  },
+  "files": {
+    "html": "dropdown.html",
+    "css": "dropdown.css",
+    "js": "dropdown.js",
+    "manifest": "dropdown.manifest.json"
+  },
+  "tests": [
+    "opens-on-trigger-click",
+    "closes-on-escape",
+    "closes-on-click-outside",
+    "closes-on-item-click",
+    "trigger-has-aria-expanded",
+    "trigger-has-aria-haspopup",
+    "menu-has-role-menu",
+    "items-have-role-menuitem",
+    "arrow-down-focuses-next-item",
+    "arrow-up-focuses-previous-item",
+    "home-focuses-first-item",
+    "end-focuses-last-item",
+    "menu-is-hidden-when-closed",
+    "sets-data-state-open-when-opened",
+    "sets-data-state-closed-when-closed"
+  ]
+}

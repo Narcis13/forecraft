@@ -1,0 +1,155 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "marquee",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "marketing",
+  "description": "An endless, seamless strip of items — logos, quotes, tags, headlines — moving in a row or a column. Pure CSS: the items are written twice and both copies slide by exactly one copy, so nothing is measured and nothing is scripted. Pauses under the pointer and the keyboard, fades at the edges on request, and becomes ordinary wrapped content under reduced motion.",
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='marquee']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "track": {
+      "selector": "[data-part='track']",
+      "required": true,
+      "tag_hint": "ul",
+      "description": "One full copy of the strip. Write it exactly twice, with identical children; the second copy carries aria-hidden=\"true\" so assistive technology reads each item once. Items are the track's direct children."
+    }
+  },
+
+  "variants": {
+    "orientation": {
+      "values": ["horizontal", "vertical"],
+      "default": "horizontal",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "direction": {
+      "values": ["forward", "reverse"],
+      "default": "forward",
+      "attr": "data-direction",
+      "applied_to": "root"
+    },
+    "speed": {
+      "values": ["slow", "normal", "fast"],
+      "default": "normal",
+      "attr": "data-speed",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "fade": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-fade",
+      "description": "Dissolve the strip into the page at both ends with a mask instead of cutting it at the window's edge. Works over any background."
+    },
+    "pause": {
+      "type": "enum",
+      "values": ["hover", "never"],
+      "default": "hover",
+      "attr": "data-pause",
+      "description": "\"hover\" pauses the strip while the pointer is over it or focus is inside it. \"never\" is only for a strip that is purely decorative — moving text a reader cannot stop fails WCAG 2.2.2."
+    },
+    "--marquee-duration": {
+      "type": "string",
+      "default": "var(--motion-ambient-duration)",
+      "description": "Time for one full lap at normal speed (custom property). data-speed multiplies it: slow ×2, fast ×0.5."
+    },
+    "--marquee-gap": {
+      "type": "string",
+      "default": "var(--space-8)",
+      "description": "Space between items, and between the two copies (custom property)."
+    },
+    "--marquee-fade": {
+      "type": "string",
+      "default": "12%",
+      "description": "With data-fade: how much of each end dissolves (custom property)."
+    },
+    "--marquee-size": {
+      "type": "string",
+      "default": "24rem",
+      "description": "Vertical orientation only: the height of the window (custom property)."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "role=\"group\" and an aria-label on the root naming what the strip is",
+      "aria-hidden=\"true\" on the second track",
+      "alt text on every image in the first track; empty alt on the copies in the second"
+    ],
+    "notes": "The strip pauses on hover and on focus-within (WCAG 2.2.2 Pause, Stop, Hide). Links or buttons inside the second, aria-hidden track must carry tabindex=\"-1\" — or, better, keep interactive content out of a marquee. Reduced motion removes the animation and the duplicate track and wraps the items so all of them are visible.",
+    "keyboard": {
+      "Tab": "moves into the first track's focusable items, which pauses the strip"
+    }
+  },
+
+  "tokens_used": [
+    "space-8", "motion-ambient-duration", "motion-ambient-play", "ease-linear"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"marquee\" role=\"group\" aria-label=\"{label}\">\n  <ul data-part=\"track\">\n    {items}\n  </ul>\n  <ul data-part=\"track\" aria-hidden=\"true\">\n    {items}\n  </ul>\n</div>",
+    "html_faded": "<div data-ui=\"marquee\" data-fade role=\"group\" aria-label=\"{label}\">\n  <ul data-part=\"track\">\n    {items}\n  </ul>\n  <ul data-part=\"track\" aria-hidden=\"true\">\n    {items}\n  </ul>\n</div>",
+    "html_vertical": "<div data-ui=\"marquee\" data-variant=\"vertical\" data-fade role=\"group\" aria-label=\"{label}\">\n  <ul data-part=\"track\">\n    {items}\n  </ul>\n  <ul data-part=\"track\" aria-hidden=\"true\">\n    {items}\n  </ul>\n</div>"
+  },
+
+  "safe_transforms": [
+    "change-orientation",
+    "change-direction",
+    "change-speed",
+    "toggle-fade",
+    "change-custom-property-timing",
+    "add-item-to-both-tracks",
+    "remove-item-from-both-tracks"
+  ],
+
+  "unsafe_transforms": [
+    "remove-the-second-track",
+    "edit-one-track-without-the-other",
+    "remove-aria-hidden-from-the-second-track",
+    "remove-the-group-label",
+    "set-pause-never-on-readable-text",
+    "put-focusable-content-in-the-hidden-track"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["logo-cloud", "testimonials"],
+    "notes": [
+      "The two tracks must be identical: the loop is seamless only because the second copy is standing exactly where the first one started. Change an item in both or in neither.",
+      "A track shorter than the window is stretched to fill it (min-inline-size: 100%, items spaced around), so a marquee with three logos still loops without a gap.",
+      "Two marquees stacked with opposite data-direction and different data-speed read as depth; that is the whole recipe for a logo wall.",
+      "Freeze every ambient loop on a page — marquees included — with `--motion-ambient-play: paused` on :root or on any ancestor."
+    ]
+  },
+
+  "files": {
+    "html": "marquee.html",
+    "css": "marquee.css",
+    "manifest": "marquee.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-with-two-tracks",
+    "second-track-is-aria-hidden",
+    "loop-travels-one-track-plus-one-gap",
+    "reverse-direction-flips-the-animation",
+    "speed-is-a-multiple-of-one-duration",
+    "vertical-orientation-needs-a-size",
+    "fade-is-a-mask-not-an-overlay",
+    "pauses-on-hover-and-focus-within",
+    "reduced-motion-wraps-and-drops-the-duplicate",
+    "reads-the-ambient-duration-and-play-state"
+  ]
+}

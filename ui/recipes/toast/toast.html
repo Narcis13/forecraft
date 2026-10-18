@@ -1,0 +1,48 @@
+<!-- @ui:component toast -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots container toast icon message action close -->
+<!-- @ui:variants tone=default|success|error|warning position=top-right|top-left|bottom-right|bottom-left -->
+<!-- @ui:controller toast.js -->
+
+<!-- Top-right stack (default + success) -->
+<div data-ui="toast" data-variant="top-right" data-part="container" role="region" aria-label="Notifications" id="toast-demo-top-right">
+  <div data-part="toast" data-variant="default" data-state="visible" role="status" aria-live="polite">
+    <span data-part="icon" aria-hidden="true">&#x2139;</span>
+    <span data-part="message">This is a default notification.</span>
+    <button data-part="action">Undo</button>
+    <button data-part="close" aria-label="Dismiss notification">&#x2715;</button>
+  </div>
+  <div data-part="toast" data-variant="success" data-state="visible" role="status" aria-live="polite">
+    <span data-part="icon" aria-hidden="true">&#x2713;</span>
+    <span data-part="message">Changes saved successfully.</span>
+    <button data-part="close" aria-label="Dismiss notification">&#x2715;</button>
+  </div>
+</div>
+
+<!-- Top-left position -->
+<div data-ui="toast" data-variant="top-left" data-part="container" role="region" aria-label="Notifications" id="toast-demo-top-left">
+  <div data-part="toast" data-variant="default" data-state="visible" role="status" aria-live="polite">
+    <span data-part="icon" aria-hidden="true">&#x2139;</span>
+    <span data-part="message">A new version is available.</span>
+    <button data-part="close" aria-label="Dismiss notification">&#x2715;</button>
+  </div>
+</div>
+
+<!-- Bottom-right position (error tone) -->
+<div data-ui="toast" data-variant="bottom-right" data-part="container" role="region" aria-label="Notifications" id="toast-demo-bottom-right">
+  <div data-part="toast" data-variant="error" data-state="visible" role="status" aria-live="polite">
+    <span data-part="icon" aria-hidden="true">&#x2717;</span>
+    <span data-part="message">Something went wrong. Please try again.</span>
+    <button data-part="action">Retry</button>
+    <button data-part="close" aria-label="Dismiss notification">&#x2715;</button>
+  </div>
+</div>
+
+<!-- Bottom-left position (warning tone) -->
+<div data-ui="toast" data-variant="bottom-left" data-part="container" role="region" aria-label="Notifications" id="toast-demo-bottom-left">
+  <div data-part="toast" data-variant="warning" data-state="visible" role="status" aria-live="polite">
+    <span data-part="icon" aria-hidden="true">&#x26A0;</span>
+    <span data-part="message">Your session will expire in 5 minutes.</span>
+    <button data-part="close" aria-label="Dismiss notification">&#x2715;</button>
+  </div>
+</div>

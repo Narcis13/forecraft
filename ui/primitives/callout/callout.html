@@ -1,0 +1,91 @@
+<!-- @ui:component callout -->
+<!-- @ui:kind primitive -->
+<!-- @ui:aliases alert -->
+<!-- @ui:slots icon content title dismiss -->
+<!-- @ui:variants variant=info|warning|destructive|success|muted -->
+
+<!-- Info (default) -->
+<div data-ui="callout" data-variant="info" role="note">
+  <span data-part="icon">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1a7 7 0 100 14A7 7 0 008 1zm1 4.5a1 1 0 11-2 0 1 1 0 012 0zM7 7h2v5H7V7z"/></svg>
+  </span>
+  <div data-part="content">
+    <strong data-part="title">Information</strong>
+    <p>This is an informational notice for the user.</p>
+  </div>
+</div>
+
+<!-- Info with title -->
+<div data-ui="callout" data-variant="info" role="note">
+  <span data-part="icon">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1a7 7 0 100 14A7 7 0 008 1zm1 4.5a1 1 0 11-2 0 1 1 0 012 0zM7 7h2v5H7V7z"/></svg>
+  </span>
+  <div data-part="content">
+    <strong data-part="title">Important Information</strong>
+    <p>Payment must be made within 30 days of the invoice date.</p>
+  </div>
+</div>
+
+<!-- Warning -->
+<div data-ui="callout" data-variant="warning" role="note">
+  <span data-part="icon">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1l7 14H1L8 1zm0 4v4m0 2v1"/></svg>
+  </span>
+  <div data-part="content">
+    <strong data-part="title">Attention</strong>
+    <p>Late payments may incur additional charges as per contract terms.</p>
+  </div>
+</div>
+
+<!-- Destructive -->
+<div data-ui="callout" data-variant="destructive" role="alert">
+  <span data-part="icon">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1a7 7 0 100 14A7 7 0 008 1zm3 4.5L9.5 7 11 8.5 9.5 10 8 8.5 6.5 10 5 8.5 6.5 7 5 5.5 6.5 4 8 5.5 9.5 4z"/></svg>
+  </span>
+  <div data-part="content">
+    <strong data-part="title">Permanent deletion</strong>
+    <p>This action cannot be undone. All data will be permanently deleted.</p>
+  </div>
+</div>
+
+<!-- Success -->
+<div data-ui="callout" data-variant="success" role="note">
+  <span data-part="icon">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1a7 7 0 100 14A7 7 0 008 1zm3.5 4.5L7 10l-2.5-2.5 1-1L7 8l3.5-3.5z"/></svg>
+  </span>
+  <div data-part="content">
+    <strong data-part="title">Payment received</strong>
+    <p>Payment received successfully. Invoice marked as paid.</p>
+  </div>
+</div>
+
+<!-- Muted (legal text / disclaimer) -->
+<div data-ui="callout" data-variant="muted" role="note">
+  <span data-part="icon">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M3 1h7l3 3v11H3V1zm7 1.5V5h2.5L10 2.5zM5 8h6V7H5v1zm0 2h6V9H5v1zm0 2h4v-1H5v1z"/></svg>
+  </span>
+  <div data-part="content">
+    <strong data-part="title">Legal Disclaimer</strong>
+    <p>Conform art. 6 din Legea nr. 227/2015 privind Codul fiscal, prezenta factura constituie document justificativ pentru deducerea TVA.</p>
+  </div>
+</div>
+
+<!-- Without icon -->
+<div data-ui="callout" data-variant="info" role="note">
+  <div data-part="content">
+    <p>A simple callout without an icon, useful for brief inline notes.</p>
+  </div>
+</div>
+
+<!-- Dismissible alert (callout is aliased as "alert"; add a [data-part="dismiss"] button) -->
+<div data-ui="callout" data-variant="success" role="status" aria-live="polite">
+  <span data-part="icon">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1a7 7 0 100 14A7 7 0 008 1zm3.5 4.5L7 10l-2.5-2.5 1-1L7 8l3.5-3.5z"/></svg>
+  </span>
+  <div data-part="content">
+    <p>Your changes have been saved.</p>
+  </div>
+  <button type="button" data-part="dismiss" aria-label="Dismiss">
+    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M4 4l8 8M12 4l-8 8"/></svg>
+  </button>
+</div>

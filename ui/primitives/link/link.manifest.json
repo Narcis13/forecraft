@@ -1,0 +1,94 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "link",
+  "version": "1.1.0",
+  "kind": "primitive",
+  "category": "navigation",
+  "description": "Styled anchor with external/muted variants; external links get a CSS-only indicator",
+
+  "changes": [
+    {
+      "version": "1.1.0",
+      "note": "A data-effect prop: slide draws the underline in from the start of the text on hover and focus (a background rule as thick as --link-thickness, in place of the text-decoration) and arrow appends an arrow that nudges forward — mirrored in right-to-left pages. No change for a link without the attribute.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "a",
+    "selector": "[data-ui='link']",
+    "content_model": "inline"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "style": {
+      "values": ["default", "external", "muted"],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {
+    "effect": {"type":"enum","values":["slide","arrow"],"attr":"data-effect","description":"slide: the underline grows in from the start of the text on hover; arrow: a trailing arrow that nudges forward — the read-more gesture. Both mirror in RTL."},
+    "href": { "type": "string", "default": "", "description": "Link destination (required on every anchor)" },
+    "text": { "type": "string", "default": "", "description": "Link text content" }
+  },
+
+  "a11y": {
+    "required_attrs": [],
+    "keyboard": {
+      "Enter": "Follows the link"
+    },
+    "notes": "External links should set target=\"_blank\" with rel=\"noopener noreferrer\". Link text must be descriptive — never bare URLs or 'click here'."
+  },
+
+  "tokens_used": [
+    "color-primary", "color-primary-hover", "color-primary-active", "color-fg", "color-fg-muted",
+    "color-ring", "radius-sm", "space-1", "focus-ring-width", "focus-ring-offset",
+    "focus-ring-style", "focus-ring-color", "focus-shadow", "link-decoration", "link-thickness",
+    "link-underline-offset", "duration-normal", "ease-out"
+  ],
+
+  "templates": {
+    "html": "<a data-ui=\"link\" href=\"{href}\">{text}</a>",
+    "html_external": "<a data-ui=\"link\" data-variant=\"external\" href=\"{href}\" target=\"_blank\" rel=\"noopener noreferrer\">{text}</a>"
+  },
+
+  "safe_transforms": [
+    "change-variant",
+    "change-href",
+    "change-text-content",
+    "set-effect"
+  ],
+
+  "unsafe_transforms": [
+    "remove-href",
+    "remove-rel-noopener-on-external"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": []
+  },
+
+  "files": {
+    "html": "link.html",
+    "css": "link.css",
+    "manifest": "link.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-anchor-element",
+    "default-uses-primary-color",
+    "muted-variant-uses-fg-muted",
+    "external-variant-has-css-indicator",
+    "focus-visible-shows-ring",
+    "slide-underline-is-as-thick-as-the-link-family",
+    "arrow-mirrors-in-rtl"
+  ]
+}

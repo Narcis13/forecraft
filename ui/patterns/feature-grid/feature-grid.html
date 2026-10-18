@@ -1,0 +1,103 @@
+<!-- @ui:component feature-grid -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots heading description items item icon item-title item-description footer -->
+<!-- @ui:variants columns=2|3|4 -->
+<!-- @ui:composition icon button -->
+<!--
+  Feature grid — composition only, zero JavaScript.
+    · The column count lives on the root as data-cols (the same vocabulary the
+      grid primitive uses); the columns collapse 4→2→1 in pure CSS.
+    · Each feature is a real list item, so assistive tech announces "list, 6
+      items" instead of a wall of headings.
+    · [data-part="icon"] is a tinted plate that WRAPS the icon primitive rather
+      than being it: an icon paints its glyph with background-color:currentColor
+      through a mask, so giving the icon element a background repaints the glyph
+      instead of framing it. The plate is decorative, hence aria-hidden; the
+      meaning is carried by the item title next to it.
+    · `faqir scaffold landing-page` composes the block marked below verbatim.
+-->
+
+<!-- @ui:scaffold landing-page -->
+<section data-ui="feature-grid" data-cols="3" id="features" aria-labelledby="features-heading">
+  <h2 data-part="heading" id="features-heading">Everything a product page needs</h2>
+  <p data-part="description">
+    Maintained pieces you compose instead of markup you invent — each one
+    audited, themeable, and keyboard-complete out of the box.
+  </p>
+  <ul data-part="items">
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="zap"></span></span>
+      <h3 data-part="item-title">Fast by default</h3>
+      <p data-part="item-description">No runtime, no hydration step. Stylesheets and markup ship as-is.</p>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="shield-check"></span></span>
+      <h3 data-part="item-title">Accessible on arrival</h3>
+      <p data-part="item-description">Roles, names, and focus order are part of the contract, not an afterthought.</p>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="sliders-horizontal"></span></span>
+      <h3 data-part="item-title">Themeable to the token</h3>
+      <p data-part="item-description">Every colour, space, and radius resolves from tokens you can swap wholesale.</p>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="code"></span></span>
+      <h3 data-part="item-title">Readable markup</h3>
+      <p data-part="item-description">Five data attributes describe the whole UI — no class soup to reverse-engineer.</p>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="printer"></span></span>
+      <h3 data-part="item-title">Print-ready documents</h3>
+      <p data-part="item-description">The same tokens drive invoices and reports with real page geometry.</p>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="globe"></span></span>
+      <h3 data-part="item-title">Right-to-left ready</h3>
+      <p data-part="item-description">Logical properties throughout, so a locale switch is a document attribute.</p>
+    </li>
+  </ul>
+</section>
+<!-- @ui:scaffold-end -->
+
+<!-- Two columns, with a closing action -->
+<section data-ui="feature-grid" data-cols="2" aria-labelledby="feature-grid-two-heading">
+  <h2 data-part="heading" id="feature-grid-two-heading">Built for teams</h2>
+  <ul data-part="items">
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="users"></span></span>
+      <h3 data-part="item-title">Shared vocabulary</h3>
+      <p data-part="item-description">Designers and engineers name the same parts the same way.</p>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="git-branch"></span></span>
+      <h3 data-part="item-title">Reviewable diffs</h3>
+      <p data-part="item-description">A change to a component is a change to one folder, with a manifest to prove it.</p>
+    </li>
+  </ul>
+  <div data-part="footer">
+    <a data-ui="button" data-variant="outline" href="#docs">Read the docs</a>
+  </div>
+</section>
+
+<!-- Four columns, no section description -->
+<section data-ui="feature-grid" data-cols="4" aria-labelledby="feature-grid-four-heading">
+  <h2 data-part="heading" id="feature-grid-four-heading">At a glance</h2>
+  <ul data-part="items">
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="package"></span></span>
+      <h3 data-part="item-title">Zero deps</h3>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="file-text"></span></span>
+      <h3 data-part="item-title">Manifest-driven</h3>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="moon"></span></span>
+      <h3 data-part="item-title">Dark mode</h3>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="check-check"></span></span>
+      <h3 data-part="item-title">Audited</h3>
+    </li>
+  </ul>
+</section>

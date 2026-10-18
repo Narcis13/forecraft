@@ -1,0 +1,223 @@
+/* @ui:component testimonials */
+/* @ui:tokens space-4 space-12 space-6 space-8 space-3 space-10 space-16 font-body font-heading color-fg color-bg color-fg-muted text-2xl text-lg text-3xl heading-weight heading-tracking heading-transform heading-caps heading-leading measure-prose leading-relaxed motion-reveal-duration motion-reveal-ease motion-stagger motion-reveal-distance ease-linear */
+
+/* ── Root ──
+   A wall of quotes: a section heading, an optional description, and the
+   quotes themselves as card quotes inside a real list. The three layouts
+   only change how that list flows — a grid of equal rows, packed columns, or
+   two moving strips — so one set of markup serves all of them.
+
+   Mobile-first: every declaration outside the `@media` blocks at the foot of
+   the sheet is the PHONE case; the canon floors only ever widen it. */
+[data-ui="testimonials"] {
+  display: grid;
+  gap: var(--space-4);
+  padding-block: var(--space-12);
+  padding-inline: var(--space-4);
+  font-family: var(--font-body);
+  color: var(--color-fg);
+  background: var(--color-bg);
+}
+
+/* ── Heading ── */
+[data-ui="testimonials"] > [data-part="heading"] {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  line-height: var(--heading-leading);
+  text-wrap: balance;
+}
+
+/* ── Description ── */
+[data-ui="testimonials"] > [data-part="description"] {
+  margin: 0;
+  max-inline-size: var(--measure-prose);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--color-fg-muted);
+}
+
+/* ── Items ──
+   A real <ul>; the marker goes, the semantics stay, so assistive technology
+   announces "list, 6 items" before the first quote. One column on a phone;
+   the grid layout widens to two at md and three at lg below. `minmax(0, 1fr)`
+   rather than `1fr`: a long unbroken word in one quote must not push its
+   column wider than the others. */
+[data-ui="testimonials"] > [data-part="items"] {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: var(--testimonials-gap, var(--space-6));
+  margin: 0;
+  margin-block-start: var(--space-8);
+  padding: 0;
+  list-style: none;
+}
+
+/* ── Item ──
+   Each item WRAPS one card quote. The item is a grid of its own so the quote
+   stretches to the row's height: in a grid of testimonials the short quote
+   and the long one get the same card. `--faqir-testimonials-index` is the
+   item's place in the stagger, read by the animate rules below. */
+[data-ui="testimonials"] > :where([data-part="items"]) > [data-part="item"] {
+  --faqir-testimonials-index: 0;
+  display: grid;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Layout: columns ──
+   CSS multi-column instead of grid, so cards of different heights pack
+   top-to-bottom like a masonry wall with no script measuring anything. Each
+   item refuses to split across a column break; the gap below it is the
+   column's rhythm, which is why the list's own gap does nothing here. */
+[data-ui="testimonials"][data-variant="columns"] > [data-part="items"] {
+  display: block;
+  columns: 1;
+  column-gap: var(--testimonials-gap, var(--space-6));
+}
+
+[data-ui="testimonials"][data-variant="columns"] > :where([data-part="items"]) > [data-part="item"] {
+  display: block;
+  break-inside: avoid;
+  margin-block-end: var(--testimonials-gap, var(--space-6));
+}
+
+[data-ui="testimonials"][data-variant="columns"] > :where([data-part="items"]) > [data-part="item"]:last-child {
+  margin-block-end: 0;
+}
+
+/* ── Layout: marquee ──
+   Two nested marquee strips stacked, the second running the other way at
+   half the pace, which is what makes a pair of strips read as depth. The
+   marquee owns the motion, the pause and the reduced-motion fallback; this
+   sheet only stacks the strips and sizes the cards.
+
+   A card in a strip needs a width of its own — a marquee lays its items on
+   one line and a quote would otherwise take the whole strip. The width is
+   set on [data-part="slide"], the pattern's own wrapper around each quote,
+   never on the marquee's items or on the quote, so the nested components
+   are never restyled. The hops to it go through :where() to keep the rule's
+   weight at a single part. */
+[data-ui="testimonials"] > [data-part="strips"] {
+  display: grid;
+  gap: var(--testimonials-gap, var(--space-6));
+  margin-block-start: var(--space-8);
+}
+
+[data-ui="testimonials"] > :where([data-part="strips"]) > :where([data-ui="marquee"]) > :where([data-part="track"]) > :where(li) > [data-part="slide"] {
+  display: grid;
+  inline-size: var(--testimonials-card-width, 20rem);
+}
+
+/* ── Footer ── */
+[data-ui="testimonials"] > [data-part="footer"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block-start: var(--space-10);
+}
+
+/* ── Animate: the items arrive in order ──
+   The reveal primitive's stagger, applied to the list's own items: it cannot
+   wrap them, because `items` is this pattern's part and a reveal staggers
+   its direct children. Same recipe, same tokens — the entrance reads the
+   `--motion-reveal-*` family and the delay is one `--motion-stagger` per
+   sibling, so a theme that restyles reveals restyles this too. Twelve steps
+   are counted; everything past the twelfth arrives with it, so a long wall
+   does not hold its last row back for seconds. `both` holds the from-state
+   through the delay, so a late item is not visible, then hidden, then shown. */
+[data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"] {
+  animation: faqir-testimonials-reveal var(--motion-reveal-duration) var(--motion-reveal-ease) both;
+  animation-delay: calc(var(--motion-stagger) * var(--faqir-testimonials-index));
+}
+
+[data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"]:nth-child(2)    { --faqir-testimonials-index: 1; }
+[data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"]:nth-child(3)    { --faqir-testimonials-index: 2; }
+[data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"]:nth-child(4)    { --faqir-testimonials-index: 3; }
+[data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"]:nth-child(5)    { --faqir-testimonials-index: 4; }
+[data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"]:nth-child(6)    { --faqir-testimonials-index: 5; }
+[data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"]:nth-child(7)    { --faqir-testimonials-index: 6; }
+[data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"]:nth-child(8)    { --faqir-testimonials-index: 7; }
+[data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"]:nth-child(9)    { --faqir-testimonials-index: 8; }
+[data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"]:nth-child(10)   { --faqir-testimonials-index: 9; }
+[data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"]:nth-child(11)   { --faqir-testimonials-index: 10; }
+[data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"]:nth-child(n+12) { --faqir-testimonials-index: 11; }
+
+/* Only a `from`: the animation ends on whatever the item already is. */
+@keyframes faqir-testimonials-reveal {
+  from {
+    opacity: 0;
+    translate: 0 var(--motion-reveal-distance);
+  }
+}
+
+/* Where view timelines are understood the entrance is scrubbed by the
+   scrollbar as each item crosses the bottom of the viewport, and a time delay
+   means nothing, so the stagger offsets each item's RANGE instead: the same
+   order, measured in scroll. Elsewhere the block is skipped and the rule above
+   plays the entrance once on load — the quotes are never left hidden. */
+@supports (animation-timeline: view()) {
+  [data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"] {
+    animation-timeline: view();
+    animation-timing-function: var(--ease-linear);
+    animation-delay: 0s;
+    animation-range:
+      entry calc(5% + var(--faqir-testimonials-index) * 6%)
+      entry calc(70% + var(--faqir-testimonials-index) * 6%);
+  }
+}
+
+/* ── Motion ──
+   Reduced motion removes the entrance, not the quotes. Paper gets the same
+   treatment — a printed page has no entrance — and a quote never breaks
+   across two pages. The marquee strips carry their own fallbacks. */
+@media (prefers-reduced-motion: reduce), print {
+  [data-ui="testimonials"][data-animate] > :where([data-part="items"]) > [data-part="item"] {
+    animation: none;
+  }
+}
+
+@media print {
+  [data-ui="testimonials"] > :where([data-part="items"]) > [data-part="item"] {
+    break-inside: avoid;
+  }
+}
+
+/* ── Responsive ──
+   Canon tiers only, min-width only, ascending. sm: the section opens up and
+   the heading takes the display size. md: two columns, in both the grid and
+   the packed layout. lg: three. The marquee layout has no columns to widen. */
+@media (min-width: 40rem) {
+  [data-ui="testimonials"] {
+    padding-block: var(--space-16);
+    padding-inline: var(--space-6);
+  }
+
+  [data-ui="testimonials"] > [data-part="heading"] {
+    font-size: var(--text-3xl);
+  }
+}
+
+@media (min-width: 48rem) {
+  [data-ui="testimonials"] > [data-part="items"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-ui="testimonials"][data-variant="columns"] > [data-part="items"] {
+    columns: 2;
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-ui="testimonials"] > [data-part="items"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  [data-ui="testimonials"][data-variant="columns"] > [data-part="items"] {
+    columns: 3;
+  }
+}

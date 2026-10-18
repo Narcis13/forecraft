@@ -1,0 +1,85 @@
+<!-- @ui:component cta -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots eyebrow headline description actions note content media -->
+<!-- @ui:variants layout=center|split|banner tone=surface|primary|gradient -->
+<!-- @ui:composition button highlight glow -->
+<!--
+  Call to action — composition only, zero JavaScript.
+    · The section is labelled by its own headline (aria-labelledby), so the
+      landmark carries a name without inventing one.
+    · Calls to action are plain <a data-ui="button"> elements inside
+      [data-part="actions"]; they carry their own data-variant/data-size, which
+      is why they are NOT cta parts. On a filled tone (primary, gradient) the
+      markup uses the button's secondary variant — the pattern never restyles
+      a nested component, it picks the variant that reads on its panel.
+    · The featured button may sit inside a glow; the glow's radius and ring
+      are matched to the button's tokens on the glow itself, not here.
+    · A backdrop WRAPS the section, never the other way round: the light is
+      painted behind the backdrop's content, so the section inside one carries
+      data-transparent to drop its own fill and edge.
+    · The split and banner layouts put the copy in [data-part="content"]; the
+      centred layout has no second column and keeps the parts in the root.
+-->
+
+<!-- Center (default) on a surface, the featured button lit by a glow -->
+<section data-ui="cta" data-variant="center" data-tone="surface" aria-labelledby="cta-headline">
+  <p data-part="eyebrow">Ready when you are</p>
+  <h2 data-part="headline" id="cta-headline">Ship the <span data-ui="highlight">interface</span>, not the design system</h2>
+  <p data-part="description">
+    Accessible components, design tokens and print-ready documents, in markup
+    your team already knows how to read. Start with one page.
+  </p>
+  <div data-part="actions">
+    <span data-ui="glow" data-halo style="--glow-radius: var(--button-radius); --glow-width: var(--border-width-sm)">
+      <a data-ui="button" data-variant="primary" data-size="lg" href="#signup">Start building</a>
+    </span>
+    <a data-ui="button" data-variant="outline" data-size="lg" href="#docs">Read the docs</a>
+  </div>
+  <p data-part="note">Free while you build · No credit card required</p>
+</section>
+
+<!-- Inside a backdrop: the backdrop wraps the section, which goes transparent -->
+<div data-ui="backdrop" data-variant="spotlight">
+  <section data-ui="cta" data-variant="center" data-transparent aria-labelledby="cta-lit-headline">
+    <p data-part="eyebrow">Open source</p>
+    <h2 data-part="headline" id="cta-lit-headline">Read the manifests, then read the markup</h2>
+    <p data-part="description">
+      Every component is a folder with a contract an agent can read and an
+      audit can prove. Clone it, run the audit, and see for yourself.
+    </p>
+    <div data-part="actions">
+      <a data-ui="button" data-variant="primary" data-size="lg" href="#repository">Browse the registry</a>
+      <a data-ui="button" data-variant="ghost" data-size="lg" href="#audit">Run the audit</a>
+    </div>
+  </section>
+</div>
+
+<!-- Split on the primary tone: copy beside media from the lg floor -->
+<section data-ui="cta" data-variant="split" data-tone="primary" aria-labelledby="cta-split-headline">
+  <div data-part="content">
+    <p data-part="eyebrow">For teams</p>
+    <h2 data-part="headline" id="cta-split-headline">One vocabulary for designers, engineers and agents</h2>
+    <p data-part="description">
+      A shared set of parts that a review can point at, a theme can restyle
+      and an agent can generate — without anyone learning a class naming scheme.
+    </p>
+    <div data-part="actions">
+      <a data-ui="button" data-variant="secondary" data-size="lg" href="#demo">Book a demo</a>
+    </div>
+    <p data-part="note">Thirty minutes, with your own markup on screen.</p>
+  </div>
+  <figure data-part="media">
+    <img src="https://example.com/team-review.jpg" alt="Two people reviewing a component manifest side by side on one screen" loading="lazy">
+  </figure>
+</section>
+
+<!-- Banner on the gradient tone: one compact row from the md floor -->
+<section data-ui="cta" data-variant="banner" data-tone="gradient" aria-labelledby="cta-banner-headline">
+  <div data-part="content">
+    <h2 data-part="headline" id="cta-banner-headline">The motion release is out</h2>
+    <p data-part="description">Entrances, scroll-linked timelines and ambient backdrops, all token-driven.</p>
+  </div>
+  <div data-part="actions">
+    <a data-ui="button" data-variant="secondary" href="#changelog">Read the changelog</a>
+  </div>
+</section>

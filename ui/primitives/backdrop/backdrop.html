@@ -1,0 +1,57 @@
+<!-- @ui:component backdrop -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants scene=aurora|spotlight|grid|dots|beams intensity=subtle|normal|vivid -->
+<!--
+  Backdrop — ambient light behind a section. CSS only, zero JavaScript.
+    · It is a WRAPPER: the content goes inside, and the light is painted behind
+      it by two pseudo-elements. There is no empty decorative element to hide
+      from assistive technology and no positioning for the author to get right.
+    · Every scene takes its colours from the theme (accent, info, success), so
+      it is on-brand without a declaration.
+    · Reduced motion keeps the light and stops the movement; forced colours and
+      print drop the decoration entirely.
+-->
+
+<!-- Aurora (default) — two sheets of colour drifting against each other -->
+<div data-ui="backdrop">
+  <div data-ui="container" data-measure="content">
+    <p><strong>Light that follows the theme</strong></p>
+    <p>The backdrop reads the accent, so switching themes re-colours it.</p>
+  </div>
+</div>
+
+<!-- Spotlight — one breathing light from above -->
+<div data-ui="backdrop" data-variant="spotlight">
+  <div data-ui="container" data-measure="content">
+    <p>A single light source, for a hero that should feel lit rather than busy.</p>
+  </div>
+</div>
+
+<!-- Grid — graph paper fading from the top, drawn at the theme's edge weight -->
+<div data-ui="backdrop" data-variant="grid">
+  <div data-ui="container" data-measure="content">
+    <p>The lines are as heavy as the theme's borders.</p>
+  </div>
+</div>
+
+<!-- Dots, subtle, with a larger cell -->
+<div data-ui="backdrop" data-variant="dots" data-intensity="subtle" style="--backdrop-size: 2rem">
+  <div data-ui="container" data-measure="content">
+    <p>A dot field at half strength.</p>
+  </div>
+</div>
+
+<!-- Beams, vivid -->
+<div data-ui="backdrop" data-variant="beams" data-intensity="vivid">
+  <div data-ui="container" data-measure="content">
+    <p>Rays fanning down from above the top edge.</p>
+  </div>
+</div>
+
+<!-- Static — the mood without the motion, in custom colours -->
+<div data-ui="backdrop" data-variant="aurora" data-static style="--backdrop-color-1: var(--color-warning); --backdrop-color-2: var(--color-destructive)">
+  <div data-ui="container" data-measure="content">
+    <p>A warm aurora that holds still.</p>
+  </div>
+</div>

@@ -1,0 +1,167 @@
+/* @ui:component tabs */
+/* @ui:tokens color-bg color-fg color-fg-muted color-border color-primary color-border-strong color-bg-muted space-1 space-2 space-3 space-4 space-6 radius-md radius-lg text-sm text-base text-xs weight-medium duration-fast ease-default font-ui border-width border-width-strong focus-ring-width focus-ring-style focus-ring-color focus-ring-offset shadow-xs */
+
+/* ── Root ── */
+[data-ui="tabs"] {
+  width: 100%;
+}
+
+/* Parts are reached by child combinators, never descendant ones: a component
+   nested in a panel — a collapsible, a dropdown, more tabs — has a `trigger`
+   of its own, and a descendant rule here laid it out as a tab. The `list` hop
+   sits in `:where()` so every rule keeps the specificity that pattern
+   overrides (`settings-page`) are written against. [1.1F-20] */
+
+/* ── Tab List ── */
+/* The row WRAPS. Triggers are `white-space: nowrap` (a tab label that breaks
+   mid-word is worse than a second row), so an unwrapped list is as wide as its
+   labels: four tabs pushed a 320px phone 69px past its own window, and every
+   page that composes tabs — `settings-page` most of all — inherited that. A
+   horizontal scroller would keep them reachable, but reachable-by-gesture is
+   not visible, and a settings page must not hide a section behind a swipe. [W3-3] */
+[data-ui="tabs"] > [data-part="list"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+/* ── Tab Trigger (base) ── */
+[data-ui="tabs"] > :where([data-part="list"]) > [data-part="trigger"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  background: transparent;
+  color: var(--color-fg-muted);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--duration-fast) var(--ease-default),
+              background var(--duration-fast) var(--ease-default),
+              border-color var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="tabs"] > :where([data-part="list"]) > [data-part="trigger"]:hover {
+  color: var(--color-fg);
+}
+
+[data-ui="tabs"] > :where([data-part="list"]) > [data-part="trigger"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: calc(-1 * var(--focus-ring-offset));
+  border-radius: var(--radius-md);
+}
+
+[data-ui="tabs"] > :where([data-part="list"]) > [data-part="trigger"][aria-selected="true"] {
+  color: var(--color-primary);
+}
+
+/* ── Underline Variant ── */
+[data-ui="tabs"][data-variant="underline"] > [data-part="list"] {
+  border-bottom: var(--border-width) solid var(--color-border);
+  gap: 0;
+}
+
+[data-ui="tabs"][data-variant="underline"] > :where([data-part="list"]) > [data-part="trigger"] {
+  border-bottom: var(--border-width-strong) solid transparent;
+  margin-bottom: -1px;
+  border-radius: 0;
+}
+
+[data-ui="tabs"][data-variant="underline"] > :where([data-part="list"]) > [data-part="trigger"][aria-selected="true"] {
+  border-bottom-color: var(--color-primary);
+}
+
+[data-ui="tabs"][data-variant="underline"] > :where([data-part="list"]) > [data-part="trigger"]:hover {
+  border-bottom-color: var(--color-border-strong, var(--color-border));
+}
+
+[data-ui="tabs"][data-variant="underline"] > :where([data-part="list"]) > [data-part="trigger"][aria-selected="true"]:hover {
+  border-bottom-color: var(--color-primary);
+}
+
+/* ── Pill Variant ── */
+[data-ui="tabs"][data-variant="pill"] > [data-part="list"] {
+  background: var(--color-bg-muted, oklch(0.96 0.004 260));
+  border-radius: var(--radius-lg);
+  padding: var(--space-1);
+}
+
+[data-ui="tabs"][data-variant="pill"] > :where([data-part="list"]) > [data-part="trigger"] {
+  border-radius: var(--radius-md);
+  padding: var(--space-1) var(--space-3);
+}
+
+[data-ui="tabs"][data-variant="pill"] > :where([data-part="list"]) > [data-part="trigger"][aria-selected="true"] {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  box-shadow: var(--shadow-xs);
+}
+
+/* ── Enclosed Variant ── */
+[data-ui="tabs"][data-variant="enclosed"] > [data-part="list"] {
+  border-bottom: var(--border-width) solid var(--color-border);
+  gap: 0;
+}
+
+[data-ui="tabs"][data-variant="enclosed"] > :where([data-part="list"]) > [data-part="trigger"] {
+  border: var(--border-width) solid transparent;
+  border-bottom: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  margin-bottom: -1px;
+}
+
+[data-ui="tabs"][data-variant="enclosed"] > :where([data-part="list"]) > [data-part="trigger"][aria-selected="true"] {
+  background: var(--color-bg);
+  border-color: var(--color-border);
+  color: var(--color-fg);
+}
+
+/* ── Size Variants ── */
+[data-ui="tabs"][data-size="sm"] > :where([data-part="list"]) > [data-part="trigger"] {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs, 0.75rem);
+}
+
+[data-ui="tabs"][data-size="lg"] > :where([data-part="list"]) > [data-part="trigger"] {
+  padding: var(--space-3) var(--space-6, 1.5rem);
+  font-size: var(--text-base);
+}
+
+/* ── Panel ── */
+[data-ui="tabs"] > [data-part="panel"] {
+  padding: var(--space-4);
+  color: var(--color-fg);
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="tabs"] > :where([data-part="list"]) > [data-part="trigger"] {
+    transition: none;
+  }
+}
+
+/* ── Forced colors (Windows High Contrast) ──
+   Selection is carried by colour alone in three of the four variants — a
+   `--color-primary` label, a `--color-bg` pill, a `--color-bg` panel — and the
+   OS replaces all three with the same system colour, so which tab was selected
+   became unreadable. The underline variant already uses a border, which the OS
+   keeps; the others get one. [W3-3] */
+@media (forced-colors: active) {
+  [data-ui="tabs"] > :where([data-part="list"]) > [data-part="trigger"][aria-selected="true"] {
+    /* An outline the OS preserves, on every variant. */
+    outline: var(--border-width-strong) solid Highlight;
+    outline-offset: calc(-1 * var(--border-width-strong));
+  }
+
+  [data-ui="tabs"][data-variant="underline"] > :where([data-part="list"]) > [data-part="trigger"][aria-selected="true"] {
+    border-bottom-color: Highlight;
+  }
+
+  [data-ui="tabs"] > :where([data-part="list"]) > [data-part="trigger"]:disabled,
+  [data-ui="tabs"] > :where([data-part="list"]) > [data-part="trigger"][aria-disabled="true"] {
+    color: GrayText;
+  }
+}

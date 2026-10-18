@@ -1,0 +1,80 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "skeleton",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "feedback",
+  "description": "Loading placeholder with text/circle/rect variants and a shimmer animation that respects prefers-reduced-motion",
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='skeleton']",
+    "content_model": "block"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "shape": {
+      "values": ["text", "circle", "rect"],
+      "default": "text",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {
+    "--skeleton-width": { "type": "string", "default": "100%", "description": "Width of a text-variant line (custom property)" },
+    "--skeleton-height": { "type": "string", "default": "1em (text) / 6rem (rect)", "description": "Height of a text or rect placeholder (custom property)" },
+    "--skeleton-size": { "type": "string", "default": "2.5rem", "description": "Diameter of a circle placeholder (custom property)" }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-hidden=\"true\" on root"
+    ],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-bg-muted", "color-bg-subtle",
+    "radius-sm", "radius-md", "radius-full",
+    "ease-default"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"skeleton\" data-variant=\"{variant}\" aria-hidden=\"true\"></div>"
+  },
+
+  "safe_transforms": [
+    "change-variant",
+    "change-custom-property-dimensions"
+  ],
+
+  "unsafe_transforms": [
+    "remove-aria-hidden",
+    "add-text-content"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": []
+  },
+
+  "files": {
+    "html": "skeleton.html",
+    "css": "skeleton.css",
+    "manifest": "skeleton.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "default-is-text-line",
+    "circle-variant-is-round",
+    "rect-variant-has-md-radius",
+    "shimmer-disabled-under-reduced-motion",
+    "has-aria-hidden"
+  ]
+}

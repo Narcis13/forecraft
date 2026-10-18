@@ -1,0 +1,247 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "slider",
+  "version": "1.0.1",
+  "kind": "recipe",
+  "category": "forms",
+  "description": "Draggable range input with single-thumb and two-thumb (range) modes, full keyboard control, and screen-reader-correct ARIA",
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the track, range, thumb and output with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Parts are root > track > range and thumb, and root > output. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='slider']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "track": {
+      "selector": "[data-part='track']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "The rail the thumb(s) travel along; establishes the positioning context and the drag hit-area"
+    },
+    "range": {
+      "selector": "[data-part='range']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Filled portion between the start of the track and the thumb (single) or between the two thumbs (range)"
+    },
+    "thumb": {
+      "selector": "[data-part='thumb']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Draggable handle with role=slider; one for single mode, two for range mode. Carries aria-valuemin/max/now and is keyboard-focusable"
+    },
+    "output": {
+      "selector": "[data-part='output']",
+      "required": false,
+      "tag_hint": "output",
+      "description": "Optional live text display of the current value"
+    }
+  },
+  "variants": {
+    "type": {
+      "values": [
+        "single",
+        "range"
+      ],
+      "default": "single",
+      "attr": "data-variant",
+      "applied_to": "root",
+      "description": "single = one thumb; range = two non-crossing thumbs. Mode is inferred from the number of thumbs in the DOM."
+    },
+    "size": {
+      "values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+  "states": {
+    "dragging": {
+      "attr": "data-state=\"dragging\"",
+      "transient": true,
+      "applied_to": "thumb"
+    },
+    "disabled": {
+      "attr": "data-disabled",
+      "applied_to": "root"
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "setValue",
+        "params": "index, value"
+      },
+      {
+        "name": "getValue",
+        "params": ""
+      },
+      {
+        "name": "getValues",
+        "params": ""
+      },
+      {
+        "name": "setFormatter",
+        "params": "fn"
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "min": {
+      "type": "number",
+      "default": 0,
+      "attr": "data-min",
+      "description": "Lowest value"
+    },
+    "max": {
+      "type": "number",
+      "default": 100,
+      "attr": "data-max",
+      "description": "Highest value"
+    },
+    "step": {
+      "type": "number",
+      "default": 1,
+      "attr": "data-step",
+      "description": "Granularity of value changes"
+    },
+    "value": {
+      "type": "string",
+      "attr": "data-value",
+      "description": "Initial value; comma-separated for range (e.g. \"200,800\")"
+    },
+    "pageStep": {
+      "type": "number",
+      "attr": "data-page-step",
+      "description": "PageUp/PageDown increment; defaults to 10 × step"
+    },
+    "valueSuffix": {
+      "type": "string",
+      "attr": "data-value-suffix",
+      "description": "Appended to the value to form aria-valuetext (e.g. \"%\")"
+    }
+  },
+  "a11y": {
+    "role": "slider",
+    "required_attrs": [
+      "role=\"slider\" on each thumb",
+      "aria-valuemin on thumb",
+      "aria-valuemax on thumb",
+      "aria-valuenow on thumb",
+      "aria-label on thumb"
+    ],
+    "keyboard": {
+      "ArrowRight": "increase by step (decrease in RTL)",
+      "ArrowUp": "increase by step",
+      "ArrowLeft": "decrease by step (increase in RTL)",
+      "ArrowDown": "decrease by step",
+      "PageUp": "increase by a large step (10 × step)",
+      "PageDown": "decrease by a large step (10 × step)",
+      "Home": "jump to minimum (or the lower neighbour in range mode)",
+      "End": "jump to maximum (or the upper neighbour in range mode)"
+    },
+    "notes": [
+      "Each thumb is an independent role=slider widget with its own aria-valuenow and its own focus.",
+      "In range mode a thumb's aria-valuemin/max are constrained to its neighbours so it cannot cross.",
+      "aria-valuetext is maintained when a data-value-suffix is set or a formatter is registered via setFormatter()."
+    ]
+  },
+  "tokens_used": [
+    "color-bg",
+    "color-fg-muted",
+    "color-primary",
+    "color-primary-subtle",
+    "color-ring",
+    "color-bg-muted",
+    "space-3",
+    "radius-full",
+    "text-sm",
+    "shadow-sm",
+    "duration-fast",
+    "ease-default",
+    "font-ui",
+    "border-width",
+    "border-width-strong",
+    "focus-ring-width",
+    "focus-ring-style",
+    "focus-ring-color",
+    "focus-ring-offset",
+    "disabled-opacity"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"slider\" data-variant=\"single\" data-min=\"0\" data-max=\"100\" data-step=\"1\" data-value=\"{value}\" style=\"--slider-start: 0%; --slider-end: {value}%\">\n  <div data-part=\"track\">\n    <div data-part=\"range\"></div>\n    <div data-part=\"thumb\" role=\"slider\" tabindex=\"0\" aria-label=\"{label}\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"{value}\" style=\"--pos: {value}%\"></div>\n  </div>\n  <output data-part=\"output\">{value}</output>\n</div>",
+    "range": "<div data-ui=\"slider\" data-variant=\"range\" data-min=\"0\" data-max=\"100\" data-step=\"1\" data-value=\"{low},{high}\" style=\"--slider-start: {low}%; --slider-end: {high}%\">\n  <div data-part=\"track\">\n    <div data-part=\"range\"></div>\n    <div data-part=\"thumb\" role=\"slider\" tabindex=\"0\" aria-label=\"Minimum\" aria-valuemin=\"0\" aria-valuemax=\"{high}\" aria-valuenow=\"{low}\" style=\"--pos: {low}%\"></div>\n    <div data-part=\"thumb\" role=\"slider\" tabindex=\"0\" aria-label=\"Maximum\" aria-valuemin=\"{low}\" aria-valuemax=\"100\" aria-valuenow=\"{high}\" style=\"--pos: {high}%\"></div>\n  </div>\n</div>"
+  },
+  "safe_transforms": [
+    "change-min-max-step",
+    "change-initial-value",
+    "add-value-suffix",
+    "toggle-output",
+    "change-size",
+    "single-to-range",
+    "toggle-disabled",
+    "restyle-thumb",
+    "restyle-track"
+  ],
+  "unsafe_transforms": [
+    "remove-role-slider",
+    "remove-aria-valuemin",
+    "remove-aria-valuemax",
+    "remove-aria-valuenow",
+    "remove-thumb-tabindex",
+    "remove-keyboard-handler",
+    "remove-track"
+  ],
+  "composition": {
+    "contains": [],
+    "used_in": [
+      "settings-page"
+    ]
+  },
+  "files": {
+    "html": "slider.html",
+    "css": "slider.css",
+    "js": "slider.js",
+    "manifest": "slider.manifest.json"
+  },
+  "tests": [
+    "single-thumb-renders-value-position",
+    "arrow-right-increments-by-step",
+    "arrow-left-decrements-by-step",
+    "arrow-up-increments-and-down-decrements",
+    "page-up-down-move-by-big-step",
+    "home-goes-to-min-end-goes-to-max",
+    "value-is-clamped-at-min-and-max",
+    "step-is-respected-when-snapping",
+    "aria-valuenow-tracks-value-continuously",
+    "aria-valuemin-max-present-on-thumb",
+    "range-mode-detected-from-two-thumbs",
+    "range-thumbs-cannot-cross",
+    "range-each-thumb-keyboard-operable-independently",
+    "range-aria-bounds-reflect-neighbours",
+    "pointer-value-math-ltr",
+    "pointer-value-math-rtl-inverts",
+    "pointer-value-math-snaps-and-clamps",
+    "rtl-arrow-keys-invert",
+    "disabled-slider-ignores-keyboard",
+    "emits-faqir-change-event",
+    "value-suffix-drives-aria-valuetext",
+    "set-formatter-updates-aria-valuetext",
+    "prevents-double-initialization",
+    "destroy-removes-listeners"
+  ]
+}

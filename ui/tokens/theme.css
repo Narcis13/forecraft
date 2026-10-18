@@ -1,0 +1,119 @@
+/* @ui:theme default — one :root block, both schemes, via light-dark() */
+
+/* Authored in the ONE-BLOCK form [1.1A-06]: each scheme-dependent token states
+   `light-dark(<light>, <dark>)` once instead of being written in `:root`, again
+   in `[data-theme="dark"]` and a third time in the `prefers-color-scheme`
+   mirror. `base/reset.css` turns `data-theme` into the `color-scheme` the
+   function reads, so the two authoring forms are interchangeable and every
+   existing `data-theme` value keeps driving exactly what it drove before.
+
+   The light argument is the value this theme would otherwise have INHERITED
+   from tokens/semantic.css; spelling it out is the price of the single block,
+   because a token cannot read its own base value (`light-dark(var(--color-bg),
+   …)` on `--color-bg` is a cycle). `tests/themes/light-dark.test.ts` is what
+   keeps the copy honest: every light argument must equal the base value unless
+   it is one of the four deliberate AA corrections below (task 0.4-24 · §12.3),
+   and that list fails in both directions.
+
+   Darkening for AA is contrast-safe: every *solid* use of these semantic colours
+   (button, progress, stepper marker) carries light text or no text, so a deeper
+   tone only raises its contrast.
+
+   The shadow ramp is the one family still authored as blocks — see below. */
+:root {
+  /* ── Surfaces ── */
+  --color-bg:               light-dark(var(--palette-gray-25), var(--palette-gray-950));
+  --color-bg-subtle:        light-dark(var(--palette-gray-100), var(--palette-gray-900));
+  --color-bg-muted:         light-dark(var(--palette-gray-200), var(--palette-gray-800));
+  /* Scheme-independent by construction: the elevation ramp is defined in terms
+     of tokens that already carry both schemes, so it needs no second spelling. */
+  --color-surface-1:        var(--color-bg-subtle);
+  --color-surface-2:        var(--color-bg-muted);
+  --color-surface-1-border: var(--color-border);
+  --color-surface-2-border: var(--color-border-strong);
+  --color-fg:               light-dark(var(--palette-gray-950), var(--palette-gray-50));
+  /* AA: light gray-500 was 4.31:1 on muted surfaces (avatar/tabs); in dark,
+     gray-400 is kept for subtle, so muted moves up. */
+  --color-fg-muted:         light-dark(var(--palette-gray-600), var(--palette-gray-300));
+  /* AA: light gray-400 was 2.61:1 (subtle text, footers, page-break);
+     dark gray-500 subtle text was 4.11:1 on bg. */
+  --color-fg-subtle:        light-dark(var(--palette-gray-500), var(--palette-gray-400));
+
+  /* ── Interactive: Primary ── */
+  --color-primary:          light-dark(var(--palette-indigo-500), var(--palette-indigo-400));
+  --color-primary-hover:    light-dark(var(--palette-indigo-600), var(--palette-indigo-300));
+  --color-primary-active:   light-dark(var(--palette-indigo-700), var(--palette-indigo-200));
+  /* AA: dark ink on the luminous dark-mode accent — white was 3.4:1 [0.4-16] */
+  --color-primary-fg:       light-dark(white, var(--palette-gray-950));
+  --color-primary-subtle:   light-dark(var(--palette-indigo-50), oklch(0.24 0.06 264));
+
+  /* ── Interactive: Secondary ── */
+  --color-secondary:        light-dark(var(--palette-gray-100), var(--palette-gray-800));
+  --color-secondary-hover:  light-dark(var(--palette-gray-200), var(--palette-gray-700));
+  --color-secondary-fg:     light-dark(var(--palette-gray-900), var(--palette-gray-100));
+
+  /* ── Interactive: Destructive ── */
+  /* AA: a luminous dark red so it reads as text on subtle/dark bg
+     (badge/chip/field/stat); red-500 was 3.42:1 [0.4-24] */
+  --color-destructive:        light-dark(var(--palette-red-500), var(--palette-red-400));
+  --color-destructive-hover:  light-dark(var(--palette-red-600), var(--palette-red-300));
+  /* AA: dark ink on the luminous red for solid surfaces (button) — mirrors
+     --color-primary-fg [0.4-24] */
+  --color-destructive-fg:     light-dark(white, var(--palette-gray-950));
+  --color-destructive-subtle: light-dark(var(--palette-red-50), oklch(0.24 0.06 25));
+
+  /* ── Feedback ── */
+  /* AA: light green-500 as soft-badge/stat/stepper text was 3.19:1 */
+  --color-success:          light-dark(var(--palette-green-700), var(--palette-green-400));
+  --color-success-subtle:   light-dark(var(--palette-green-50), oklch(0.24 0.054 155));
+  /* AA: light amber-500 as soft-badge text was 2.02:1 */
+  --color-warning:          light-dark(var(--palette-amber-800), var(--palette-amber-400));
+  --color-warning-subtle:   light-dark(var(--palette-amber-50), oklch(0.24 0.045 75));
+  --color-info:             light-dark(var(--palette-blue-500), var(--palette-blue-400));
+  --color-info-subtle:      light-dark(var(--palette-blue-50), oklch(0.24 0.054 240));
+
+  /* ── Borders ── */
+  --color-border:           light-dark(var(--palette-gray-200), var(--palette-gray-800));
+  --color-border-strong:    light-dark(var(--palette-gray-300), var(--palette-gray-700));
+  --color-ring:             light-dark(oklch(0.55 0.22 264), oklch(0.65 0.20 264));
+}
+
+/* ── Dark Mode: the shadow ramp ── */
+/* The one family `light-dark()` cannot collapse. It is a <color> function and a
+   shadow list is not a colour, so the whole value cannot be wrapped; and the
+   per-layer spelling would have to pad the dark ramp with alpha-0 layers to give
+   both schemes one geometry — writing a shadow where this theme says `none`,
+   and restating the base light ramp (two layers per step) to do it.
+   Light stays inherited from tokens/effects.css; only dark is stated.
+
+   Each step is cast in `--shadow-color` (1.1A-04 — bare OKLCH channels, so the
+   step keeps its own alpha), which for this theme is the base layer's own
+   `0 0 0`. That is the ONLY thing `default` adopts from the 1.1 families, and
+   deliberately so: `default` is not a theme that resembles the token layer, it
+   IS the token layer's own look, so restating a base value here would fork the
+   two and let a later change to `tokens/*` silently stop reaching the reference
+   theme. Every other axis `default` carries is derived from the base layer,
+   which is what `tests/themes/axes.test.ts` holds equal to
+   `THEME_SEED_DEFAULTS`. Casting the ramp through the channel is not a restated
+   value — it is the ten literal blacks this theme used to hide from a theme
+   that wants to tint them. [1.1A-15] */
+[data-theme="dark"] {
+  --shadow-xs:  none;
+  --shadow-sm:  0 1px 3px oklch(var(--shadow-color) / 0.3);
+  --shadow-md:  0 4px 6px oklch(var(--shadow-color) / 0.3);
+  --shadow-lg:  0 10px 15px oklch(var(--shadow-color) / 0.4);
+  --shadow-xl:  0 20px 25px oklch(var(--shadow-color) / 0.5);
+}
+
+/* Mirror of the [data-theme="dark"] block above — keep the two in sync. The
+   colours need no mirror: `[data-theme="auto"]` is `color-scheme: light dark`,
+   so light-dark() already follows the system preference. */
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] {
+    --shadow-xs:  none;
+    --shadow-sm:  0 1px 3px oklch(var(--shadow-color) / 0.3);
+    --shadow-md:  0 4px 6px oklch(var(--shadow-color) / 0.3);
+    --shadow-lg:  0 10px 15px oklch(var(--shadow-color) / 0.4);
+    --shadow-xl:  0 20px 25px oklch(var(--shadow-color) / 0.5);
+  }
+}

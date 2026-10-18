@@ -1,0 +1,133 @@
+/* @ui:component logo-cloud */
+/* @ui:tokens space-6 space-10 space-4 space-8 space-32 space-12 font-body font-ui color-fg color-fg-muted text-sm weight-medium leading-normal measure-wide duration-normal ease-default */
+
+/* ── Root ──
+   A centred stack: the eyebrow over the logos. The row of logos is centred as
+   a block, never justified — a "trusted by" strip with its logos pushed to the
+   edges reads as a toolbar, not a chorus.
+
+   Mobile-first (task 0.8-09): everything outside the `@media` block at the
+   foot of the sheet is the phone case; the floor only opens the gaps. */
+[data-ui="logo-cloud"] {
+  display: grid;
+  gap: var(--space-6);
+  padding-block: var(--space-10);
+  padding-inline: var(--space-4);
+  font-family: var(--font-body);
+  color: var(--color-fg);
+  text-align: center;
+}
+
+/* ── Heading ──
+   Small, muted, in the UI face: an eyebrow that names the strip without
+   competing with the page's own headings. It is a <p>, so it stays out of the
+   document outline — the section still points aria-labelledby at it. */
+[data-ui="logo-cloud"] > [data-part="heading"] {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+  color: var(--color-fg-muted);
+}
+
+/* ── Items (grid layout) ──
+   A wrapping, centred flex row — a cluster — rather than a column grid, so a
+   strip of five logos and a strip of nine both sit in the middle with even
+   air between them, and the last row centres itself. */
+[data-ui="logo-cloud"] > [data-part="items"] {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  justify-self: center;
+  gap: var(--space-6) var(--space-8);
+  max-inline-size: var(--logo-cloud-max, var(--measure-wide));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ── Item ──
+   Two homes: the pattern's own list, or a track of the nested marquee. The
+   marquee's tracks are <ul> elements that are the marquee's own part, so the
+   hop is written as the element, not the part — this sheet never names
+   another component's slot. */
+[data-ui="logo-cloud"] > :where([data-part="items"]) > [data-part="item"],
+[data-ui="logo-cloud"] > :where([data-ui="marquee"]) > :where(ul) > [data-part="item"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Logo ──
+   Every mark is set to one height and keeps its own width, so a wide wordmark
+   and a square glyph read at the same visual weight. Dimmed and desaturated
+   at rest so the strip is a texture, not a row of brand colours fighting the
+   page; the colour returns under the pointer, or when focus lands inside the
+   item (a logo wrapped in a link). */
+[data-ui="logo-cloud"] > :where([data-part="items"]) > :where([data-part="item"]) > [data-part="logo"],
+[data-ui="logo-cloud"] > :where([data-ui="marquee"]) > :where(ul) > :where([data-part="item"]) > [data-part="logo"] {
+  display: block;
+  block-size: var(--logo-cloud-height, var(--space-8));
+  inline-size: auto;
+  max-inline-size: var(--logo-cloud-width, var(--space-32));
+  object-fit: contain;
+  opacity: var(--logo-cloud-dim, 0.7);
+  filter: grayscale(1);
+  transition: opacity var(--duration-normal) var(--ease-default), filter var(--duration-normal) var(--ease-default);
+}
+
+[data-ui="logo-cloud"] > :where([data-part="items"]) > :where([data-part="item"]:hover) > [data-part="logo"],
+[data-ui="logo-cloud"] > :where([data-part="items"]) > :where([data-part="item"]:focus-within) > [data-part="logo"],
+[data-ui="logo-cloud"] > :where([data-ui="marquee"]) > :where(ul) > :where([data-part="item"]:hover) > [data-part="logo"],
+[data-ui="logo-cloud"] > :where([data-ui="marquee"]) > :where(ul) > :where([data-part="item"]:focus-within) > [data-part="logo"] {
+  opacity: 1;
+  filter: none;
+}
+
+/* ── Colour ──
+   Keeps every mark in its own colours at rest — for a strip of few, well-set
+   logos, or a brand whose marks are the point. */
+[data-ui="logo-cloud"][data-color] > :where([data-part="items"]) > :where([data-part="item"]) > [data-part="logo"],
+[data-ui="logo-cloud"][data-color] > :where([data-ui="marquee"]) > :where(ul) > :where([data-part="item"]) > [data-part="logo"] {
+  opacity: 1;
+  filter: none;
+}
+
+/* ── Responsive ──
+   Canon tiers only, min-width only, ascending (FAQIR-NEXT §19). One floor:
+   from md the strip breathes — wider gutters, more air between the marks. */
+@media (min-width: 48rem) {
+  [data-ui="logo-cloud"] {
+    gap: var(--space-8);
+    padding-block: var(--space-12);
+    padding-inline: var(--space-6);
+  }
+
+  [data-ui="logo-cloud"] > [data-part="items"] {
+    gap: var(--space-8) var(--space-12);
+  }
+}
+
+/* ── Motion ──
+   The colour returns at once; the strip itself is the marquee's business,
+   and the marquee already stands still here. */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="logo-cloud"] > :where([data-part="items"]) > :where([data-part="item"]) > [data-part="logo"],
+  [data-ui="logo-cloud"] > :where([data-ui="marquee"]) > :where(ul) > :where([data-part="item"]) > [data-part="logo"] {
+    transition: none;
+  }
+}
+
+/* ── Print ──
+   Ink is cheaper than a grey wash: the marks print in full. */
+@media print {
+  [data-ui="logo-cloud"] > :where([data-part="items"]) > :where([data-part="item"]) > [data-part="logo"],
+  [data-ui="logo-cloud"] > :where([data-ui="marquee"]) > :where(ul) > :where([data-part="item"]) > [data-part="logo"] {
+    opacity: 1;
+    filter: none;
+  }
+}

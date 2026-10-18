@@ -1,0 +1,145 @@
+/* @ui:component stepper */
+/* @ui:tokens color-primary color-primary-fg color-bg-muted color-fg-muted color-success color-success-subtle color-border text-sm text-xs weight-medium radius-full space-1 space-2 space-4 space-6 border-width-strong */
+
+/* ── Base ── */
+[data-ui="stepper"] {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Step ── */
+[data-ui="stepper"] > [data-part="step"] {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Indicator (circle) ── */
+[data-ui="stepper"] > :where([data-part="step"]) > [data-part="indicator"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  background: var(--color-bg-muted);
+  color: var(--color-fg-muted);
+  flex-shrink: 0;
+}
+
+/* ── Active step ── */
+[data-ui="stepper"] > [data-part="step"][data-state="active"] > [data-part="indicator"] {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+/* ── Completed step ── */
+/* The bare `white` that used to sit here was the last colour literal in the
+   registry, and no token could reach it: on a theme whose success colour is a
+   pale mint — 9 of the 12 dark themes — the numeral inside a completed step
+   was white on near-white. There is no `--color-success-fg` to swap in (the
+   token set pairs a `-fg` only with primary, secondary and destructive), so
+   this uses the pair the contrast gate already guarantees at AA:
+   `--color-success` ON `--color-success-subtle`. Completed reads as a settled
+   tint next to the active step's solid fill, which is what "done" should look
+   like beside "you are here". [W3-3] */
+[data-ui="stepper"] > [data-part="step"][data-state="completed"] > [data-part="indicator"] {
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+}
+
+/* ── Step label ──
+   Mobile-first (task 0.8-08): the label is hidden on a phone, where a row of
+   indicators is all that fits, and revealed from the canon `sm` tier up by the
+   responsive block at the foot of this sheet. `revert` rather than a literal
+   `inline` so the element's own tag decides — the CSS does not have to know
+   that the slot ships as a `<span>`. */
+[data-ui="stepper"] > :where([data-part="step"]) > [data-part="label"] {
+  display: none;
+  font-size: var(--text-xs);
+  color: var(--color-fg-muted);
+  margin-inline-start: var(--space-1);
+  white-space: nowrap;
+}
+
+[data-ui="stepper"] > [data-part="step"][data-state="active"] > [data-part="label"] {
+  color: var(--color-primary);
+  font-weight: var(--weight-medium);
+}
+
+[data-ui="stepper"] > [data-part="step"][data-state="completed"] > [data-part="label"] {
+  color: var(--color-success);
+}
+
+/* ── Connector ──
+   The tight phone metrics are the base; the roomier ones arrive at `sm`. */
+[data-ui="stepper"] > [data-part="connector"] {
+  flex: 1;
+  height: var(--border-width-strong);
+  background: var(--color-border);
+  margin: 0 var(--space-1);
+  min-width: var(--space-2);
+}
+
+[data-ui="stepper"] > [data-part="connector"][data-state="completed"] {
+  background: var(--color-success);
+}
+
+/* ── Vertical variant ── */
+[data-ui="stepper"][data-variant="vertical"] {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+[data-ui="stepper"][data-variant="vertical"] > [data-part="step"] {
+  flex-direction: row;
+  align-items: center;
+}
+
+[data-ui="stepper"][data-variant="vertical"] > [data-part="connector"] {
+  width: 2px;
+  height: var(--space-6);
+  min-width: 0;
+  margin: var(--space-1) 0 var(--space-1) calc(1rem - 1px);
+}
+
+/* ── Size: small ── */
+[data-ui="stepper"][data-size="sm"] > :where([data-part="step"]) > [data-part="indicator"] {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: var(--text-xs);
+}
+
+[data-ui="stepper"][data-size="sm"][data-variant="vertical"] > [data-part="connector"] {
+  margin-inline-start: calc(0.75rem - 1px);
+}
+
+/* ── Size: large ── */
+[data-ui="stepper"][data-size="lg"] > :where([data-part="step"]) > [data-part="indicator"] {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: var(--text-sm);
+}
+
+[data-ui="stepper"][data-size="lg"][data-variant="vertical"] > [data-part="connector"] {
+  margin-inline-start: calc(1.25rem - 1px);
+}
+
+/* ── Responsive: labels and connector breathing room, from `sm` up ──
+   The canon's `sm` floor (40rem / 640px). The 1.x sheet expressed the identical
+   design as `@media (max-width: 640px)` overriding a desktop base; the only
+   observable difference is the boundary itself, which now belongs to the wide
+   side (at exactly 640px labels show rather than hide). */
+@media (min-width: 40rem) {
+  [data-ui="stepper"] > :where([data-part="step"]) > [data-part="label"] {
+    display: revert;
+  }
+
+  [data-ui="stepper"] > [data-part="connector"] {
+    min-width: var(--space-4);
+    margin: 0 var(--space-2);
+  }
+}

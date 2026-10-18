@@ -1,0 +1,567 @@
+/* @ui:component stack */
+/* @ui:tokens space-0 space-1 space-2 space-3 space-4 space-6 space-8 space-10 space-12 space-16 */
+
+/* Flexbox, declared in full (task 0.8-03).
+ *
+ * Direction, gap, align and justify are responsive variant groups: every
+ * declared value is also accepted as `data-<attr>-<tier>` for the four canon
+ * tiers (FAQIR-SPEC §15). The tier blocks are mobile-first `min-width` and
+ * appear in ascending order, so the larger tier wins by document order —
+ * spec §15 rule 4, not by specificity.
+ *
+ * `data-variant="horizontal"` is the deprecated 0.x spelling of
+ * `data-direction="horizontal"`: it selects the same rules and is removed in
+ * 1.0. It cannot carry a tier suffix — `data-variant` is one of the five
+ * frozen protocol attributes — which is why the canonical attribute exists.
+ */
+
+/* ── Base (vertical by default) ── */
+[data-ui="stack"] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Direction ── */
+[data-ui="stack"][data-variant="vertical"],
+[data-ui="stack"][data-direction="vertical"] {
+  flex-direction: column;
+}
+
+[data-ui="stack"][data-variant="horizontal"],
+[data-ui="stack"][data-direction="horizontal"] {
+  flex-direction: row;
+}
+
+/* ── Deprecated: `data-responsive` collapse ──
+ * The 0.x bespoke collapse, re-expressed mobile-first: a horizontal stack
+ * stays a column below `sm` and becomes a row from `sm` up. Superseded by
+ * `data-direction="vertical" data-direction-sm="horizontal"`, which says the
+ * same thing in the grammar every component shares. `:where()` keeps the
+ * extra attribute at zero specificity, so an explicit tier value always wins.
+ */
+[data-ui="stack"][data-variant="horizontal"]:where([data-responsive]),
+[data-ui="stack"][data-direction="horizontal"]:where([data-responsive]) {
+  flex-direction: column;
+}
+
+/* ── Gap ── */
+[data-ui="stack"][data-gap="0"] {
+  gap: var(--space-0, 0px);
+}
+
+[data-ui="stack"][data-gap="1"] {
+  gap: var(--space-1);
+}
+
+[data-ui="stack"][data-gap="2"] {
+  gap: var(--space-2);
+}
+
+[data-ui="stack"][data-gap="3"] {
+  gap: var(--space-3);
+}
+
+[data-ui="stack"][data-gap="4"] {
+  gap: var(--space-4);
+}
+
+[data-ui="stack"][data-gap="6"] {
+  gap: var(--space-6);
+}
+
+[data-ui="stack"][data-gap="8"] {
+  gap: var(--space-8);
+}
+
+[data-ui="stack"][data-gap="10"] {
+  gap: var(--space-10);
+}
+
+[data-ui="stack"][data-gap="12"] {
+  gap: var(--space-12);
+}
+
+[data-ui="stack"][data-gap="16"] {
+  gap: var(--space-16);
+}
+
+/* ── Alignment (cross axis) ── */
+[data-ui="stack"][data-align="start"] {
+  align-items: flex-start;
+}
+
+[data-ui="stack"][data-align="center"] {
+  align-items: center;
+}
+
+[data-ui="stack"][data-align="end"] {
+  align-items: flex-end;
+}
+
+[data-ui="stack"][data-align="stretch"] {
+  align-items: stretch;
+}
+
+[data-ui="stack"][data-align="baseline"] {
+  align-items: baseline;
+}
+
+/* ── Justification (main axis) ── */
+[data-ui="stack"][data-justify="start"] {
+  justify-content: flex-start;
+}
+
+[data-ui="stack"][data-justify="center"] {
+  justify-content: center;
+}
+
+[data-ui="stack"][data-justify="end"] {
+  justify-content: flex-end;
+}
+
+[data-ui="stack"][data-justify="between"] {
+  justify-content: space-between;
+}
+
+[data-ui="stack"][data-justify="around"] {
+  justify-content: space-around;
+}
+
+/* ── Wrap ── */
+/* Intrinsic: a row reflows without naming a breakpoint (spec §15 doctrine 1). */
+[data-ui="stack"][data-wrap] {
+  flex-wrap: wrap;
+}
+
+/* ── Child Flex ── */
+/* A growing child may also shrink below its content: the flex default
+   `min-inline-size: auto` kept it as wide as a table or an id inside it, and
+   the whole row overflowed instead of the content scrolling in its own box. */
+[data-ui="stack"] > [data-flex="1"] {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+[data-ui="stack"] > [data-flex="auto"] {
+  flex: auto;
+  min-inline-size: 0;
+}
+
+[data-ui="stack"] > [data-flex="none"] {
+  flex: none;
+}
+
+/* ── Text Alignment ── */
+[data-ui="stack"][data-align-text="start"] {
+  text-align: start;
+}
+
+[data-ui="stack"][data-align-text="center"] {
+  text-align: center;
+}
+
+[data-ui="stack"][data-align-text="right"] {
+  text-align: end;
+}
+
+/* ── Label in horizontal stacks ── */
+[data-ui="stack"][data-variant="horizontal"] > [data-ui="label"],
+[data-ui="stack"][data-direction="horizontal"] > [data-ui="label"] {
+  display: inline;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+/* ── Tier `sm` — from 40rem up ── */
+@media (min-width: 40rem) {
+  /* Deprecated `data-responsive`: restore the row it collapsed below sm. */
+  [data-ui="stack"][data-variant="horizontal"]:where([data-responsive]),
+  [data-ui="stack"][data-direction="horizontal"]:where([data-responsive]) {
+    flex-direction: row;
+  }
+
+  [data-ui="stack"][data-direction-sm="vertical"] {
+    flex-direction: column;
+  }
+
+  [data-ui="stack"][data-direction-sm="horizontal"] {
+    flex-direction: row;
+  }
+
+  [data-ui="stack"][data-gap-sm="0"] {
+    gap: var(--space-0, 0px);
+  }
+
+  [data-ui="stack"][data-gap-sm="1"] {
+    gap: var(--space-1);
+  }
+
+  [data-ui="stack"][data-gap-sm="2"] {
+    gap: var(--space-2);
+  }
+
+  [data-ui="stack"][data-gap-sm="3"] {
+    gap: var(--space-3);
+  }
+
+  [data-ui="stack"][data-gap-sm="4"] {
+    gap: var(--space-4);
+  }
+
+  [data-ui="stack"][data-gap-sm="6"] {
+    gap: var(--space-6);
+  }
+
+  [data-ui="stack"][data-gap-sm="8"] {
+    gap: var(--space-8);
+  }
+
+  [data-ui="stack"][data-gap-sm="10"] {
+    gap: var(--space-10);
+  }
+
+  [data-ui="stack"][data-gap-sm="12"] {
+    gap: var(--space-12);
+  }
+
+  [data-ui="stack"][data-gap-sm="16"] {
+    gap: var(--space-16);
+  }
+
+  [data-ui="stack"][data-align-sm="start"] {
+    align-items: flex-start;
+  }
+
+  [data-ui="stack"][data-align-sm="center"] {
+    align-items: center;
+  }
+
+  [data-ui="stack"][data-align-sm="end"] {
+    align-items: flex-end;
+  }
+
+  [data-ui="stack"][data-align-sm="stretch"] {
+    align-items: stretch;
+  }
+
+  [data-ui="stack"][data-align-sm="baseline"] {
+    align-items: baseline;
+  }
+
+  [data-ui="stack"][data-justify-sm="start"] {
+    justify-content: flex-start;
+  }
+
+  [data-ui="stack"][data-justify-sm="center"] {
+    justify-content: center;
+  }
+
+  [data-ui="stack"][data-justify-sm="end"] {
+    justify-content: flex-end;
+  }
+
+  [data-ui="stack"][data-justify-sm="between"] {
+    justify-content: space-between;
+  }
+
+  [data-ui="stack"][data-justify-sm="around"] {
+    justify-content: space-around;
+  }
+
+  [data-ui="stack"][data-direction-sm="horizontal"] > [data-ui="label"] {
+    display: inline;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+}
+
+/* ── Tier `md` — from 48rem up ── */
+@media (min-width: 48rem) {
+  [data-ui="stack"][data-direction-md="vertical"] {
+    flex-direction: column;
+  }
+
+  [data-ui="stack"][data-direction-md="horizontal"] {
+    flex-direction: row;
+  }
+
+  [data-ui="stack"][data-gap-md="0"] {
+    gap: var(--space-0, 0px);
+  }
+
+  [data-ui="stack"][data-gap-md="1"] {
+    gap: var(--space-1);
+  }
+
+  [data-ui="stack"][data-gap-md="2"] {
+    gap: var(--space-2);
+  }
+
+  [data-ui="stack"][data-gap-md="3"] {
+    gap: var(--space-3);
+  }
+
+  [data-ui="stack"][data-gap-md="4"] {
+    gap: var(--space-4);
+  }
+
+  [data-ui="stack"][data-gap-md="6"] {
+    gap: var(--space-6);
+  }
+
+  [data-ui="stack"][data-gap-md="8"] {
+    gap: var(--space-8);
+  }
+
+  [data-ui="stack"][data-gap-md="10"] {
+    gap: var(--space-10);
+  }
+
+  [data-ui="stack"][data-gap-md="12"] {
+    gap: var(--space-12);
+  }
+
+  [data-ui="stack"][data-gap-md="16"] {
+    gap: var(--space-16);
+  }
+
+  [data-ui="stack"][data-align-md="start"] {
+    align-items: flex-start;
+  }
+
+  [data-ui="stack"][data-align-md="center"] {
+    align-items: center;
+  }
+
+  [data-ui="stack"][data-align-md="end"] {
+    align-items: flex-end;
+  }
+
+  [data-ui="stack"][data-align-md="stretch"] {
+    align-items: stretch;
+  }
+
+  [data-ui="stack"][data-align-md="baseline"] {
+    align-items: baseline;
+  }
+
+  [data-ui="stack"][data-justify-md="start"] {
+    justify-content: flex-start;
+  }
+
+  [data-ui="stack"][data-justify-md="center"] {
+    justify-content: center;
+  }
+
+  [data-ui="stack"][data-justify-md="end"] {
+    justify-content: flex-end;
+  }
+
+  [data-ui="stack"][data-justify-md="between"] {
+    justify-content: space-between;
+  }
+
+  [data-ui="stack"][data-justify-md="around"] {
+    justify-content: space-around;
+  }
+
+  [data-ui="stack"][data-direction-md="horizontal"] > [data-ui="label"] {
+    display: inline;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+}
+
+/* ── Tier `lg` — from 64rem up ── */
+@media (min-width: 64rem) {
+  [data-ui="stack"][data-direction-lg="vertical"] {
+    flex-direction: column;
+  }
+
+  [data-ui="stack"][data-direction-lg="horizontal"] {
+    flex-direction: row;
+  }
+
+  [data-ui="stack"][data-gap-lg="0"] {
+    gap: var(--space-0, 0px);
+  }
+
+  [data-ui="stack"][data-gap-lg="1"] {
+    gap: var(--space-1);
+  }
+
+  [data-ui="stack"][data-gap-lg="2"] {
+    gap: var(--space-2);
+  }
+
+  [data-ui="stack"][data-gap-lg="3"] {
+    gap: var(--space-3);
+  }
+
+  [data-ui="stack"][data-gap-lg="4"] {
+    gap: var(--space-4);
+  }
+
+  [data-ui="stack"][data-gap-lg="6"] {
+    gap: var(--space-6);
+  }
+
+  [data-ui="stack"][data-gap-lg="8"] {
+    gap: var(--space-8);
+  }
+
+  [data-ui="stack"][data-gap-lg="10"] {
+    gap: var(--space-10);
+  }
+
+  [data-ui="stack"][data-gap-lg="12"] {
+    gap: var(--space-12);
+  }
+
+  [data-ui="stack"][data-gap-lg="16"] {
+    gap: var(--space-16);
+  }
+
+  [data-ui="stack"][data-align-lg="start"] {
+    align-items: flex-start;
+  }
+
+  [data-ui="stack"][data-align-lg="center"] {
+    align-items: center;
+  }
+
+  [data-ui="stack"][data-align-lg="end"] {
+    align-items: flex-end;
+  }
+
+  [data-ui="stack"][data-align-lg="stretch"] {
+    align-items: stretch;
+  }
+
+  [data-ui="stack"][data-align-lg="baseline"] {
+    align-items: baseline;
+  }
+
+  [data-ui="stack"][data-justify-lg="start"] {
+    justify-content: flex-start;
+  }
+
+  [data-ui="stack"][data-justify-lg="center"] {
+    justify-content: center;
+  }
+
+  [data-ui="stack"][data-justify-lg="end"] {
+    justify-content: flex-end;
+  }
+
+  [data-ui="stack"][data-justify-lg="between"] {
+    justify-content: space-between;
+  }
+
+  [data-ui="stack"][data-justify-lg="around"] {
+    justify-content: space-around;
+  }
+
+  [data-ui="stack"][data-direction-lg="horizontal"] > [data-ui="label"] {
+    display: inline;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+}
+
+/* ── Tier `xl` — from 80rem up ── */
+@media (min-width: 80rem) {
+  [data-ui="stack"][data-direction-xl="vertical"] {
+    flex-direction: column;
+  }
+
+  [data-ui="stack"][data-direction-xl="horizontal"] {
+    flex-direction: row;
+  }
+
+  [data-ui="stack"][data-gap-xl="0"] {
+    gap: var(--space-0, 0px);
+  }
+
+  [data-ui="stack"][data-gap-xl="1"] {
+    gap: var(--space-1);
+  }
+
+  [data-ui="stack"][data-gap-xl="2"] {
+    gap: var(--space-2);
+  }
+
+  [data-ui="stack"][data-gap-xl="3"] {
+    gap: var(--space-3);
+  }
+
+  [data-ui="stack"][data-gap-xl="4"] {
+    gap: var(--space-4);
+  }
+
+  [data-ui="stack"][data-gap-xl="6"] {
+    gap: var(--space-6);
+  }
+
+  [data-ui="stack"][data-gap-xl="8"] {
+    gap: var(--space-8);
+  }
+
+  [data-ui="stack"][data-gap-xl="10"] {
+    gap: var(--space-10);
+  }
+
+  [data-ui="stack"][data-gap-xl="12"] {
+    gap: var(--space-12);
+  }
+
+  [data-ui="stack"][data-gap-xl="16"] {
+    gap: var(--space-16);
+  }
+
+  [data-ui="stack"][data-align-xl="start"] {
+    align-items: flex-start;
+  }
+
+  [data-ui="stack"][data-align-xl="center"] {
+    align-items: center;
+  }
+
+  [data-ui="stack"][data-align-xl="end"] {
+    align-items: flex-end;
+  }
+
+  [data-ui="stack"][data-align-xl="stretch"] {
+    align-items: stretch;
+  }
+
+  [data-ui="stack"][data-align-xl="baseline"] {
+    align-items: baseline;
+  }
+
+  [data-ui="stack"][data-justify-xl="start"] {
+    justify-content: flex-start;
+  }
+
+  [data-ui="stack"][data-justify-xl="center"] {
+    justify-content: center;
+  }
+
+  [data-ui="stack"][data-justify-xl="end"] {
+    justify-content: flex-end;
+  }
+
+  [data-ui="stack"][data-justify-xl="between"] {
+    justify-content: space-between;
+  }
+
+  [data-ui="stack"][data-justify-xl="around"] {
+    justify-content: space-around;
+  }
+
+  [data-ui="stack"][data-direction-xl="horizontal"] > [data-ui="label"] {
+    display: inline;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+}

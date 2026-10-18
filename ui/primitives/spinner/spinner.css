@@ -1,0 +1,45 @@
+/* @ui:component spinner */
+/* @ui:tokens color-border color-primary radius-full border-width-strong border-width-lg */
+
+/* ── Base ── */
+[data-ui="spinner"] {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: var(--border-width-strong) solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: var(--radius-full);
+  animation: faqir-spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ── Sizes ── */
+[data-ui="spinner"][data-size="sm"] {
+  width: 16px;
+  height: 16px;
+}
+
+[data-ui="spinner"][data-size="lg"] {
+  width: 32px;
+  height: 32px;
+  border-width: var(--border-width-lg);
+}
+
+[data-ui="spinner"][data-size="xl"] {
+  width: 48px;
+  height: 48px;
+  border-width: var(--border-width-lg);
+}
+
+/* ── Motion ── */
+@keyframes faqir-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="spinner"] {
+    animation: none;
+    border-top-color: var(--color-primary);
+    opacity: 0.8;
+  }
+}

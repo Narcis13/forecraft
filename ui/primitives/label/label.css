@@ -1,0 +1,42 @@
+/* @ui:component label */
+/* @ui:tokens color-fg color-fg-muted color-destructive font-ui text-xs text-sm text-base weight-medium weight-normal disabled-opacity */
+
+/* ── Base ── */
+[data-ui="label"] {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-fg);
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* A label describes itself, not the distance to an adjacent control. Compose it
+   through field-group when a field needs label/control/help spacing; that keeps
+   the inner step in one owner and leaves the outer step to the default rhythm. */
+
+/* ── Parts ── */
+[data-ui="label"] > [data-part="indicator"] {
+  color: var(--color-fg-muted);
+  font-weight: var(--weight-normal, 400);
+}
+
+[data-ui="label"][data-variant="required"] > [data-part="indicator"] {
+  color: var(--color-destructive);
+}
+
+/* ── Sizes ── */
+[data-ui="label"][data-size="sm"] {
+  font-size: var(--text-xs);
+}
+
+[data-ui="label"][data-size="lg"] {
+  font-size: var(--text-base);
+}
+
+/* ── States ── */
+[data-ui="label"][data-state="disabled"] {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+}

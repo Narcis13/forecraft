@@ -1,0 +1,272 @@
+/* @ui:component bento */
+/* @ui:tokens space-4 space-12 space-8 space-3 space-32 space-10 space-16 space-6 font-body font-heading color-fg color-bg color-fg-muted color-primary color-bg-subtle color-primary-subtle text-xl text-lg text-base text-3xl heading-weight heading-tracking heading-transform heading-caps heading-leading measure-content leading-relaxed leading-normal card-padding card-bg card-border-width card-border card-radius texture-surface corner-shape duration-fast duration-normal ease-default ease-linear motion-hover-lift motion-reveal-duration motion-reveal-ease motion-stagger motion-reveal-distance radius-md */
+
+/* ── Root ──
+   A one-column grid for the heading and the tile grid beneath it. Every
+   unconditional declaration is the PHONE case; the canon floors at the foot of
+   the sheet widen it. */
+[data-ui="bento"] {
+  display: grid;
+  gap: var(--space-4);
+  padding-block: var(--space-12);
+  padding-inline: var(--space-4);
+  font-family: var(--font-body);
+  color: var(--color-fg);
+  background: var(--color-bg);
+}
+
+/* ── Heading ── */
+[data-ui="bento"] > [data-part="heading"] {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  line-height: var(--heading-leading);
+  text-wrap: balance;
+}
+
+/* ── Description ── */
+[data-ui="bento"] > [data-part="description"] {
+  margin: 0;
+  max-inline-size: var(--measure-content);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--color-fg-muted);
+}
+
+/* ── Items ──
+   A real <ul>; the marker is removed, not the semantics. One column on a
+   phone, so a span is never wider than the grid. `dense` lets a later small
+   tile back-fill the hole a wide or tall one leaves, which is what makes the
+   mosaic read as a mosaic rather than a grid with gaps. */
+[data-ui="bento"] > [data-part="items"] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-flow: dense;
+  gap: var(--bento-gap, var(--space-4));
+  margin: 0;
+  margin-block-start: var(--space-8);
+  padding: 0;
+  list-style: none;
+}
+
+/* ── Item ──
+   The tile is drawn by this part, not by a nested card: a nested component
+   would own the data-part on its children. It reads the same card aliases a
+   card does, so a theme that re-skins cards re-skins tiles. `isolation`
+   gives the sheen below somewhere to sit — behind the content, above the
+   fill — and `clip` trims it without making the tile a scroll container.
+   A flex column, so a media area grows into the spare height of a tall tile
+   while the words stay anchored at the foot. */
+[data-ui="bento"] > :where([data-part="items"]) > [data-part="item"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  padding: var(--card-padding);
+  background: var(--texture-surface), var(--card-bg);
+  border: var(--card-border-width) solid var(--card-border);
+  border-radius: var(--card-radius);
+  corner-shape: var(--corner-shape);
+  transition: translate var(--duration-fast) var(--ease-default);
+}
+
+/* ── Hover: lift and spotlight ──
+   The lift is the axis `card` and `button` read — `none` unless a theme says
+   surfaces rise under the pointer. The sheen is a soft pool of the accent
+   fading in from the top edge; it is a pseudo-element so it costs no markup
+   and can never be focused or read. `focus-within` lights a tile whose
+   content holds a link, so keyboard users get the same cue. */
+[data-ui="bento"] > :where([data-part="items"]) > [data-part="item"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    70% 60% at 50% 0%,
+    color-mix(in oklch, var(--color-primary) 14%, transparent),
+    transparent 70%
+  );
+  transition: opacity var(--duration-normal) var(--ease-default);
+}
+
+[data-ui="bento"] > :where([data-part="items"]) > [data-part="item"]:hover,
+[data-ui="bento"] > :where([data-part="items"]) > [data-part="item"]:focus-within {
+  translate: var(--motion-hover-lift);
+}
+
+[data-ui="bento"] > :where([data-part="items"]) > [data-part="item"]:hover::after,
+[data-ui="bento"] > :where([data-part="items"]) > [data-part="item"]:focus-within::after {
+  opacity: 1;
+}
+
+/* ── Media ──
+   The tile's visual: a stretched area whose single child fills it, so a
+   nested backdrop paints the whole panel. It grows to take the spare height
+   of a tall tile. It is a grid rather than a block so the child needs no
+   sizing of its own. */
+[data-ui="bento"] > :where([data-part="items"]) > :where([data-part="item"]) > [data-part="media"] {
+  display: grid;
+  flex: 1 1 auto;
+  min-block-size: var(--space-32);
+  margin: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  overflow: clip;
+}
+
+/* ── Icon ──
+   A tinted plate that WRAPS the icon primitive; it is never the icon. An icon
+   paints its glyph with background-color:currentColor through a mask, so a
+   background on the icon element would repaint the glyph instead of framing
+   it. The nested icon inherits its size (1em) and colour from this box. */
+[data-ui="bento"] > :where([data-part="items"]) > :where([data-part="item"]) > [data-part="icon"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: start;
+  inline-size: var(--space-10);
+  block-size: var(--space-10);
+  font-size: var(--text-xl);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  border-radius: var(--radius-md);
+}
+
+/* ── Title ── */
+[data-ui="bento"] > :where([data-part="items"]) > :where([data-part="item"]) > [data-part="title"] {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+  line-height: var(--heading-leading);
+}
+
+/* ── Item description ── */
+[data-ui="bento"] > :where([data-part="items"]) > :where([data-part="item"]) > [data-part="description"] {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-fg-muted);
+}
+
+/* ── Entrance ──
+   With data-animate the tiles arrive one after another, the way a staggered
+   reveal's children do: one keyframe pair, delayed by a private index that
+   nth-child writes. Twelve steps are counted; everything past the twelfth
+   arrives with it, so a long grid never holds its last row back for seconds.
+   `both` holds the from-state through the delay, so a late tile is not
+   visible and then hidden and then revealed. */
+[data-ui="bento"][data-animate] > :where([data-part="items"]) > [data-part="item"] {
+  --faqir-bento-index: 0;
+  animation: faqir-bento-reveal var(--motion-reveal-duration) var(--motion-reveal-ease) both;
+  animation-delay: calc(var(--motion-stagger) * var(--faqir-bento-index));
+}
+
+[data-ui="bento"][data-animate] > :where([data-part="items"]) > :nth-child(2)    { --faqir-bento-index: 1; }
+[data-ui="bento"][data-animate] > :where([data-part="items"]) > :nth-child(3)    { --faqir-bento-index: 2; }
+[data-ui="bento"][data-animate] > :where([data-part="items"]) > :nth-child(4)    { --faqir-bento-index: 3; }
+[data-ui="bento"][data-animate] > :where([data-part="items"]) > :nth-child(5)    { --faqir-bento-index: 4; }
+[data-ui="bento"][data-animate] > :where([data-part="items"]) > :nth-child(6)    { --faqir-bento-index: 5; }
+[data-ui="bento"][data-animate] > :where([data-part="items"]) > :nth-child(7)    { --faqir-bento-index: 6; }
+[data-ui="bento"][data-animate] > :where([data-part="items"]) > :nth-child(8)    { --faqir-bento-index: 7; }
+[data-ui="bento"][data-animate] > :where([data-part="items"]) > :nth-child(9)    { --faqir-bento-index: 8; }
+[data-ui="bento"][data-animate] > :where([data-part="items"]) > :nth-child(10)   { --faqir-bento-index: 9; }
+[data-ui="bento"][data-animate] > :where([data-part="items"]) > :nth-child(11)   { --faqir-bento-index: 10; }
+[data-ui="bento"][data-animate] > :where([data-part="items"]) > :nth-child(n+12) { --faqir-bento-index: 11; }
+
+/* Only a `from`: the animation ends on whatever the tile already is, so the
+   hover lift still reads the moment the entrance is over. */
+@keyframes faqir-bento-reveal {
+  from {
+    opacity: 0;
+    translate: 0 var(--motion-reveal-distance);
+  }
+}
+
+/* ── Entrance on scroll ──
+   A feature grid usually sits below the fold, where a load-time entrance
+   plays to nobody. Where view timelines exist the same keyframes are scrubbed
+   by the scrollbar as each tile crosses the bottom of the viewport; a time
+   delay means nothing there, so the stagger offsets each tile's RANGE
+   instead. Elsewhere the block is skipped and the load entrance above still
+   plays — the tiles are never left hidden. */
+@supports (animation-timeline: view()) {
+  [data-ui="bento"][data-animate] > :where([data-part="items"]) > [data-part="item"] {
+    animation-timeline: view();
+    animation-timing-function: var(--ease-linear);
+    animation-delay: 0s;
+    animation-range:
+      entry calc(5% + var(--faqir-bento-index) * 6%)
+      entry calc(70% + var(--faqir-bento-index) * 6%);
+  }
+}
+
+/* ── Motion ──
+   Reduced motion removes the entrance and the lift, not the tiles: every tile
+   is already arrived and stays put under the pointer. Paper gets the same
+   treatment — a printed page has no entrance and no hover. */
+@media (prefers-reduced-motion: reduce), print {
+  /* The entrance's own selector is repeated so this rule matches its
+     specificity: the plain one alone (0,2,0) lost to [data-animate] (0,3,0),
+     and the tiles kept scrubbing in under reduced motion. */
+  [data-ui="bento"][data-animate] > :where([data-part="items"]) > [data-part="item"],
+  [data-ui="bento"] > :where([data-part="items"]) > [data-part="item"],
+  [data-ui="bento"] > :where([data-part="items"]) > [data-part="item"]::after {
+    animation: none;
+    transition: none;
+  }
+
+  [data-ui="bento"] > :where([data-part="items"]) > [data-part="item"]:hover,
+  [data-ui="bento"] > :where([data-part="items"]) > [data-part="item"]:focus-within {
+    translate: none;
+  }
+}
+
+/* ── Responsive ──
+   Canon tiers only, min-width only, ascending. sm: the type scale and the
+   block padding open up. md: two columns, and a wide or large tile may span
+   them. lg: four columns with a row floor, so a tall or large tile has two
+   rows of real height to span. Spans live in the tier that has the tracks
+   for them — a `span 2` in a one-column grid would invent a second column. */
+@media (min-width: 40rem) {
+  [data-ui="bento"] {
+    padding-block: var(--space-16);
+    padding-inline: var(--space-6);
+  }
+
+  [data-ui="bento"] > [data-part="heading"] {
+    font-size: var(--text-3xl);
+  }
+}
+
+@media (min-width: 48rem) {
+  [data-ui="bento"] > [data-part="items"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-ui="bento"] > :where([data-part="items"]) > [data-part="item"][data-span="wide"],
+  [data-ui="bento"] > :where([data-part="items"]) > [data-part="item"][data-span="large"] {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-ui="bento"] > [data-part="items"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: minmax(var(--bento-row, 12rem), auto);
+  }
+
+  [data-ui="bento"] > :where([data-part="items"]) > [data-part="item"][data-span="tall"],
+  [data-ui="bento"] > :where([data-part="items"]) > [data-part="item"][data-span="large"] {
+    grid-row: span 2;
+  }
+}

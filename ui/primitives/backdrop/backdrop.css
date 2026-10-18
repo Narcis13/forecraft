@@ -1,0 +1,195 @@
+/* @ui:component backdrop */
+/* @ui:tokens color-primary color-info color-success color-fg motion-ambient-duration motion-ambient-play ease-in-out ease-linear border-width */
+
+/* ── Root ──
+   A backdrop is a wrapper, not a layer you have to position: put a section
+   inside it and the light is painted BEHIND that content by the root's two
+   pseudo-elements. `isolation: isolate` is what keeps their negative z-index
+   above the page and below the content, and `overflow: clip` trims the
+   oversized layers without turning the root into a scroll container (so a
+   sticky header inside one still sticks).
+
+   Three colours drive every variant. They default to the theme's accent,
+   info and success, so a backdrop is on-brand in all twenty-seven themes
+   without a declaration; `--backdrop-color-1|2|3` re-point them per instance. */
+[data-ui="backdrop"] {
+  --faqir-backdrop-a: var(--backdrop-color-1, var(--color-primary));
+  --faqir-backdrop-b: var(--backdrop-color-2, var(--color-info));
+  --faqir-backdrop-c: var(--backdrop-color-3, var(--color-success));
+  --faqir-backdrop-ink: var(--backdrop-ink, var(--color-fg));
+  --faqir-backdrop-strength: 1;
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+}
+
+[data-ui="backdrop"]::before,
+[data-ui="backdrop"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: calc(var(--backdrop-opacity, 0.55) * var(--faqir-backdrop-strength));
+  animation-duration: var(--backdrop-duration, var(--motion-ambient-duration));
+  animation-timing-function: var(--ease-in-out);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-play-state: var(--motion-ambient-play);
+}
+
+/* ── Intensity ── */
+[data-ui="backdrop"][data-intensity="subtle"] {
+  --faqir-backdrop-strength: 0.5;
+}
+
+[data-ui="backdrop"][data-intensity="vivid"] {
+  --faqir-backdrop-strength: 1.6;
+}
+
+/* ── Variant: aurora (default) ──
+   Two sheets of soft colour drifting against each other. Each is larger than
+   the root and blurred, so no edge of a gradient ever shows. */
+[data-ui="backdrop"]:not([data-variant])::before,
+[data-ui="backdrop"][data-variant="aurora"]::before {
+  inset: -25%;
+  background-image:
+    radial-gradient(38% 46% at 22% 30%, color-mix(in oklch, var(--faqir-backdrop-a) 70%, transparent), transparent 72%),
+    radial-gradient(34% 42% at 78% 24%, color-mix(in oklch, var(--faqir-backdrop-b) 62%, transparent), transparent 72%);
+  filter: blur(var(--backdrop-blur, 3.5rem));
+  animation-name: faqir-backdrop-drift;
+}
+
+[data-ui="backdrop"]:not([data-variant])::after,
+[data-ui="backdrop"][data-variant="aurora"]::after {
+  inset: -25%;
+  background-image:
+    radial-gradient(42% 50% at 58% 82%, color-mix(in oklch, var(--faqir-backdrop-c) 52%, transparent), transparent 72%),
+    radial-gradient(30% 36% at 12% 78%, color-mix(in oklch, var(--faqir-backdrop-b) 46%, transparent), transparent 72%);
+  filter: blur(var(--backdrop-blur, 3.5rem));
+  animation-name: faqir-backdrop-drift;
+  animation-direction: alternate-reverse;
+  animation-duration: calc(var(--backdrop-duration, var(--motion-ambient-duration)) * 1.4);
+}
+
+/* ── Variant: spotlight ──
+   One light from above, breathing; a cooler second light answers it from the
+   side. The quietest variant with any motion in it. */
+[data-ui="backdrop"][data-variant="spotlight"]::before {
+  background-image: radial-gradient(55% 65% at 50% 0%, color-mix(in oklch, var(--faqir-backdrop-a) 60%, transparent), transparent 72%);
+  transform-origin: center top;
+  animation-name: faqir-backdrop-breathe;
+  animation-duration: calc(var(--backdrop-duration, var(--motion-ambient-duration)) / 3);
+}
+
+[data-ui="backdrop"][data-variant="spotlight"]::after {
+  background-image: radial-gradient(40% 45% at 85% 15%, color-mix(in oklch, var(--faqir-backdrop-b) 40%, transparent), transparent 72%);
+  transform-origin: 85% 0%;
+  animation-name: faqir-backdrop-breathe;
+  animation-direction: alternate-reverse;
+  animation-duration: calc(var(--backdrop-duration, var(--motion-ambient-duration)) / 2);
+}
+
+/* ── Variant: grid ──
+   Graph paper that fades out from the top, drawn at the theme's own edge
+   weight (`--border-width`), sliding one cell per lap so it never visibly
+   repeats. The second layer is the accent glow the lines catch. */
+[data-ui="backdrop"][data-variant="grid"]::before {
+  background-image:
+    linear-gradient(to right, color-mix(in oklch, var(--faqir-backdrop-ink) 16%, transparent) var(--border-width), transparent var(--border-width)),
+    linear-gradient(to bottom, color-mix(in oklch, var(--faqir-backdrop-ink) 16%, transparent) var(--border-width), transparent var(--border-width));
+  background-size: var(--backdrop-size, 3rem) var(--backdrop-size, 3rem);
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 0%, black 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 0%, black 25%, transparent 78%);
+  animation-name: faqir-backdrop-pan;
+  animation-timing-function: var(--ease-linear);
+  animation-direction: normal;
+  animation-duration: calc(var(--backdrop-duration, var(--motion-ambient-duration)) / 4);
+}
+
+/* ── Variant: dots ──
+   The same idea in points: a dot field, one dot per cell. */
+[data-ui="backdrop"][data-variant="dots"]::before {
+  background-image: radial-gradient(circle at center, color-mix(in oklch, var(--faqir-backdrop-ink) 30%, transparent) calc(var(--border-width) * 1.25), transparent calc(var(--border-width) * 1.75));
+  background-size: var(--backdrop-size, 1.5rem) var(--backdrop-size, 1.5rem);
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 0%, black 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 0%, black 25%, transparent 78%);
+  animation-name: faqir-backdrop-pan;
+  animation-timing-function: var(--ease-linear);
+  animation-direction: normal;
+  animation-duration: calc(var(--backdrop-duration, var(--motion-ambient-duration)) / 2);
+}
+
+[data-ui="backdrop"][data-variant="grid"]::after,
+[data-ui="backdrop"][data-variant="dots"]::after {
+  background-image: radial-gradient(50% 55% at 50% 0%, color-mix(in oklch, var(--faqir-backdrop-a) 45%, transparent), transparent 72%);
+  transform-origin: center top;
+  animation-name: faqir-backdrop-breathe;
+  animation-duration: calc(var(--backdrop-duration, var(--motion-ambient-duration)) / 3);
+}
+
+/* ── Variant: beams ──
+   Rays fanning down from above the top edge, swaying a few degrees. */
+[data-ui="backdrop"][data-variant="beams"]::before {
+  inset: -30% -20% 0;
+  background-image: repeating-conic-gradient(from 150deg at 50% 0%, transparent 0deg, color-mix(in oklch, var(--faqir-backdrop-a) 34%, transparent) 5deg, transparent 11deg, color-mix(in oklch, var(--faqir-backdrop-b) 26%, transparent) 17deg, transparent 24deg);
+  -webkit-mask-image: radial-gradient(ellipse 60% 85% at 50% 0%, black 10%, transparent 75%);
+  mask-image: radial-gradient(ellipse 60% 85% at 50% 0%, black 10%, transparent 75%);
+  filter: blur(var(--backdrop-blur, 0.5rem));
+  transform-origin: center top;
+  animation-name: faqir-backdrop-sway;
+  animation-duration: calc(var(--backdrop-duration, var(--motion-ambient-duration)) / 2);
+}
+
+[data-ui="backdrop"][data-variant="beams"]::after {
+  background-image: radial-gradient(45% 40% at 50% 0%, color-mix(in oklch, var(--faqir-backdrop-a) 50%, transparent), transparent 72%);
+  transform-origin: center top;
+  animation-name: faqir-backdrop-breathe;
+  animation-duration: calc(var(--backdrop-duration, var(--motion-ambient-duration)) / 3);
+}
+
+/* ── Keyframes ── */
+@keyframes faqir-backdrop-drift {
+  from { translate: -4% -3%; rotate: -5deg; scale: 1; }
+  to   { translate: 4% 3%; rotate: 7deg; scale: 1.12; }
+}
+
+@keyframes faqir-backdrop-breathe {
+  from { scale: 1; opacity: calc(var(--backdrop-opacity, 0.55) * var(--faqir-backdrop-strength) * 0.7); }
+  to   { scale: 1.15; }
+}
+
+@keyframes faqir-backdrop-pan {
+  to { background-position: var(--backdrop-size, 3rem) var(--backdrop-size, 3rem); }
+}
+
+@keyframes faqir-backdrop-sway {
+  from { rotate: -4deg; }
+  to   { rotate: 4deg; }
+}
+
+/* ── Static ──
+   The light without the movement — for a page that wants the mood and not
+   the motion, or a section stacked under another animated one. */
+[data-ui="backdrop"][data-static]::before,
+[data-ui="backdrop"][data-static]::after {
+  animation: none;
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="backdrop"]::before,
+  [data-ui="backdrop"]::after {
+    animation: none;
+  }
+}
+
+/* ── Forced colours and print ──
+   Decoration only: a high-contrast palette or a sheet of paper gets the
+   content on a plain ground. */
+@media (forced-colors: active), print {
+  [data-ui="backdrop"]::before,
+  [data-ui="backdrop"]::after {
+    display: none;
+  }
+}

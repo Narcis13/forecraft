@@ -1,0 +1,138 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "callout",
+  "version": "1.2.1",
+  "kind": "primitive",
+  "category": "data-display",
+  "description": "Callout box for info notices, warnings, alerts, legal text, and disclaimers",
+
+  "changes": [
+    {
+      "version": "1.2.1",
+      "note": "Nested components keep their own parts. The icon, content, title and dismiss rules were descendant selectors, so a warning callout recoloured the icon of an info callout nested in its content, and any nested component with an icon or title part took the callout's. They are child chains now (root > icon, root > content > title, root > dismiss), with the content hop in :where() so no rule changes specificity. Paragraph spacing inside content is unchanged.",
+      "breaking": false
+    },
+    {
+      "version": "1.2.0",
+      "note": "Keep every semantic variant's inline-start accent visible; the muted legal/disclaimer variant now uses the muted foreground instead of a theme's ordinary hairline border color.",
+      "breaking": false
+    }
+  ],
+
+  "aliases": ["alert"],
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='callout']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "icon": {
+      "selector": "[data-part='icon']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Optional icon displayed before content"
+    },
+    "content": {
+      "selector": "[data-part='content']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Callout body text"
+    },
+    "title": {
+      "selector": "[data-part='title']",
+      "required": false,
+      "tag_hint": "strong",
+      "description": "Optional callout title"
+    },
+    "dismiss": {
+      "selector": "[data-part='dismiss']",
+      "required": false,
+      "tag_hint": "button",
+      "description": "Optional dismiss/close button for dismissible callouts and alerts; needs type=\"button\" and an aria-label"
+    }
+  },
+
+  "variants": {
+    "variant": {
+      "values": ["info", "warning", "destructive", "success", "muted"],
+      "default": "info",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {},
+
+  "a11y": {
+    "required_attrs": [
+      "role=\"note\" or role=\"alert\" for destructive/warning variants",
+      "aria-label describing the callout purpose"
+    ],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted", "color-info", "color-info-subtle", "color-warning",
+    "color-warning-subtle", "color-destructive", "color-destructive-subtle", "color-success",
+    "color-success-subtle", "color-border", "color-ring", "space-1", "space-3", "space-4",
+    "space-2", "radius-sm", "radius-md", "text-sm", "font-heading", "font-body", "weight-semibold",
+    "focus-ring-width", "focus-ring-offset", "focus-ring-style", "focus-ring-color", "focus-shadow",
+    "callout-padding-y", "callout-padding-x", "callout-radius", "callout-border-left-width",
+    "callout-font-size", "callout-icon-size", "callout-fg", "callout-bg", "callout-border-width",
+    "doc-font", "doc-line-height", "doc-label-gap", "doc-print-border-color"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"callout\" data-variant=\"{variant}\" role=\"note\">\n  <span data-part=\"icon\">{icon}</span>\n  <div data-part=\"content\">{content}</div>\n</div>",
+    "html_with_title": "<div data-ui=\"callout\" data-variant=\"{variant}\" role=\"note\">\n  <span data-part=\"icon\">{icon}</span>\n  <div data-part=\"content\">\n    <strong data-part=\"title\">{title}</strong>\n    <p>{body}</p>\n  </div>\n</div>"
+  },
+
+  "safe_transforms": [
+    "change-variant",
+    "add-icon",
+    "remove-icon",
+    "add-title",
+    "remove-title",
+    "change-content",
+    "add-dismiss",
+    "remove-dismiss"
+  ],
+
+  "unsafe_transforms": [
+    "remove-content-slot",
+    "remove-role-attribute"
+  ],
+
+  "composition": {
+    "contains": ["text"],
+    "used_in": ["document"]
+  },
+
+  "files": {
+    "html": "callout.html",
+    "css": "callout.css",
+    "manifest": "callout.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "content-slot-is-required",
+    "icon-slot-is-optional",
+    "info-variant-has-blue-accent",
+    "warning-variant-has-amber-accent",
+    "destructive-variant-has-red-accent",
+    "success-variant-has-green-accent",
+    "muted-variant-has-gray-accent",
+    "every-variant-keeps-the-required-part-set",
+    "every-variant-has-the-same-visible-inline-start-accent-width",
+    "print-uses-border-only",
+    "has-role-note",
+    "dismiss-slot-is-optional",
+    "dismiss-hidden-in-print",
+    "alert-is-an-alias-of-callout"
+  ]
+}

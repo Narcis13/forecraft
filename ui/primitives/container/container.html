@@ -1,0 +1,92 @@
+<!-- @ui:component container -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants measure=narrow|content|wide|prose|full -->
+<!--
+  The centred measure column (task 0.8-06): max-inline-size from the shared
+  measure tokens, margin-inline: auto, optional inline gutter. This is the
+  primitive that retires the hand-written inline width escapes from the
+  framework's own output.
+  data-measure is responsive — every value is also accepted as data-measure-TIER
+  for sm|md|lg|xl. data-gutter is not: the parent usually pads already.
+
+  Note the name: this is NOT the CSS `container-type` feature. A container
+  establishes no containment context; `switcher` is the component that measures
+  its own inline size.
+-->
+
+<!-- The default: an article column, capped at the content measure and centred -->
+<div data-ui="container">
+  <div data-ui="surface" data-size="md">
+    <h2>A container with nothing declared</h2>
+    <p>
+      Capped at <code>--measure-content</code> (48rem) and centred, because those
+      are the declared defaults. Most body copy wants exactly this.
+    </p>
+  </div>
+</div>
+
+<!-- Prose: the measure sized in characters, not layout units -->
+<div data-ui="container" data-measure="prose">
+  <div data-ui="surface" data-size="md">
+    <p>
+      <code>--measure-prose</code> is 65ch, so this column tracks the reader's font
+      rather than the page's grid: raise the base font size and the measure grows
+      with it, keeping the line length at the same number of characters.
+    </p>
+  </div>
+</div>
+
+<!-- Narrow: the single form column form-page and wizard used to hand-roll -->
+<div data-ui="container" data-measure="narrow">
+  <div data-ui="surface" data-size="md">
+    <div data-ui="stack" data-gap="4">
+      <div data-ui="field-group">
+        <label data-part="label" for="container-email">Email</label>
+        <input data-ui="input" data-part="input" id="container-email" type="email" name="email">
+      </div>
+      <button data-ui="button" data-variant="primary" type="button">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Wide: the page shell — the widest measure that is still centred -->
+<div data-ui="container" data-measure="wide">
+  <div data-ui="surface" data-size="md">
+    <p>
+      <code>--measure-wide</code> (72rem) is the page-shell measure: wide enough for
+      a documentation page or a dashboard, narrow enough that it still reads as a
+      column on a large display.
+    </p>
+  </div>
+</div>
+
+<!-- Full: centring and gutter, no cap -->
+<div data-ui="container" data-measure="full" data-gutter="6">
+  <div data-ui="surface" data-size="md">
+    <p>
+      <code>full</code> is the deliberate opt-out. The column keeps its gutter but
+      imposes no maximum, which is what a bleed section wants.
+    </p>
+  </div>
+</div>
+
+<!-- Gutter: breathing room when the parent does not already pad -->
+<div data-ui="container" data-measure="content" data-gutter="4">
+  <div data-ui="surface" data-size="md">
+    <p>
+      A gutter is inline padding only — the space beside the column, never above
+      it. Vertical rhythm belongs to the stack inside.
+    </p>
+  </div>
+</div>
+
+<!-- Responsive: a narrow column on a phone that opens up from lg -->
+<div data-ui="container" data-measure="narrow" data-measure-lg="wide">
+  <div data-ui="surface" data-size="md">
+    <p>
+      Below the <code>lg</code> tier this is a 32rem column; from 64rem up it is a
+      72rem one. Mobile-first, on the breakpoint canon.
+    </p>
+  </div>
+</div>

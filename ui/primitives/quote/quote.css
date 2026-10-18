@@ -1,0 +1,185 @@
+/* @ui:component quote */
+/* @ui:tokens color-primary color-fg color-fg-muted space-4 space-3 space-6 font-body font-heading text-4xl text-lg text-sm text-2xl text-base text-3xl text-xl heading-weight heading-tracking leading-relaxed leading-snug weight-semibold weight-medium card-padding card-border-width card-border card-radius card-bg card-shadow corner-shape texture-surface duration-fast ease-default motion-hover-lift surface-backdrop border-width-lg */
+
+/* ── Root ──
+   Someone else's words, and who said them. A <figure>: the quotation is a
+   <blockquote>, the attribution its <figcaption>, which is what gives the pair
+   a programmatic relationship without any ARIA. */
+[data-ui="quote"] {
+  --faqir-quote-ink: var(--quote-accent, var(--color-primary));
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-fg);
+}
+
+/* ── Mark ──
+   The opening quotation mark, drawn large in the accent. `open-quote` rather
+   than a literal glyph, so the mark is the one the document's language uses —
+   “ in English, « in French, „ in German. Decoration: the blockquote element
+   already says "this is a quotation", so the second `content` gives the mark an
+   empty text alternative where that syntax is understood. */
+[data-ui="quote"]::before {
+  content: open-quote;
+  content: open-quote / "";
+  display: block;
+  block-size: 0.5em;
+  font-family: var(--font-heading);
+  font-size: var(--text-4xl);
+  font-weight: var(--heading-weight);
+  line-height: 1;
+  color: color-mix(in oklch, var(--faqir-quote-ink) 55%, transparent);
+}
+
+/* Every `open-quote` raises the document's quote depth, so without a matching
+   close the second quote on a page draws the NESTED mark (‘ rather than “).
+   `no-close-quote` lowers it again and draws nothing. Absolutely positioned,
+   so the (empty) box is not a grid item and adds no row or gap. */
+[data-ui="quote"]::after {
+  content: no-close-quote;
+  position: absolute;
+}
+
+/* ── Text ── */
+[data-ui="quote"] > [data-part="text"] {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+[data-ui="quote"] > :where([data-part="text"]) > p {
+  margin: 0;
+}
+
+[data-ui="quote"] > :where([data-part="text"]) > p + p {
+  margin-block-start: var(--space-3);
+}
+
+/* ── Author ──
+   A two-row column flow: an optional media part (an avatar) takes both rows of
+   the first column, name and role stack in the next. With no media the same
+   rules stack name over role in the first column — no empty track, no indent. */
+[data-ui="quote"] > [data-part="author"] {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: auto auto;
+  justify-content: start;
+  align-items: center;
+  column-gap: var(--space-3);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}
+
+[data-ui="quote"] > :where([data-part="author"]) > [data-part="media"] {
+  grid-row: span 2;
+  display: flex;
+}
+
+[data-ui="quote"] > :where([data-part="author"]) > [data-part="name"] {
+  font-style: normal;
+  font-weight: var(--weight-semibold);
+  color: var(--color-fg);
+}
+
+[data-ui="quote"] > :where([data-part="author"]) > [data-part="role"] {
+  color: var(--color-fg-muted);
+}
+
+/* ── Variant: card ──
+   The quotation on a surface of its own. It reads the card's aliases, so a
+   theme that restyles cards restyles testimonial cards with them. */
+[data-ui="quote"][data-variant="card"] {
+  padding: var(--card-padding);
+  border: var(--card-border-width) solid var(--card-border);
+  border-radius: var(--card-radius);
+  corner-shape: var(--corner-shape);
+  background: var(--texture-surface), var(--card-bg);
+  box-shadow: var(--card-shadow);
+  transition: translate var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="quote"][data-variant="card"]:hover {
+  translate: var(--motion-hover-lift);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1rem)) or (backdrop-filter: blur(1rem))) {
+  [data-ui="quote"][data-variant="card"] {
+    -webkit-backdrop-filter: var(--surface-backdrop);
+    backdrop-filter: var(--surface-backdrop);
+  }
+}
+
+/* ── Variant: pull ──
+   An editorial pull quote: the heading voice, set large, hung on an accent
+   rule. For the one sentence of an article that should stop a skimming reader. */
+[data-ui="quote"][data-variant="pull"] {
+  padding-inline-start: var(--space-6);
+  border-inline-start: var(--border-width-lg) solid var(--faqir-quote-ink);
+}
+
+[data-ui="quote"][data-variant="pull"]::before {
+  content: none;
+}
+
+[data-ui="quote"][data-variant="pull"] > [data-part="text"] {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--heading-tracking);
+  line-height: var(--leading-snug);
+  text-wrap: balance;
+}
+
+/* ── Sizes ── */
+[data-ui="quote"][data-size="sm"] {
+  gap: var(--space-3);
+}
+
+[data-ui="quote"][data-size="sm"] > [data-part="text"] {
+  font-size: var(--text-base);
+}
+
+[data-ui="quote"][data-size="sm"]::before {
+  font-size: var(--text-3xl);
+}
+
+[data-ui="quote"][data-size="lg"] > [data-part="text"] {
+  font-size: var(--text-xl);
+}
+
+[data-ui="quote"][data-variant="pull"][data-size="lg"] > [data-part="text"] {
+  font-size: var(--text-3xl);
+}
+
+/* ── Alignment: center ── */
+[data-ui="quote"][data-align="center"] {
+  justify-items: center;
+  text-align: center;
+}
+
+[data-ui="quote"][data-align="center"] > [data-part="author"] {
+  justify-content: center;
+  text-align: start;
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="quote"] {
+    transition: none;
+  }
+}
+
+/* ── Print ── */
+@media print {
+  [data-ui="quote"] {
+    break-inside: avoid;
+  }
+
+  [data-ui="quote"][data-variant="card"] {
+    box-shadow: none;
+  }
+}

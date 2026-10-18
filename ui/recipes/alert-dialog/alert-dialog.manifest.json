@@ -1,0 +1,301 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "alert-dialog",
+  "version": "1.0.3",
+  "kind": "recipe",
+  "category": "overlay",
+  "description": "Interruptive confirmation dialog (role=alertdialog) for destructive or irreversible actions",
+  "changes": [
+    {
+      "version": "1.0.3",
+      "note": "Nested components keep their own parts. The stylesheet reached every part with descendant selectors, so a component in the body with a title, description, header or footer of its own took the alert dialog's styles. Kept beyond direct children: the header, body and footer may be children of a <form> that is the panel's child (a form dialog); the title and description may sit in one plain div, stack or cluster inside its section (an eyebrow above the title). Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.0.2",
+      "note": "Nested components keep their own parts (shared dialog controller). Overlay and panel are taken as direct children, and the trigger and the close, confirm and cancel actions by owner, looking through layout primitives. A nested popover's close no longer closes or cancels the alert dialog, and initial focus goes to its own cancel or close action, never a nested component's.",
+      "breaking": false
+    },
+    {
+      "version": "1.0.1",
+      "note": "Focus on open and close is fixed. The panel had no tabindex, so the panel.focus() call on open did nothing: focus stayed on body, outside the focus trap and out of reach of the root's Escape listener. tabindex=\"-1\" is now in the canonical markup, and the controller adds it when it is missing. Closing also took focus back too late: focus returned to the opener only after the exit animation ended, even if the user had moved focus to another control in the meantime. Focus now returns only if it is still inside the alert dialog or on body, and only to an opener that is still in the document. alert-dialog shares the dialog controller; on open it still focuses the least-destructive action, and focuses the panel only when there is none.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='alert-dialog']",
+    "content_model": "slots"
+  },
+  "reuses": {
+    "controller": "dialog",
+    "note": "alert-dialog ships NO controller of its own — its factory delegates to the shared dialog controller, which reads panel role=\"alertdialog\" and switches on the alertdialog behaviours. No forked or duplicated controller logic."
+  },
+  "differs_from_dialog": [
+    "Panel uses role=\"alertdialog\" (not role=\"dialog\") — an assertive, interruptive live region.",
+    "aria-describedby is REQUIRED and points at the alert message; a dialog's description is optional.",
+    "Overlay/backdrop click does NOT dismiss — closing requires an explicit cancel or confirm.",
+    "Open focus lands on the least-destructive action ([data-part='cancel'], else [data-part='close']), not the panel.",
+    "Footer actions are [data-part='confirm'] and [data-part='cancel'] (not the dialog's ✕ close button); they emit faqir:confirm / faqir:cancel.",
+    "Escape closes by default (WAI-ARIA allowed), but a data-confirm-required root traps Escape and the overlay so a choice is mandatory.",
+    "Default tone is 'destructive'-oriented; size set is compact (sm|md) — no lg/full."
+  ],
+  "slots": {
+    "trigger": {
+      "selector": "[data-part='trigger']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Button that opens the alert dialog. Carries data-ui=\"button\": a trigger part is either a component in its own right or styled by its own recipe (the trigger contract, audit rule `trigger-contract`)."
+    },
+    "overlay": {
+      "selector": "[data-part='overlay']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Backdrop overlay — visual only; clicking it does NOT close an alertdialog"
+    },
+    "panel": {
+      "selector": "[data-part='panel']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "The alert box; carries role=alertdialog and aria-modal. Its header, body and footer are its children, or children of a <form> that is (a form dialog)."
+    },
+    "header": {
+      "selector": "[data-part='header']",
+      "required": false,
+      "tag_hint": "div"
+    },
+    "title": {
+      "selector": "[data-part='title']",
+      "required": true,
+      "tag_hint": "h2",
+      "description": "Linked via aria-labelledby to the panel. Sits in the header, directly or inside one plain div, stack or cluster (an eyebrow above the title)."
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": true,
+      "tag_hint": "p",
+      "description": "The alert message; REQUIRED and linked via aria-describedby to the panel. Sits in the header or the body, directly or inside one plain div, stack or cluster."
+    },
+    "body": {
+      "selector": "[data-part='body']",
+      "required": true,
+      "tag_hint": "div"
+    },
+    "footer": {
+      "selector": "[data-part='footer']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Action row; least-destructive action first in reading order"
+    },
+    "cancel": {
+      "selector": "[data-part='cancel']",
+      "required": false,
+      "tag_hint": "button",
+      "description": "Least-destructive action; receives focus on open and emits faqir:cancel"
+    },
+    "confirm": {
+      "selector": "[data-part='confirm']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Proceeds with the action; emits a cancelable faqir:confirm (preventDefault keeps the dialog open for async work)"
+    },
+    "close": {
+      "selector": "[data-part='close']",
+      "required": false,
+      "tag_hint": "button",
+      "description": "Optional dismiss; treated as a cancel (emits faqir:cancel)"
+    }
+  },
+  "variants": {
+    "size": {
+      "values": [
+        "sm",
+        "md"
+      ],
+      "default": "sm",
+      "attr": "data-size",
+      "applied_to": "panel"
+    },
+    "tone": {
+      "values": [
+        "default",
+        "destructive"
+      ],
+      "default": "destructive",
+      "attr": "data-variant",
+      "applied_to": "panel"
+    }
+  },
+  "modifiers": {
+    "confirm-required": {
+      "attr": "data-confirm-required",
+      "applied_to": "root",
+      "description": "Boolean. When present, Escape and overlay are trapped — the user must click cancel or confirm."
+    }
+  },
+  "states": {
+    "closed": {
+      "attr": "data-state=\"closed\"",
+      "default": true
+    },
+    "open": {
+      "attr": "data-state=\"open\""
+    },
+    "closing": {
+      "attr": "data-state=\"closing\"",
+      "transient": true
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "open",
+        "params": ""
+      },
+      {
+        "name": "close",
+        "params": ""
+      },
+      {
+        "name": "toggle",
+        "params": ""
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "title": {
+      "type": "string",
+      "default": "",
+      "description": "Alert title text"
+    },
+    "description": {
+      "type": "string",
+      "default": "",
+      "description": "Alert message text (required)"
+    },
+    "confirmText": {
+      "type": "string",
+      "default": "Confirm",
+      "description": "Confirm button label"
+    },
+    "cancelText": {
+      "type": "string",
+      "default": "Cancel",
+      "description": "Cancel button label"
+    }
+  },
+  "a11y": {
+    "role": "alertdialog",
+    "aria-modal": true,
+    "required_attrs": [
+      "role=\"alertdialog\" on panel",
+      "aria-modal=\"true\" on panel",
+      "aria-labelledby pointing to title id",
+      "aria-describedby pointing to description id",
+      "tabindex=\"-1\" on panel (controller adds it if missing)"
+    ],
+    "focus_trap": true,
+    "escape_closes": true,
+    "return_focus": "trigger",
+    "keyboard": {
+      "Escape": "close (cancel) — unless data-confirm-required traps it",
+      "Tab": "cycle focus within panel",
+      "Shift+Tab": "reverse cycle focus within panel"
+    },
+    "notes": "Focus returns to the opener unless focus moved elsewhere while closing, or the opener has left the document. The panel carries tabindex=\"-1\" so it can take focus on open; the controller adds it if the markup does not."
+  },
+  "events": {
+    "faqir:confirm": {
+      "detail": {
+        "variant": "string"
+      },
+      "cancelable": true,
+      "description": "Fires when the confirm action is chosen. preventDefault() keeps the dialog open (e.g. for an async destructive request)."
+    },
+    "faqir:cancel": {
+      "detail": {
+        "reason": "string (cancel|close|escape)"
+      },
+      "cancelable": true,
+      "description": "Fires when the dialog is dismissed without confirming."
+    }
+  },
+  "tokens_used": [
+    "radius-xl",
+    "shadow-xl",
+    "space-2",
+    "space-3",
+    "space-6",
+    "color-bg",
+    "color-fg",
+    "color-border",
+    "color-fg-muted",
+    "color-destructive",
+    "duration-normal",
+    "ease-default",
+    "ease-out",
+    "z-overlay",
+    "z-modal",
+    "font-heading",
+    "border-width",
+    "text-lg",
+    "text-sm",
+    "weight-semibold"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"alert-dialog\" data-state=\"closed\" id=\"{id}\"{confirm_required}>\n  <button data-part=\"trigger\">{trigger_text}</button>\n  <div data-part=\"overlay\" hidden></div>\n  <div data-part=\"panel\" role=\"alertdialog\" aria-modal=\"true\" aria-labelledby=\"{id}-title\" aria-describedby=\"{id}-desc\" data-variant=\"{tone}\" data-size=\"{size}\" hidden>\n    <div data-part=\"header\">\n      <h2 id=\"{id}-title\" data-part=\"title\">{title}</h2>\n    </div>\n    <div data-part=\"body\">\n      <p id=\"{id}-desc\" data-part=\"description\">{description}</p>\n    </div>\n    <div data-part=\"footer\">\n      <button data-ui=\"button\" data-part=\"cancel\" data-variant=\"outline\">{cancel_text}</button>\n      <button data-ui=\"button\" data-part=\"confirm\" data-variant=\"destructive\">{confirm_text}</button>\n    </div>\n  </div>\n</div>"
+  },
+  "safe_transforms": [
+    "change-variant-size",
+    "change-variant-tone",
+    "swap-close-animation",
+    "restyle-panel-background",
+    "customize-overlay-opacity",
+    "relabel-actions",
+    "toggle-confirm-required"
+  ],
+  "unsafe_transforms": [
+    "remove-focus-trap",
+    "change-panel-role",
+    "remove-aria-modal",
+    "remove-aria-labelledby",
+    "remove-aria-describedby",
+    "remove-confirm-action",
+    "enable-overlay-dismiss",
+    "remove-overlay"
+  ],
+  "composition": {
+    "contains": [
+      "button"
+    ],
+    "used_in": [
+      "crud-table",
+      "settings-page"
+    ]
+  },
+  "files": {
+    "html": "alert-dialog.html",
+    "css": "alert-dialog.css",
+    "js": "alert-dialog.js",
+    "manifest": "alert-dialog.manifest.json"
+  },
+  "tests": [
+    "opens-with-focus-on-least-destructive-action",
+    "panel-has-role-alertdialog",
+    "panel-has-aria-modal-true",
+    "title-is-linked-via-aria-labelledby",
+    "description-is-linked-via-aria-describedby",
+    "overlay-click-does-not-close",
+    "escape-closes-by-default",
+    "escape-is-trapped-when-confirm-required",
+    "traps-focus-within-panel",
+    "returns-focus-to-trigger-on-close",
+    "confirm-event-fires-on-confirm",
+    "cancel-event-fires-on-cancel",
+    "confirm-preventdefault-keeps-open"
+  ]
+}

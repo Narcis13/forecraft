@@ -1,0 +1,56 @@
+<!-- @ui:component tag-input -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots taglist tag input listbox option empty value -->
+<!-- @ui:controller tag-input.js -->
+
+<!-- Free-form tag input (no suggestions) — type + Enter to add, Backspace on an
+     empty field to remove the last tag, click a chip's × to remove it. -->
+<div data-ui="tag-input" data-state="closed">
+  <span data-part="taglist" role="group" aria-label="Tags">
+    <span data-ui="chip" data-part="tag">
+      <span data-part="label">TypeScript</span>
+      <button data-part="dismiss" type="button" aria-label="Remove TypeScript">&times;</button>
+    </span>
+    <span data-ui="chip" data-part="tag">
+      <span data-part="label">Design</span>
+      <button data-part="dismiss" type="button" aria-label="Remove Design">&times;</button>
+    </span>
+    <input
+      data-part="input"
+      type="text"
+      role="combobox"
+      aria-expanded="false"
+      aria-autocomplete="list"
+      placeholder="Add a tag…"
+    >
+  </span>
+  <input data-part="value" type="hidden">
+</div>
+
+<!-- Tag input with a suggestions listbox — the same combobox listbox contract
+     (filter-as-you-type, ArrowUp/Down, Enter/click to commit, empty state). -->
+<div data-ui="tag-input" data-state="closed">
+  <span data-part="taglist" role="group" aria-label="Skills">
+    <span data-ui="chip" data-part="tag">
+      <span data-part="label">React</span>
+      <button data-part="dismiss" type="button" aria-label="Remove React">&times;</button>
+    </span>
+    <input
+      data-part="input"
+      type="text"
+      role="combobox"
+      aria-expanded="false"
+      aria-autocomplete="list"
+      aria-controls="tag-input-suggestions-1"
+      placeholder="Add a skill…"
+    >
+  </span>
+  <ul data-part="listbox" role="listbox" id="tag-input-suggestions-1" hidden>
+    <li data-part="option" role="option">Vue</li>
+    <li data-part="option" role="option">Svelte</li>
+    <li data-part="option" role="option">Angular</li>
+    <li data-part="option" role="option">Solid</li>
+    <li data-part="empty" hidden>No matches</li>
+  </ul>
+  <input data-part="value" type="hidden">
+</div>

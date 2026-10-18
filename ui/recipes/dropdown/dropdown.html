@@ -1,0 +1,47 @@
+<!-- @ui:component dropdown -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots trigger menu item separator -->
+<!-- @ui:variants align=start|end size=sm|md|lg -->
+<!-- @ui:controller dropdown.js -->
+
+<!-- Default (start-aligned) -->
+<div data-ui="dropdown" data-state="closed">
+  <button data-part="trigger" aria-haspopup="true" aria-expanded="false">Options</button>
+  <div data-part="menu" role="menu" hidden>
+    <button data-part="item" role="menuitem">Edit</button>
+    <button data-part="item" role="menuitem">Duplicate</button>
+    <button data-part="item" role="menuitem">Archive</button>
+    <hr data-part="separator">
+    <button data-part="item" role="menuitem">Delete</button>
+  </div>
+</div>
+
+<!-- End-aligned variant -->
+<div data-ui="dropdown" data-state="closed">
+  <button data-part="trigger" aria-haspopup="true" aria-expanded="false">Actions</button>
+  <div data-part="menu" data-variant="end" role="menu" hidden>
+    <button data-part="item" role="menuitem">Profile</button>
+    <button data-part="item" role="menuitem">Settings</button>
+    <hr data-part="separator">
+    <button data-part="item" role="menuitem">Sign Out</button>
+  </div>
+</div>
+
+<!-- Small size -->
+<div data-ui="dropdown" data-state="closed" data-size="sm">
+  <button data-part="trigger" aria-haspopup="true" aria-expanded="false">Menu</button>
+  <div data-part="menu" role="menu" hidden>
+    <button data-part="item" role="menuitem">Item A</button>
+    <button data-part="item" role="menuitem">Item B</button>
+  </div>
+</div>
+
+<!-- Large size -->
+<div data-ui="dropdown" data-state="closed" data-size="lg">
+  <button data-part="trigger" aria-haspopup="true" aria-expanded="false">Large Menu</button>
+  <div data-part="menu" role="menu" hidden>
+    <button data-part="item" role="menuitem">Dashboard</button>
+    <button data-part="item" role="menuitem">Analytics</button>
+    <button data-part="item" role="menuitem">Reports</button>
+  </div>
+</div>

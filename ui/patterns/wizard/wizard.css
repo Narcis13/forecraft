@@ -1,0 +1,60 @@
+/* @ui:component wizard */
+/* @ui:tokens color-fg color-success-subtle measure-narrow radius-lg space-3 space-4 space-6 font-body text-sm text-2xl weight-semibold leading-tight leading-normal */
+/* wizard — multi-step form pattern.
+   Layout only: the stepper, card panels, field-groups and buttons carry their
+   own look from their primitives. This sheet stacks the pieces, lays out the
+   navigation row, and reveals the completion message on data-state="submitted".
+   Attribute + token selectors only; logical properties throughout. */
+
+[data-ui="wizard"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-inline-size: var(--measure-narrow);
+  margin-inline: auto;
+  font-family: var(--font-body);
+}
+
+[data-ui="wizard"] [data-part="heading"] {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  color: var(--color-fg);
+}
+
+/* Navigation row: Back on the leading edge, Next/Submit on the trailing edge. */
+[data-ui="wizard"] [data-part="actions"] {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+[data-ui="wizard"] [data-part="next"],
+[data-ui="wizard"] [data-part="submit"] {
+  margin-inline-start: auto;
+}
+
+/* Completion message: hidden until the wizard reports it is done. */
+[data-ui="wizard"] [data-part="complete"] {
+  display: none;
+  margin: 0;
+  padding-block: var(--space-3);
+  padding-inline: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-success-subtle);
+  color: var(--color-fg);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+[data-ui="wizard"][data-state="submitted"] [data-part="complete"] {
+  display: block;
+}
+
+/* When the wizard is complete, retire the step panels and the nav row so the
+   confirmation stands alone — still no JS, purely the submitted state. */
+[data-ui="wizard"][data-state="submitted"] [data-part="panel"],
+[data-ui="wizard"][data-state="submitted"] [data-part="actions"] {
+  display: none;
+}

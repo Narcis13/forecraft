@@ -1,0 +1,41 @@
+<!-- @ui:component popover -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots trigger content close -->
+<!-- @ui:variants position=top|bottom|left|right align=start|center|end -->
+<!-- @ui:controller popover.js -->
+
+<!-- Default (bottom, start-aligned) -->
+<div data-ui="popover" data-state="closed">
+  <button data-part="trigger" aria-haspopup="true" aria-expanded="false">Show Info</button>
+  <div data-part="content" data-variant="bottom" data-align="start" hidden>
+    <p>This is popover content positioned below the trigger.</p>
+    <button data-part="close" aria-label="Close popover">&#x2715;</button>
+  </div>
+</div>
+
+<!-- Top, center-aligned -->
+<div data-ui="popover" data-state="closed">
+  <button data-part="trigger" aria-haspopup="true" aria-expanded="false">Help</button>
+  <div data-part="content" data-variant="top" data-align="center" hidden>
+    <p>This popover appears above the trigger, centered.</p>
+    <button data-part="close" aria-label="Close popover">&#x2715;</button>
+  </div>
+</div>
+
+<!-- Left, end-aligned -->
+<div data-ui="popover" data-state="closed">
+  <button data-part="trigger" aria-haspopup="true" aria-expanded="false">Details</button>
+  <div data-part="content" data-variant="left" data-align="end" hidden>
+    <p>This popover appears to the left of the trigger.</p>
+    <button data-part="close" aria-label="Close popover">&#x2715;</button>
+  </div>
+</div>
+
+<!-- Right, start-aligned -->
+<div data-ui="popover" data-state="closed">
+  <button data-part="trigger" aria-haspopup="true" aria-expanded="false">More</button>
+  <div data-part="content" data-variant="right" data-align="start" hidden>
+    <p>This popover appears to the right of the trigger.</p>
+    <button data-part="close" aria-label="Close popover">&#x2715;</button>
+  </div>
+</div>

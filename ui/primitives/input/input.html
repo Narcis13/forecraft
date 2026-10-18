@@ -1,0 +1,39 @@
+<!-- @ui:component input -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots icon prefix suffix -->
+<!-- @ui:variants size=sm|md|lg -->
+
+<!-- Default -->
+<input data-ui="input" type="text" placeholder="Enter text...">
+
+<!-- With label (recommended pattern) -->
+<div data-ui="field-group">
+  <label data-part="label" for="email-input">Email</label>
+  <div data-part="input">
+    <input data-ui="input" type="email" id="email-input" placeholder="you@example.com" aria-describedby="email-input-hint">
+  </div>
+  <p data-part="description" id="email-input-hint">Use the address where you receive account updates.</p>
+</div>
+
+<!-- Error state -->
+<input data-ui="input" type="text" data-state="error" aria-invalid="true" value="bad input" aria-label="Username">
+
+<!-- Disabled -->
+<input data-ui="input" type="text" disabled value="Cannot edit" aria-label="Locked field">
+
+<!-- Sizes -->
+<input data-ui="input" data-size="sm" type="text" placeholder="Small">
+<input data-ui="input" type="text" placeholder="Medium (default)">
+<input data-ui="input" data-size="lg" type="text" placeholder="Large">
+
+<!-- With icon wrapper -->
+<div data-ui="input-group">
+  <span data-part="prefix">🔍</span>
+  <input data-ui="input" type="search" placeholder="Search...">
+</div>
+
+<!-- With suffix -->
+<div data-ui="input-group">
+  <input data-ui="input" type="text" placeholder="0.00">
+  <span data-part="suffix">USD</span>
+</div>

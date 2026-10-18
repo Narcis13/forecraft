@@ -1,0 +1,59 @@
+<!-- @ui:component switch -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots label thumb -->
+<!-- @ui:variants size=sm|md|lg -->
+
+<!-- States — control rows use a wider cluster gap than each label's internal gap -->
+<div data-ui="cluster" data-gap="4">
+  <label data-ui="switch-label" for="dark-mode">
+    <button type="button" data-ui="switch" id="dark-mode" role="switch" aria-checked="false">
+      <span data-part="thumb"></span>
+    </button>
+    <span data-part="label">Dark mode</span>
+  </label>
+
+  <label data-ui="switch-label" for="notifications-enabled">
+    <button type="button" data-ui="switch" id="notifications-enabled" role="switch" aria-checked="true" data-state="on">
+      <span data-part="thumb"></span>
+    </button>
+    <span data-part="label">Notifications enabled</span>
+  </label>
+
+  <label data-ui="switch-label" for="feature-locked">
+    <button type="button" data-ui="switch" id="feature-locked" role="switch" aria-checked="false" disabled>
+      <span data-part="thumb"></span>
+    </button>
+    <span data-part="label">Feature locked</span>
+  </label>
+
+  <label data-ui="switch-label" for="always-active">
+    <button type="button" data-ui="switch" id="always-active" role="switch" aria-checked="true" data-state="on" disabled>
+      <span data-part="thumb"></span>
+    </button>
+    <span data-part="label">Always active</span>
+  </label>
+</div>
+
+<!-- Sizes -->
+<div data-ui="cluster" data-gap="4">
+  <label data-ui="switch-label" for="switch-sm">
+    <button type="button" data-ui="switch" id="switch-sm" data-size="sm" role="switch" aria-checked="true" data-state="on">
+      <span data-part="thumb"></span>
+    </button>
+    <span data-part="label">Small</span>
+  </label>
+
+  <label data-ui="switch-label" for="switch-md">
+    <button type="button" data-ui="switch" id="switch-md" role="switch" aria-checked="true" data-state="on">
+      <span data-part="thumb"></span>
+    </button>
+    <span data-part="label">Medium (default)</span>
+  </label>
+
+  <label data-ui="switch-label" for="switch-lg">
+    <button type="button" data-ui="switch" id="switch-lg" data-size="lg" role="switch" aria-checked="true" data-state="on">
+      <span data-part="thumb"></span>
+    </button>
+    <span data-part="label">Large</span>
+  </label>
+</div>

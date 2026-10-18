@@ -1,0 +1,243 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "sheet",
+  "version": "1.0.3",
+  "kind": "recipe",
+  "category": "overlay",
+  "description": "Mobile-friendly bottom or side sheet that slides in from screen edge",
+  "changes": [
+    {
+      "version": "1.0.3",
+      "note": "Nested components keep their own parts. The stylesheet reached every part with descendant selectors, so a component in the body with parts of the same name took the sheet's styles: a popover's close button was squashed to the sheet's icon square, a dialog's header and title were laid out as the sheet's. Kept beyond direct children: the header and body may be children of a <form> that is the panel's child (a form dialog); the title may sit in one plain div, stack or cluster inside its section (an eyebrow above the title); the close button may be the panel's own child, or sit in the header or footer the same way. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.0.2",
+      "note": "Nested components keep their own parts. Overlay and panel are taken as direct children, and the trigger and close buttons by owner, looking through layout primitives. A popover's close button inside the panel no longer closes the sheet; a close button wrapped in a stack or cluster still does.",
+      "breaking": false
+    },
+    {
+      "version": "1.0.1",
+      "note": "Focus on open and close is fixed. The panel had no tabindex, so the panel.focus() call on open did nothing: focus stayed on body, outside the focus trap and out of reach of the root's Escape listener. tabindex=\"-1\" is now in the canonical markup, and the controller adds it when it is missing. Closing also took focus back too late: focus returned to the opener only after the exit animation ended, even if the user had moved focus to another control in the meantime. Focus now returns only if it is still inside the sheet or on body, and only to an opener that is still in the document. The panel draws no focus ring of its own.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='sheet']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "trigger": {
+      "selector": "[data-part='trigger']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Button that opens the sheet. Carries data-ui=\"button\": a trigger part is either a component in its own right or styled by its own recipe (the trigger contract, audit rule `trigger-contract`)."
+    },
+    "overlay": {
+      "selector": "[data-part='overlay']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Backdrop overlay, click to close"
+    },
+    "panel": {
+      "selector": "[data-part='panel']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "The sheet panel container. Its header and body are its children, or children of a <form> that is (a form dialog)."
+    },
+    "header": {
+      "selector": "[data-part='header']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Header area containing title and close button"
+    },
+    "title": {
+      "selector": "[data-part='title']",
+      "required": true,
+      "tag_hint": "h2",
+      "description": "Linked via aria-labelledby to panel. Sits in the header, directly or inside one plain div, stack or cluster (an eyebrow above the title)."
+    },
+    "body": {
+      "selector": "[data-part='body']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Scrollable content area"
+    },
+    "close": {
+      "selector": "[data-part='close']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Close button, must have aria-label. Sits in the panel, or in its header or footer, directly or inside one plain div, stack or cluster."
+    }
+  },
+  "variants": {
+    "side": {
+      "values": [
+        "bottom",
+        "top",
+        "left",
+        "right"
+      ],
+      "default": "bottom",
+      "attr": "data-variant",
+      "applied_to": "panel"
+    },
+    "size": {
+      "values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "panel"
+    }
+  },
+  "states": {
+    "closed": {
+      "attr": "data-state=\"closed\"",
+      "default": true
+    },
+    "open": {
+      "attr": "data-state=\"open\""
+    },
+    "closing": {
+      "attr": "data-state=\"closing\"",
+      "transient": true
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "open",
+        "params": ""
+      },
+      {
+        "name": "close",
+        "params": ""
+      },
+      {
+        "name": "toggle",
+        "params": ""
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "title": {
+      "type": "string",
+      "default": "",
+      "description": "Sheet title text"
+    },
+    "triggerText": {
+      "type": "string",
+      "default": "Open",
+      "description": "Text for the trigger button"
+    }
+  },
+  "a11y": {
+    "role": "dialog",
+    "aria-modal": true,
+    "required_attrs": [
+      "role=\"dialog\" on panel",
+      "aria-modal=\"true\" on panel",
+      "aria-labelledby pointing to title id",
+      "aria-label on close button",
+      "tabindex=\"-1\" on panel (controller adds it if missing)"
+    ],
+    "focus_trap": true,
+    "escape_closes": true,
+    "return_focus": "trigger",
+    "keyboard": {
+      "Escape": "close sheet",
+      "Tab": "cycle focus within panel",
+      "Shift+Tab": "reverse cycle focus within panel"
+    },
+    "notes": "Focus returns to the opener unless focus moved elsewhere while closing, or the opener has left the document. The panel carries tabindex=\"-1\" so it can take focus on open; the controller adds it if the markup does not."
+  },
+  "tokens_used": [
+    "color-bg",
+    "color-fg",
+    "color-border",
+    "color-fg-muted",
+    "color-bg-muted",
+    "panel-bg",
+    "shadow-xl",
+    "radius-xl",
+    "radius-md",
+    "space-6",
+    "z-overlay",
+    "z-modal",
+    "duration-normal",
+    "duration-slow",
+    "ease-out",
+    "font-heading",
+    "border-width",
+    "focus-ring-width",
+    "focus-ring-style",
+    "focus-ring-color",
+    "focus-ring-offset",
+    "surface-backdrop",
+    "text-lg",
+    "text-base",
+    "weight-semibold"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"sheet\" data-state=\"closed\" id=\"{id}\">\n  <button data-part=\"trigger\">{trigger_text}</button>\n  <div data-part=\"overlay\" hidden></div>\n  <div data-part=\"panel\" data-variant=\"{side}\" data-size=\"{size}\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"{id}-title\" hidden>\n    <div data-part=\"header\">\n      <h2 id=\"{id}-title\" data-part=\"title\">{title}</h2>\n      <button data-part=\"close\" aria-label=\"Close sheet\">✕</button>\n    </div>\n    <div data-part=\"body\">{body}</div>\n  </div>\n</div>"
+  },
+  "safe_transforms": [
+    "change-variant-side",
+    "change-variant-size",
+    "restyle-panel-background",
+    "add-content-to-body",
+    "customize-overlay-opacity",
+    "modify-border-radius",
+    "swap-slide-animation"
+  ],
+  "unsafe_transforms": [
+    "remove-focus-trap",
+    "remove-escape-handler",
+    "remove-aria-labelledby",
+    "remove-overlay",
+    "remove-close-button",
+    "change-panel-role",
+    "remove-aria-modal"
+  ],
+  "composition": {
+    "contains": [
+      "button"
+    ],
+    "used_in": []
+  },
+  "files": {
+    "html": "sheet.html",
+    "css": "sheet.css",
+    "js": "sheet.js",
+    "manifest": "sheet.manifest.json"
+  },
+  "tests": [
+    "opens-on-trigger-click",
+    "closes-on-escape",
+    "closes-on-overlay-click",
+    "closes-on-close-button-click",
+    "traps-focus-within-panel",
+    "returns-focus-to-trigger-on-close",
+    "sets-data-state-to-open-when-opened",
+    "sets-data-state-to-closed-when-closed",
+    "panel-has-role-dialog",
+    "panel-has-aria-modal-true",
+    "title-is-linked-via-aria-labelledby",
+    "close-button-has-aria-label",
+    "overlay-and-panel-are-hidden-when-closed",
+    "bottom-variant-slides-from-bottom",
+    "top-variant-slides-from-top",
+    "left-variant-slides-from-left",
+    "right-variant-slides-from-right",
+    "size-sm-sets-correct-dimensions",
+    "size-lg-sets-correct-dimensions"
+  ]
+}

@@ -1,0 +1,294 @@
+/* @ui:component site-header */
+/* @ui:tokens panel-bg space-4 space-2 space-1 space-3 space-5 space-32 space-6 control-height-lg control-height-sm measure-wide font-ui font-heading color-fg color-border color-bg-subtle border-width border-width-md text-lg text-sm weight-bold weight-medium heading-tracking leading-tight radius-sm radius-full radius-lg focus-ring-width focus-ring-style focus-ring-color focus-ring-offset focus-shadow button-radius duration-fast duration-normal ease-default ease-linear shadow-md z-sticky card-shadow surface-backdrop */
+
+/* ── Root ──
+   One grid row: brand at the start, the disclosure toggle at the end, and —
+   from the md floor — the nav centred between them with the actions at the end.
+   The four parts are direct children of the header, so there is no inner row
+   to centre; instead `padding-inline` grows to whatever is left once the row
+   is `--site-header-max` wide, which centres the content with no wrapper and
+   no measurement. Below that width the gutter is the floor.
+
+   The fill is resolved once into `--faqir-site-header-fill`, because three
+   things paint it — the bar, the dropped menu panel and the condense
+   keyframes — and the glass variant replaces it with a translucent mix.
+
+   `position: relative` so the menu panel, which drops out of the bar as an
+   overlay, has the bar as its containing block; sticky keeps that property.
+
+   Mobile-first: everything outside the `@media` block at the foot of the
+   sheet is the phone case, where the nav and the actions live in the menu. */
+[data-ui="site-header"] {
+  --faqir-site-header-fill: var(--site-header-bg, var(--panel-bg));
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: var(--space-4);
+  min-block-size: var(--site-header-height, var(--control-height-lg));
+  padding-block: var(--space-2);
+  padding-inline: max(var(--space-4), calc((100% - var(--site-header-max, var(--measure-wide))) / 2));
+  font-family: var(--font-ui);
+  color: var(--color-fg);
+  background-color: var(--faqir-site-header-fill);
+  border-block-end: var(--border-width) solid var(--color-border);
+}
+
+/* ── Brand ──
+   A wordmark is display type, so it reads the heading face; it is a link home,
+   so it keeps the text colour rather than the link colour. */
+[data-ui="site-header"] > [data-part="brand"] {
+  justify-self: start;
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--heading-tracking);
+  line-height: var(--leading-tight);
+  color: var(--color-fg);
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: var(--radius-sm);
+}
+
+[data-ui="site-header"] > [data-part="brand"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-shadow);
+}
+
+/* ── Nav and actions ──
+   Hidden on a phone: the same links are in the menu panel, and two copies of
+   a navigation landmark on screen at once is one too many. The nested
+   data-ui="nav" owns its own [data-part="link"] slots; this wrapper only
+   places it. */
+[data-ui="site-header"] > [data-part="nav"],
+[data-ui="site-header"] > [data-part="actions"] {
+  display: none;
+}
+
+/* ── Menu ──
+   A native <details>, so the phone menu opens and closes with zero
+   JavaScript, and the <summary> is a real button to the keyboard and to
+   assistive technology. Child combinators throughout: a collapsible in the
+   panel keeps its own trigger. */
+[data-ui="site-header"] > [data-part="menu"] {
+  justify-self: end;
+}
+
+[data-ui="site-header"] > :where([data-part="menu"]) > [data-part="toggle"] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-block-size: var(--control-height-sm);
+  padding-block: var(--space-1);
+  padding-inline: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  color: var(--color-fg);
+  border-radius: var(--button-radius);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: background-color var(--duration-fast) var(--ease-default);
+}
+
+/* Strip the native disclosure marker (WebKit + standard list-item marker). */
+[data-ui="site-header"] > :where([data-part="menu"]) > [data-part="toggle"]::-webkit-details-marker {
+  display: none;
+}
+
+[data-ui="site-header"] > :where([data-part="menu"]) > [data-part="toggle"]:hover {
+  background-color: var(--color-bg-subtle);
+}
+
+[data-ui="site-header"] > :where([data-part="menu"]) > [data-part="toggle"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-shadow);
+}
+
+/* Chevron: two borders of a small square, turned. Sized in em so it follows
+   the toggle's own type, as a glyph would. */
+[data-ui="site-header"] > :where([data-part="menu"]) > [data-part="toggle"]::after {
+  content: "";
+  flex: none;
+  inline-size: 0.5em;
+  block-size: 0.5em;
+  border-inline-end: var(--border-width-md) solid currentColor;
+  border-block-end: var(--border-width-md) solid currentColor;
+  rotate: 45deg;
+  translate: 0 -0.125em;
+  transition: rotate var(--duration-normal) var(--ease-default), translate var(--duration-normal) var(--ease-default);
+}
+
+[data-ui="site-header"] > :where([data-part="menu"][open]) > [data-part="toggle"]::after {
+  rotate: -135deg;
+  translate: 0 0.125em;
+}
+
+/* ── Panel ──
+   Drops out of the bar as an overlay rather than growing the row, so the brand
+   and the toggle stay where the reader left them when the menu opens. It
+   paints the same fill as the bar and closes with the same hairline. */
+[data-ui="site-header"] > :where([data-part="menu"]) > [data-part="panel"] {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 100%;
+  display: grid;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+  padding-inline: var(--space-4);
+  background-color: var(--faqir-site-header-fill);
+  border-block-end: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+/* The actions inside the panel stack full width, under a rule of their own. */
+[data-ui="site-header"] > :where([data-part="menu"]) > :where([data-part="panel"]) > [data-part="actions"] {
+  display: grid;
+  gap: var(--space-2);
+  padding-block-start: var(--space-4);
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+/* ── Sticky ── */
+[data-ui="site-header"][data-sticky] {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-sticky);
+}
+
+/* ── Style: floating ──
+   A pill inset from the page edges, lifted by the card shadow so it reads as
+   a surface over the page rather than a band of it. The menu panel follows:
+   its own rounded card, a beat below the pill. */
+[data-ui="site-header"][data-variant="floating"] {
+  margin-block-start: var(--space-3);
+  margin-inline: var(--space-3);
+  padding-inline: max(var(--space-5), calc((100% - var(--site-header-max, var(--measure-wide))) / 2));
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--card-shadow);
+}
+
+[data-ui="site-header"][data-variant="floating"][data-sticky] {
+  inset-block-start: var(--space-3);
+}
+
+[data-ui="site-header"][data-variant="floating"] > :where([data-part="menu"]) > [data-part="panel"] {
+  margin-block-start: var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* ── Style: glass ──
+   The fill becomes a translucent mix of itself, and — where the browser can
+   blur what lies behind — the theme's frost (`--surface-backdrop`) is applied
+   to the bar and to the dropped panel. A blur behind an opaque fill renders
+   nothing, which is why the fill is the half that changes unconditionally. */
+[data-ui="site-header"][data-variant="glass"] {
+  --faqir-site-header-fill: color-mix(in oklch, var(--site-header-bg, var(--panel-bg)) 72%, transparent);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1rem)) or (backdrop-filter: blur(1rem))) {
+  [data-ui="site-header"][data-variant="glass"],
+  [data-ui="site-header"][data-variant="glass"] > :where([data-part="menu"]) > [data-part="panel"] {
+    -webkit-backdrop-filter: var(--surface-backdrop);
+    backdrop-filter: var(--surface-backdrop);
+  }
+}
+
+/* ── Condense ──
+   The bar starts transparent and roomy over the top of the page and settles
+   into its fill, its hairline and its working padding over the first 8rem of
+   scroll (`--space-32`). The scrollbar is the clock — a scroll timeline scrubs
+   one keyframe pair — so nothing listens, nothing measures. Where scroll
+   timelines are not understood the block is skipped whole and the header is
+   the plain (sticky) bar above: the `to` frame restates the root's own values,
+   so the two agree. Meant for a sticky bar; a static one scrolls away before
+   it has settled. */
+@supports (animation-timeline: scroll()) {
+  [data-ui="site-header"][data-condense] {
+    animation: faqir-site-header-condense var(--ease-linear) both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 var(--space-32);
+  }
+}
+
+@keyframes faqir-site-header-condense {
+  from {
+    padding-block: var(--space-4);
+    background-color: transparent;
+    border-block-end: var(--border-width) solid transparent;
+  }
+
+  to {
+    padding-block: var(--space-2);
+    background-color: var(--faqir-site-header-fill);
+    border-block-end: var(--border-width) solid var(--color-border);
+  }
+}
+
+/* ── Responsive ──
+   Canon tiers only, min-width only, ascending (FAQIR-NEXT §19). One floor: at
+   md the inline nav and actions appear, the row becomes `auto 1fr auto` with
+   the nav centred in the middle track, and the menu goes — the panel's links
+   are now on screen already. */
+@media (min-width: 48rem) {
+  [data-ui="site-header"] {
+    grid-template-columns: auto 1fr auto;
+    column-gap: var(--space-6);
+    padding-inline: max(var(--space-6), calc((100% - var(--site-header-max, var(--measure-wide))) / 2));
+  }
+
+  [data-ui="site-header"] > [data-part="nav"] {
+    display: flex;
+    justify-content: center;
+    min-inline-size: 0;
+  }
+
+  [data-ui="site-header"] > [data-part="actions"] {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: var(--space-2);
+  }
+
+  [data-ui="site-header"] > [data-part="menu"] {
+    display: none;
+  }
+}
+
+/* ── Motion ──
+   The toggle's hover and chevron stop transitioning. The condense is kept:
+   it never moves on its own, only as far as the reader's own scrolling moves
+   it, and it is scrubbed at constant speed either way. */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="site-header"] > :where([data-part="menu"]) > [data-part="toggle"],
+  [data-ui="site-header"] > :where([data-part="menu"]) > [data-part="toggle"]::after {
+    transition: none;
+  }
+
+  [data-ui="site-header"][data-condense] {
+    animation-timing-function: var(--ease-linear);
+  }
+}
+
+/* ── Print ──
+   A sticky bar on paper is a bar on every page; the menu has nowhere to go. */
+@media print {
+  [data-ui="site-header"] {
+    position: static;
+    box-shadow: none;
+  }
+
+  [data-ui="site-header"] > [data-part="menu"] {
+    display: none;
+  }
+
+  [data-ui="site-header"] > [data-part="nav"],
+  [data-ui="site-header"] > [data-part="actions"] {
+    display: flex;
+  }
+}

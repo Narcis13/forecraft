@@ -1,0 +1,163 @@
+/* @ui:component image */
+/* @ui:tokens color-bg-muted color-fg-muted radius-md space-2 space-1 text-xs font-body image-radius image-border-width image-border image-caption-size image-caption-color doc-font duration-normal duration-slower ease-out ease-emphasized ease-default */
+
+/* ── Base ── */
+[data-ui="image"] {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+  max-width: 100%;
+}
+
+/* ── Image Element ── */
+[data-ui="image"] > [data-part="img"] {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--image-radius);
+  border: var(--image-border-width) solid var(--image-border);
+}
+
+/* ── Caption ── */
+[data-ui="image"] > [data-part="caption"] {
+  display: block;
+  margin-top: var(--space-2);
+  font-family: var(--doc-font, var(--font-body));
+  font-size: var(--image-caption-size);
+  color: var(--image-caption-color);
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* ── Variant: Responsive (default) ── */
+[data-ui="image"][data-variant="responsive"] > [data-part="img"],
+[data-ui="image"]:not([data-variant]) > [data-part="img"] {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* ── Variant: Thumbnail ── */
+[data-ui="image"][data-variant="thumbnail"] {
+  border-radius: var(--image-radius);
+  overflow: hidden;
+}
+
+[data-ui="image"][data-variant="thumbnail"] > [data-part="img"] {
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+/* ── Variant: Cover ── */
+[data-ui="image"][data-variant="cover"] {
+  width: 100%;
+}
+
+[data-ui="image"][data-variant="cover"] > [data-part="img"] {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+/* ── Variant: Contain ── */
+[data-ui="image"][data-variant="contain"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-muted);
+  border-radius: var(--image-radius);
+  overflow: hidden;
+}
+
+[data-ui="image"][data-variant="contain"] > [data-part="img"] {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 0;
+}
+
+/* ── Size: XS (48px) ── */
+[data-ui="image"][data-size="xs"] {
+  max-width: 48px;
+}
+
+/* ── Size: SM (96px) ── */
+[data-ui="image"][data-size="sm"] {
+  max-width: 96px;
+}
+
+/* ── Size: MD (192px) ── */
+[data-ui="image"][data-size="md"],
+[data-ui="image"]:not([data-size]) {
+  max-width: 192px;
+}
+
+/* ── Size: LG (384px) ── */
+[data-ui="image"][data-size="lg"] {
+  max-width: 384px;
+}
+
+/* ── Size: Full (100%) ── */
+[data-ui="image"][data-size="full"] {
+  max-width: 100%;
+  width: 100%;
+}
+
+/* ── Print ── */
+@media print {
+  [data-ui="image"] > [data-part="img"] {
+    max-width: 100%;
+    break-inside: avoid;
+  }
+
+  [data-ui="image"][data-size="full"] {
+    max-width: 80%;
+  }
+}
+
+/* ── Hover ──
+   What a picture does under the pointer. `zoom` leans into the frame (the
+   figure clips, so the image grows without growing the layout), `lift` rises,
+   `fade` dims to say "this is a link". Focus-within gives a wrapped link the
+   same cue from the keyboard. */
+[data-ui="image"][data-hover] {
+  transition: translate var(--duration-normal) var(--ease-out);
+}
+
+[data-ui="image"][data-hover="zoom"] {
+  overflow: hidden;
+  border-radius: var(--image-radius);
+}
+
+[data-ui="image"][data-hover="zoom"] > [data-part="img"] {
+  transition: scale var(--duration-slower) var(--ease-emphasized);
+}
+
+[data-ui="image"][data-hover="zoom"]:hover > [data-part="img"],
+[data-ui="image"][data-hover="zoom"]:focus-within > [data-part="img"] {
+  scale: 1.05;
+}
+
+[data-ui="image"][data-hover="lift"]:hover,
+[data-ui="image"][data-hover="lift"]:focus-within {
+  translate: 0 calc(var(--space-1) * -1);
+}
+
+[data-ui="image"][data-hover="fade"] > [data-part="img"] {
+  transition: opacity var(--duration-normal) var(--ease-default);
+}
+
+[data-ui="image"][data-hover="fade"]:hover > [data-part="img"],
+[data-ui="image"][data-hover="fade"]:focus-within > [data-part="img"] {
+  opacity: 0.8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="image"][data-hover],
+  [data-ui="image"][data-hover] > [data-part="img"] {
+    transition: none;
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "version": "1.0.0",
+  "theme": "default",
+  "output_dir": "./ui",
+  "tokens_split": false,
+  "include_core": true,
+  "installed": {
+    "primitives": [
+      "aspect-ratio",
+      "avatar",
+      "backdrop",
+      "badge",
+      "button",
+      "callout",
+      "card",
+      "checkbox",
+      "chip",
+      "cluster",
+      "collapsible",
+      "container",
+      "description-list",
+      "empty-state",
+      "field-group",
+      "glow",
+      "grid",
+      "highlight",
+      "icon",
+      "image",
+      "input",
+      "kbd",
+      "key-value",
+      "label",
+      "link",
+      "marquee",
+      "nav",
+      "progress",
+      "quote",
+      "radio",
+      "rating",
+      "reveal",
+      "scroll-progress",
+      "select",
+      "separator",
+      "skeleton",
+      "spinner",
+      "spotlight",
+      "stack",
+      "stamp",
+      "stat",
+      "stepper",
+      "surface",
+      "switch",
+      "switcher",
+      "text",
+      "textarea",
+      "timeline",
+      "toggle",
+      "watermark"
+    ],
+    "recipes": [
+      "accordion",
+      "alert-dialog",
+      "calendar",
+      "combobox",
+      "command-palette",
+      "date-picker",
+      "dialog",
+      "drawer",
+      "dropdown",
+      "pagination",
+      "popover",
+      "sheet",
+      "sidebar",
+      "slider",
+      "table",
+      "tabs",
+      "tag-input",
+      "toast",
+      "toggle-group",
+      "tooltip"
+    ],
+    "patterns": [
+      "auth-form",
+      "bento",
+      "crud-table",
+      "cta",
+      "dashboard-shell",
+      "faq",
+      "feature-grid",
+      "form-page",
+      "hero",
+      "logo-cloud",
+      "pricing",
+      "settings-page",
+      "site-footer",
+      "site-header",
+      "stats-dashboard",
+      "testimonials",
+      "wizard"
+    ]
+  },
+  "bundle": {
+    "output": "./ui/faqir.bundle.css",
+    "auto": true,
+    "minify": false
+  },
+  "fonts": [
+    {
+      "id": "inter",
+      "roles": [
+        "body",
+        "ui"
+      ]
+    },
+    {
+      "id": "instrument-serif",
+      "roles": [
+        "heading"
+      ]
+    },
+    {
+      "id": "jetbrains-mono",
+      "roles": [
+        "mono"
+      ]
+    }
+  ]
+}

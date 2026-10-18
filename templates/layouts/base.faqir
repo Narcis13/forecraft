@@ -1,0 +1,20 @@
+doctype html
+html(lang="en" data-skin=page.skin ?? false data-accent=page.accent ?? false data-theme=page.scheme ?? false)
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title
+      block title
+        | forecraft
+    meta(name="description" content=page.description ?? "Forms for the agentic era. Your agent builds the form; people fill it in.")
+    link(rel="icon" href="/favicon.svg" type="image/svg+xml")
+    link(rel="stylesheet" href="/ui/faqir.bundle.css")
+    if page.skin ?? false
+      link(rel="stylesheet" href="/ui/themes/{{ page.skin }}.scoped.css")
+    link(rel="stylesheet" href="/app.css")
+    block head
+  body
+    a(href="#main") Skip to content
+    block body
+    script(src="/ui/core/faqir-core.js" defer)
+    block scripts

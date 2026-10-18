@@ -1,0 +1,458 @@
+<!-- @ui:component table -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots table thead tbody tfoot tr th td checkbox group-header filter-row filter-input filter expander drag-handle detail-row row-toggle empty cell-input resize-handle -->
+<!-- @ui:variants striped=true|false bordered=true|false size=sm|md|lg -->
+<!-- @ui:controller table.js -->
+
+<!-- Default (medium) -->
+<div data-ui="table" data-size="md">
+  <table data-part="table">
+    <thead data-part="thead">
+      <tr data-part="tr">
+        <th data-part="th" scope="col">
+          <input data-part="checkbox" type="checkbox" aria-label="Select all rows">
+        </th>
+        <th data-part="th" scope="col" data-sortable aria-sort="none">Name</th>
+        <th data-part="th" scope="col" data-sortable aria-sort="none">Email</th>
+        <th data-part="th" scope="col" data-sortable aria-sort="none">Role</th>
+        <th data-part="th" scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody data-part="tbody">
+      <tr data-part="tr">
+        <td data-part="td">
+          <input data-part="checkbox" type="checkbox" aria-label="Select row">
+        </td>
+        <td data-part="td">Alice Johnson</td>
+        <td data-part="td">alice@example.com</td>
+        <td data-part="td">Admin</td>
+        <td data-part="td">Edit</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td">
+          <input data-part="checkbox" type="checkbox" aria-label="Select row">
+        </td>
+        <td data-part="td">Bob Smith</td>
+        <td data-part="td">bob@example.com</td>
+        <td data-part="td">Editor</td>
+        <td data-part="td">Edit</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td">
+          <input data-part="checkbox" type="checkbox" aria-label="Select row">
+        </td>
+        <td data-part="td">Carol White</td>
+        <td data-part="td">carol@example.com</td>
+        <td data-part="td">Viewer</td>
+        <td data-part="td">Edit</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Striped variant -->
+<div data-ui="table" data-variant="striped" data-size="md">
+  <table data-part="table">
+    <thead data-part="thead">
+      <tr data-part="tr">
+        <th data-part="th" scope="col" data-sortable aria-sort="none">Product</th>
+        <th data-part="th" scope="col" data-sortable aria-sort="none">Price</th>
+        <th data-part="th" scope="col">Stock</th>
+      </tr>
+    </thead>
+    <tbody data-part="tbody">
+      <tr data-part="tr">
+        <td data-part="td">Widget A</td>
+        <td data-part="td">$19.99</td>
+        <td data-part="td">142</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td">Widget B</td>
+        <td data-part="td">$29.99</td>
+        <td data-part="td">58</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td">Widget C</td>
+        <td data-part="td">$9.99</td>
+        <td data-part="td">305</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Bordered, small size -->
+<div data-ui="table" data-variant="bordered" data-size="sm">
+  <table data-part="table">
+    <thead data-part="thead">
+      <tr data-part="tr">
+        <th data-part="th" scope="col">Key</th>
+        <th data-part="th" scope="col">Value</th>
+      </tr>
+    </thead>
+    <tbody data-part="tbody">
+      <tr data-part="tr">
+        <td data-part="td">Host</td>
+        <td data-part="td">localhost</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td">Port</td>
+        <td data-part="td">3000</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Large size -->
+<div data-ui="table" data-size="lg">
+  <table data-part="table">
+    <thead data-part="thead">
+      <tr data-part="tr">
+        <th data-part="th" scope="col" data-sortable aria-sort="none">Title</th>
+        <th data-part="th" scope="col" data-sortable aria-sort="none">Author</th>
+        <th data-part="th" scope="col">Year</th>
+      </tr>
+    </thead>
+    <tbody data-part="tbody">
+      <tr data-part="tr">
+        <td data-part="td">The Great Gatsby</td>
+        <td data-part="td">F. Scott Fitzgerald</td>
+        <td data-part="td">1925</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td">To Kill a Mockingbird</td>
+        <td data-part="td">Harper Lee</td>
+        <td data-part="td">1960</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- With footer (totals row), alignment, and number formatting -->
+<div data-ui="table" data-variant="bordered" data-size="md">
+  <table data-part="table">
+    <thead data-part="thead">
+      <tr data-part="tr">
+        <th data-part="th" scope="col">Item</th>
+        <th data-part="th" scope="col" data-align="center">Qty</th>
+        <th data-part="th" scope="col" data-align="right">Unit Price</th>
+        <th data-part="th" scope="col" data-align="right">Total</th>
+      </tr>
+    </thead>
+    <tbody data-part="tbody">
+      <tr data-part="tr">
+        <td data-part="td">Web Development</td>
+        <td data-part="td" data-align="center" data-format="number">10</td>
+        <td data-part="td" data-align="right" data-format="currency">150.00</td>
+        <td data-part="td" data-align="right" data-format="currency">1,500.00</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td">Design Services</td>
+        <td data-part="td" data-align="center" data-format="number">5</td>
+        <td data-part="td" data-align="right" data-format="currency">200.00</td>
+        <td data-part="td" data-align="right" data-format="currency">1,000.00</td>
+      </tr>
+    </tbody>
+    <tfoot data-part="tfoot">
+      <tr data-part="tr">
+        <td data-part="td" colspan="3" data-align="right">Subtotal</td>
+        <td data-part="td" data-align="right" data-format="currency">2,500.00</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td" colspan="3" data-align="right">VAT (19%)</td>
+        <td data-part="td" data-align="right" data-format="currency">475.00</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td" colspan="3" data-align="right">Total</td>
+        <td data-part="td" data-align="right" data-format="currency">2,975.00</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<!-- Grouped rows -->
+<div data-ui="table" data-size="md">
+  <table data-part="table">
+    <thead data-part="thead">
+      <tr data-part="tr">
+        <th data-part="th" scope="col">Employee</th>
+        <th data-part="th" scope="col" data-align="right">Hours</th>
+        <th data-part="th" scope="col" data-align="right" data-format="currency">Rate</th>
+      </tr>
+    </thead>
+    <tbody data-part="tbody">
+      <tr data-part="group-header">
+        <td data-part="td" colspan="3">Engineering</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td">Alice Johnson</td>
+        <td data-part="td" data-align="right" data-format="number">40</td>
+        <td data-part="td" data-align="right" data-format="currency">85.00</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td">Bob Smith</td>
+        <td data-part="td" data-align="right" data-format="number">38</td>
+        <td data-part="td" data-align="right" data-format="currency">90.00</td>
+      </tr>
+      <tr data-part="group-header">
+        <td data-part="td" colspan="3">Design</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td">Carol White</td>
+        <td data-part="td" data-align="right" data-format="number">35</td>
+        <td data-part="td" data-align="right" data-format="currency">75.00</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Print compact -->
+<div data-ui="table" data-print="compact" data-size="sm">
+  <table data-part="table">
+    <thead data-part="thead">
+      <tr data-part="tr">
+        <th data-part="th" scope="col">Code</th>
+        <th data-part="th" scope="col">Description</th>
+        <th data-part="th" scope="col" data-align="right" data-format="percent">VAT %</th>
+        <th data-part="th" scope="col" data-align="right" data-format="currency">Amount</th>
+      </tr>
+    </thead>
+    <tbody data-part="tbody">
+      <tr data-part="tr">
+        <td data-part="td">SRV-001</td>
+        <td data-part="td">Consulting</td>
+        <td data-part="td" data-align="right" data-format="percent">19%</td>
+        <td data-part="td" data-align="right" data-format="currency">3,200.00</td>
+      </tr>
+    </tbody>
+    <tfoot data-part="tfoot">
+      <tr data-part="tr">
+        <td data-part="td" colspan="3" data-align="right">Total</td>
+        <td data-part="td" data-align="right" data-format="currency">3,200.00</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<!-- Financial ledger: editable cells, multi-sort, per-column filters, live
+     aggregates, accounting negatives, sticky header, empty-state row -->
+<div data-ui="table" data-variant="bordered" data-size="md"
+     data-editable data-multi-sort data-sort-cycle="tristate"
+     data-sticky-header data-negatives="both" data-locale="en-US" data-currency="USD"
+     style="--table-max-height: calc(var(--space-48) * 2)">
+  <table data-part="table">
+    <thead data-part="thead">
+      <tr data-part="tr">
+        <th data-part="th" scope="col" data-sortable aria-sort="none" data-readonly>Account</th>
+        <th data-part="th" scope="col" data-sortable aria-sort="none" data-readonly>Date</th>
+        <th data-part="th" scope="col" data-sortable aria-sort="none" data-align="right" data-format="currency" data-editable>Debit</th>
+        <th data-part="th" scope="col" data-sortable aria-sort="none" data-align="right" data-format="currency" data-editable>Credit</th>
+      </tr>
+      <tr data-part="filter-row">
+        <td data-part="td"><input data-part="filter-input" type="text" aria-label="Filter Account"></td>
+        <td data-part="td"><input data-part="filter-input" type="text" aria-label="Filter Date"></td>
+        <td data-part="td"><input data-part="filter-input" type="text" aria-label="Filter Debit"></td>
+        <td data-part="td"><input data-part="filter-input" type="text" aria-label="Filter Credit"></td>
+      </tr>
+    </thead>
+    <tbody data-part="tbody">
+      <tr data-part="tr" data-row-id="je-101">
+        <td data-part="td">4010 · Consulting revenue</td>
+        <td data-part="td">2026-06-05</td>
+        <td data-part="td" data-format="currency" data-value=""></td>
+        <td data-part="td" data-format="currency" data-value="8400">$8,400.00</td>
+      </tr>
+      <tr data-part="tr" data-row-id="je-102">
+        <td data-part="td">1200 · Accounts receivable</td>
+        <td data-part="td">2026-06-05</td>
+        <td data-part="td" data-format="currency" data-value="8400">$8,400.00</td>
+        <td data-part="td" data-format="currency" data-value=""></td>
+      </tr>
+      <tr data-part="tr" data-row-id="je-103">
+        <td data-part="td">6100 · Office rent</td>
+        <td data-part="td">2026-06-12</td>
+        <td data-part="td" data-format="currency" data-value="2150">$2,150.00</td>
+        <td data-part="td" data-format="currency" data-value=""></td>
+      </tr>
+      <tr data-part="tr" data-row-id="je-104">
+        <td data-part="td">2050 · Credit note adjustment</td>
+        <td data-part="td">2026-06-18</td>
+        <td data-part="td" data-format="currency" data-value="-350" data-negative>($350.00)</td>
+        <td data-part="td" data-format="currency" data-value=""></td>
+      </tr>
+      <tr data-part="empty" hidden>
+        <td data-part="td" colspan="4">No matching journal entries</td>
+      </tr>
+    </tbody>
+    <tfoot data-part="tfoot">
+      <tr data-part="tr">
+        <td data-part="td" colspan="2" data-align="right">Totals</td>
+        <td data-part="td" data-align="right" data-format="currency" data-aggregate="sum" data-col="2">$10,200.00</td>
+        <td data-part="td" data-align="right" data-format="currency" data-aggregate="sum" data-col="3">$8,400.00</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<!-- Tree table: chart of accounts with roll-up aggregates on parent rows -->
+<div data-ui="table" data-tree data-size="md" data-locale="en-US" data-currency="USD">
+  <table data-part="table" role="treegrid">
+    <thead data-part="thead">
+      <tr data-part="tr">
+        <th data-part="th" scope="col">Account</th>
+        <th data-part="th" scope="col" data-align="right" data-format="currency">Balance</th>
+      </tr>
+    </thead>
+    <tbody data-part="tbody">
+      <tr data-part="tr" data-level="0" data-row-id="assets" aria-level="1" aria-expanded="true">
+        <td data-part="td" data-tree-cell style="--table-level: 0"><button type="button" data-part="expander" aria-expanded="true" aria-label="Toggle"></button>Assets</td>
+        <td data-part="td" data-format="currency" data-aggregate="sum">$61,730.00</td>
+      </tr>
+      <tr data-part="tr" data-level="1" data-row-id="cash" aria-level="2" aria-expanded="true">
+        <td data-part="td" data-tree-cell style="--table-level: 1"><button type="button" data-part="expander" aria-expanded="true" aria-label="Toggle"></button>Cash and equivalents</td>
+        <td data-part="td" data-format="currency" data-aggregate="sum">$27,480.00</td>
+      </tr>
+      <tr data-part="tr" data-level="2" data-row-id="checking" aria-level="3">
+        <td data-part="td" data-tree-cell style="--table-level: 2"><span data-part="expander" data-leaf aria-hidden="true"></span>Operating checking</td>
+        <td data-part="td" data-format="currency" data-value="21980">$21,980.00</td>
+      </tr>
+      <tr data-part="tr" data-level="2" data-row-id="savings" aria-level="3">
+        <td data-part="td" data-tree-cell style="--table-level: 2"><span data-part="expander" data-leaf aria-hidden="true"></span>Reserve savings</td>
+        <td data-part="td" data-format="currency" data-value="5500">$5,500.00</td>
+      </tr>
+      <tr data-part="tr" data-level="1" data-row-id="ar" aria-level="2">
+        <td data-part="td" data-tree-cell style="--table-level: 1"><span data-part="expander" data-leaf aria-hidden="true"></span>Accounts receivable</td>
+        <td data-part="td" data-format="currency" data-value="34250">$34,250.00</td>
+      </tr>
+      <tr data-part="tr" data-level="0" data-row-id="liabilities" aria-level="1" aria-expanded="true">
+        <td data-part="td" data-tree-cell style="--table-level: 0"><button type="button" data-part="expander" aria-expanded="true" aria-label="Toggle"></button>Liabilities</td>
+        <td data-part="td" data-format="currency" data-aggregate="sum">$12,900.00</td>
+      </tr>
+      <tr data-part="tr" data-level="1" data-row-id="ap" aria-level="2">
+        <td data-part="td" data-tree-cell style="--table-level: 1"><span data-part="expander" data-leaf aria-hidden="true"></span>Accounts payable</td>
+        <td data-part="td" data-format="currency" data-value="9400">$9,400.00</td>
+      </tr>
+      <tr data-part="tr" data-level="1" data-row-id="vat" aria-level="2">
+        <td data-part="td" data-tree-cell style="--table-level: 1"><span data-part="expander" data-leaf aria-hidden="true"></span>VAT payable</td>
+        <td data-part="td" data-format="currency" data-value="3500">$3,500.00</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Collapsible groups with per-group aggregates -->
+<div data-ui="table" data-groupable data-size="md" data-locale="en-US" data-currency="USD">
+  <table data-part="table">
+    <thead data-part="thead">
+      <tr data-part="tr">
+        <th data-part="th" scope="col">Cost center</th>
+        <th data-part="th" scope="col" data-align="right" data-format="number">Hours</th>
+        <th data-part="th" scope="col" data-align="right" data-format="currency">Spend</th>
+      </tr>
+    </thead>
+    <tbody data-part="tbody">
+      <tr data-part="group-header" data-state="expanded">
+        <td data-part="td" colspan="2"><button type="button" data-part="expander" aria-expanded="true" aria-label="Toggle group"></button>Engineering</td>
+        <td data-part="td" data-align="right" data-format="currency" data-aggregate="sum" data-col="2">$6,820.00</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td">Platform team</td>
+        <td data-part="td" data-align="right" data-format="number" data-value="40">40</td>
+        <td data-part="td" data-align="right" data-format="currency" data-value="3400">$3,400.00</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td">Mobile team</td>
+        <td data-part="td" data-align="right" data-format="number" data-value="38">38</td>
+        <td data-part="td" data-align="right" data-format="currency" data-value="3420">$3,420.00</td>
+      </tr>
+      <tr data-part="group-header" data-state="expanded">
+        <td data-part="td" colspan="2"><button type="button" data-part="expander" aria-expanded="true" aria-label="Toggle group"></button>Design</td>
+        <td data-part="td" data-align="right" data-format="currency" data-aggregate="sum" data-col="2">$2,625.00</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td">Brand studio</td>
+        <td data-part="td" data-align="right" data-format="number" data-value="35">35</td>
+        <td data-part="td" data-align="right" data-format="currency" data-value="2625">$2,625.00</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Reorderable rows (drag handles), resizable + reorderable + pinned columns,
+     master/detail expansion -->
+<div data-ui="table" data-variant="striped" data-size="md"
+     data-reorderable data-resizable data-col-reorderable data-navigable
+     data-locale="en-US" data-currency="USD">
+  <table data-part="table">
+    <thead data-part="thead">
+      <tr data-part="tr">
+        <th data-part="th" scope="col" data-no-resize data-csv-skip aria-label="Row order"></th>
+        <th data-part="th" scope="col" data-sortable aria-sort="none" data-pin="start">Invoice</th>
+        <th data-part="th" scope="col" data-sortable aria-sort="none">Customer</th>
+        <th data-part="th" scope="col" data-sortable aria-sort="none" data-hide-below="md">Issued</th>
+        <th data-part="th" scope="col" data-sortable aria-sort="none" data-align="right" data-format="currency">Amount</th>
+        <th data-part="th" scope="col">Details</th>
+      </tr>
+    </thead>
+    <tbody data-part="tbody">
+      <tr data-part="tr" data-row-id="inv-2041">
+        <td data-part="td"><button type="button" data-part="drag-handle" aria-label="Reorder row"></button></td>
+        <td data-part="td" data-pin="start">INV-2041</td>
+        <td data-part="td">Deltacorp SRL</td>
+        <td data-part="td" data-hide-below="md">2026-06-01</td>
+        <td data-part="td" data-align="right" data-format="currency" data-value="4200">$4,200.00</td>
+        <td data-part="td"><button type="button" data-part="row-toggle" aria-expanded="false" aria-label="Toggle details"></button></td>
+      </tr>
+      <tr data-part="detail-row" hidden>
+        <td data-part="td" colspan="6">3 line items · Net 30 · Sent 2026-06-01, viewed 2026-06-03</td>
+      </tr>
+      <tr data-part="tr" data-row-id="inv-2042">
+        <td data-part="td"><button type="button" data-part="drag-handle" aria-label="Reorder row"></button></td>
+        <td data-part="td" data-pin="start">INV-2042</td>
+        <td data-part="td">Novatek Industries</td>
+        <td data-part="td" data-hide-below="md">2026-06-04</td>
+        <td data-part="td" data-align="right" data-format="currency" data-value="1875.5">$1,875.50</td>
+        <td data-part="td"><button type="button" data-part="row-toggle" aria-expanded="false" aria-label="Toggle details"></button></td>
+      </tr>
+      <tr data-part="detail-row" hidden>
+        <td data-part="td" colspan="6">1 line item · Net 15 · Sent 2026-06-04</td>
+      </tr>
+      <tr data-part="tr" data-row-id="inv-2043">
+        <td data-part="td"><button type="button" data-part="drag-handle" aria-label="Reorder row"></button></td>
+        <td data-part="td" data-pin="start">INV-2043</td>
+        <td data-part="td">Anthos Partners</td>
+        <td data-part="td" data-hide-below="md">2026-06-09</td>
+        <td data-part="td" data-align="right" data-format="currency" data-value="960">$960.00</td>
+        <td data-part="td"><button type="button" data-part="row-toggle" aria-expanded="false" aria-label="Toggle details"></button></td>
+      </tr>
+      <tr data-part="detail-row" hidden>
+        <td data-part="td" colspan="6">2 line items · Net 30 · Draft</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Responsive stacked mode (forced via data-stacked for static rendering;
+     the controller toggles it below the data-stack-below breakpoint) -->
+<div data-ui="table" data-responsive="stack" data-stack-below="md" data-stacked data-size="md">
+  <table data-part="table">
+    <thead data-part="thead">
+      <tr data-part="tr">
+        <th data-part="th" scope="col">Expense</th>
+        <th data-part="th" scope="col" data-align="right" data-format="currency">Amount</th>
+        <th data-part="th" scope="col">Status</th>
+      </tr>
+    </thead>
+    <tbody data-part="tbody">
+      <tr data-part="tr">
+        <td data-part="td" data-label="Expense">Team offsite catering</td>
+        <td data-part="td" data-label="Amount" data-format="currency" data-value="482.9">$482.90</td>
+        <td data-part="td" data-label="Status">Approved</td>
+      </tr>
+      <tr data-part="tr">
+        <td data-part="td" data-label="Expense">Cloud hosting June</td>
+        <td data-part="td" data-label="Amount" data-format="currency" data-value="1240">$1,240.00</td>
+        <td data-part="td" data-label="Status">Pending</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

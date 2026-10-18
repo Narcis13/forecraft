@@ -1,0 +1,129 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "stat",
+  "version": "1.0.1",
+  "kind": "primitive",
+  "category": "data-display",
+  "description": "Large metric display with number, label, and optional change indicator",
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the label, value, change and icon with descendant selectors, so a progress bar in a stat had its label restyled as the stat's label. All four are the root's children. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='stat']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "value": {
+      "selector": "[data-part='value']",
+      "required": true,
+      "tag_hint": "span",
+      "description": "The metric number or amount"
+    },
+    "label": {
+      "selector": "[data-part='label']",
+      "required": true,
+      "tag_hint": "span",
+      "description": "Descriptive label for the metric"
+    },
+    "change": {
+      "selector": "[data-part='change']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Change indicator showing trend (e.g., +12%, -5%)"
+    },
+    "icon": {
+      "selector": "[data-part='icon']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Optional icon displayed beside the value"
+    }
+  },
+
+  "variants": {
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    },
+    "variant": {
+      "values": ["default", "card"],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "trend": {
+      "values": ["up", "down", "neutral"],
+      "default": "",
+      "attr": "data-trend",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {},
+
+  "a11y": {
+    "required_attrs": ["aria-label on root describing the full stat meaning"],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted", "color-success", "color-destructive", "color-bg", "color-border",
+    "space-1", "space-4", "radius-md", "shadow-sm", "font-heading", "font-body", "text-xs",
+    "text-sm", "text-lg", "text-2xl", "text-3xl", "weight-semibold", "weight-bold", "border-width",
+    "doc-font", "doc-print-border-color", "stat-label-size", "stat-label-color", "stat-value-size",
+    "stat-value-weight", "stat-value-num-font", "stat-change-positive", "stat-change-negative"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"stat\" data-size=\"{size}\">\n  <span data-part=\"label\">{label}</span>\n  <span data-part=\"value\">{value}</span>\n  <span data-part=\"change\" data-trend=\"{trend}\">{change}</span>\n</div>"
+  },
+
+  "safe_transforms": [
+    "change-size",
+    "change-variant",
+    "change-value",
+    "change-label",
+    "add-change-indicator",
+    "remove-change-indicator",
+    "set-trend"
+  ],
+
+  "unsafe_transforms": [
+    "remove-value",
+    "remove-label"
+  ],
+
+  "composition": {
+    "contains": ["badge"],
+    "used_in": ["dashboard-shell", "document", "card"]
+  },
+
+  "files": {
+    "html": "stat.html",
+    "css": "stat.css",
+    "manifest": "stat.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "value-slot-is-required",
+    "label-slot-is-required",
+    "change-slot-is-optional",
+    "sm-size-uses-text-lg",
+    "md-size-uses-text-2xl",
+    "lg-size-uses-text-3xl",
+    "trend-up-shows-green",
+    "trend-down-shows-red",
+    "card-variant-has-border-and-padding"
+  ]
+}

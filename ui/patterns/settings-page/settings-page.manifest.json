@@ -1,0 +1,204 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "settings-page",
+  "version": "1.0.0",
+  "kind": "pattern",
+  "category": "composite",
+  "description": "Settings page with tabbed sections, form fields, and save/discard actions",
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='settings-page']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "header": {
+      "selector": "[data-part='header']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Page header area containing title and description"
+    },
+    "title": {
+      "selector": "[data-part='title']",
+      "required": true,
+      "tag_hint": "h1",
+      "description": "Page heading text"
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Brief page description below the title"
+    },
+    "tabs": {
+      "selector": "[data-ui='tabs']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Tabs component for switching between settings sections. A single-section settings page has no tab strip; four of the five reference layouts are exactly that. Optional since 0.9-04."
+    },
+    "section": {
+      "selector": "[data-part='section']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Individual settings section, typically wrapped in a card"
+    },
+    "section-title": {
+      "selector": "[data-part='section-title']",
+      "required": true,
+      "tag_hint": "h2",
+      "description": "Heading for a settings section"
+    },
+    "section-description": {
+      "selector": "[data-part='section-description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Brief description for a settings section"
+    },
+    "field-group": {
+      "selector": "[data-part='field-group']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Label and input pair container within a section"
+    },
+    "actions": {
+      "selector": "[data-part='actions']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Sticky action bar with save and discard buttons"
+    },
+    "save-button": {
+      "selector": "[data-part='save-button']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Primary save/submit button"
+    },
+    "discard-button": {
+      "selector": "[data-part='discard-button']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Secondary discard/reset button"
+    },
+    "confirm-dialog": {
+      "selector": "[data-part='confirm-dialog']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Unsaved changes confirmation dialog"
+    }
+  },
+  "variants": {
+    "layout": {
+      "values": [
+        "vertical",
+        "horizontal"
+      ],
+      "default": "vertical",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+  "states": {
+    "default": {
+      "attr": "data-state=\"default\"",
+      "default": true
+    },
+    "dirty": {
+      "attr": "data-state=\"dirty\"",
+      "description": "Form has unsaved changes"
+    },
+    "saving": {
+      "attr": "data-state=\"saving\"",
+      "description": "Save operation in progress"
+    },
+    "saved": {
+      "attr": "data-state=\"saved\"",
+      "description": "Changes have been saved successfully"
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "aria-labelledby on root pointing to title id",
+      "role=\"tablist\" on tabs list",
+      "role=\"tab\" on each tab trigger",
+      "role=\"tabpanel\" on each tab panel",
+      "for attribute on labels pointing to input ids",
+      "aria-invalid on fields with errors",
+      "role=\"switch\" on switch toggles",
+      "aria-checked on switch toggles",
+      "role=\"dialog\" on confirm-dialog panel",
+      "aria-modal=\"true\" on confirm-dialog panel"
+    ],
+    "keyboard": {
+      "Tab": "move focus through form fields and interactive elements",
+      "Enter": "submit form or activate focused button",
+      "Escape": "close confirmation dialog if open",
+      "ArrowLeft": "navigate between tabs",
+      "ArrowRight": "navigate between tabs"
+    }
+  },
+  "tokens_used": [
+    "color-bg", "color-fg", "color-fg-muted", "color-border", "color-primary",
+    "color-border-strong", "space-1", "space-2", "space-3", "space-4", "space-6", "space-8",
+    "space-48", "radius-lg", "shadow-md", "font-heading", "font-body", "heading-tracking",
+    "heading-transform", "heading-caps", "heading-leading", "text-sm", "text-lg", "text-xl",
+    "weight-semibold", "leading-tight", "leading-normal", "duration-fast", "ease-default",
+    "z-sticky", "border-width", "border-width-strong"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"settings-page\" data-state=\"default\" aria-labelledby=\"{id}-title\">\n  <div data-part=\"header\">\n    <h1 data-part=\"title\" id=\"{id}-title\">{title}</h1>\n    <p data-part=\"description\">{description}</p>\n  </div>\n  <div data-ui=\"tabs\">{tabs}</div>\n  <div data-part=\"actions\">\n    <button data-ui=\"button\" data-part=\"discard-button\" data-variant=\"outline\">{discard}</button>\n    <button data-ui=\"button\" data-part=\"save-button\" data-variant=\"primary\">{save}</button>\n  </div>\n</div>"
+  },
+  "safe_transforms": [
+    "add-tab-section",
+    "remove-tab-section",
+    "add-field-group",
+    "remove-field-group",
+    "change-layout-variant",
+    "restyle-action-bar",
+    "change-section-title",
+    "add-section-description",
+    "swap-field-type",
+    "customize-confirm-dialog-text"
+  ],
+  "unsafe_transforms": [
+    "remove-actions-bar",
+    "remove-tabs",
+    "remove-confirm-dialog",
+    "remove-form-labels",
+    "remove-aria-labelledby",
+    "flatten-sections"
+  ],
+  "composition": {
+    "contains": [
+      "tabs",
+      "card",
+      "input",
+      "select",
+      "switch",
+      "button",
+      "dialog"
+    ],
+    "used_in": []
+  },
+  "files": {
+    "html": "settings-page.html",
+    "css": "settings-page.css",
+    "manifest": "settings-page.manifest.json"
+  },
+  "tests": [
+    "renders-as-div-with-data-ui-settings-page",
+    "header-slot-is-required",
+    "title-slot-is-required",
+    "tabs-component-is-present",
+    "actions-bar-is-present",
+    "save-button-is-present",
+    "discard-button-is-present",
+    "field-groups-contain-label-and-input",
+    "sections-are-wrapped-in-cards",
+    "default-state-is-set",
+    "dirty-state-shows-action-bar",
+    "saving-state-disables-save-button",
+    "horizontal-variant-places-tabs-left",
+    "confirm-dialog-has-role-dialog",
+    "confirm-dialog-has-aria-modal",
+    "title-is-linked-via-aria-labelledby",
+    "labels-have-for-attribute"
+  ]
+}

@@ -1,0 +1,216 @@
+/* @ui:component text */
+/* @ui:tokens color-fg color-fg-muted color-primary color-destructive font-heading font-body font-mono font-ui heading-weight heading-tracking heading-transform heading-caps heading-leading text-xs text-sm text-base text-lg text-xl text-2xl text-3xl text-4xl weight-normal weight-medium weight-semibold weight-bold leading-tight leading-snug leading-normal leading-relaxed link-decoration link-thickness link-underline-offset focus-ring-width focus-ring-style focus-ring-color focus-ring-offset focus-shadow mono-ligatures space-2 */
+
+/* ── Heading ── */
+[data-ui="heading"] {
+  font-family: var(--font-heading);
+  font-weight: var(--heading-weight);
+  color: var(--color-fg);
+  line-height: var(--heading-leading);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  /* The optical tightening a large heading needs, PLUS whatever tracking the
+     theme's voice asks for on top of it — so a theme that wants wide-tracked
+     headings sets --heading-tracking once and every size follows, instead of
+     each size having to re-derive its own number. */
+  letter-spacing: calc(-0.01em + var(--heading-tracking));
+  /* A heading that is one unbreakable token (an id, a path) may break anywhere.
+     `anywhere`, not `break-word`: only it lowers the min-content width a flex
+     or grid parent sizes the heading by. */
+  overflow-wrap: anywhere;
+}
+
+[data-ui="heading"][data-size="1"] {
+  font-size: var(--text-4xl);
+  letter-spacing: calc(-0.02em + var(--heading-tracking));
+}
+
+[data-ui="heading"][data-size="2"] {
+  font-size: var(--text-3xl);
+  letter-spacing: calc(-0.02em + var(--heading-tracking));
+}
+
+[data-ui="heading"][data-size="3"] {
+  font-size: var(--text-2xl);
+}
+
+[data-ui="heading"][data-size="4"] {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+}
+
+[data-ui="heading"][data-size="5"] {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+[data-ui="heading"][data-size="6"] {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+}
+
+/* ── Text ── */
+[data-ui="text"] {
+  font-family: var(--font-body);
+  color: var(--color-fg);
+}
+
+/* Text sizes */
+[data-ui="text"][data-size="xs"] { font-size: var(--text-xs); }
+[data-ui="text"][data-size="sm"] { font-size: var(--text-sm); }
+[data-ui="text"][data-size="base"] { font-size: var(--text-base); }
+[data-ui="text"][data-size="lg"] { font-size: var(--text-lg); }
+[data-ui="text"][data-size="xl"] { font-size: var(--text-xl); }
+
+/* Display — oversized, fluid type for a landing hero, on a heading or on text.
+   It takes the theme's whole heading voice (family, weight, tracking, case, caps)
+   whichever root carries it, so a serif or shouting theme follows. The size
+   starts at the largest step of the type scale (or 11vw on a phone, whichever
+   is smaller, so a large-scale theme does not split ordinary words), grows with the viewport and stops
+   at two and a quarter times that; lines run nearly solid, and the glyph box is
+   not the line box, so an inline highlight's background is not cut by them.
+   `anywhere` lets one long word break instead of widening the page at 360px;
+   `balance` keeps the lines of a short, large phrase level. It sits before the
+   weight, leading and alignment rules below so each of those can still adjust it. */
+[data-ui="text"][data-size="display"],
+[data-ui="heading"][data-size="display"] {
+  font-family: var(--font-heading);
+  font-weight: var(--heading-weight);
+  font-size: clamp(min(var(--text-4xl), 11vw), 1rem + 6vw, calc(var(--text-4xl) * 2.25));
+  line-height: 1;
+  letter-spacing: calc(-0.03em + var(--heading-tracking));
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+/* Text color variants */
+[data-ui="text"][data-variant="muted"] { color: var(--color-fg-muted); }
+[data-ui="text"][data-variant="subtle"] { color: var(--color-fg-muted); }
+[data-ui="text"][data-variant="primary"] { color: var(--color-primary); }
+
+/* Eyebrow — the small kicker above a headline ("New", "Case study"). Wide-tracked
+   capitals in the control face, semibold, in the accent. There is no separate
+   "primary as text" token: --color-primary is the one the themes tune for text
+   contrast on both schemes (it is what variant="primary" already uses). The size
+   is a default only, in :where() so a data-size on the same element still wins. */
+[data-ui="text"][data-variant="eyebrow"] {
+  font-family: var(--font-ui);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+[data-ui="text"]:where([data-variant="eyebrow"]) {
+  font-size: var(--text-xs);
+}
+
+/* Text weight */
+[data-ui="text"][data-weight="normal"] { font-weight: var(--weight-normal); }
+[data-ui="text"][data-weight="medium"] { font-weight: var(--weight-medium); }
+[data-ui="text"][data-weight="semibold"] { font-weight: var(--weight-semibold); }
+[data-ui="text"][data-weight="bold"] { font-weight: var(--weight-bold); }
+
+/* Text leading */
+[data-ui="text"][data-leading="tight"] { line-height: var(--leading-tight); }
+[data-ui="text"][data-leading="snug"] { line-height: var(--leading-snug); }
+[data-ui="text"][data-leading="normal"] { line-height: var(--leading-normal); }
+[data-ui="text"][data-leading="relaxed"] { line-height: var(--leading-relaxed); }
+
+/* Text alignment */
+[data-ui="text"][data-align="center"],
+[data-ui="heading"][data-align="center"] {
+  text-align: center;
+}
+
+[data-ui="text"][data-align="right"],
+[data-ui="heading"][data-align="right"] {
+  text-align: end;
+}
+
+/* Monospace variant */
+[data-ui="text"][data-variant="mono"] {
+  font-family: var(--font-mono);
+  font-variant-ligatures: var(--mono-ligatures);
+  /* Mono text is where ids and hashes live; see the heading rule above. */
+  overflow-wrap: anywhere;
+}
+
+/* Truncate */
+[data-ui="text"][data-truncate] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Extended sizes */
+[data-ui="text"][data-size="2xl"] { font-size: var(--text-2xl); }
+[data-ui="text"][data-size="3xl"] { font-size: var(--text-3xl); }
+[data-ui="text"][data-size="4xl"] { font-size: var(--text-4xl); }
+
+/* Destructive variant */
+[data-ui="text"][data-variant="destructive"] { color: var(--color-destructive); }
+
+/* Link — an anchor carrying data-ui="text". The reset takes every anchor's
+   colour and underline away; this hands the underline back and nothing else, so
+   an id or a ref in a table reads as a link in the text's own colour, variant
+   and size. `:any-link`, not `[href]`: it selects on no attribute. It sits
+   before the done state so a done link keeps its strikethrough. */
+[data-ui="text"]:any-link {
+  text-decoration-line: var(--link-decoration);
+  text-decoration-thickness: var(--link-thickness);
+  text-underline-offset: var(--link-underline-offset);
+  text-decoration-color: currentColor;
+  cursor: pointer;
+}
+
+[data-ui="text"]:any-link:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-shadow);
+}
+
+/* Done state */
+[data-ui="text"][data-state="done"] {
+  text-decoration: line-through;
+  color: var(--color-fg-muted);
+}
+
+/* Tabular — inline-block with min-width for aligned label/value lists */
+[data-ui="text"][data-tabular] {
+  /* A component knob, not a design token — declared here so it always resolves
+     and an author can see what to override (inline, or on this rule). It is NOT
+     a member of the --text-* type scale despite the name it inherited. */
+  --text-tabular-width: 8ch;
+
+  display: inline-block;
+  min-width: var(--text-tabular-width);
+}
+
+/* Drop cap — the first letter of a paragraph, set large in the heading face and
+   the accent. Where `initial-letter` is understood the browser sinks it three
+   lines and aligns its cap height to the first line's, which is the correct
+   drop cap. Elsewhere a float stands in: a four-times capital whose box is
+   shorter than the three lines it spans, so the text wraps beside it. The
+   float approximates the sink (it assumes ordinary leading); both put the
+   letter on the inline-start side, and the gap on its inline end. */
+[data-ui="text"][data-dropcap]::first-letter {
+  float: inline-start;
+  margin-inline-end: var(--space-2);
+  font-family: var(--font-heading);
+  font-weight: var(--heading-weight);
+  font-size: 4em;
+  line-height: 0.8;
+  color: var(--color-primary);
+}
+
+@supports (initial-letter: 3) {
+  [data-ui="text"][data-dropcap]::first-letter {
+    float: none;
+    initial-letter: 3;
+    font-size: inherit;
+    line-height: inherit;
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "avatar",
+  "version": "1.1.1",
+  "kind": "primitive",
+  "category": "data-display",
+  "description": "User avatar with image and fallback initials",
+
+  "changes": [
+    {
+      "version": "1.1.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the image and fallback with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Both are the root's children. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "Align sm, md, and lg atomic inline boxes to one bottom baseline so mixed-size avatar rows no longer stagger.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "span",
+    "selector": "[data-ui='avatar']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "image": {
+      "selector": "[data-part='image']",
+      "required": false,
+      "tag_hint": "img",
+      "description": "Avatar image element"
+    },
+    "fallback": {
+      "selector": "[data-part='fallback']",
+      "required": true,
+      "tag_hint": "span",
+      "description": "Fallback initials shown when image is missing or fails to load"
+    }
+  },
+
+  "variants": {
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {
+    "src": { "type": "string", "default": "", "description": "Image source URL" },
+    "alt": { "type": "string", "default": "", "description": "Image alt text" },
+    "fallback": { "type": "string", "default": "", "description": "Fallback initials text" }
+  },
+
+  "a11y": {
+    "required_attrs": ["img must have alt attribute"],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-bg-muted", "color-fg-muted", "radius-full", "font-ui", "text-xs", "text-sm", "text-base",
+    "weight-medium", "avatar-size-md", "avatar-radius", "avatar-size-sm", "avatar-size-lg"
+  ],
+
+  "templates": {
+    "html": "<span data-ui=\"avatar\" data-size=\"{size}\">\n  <img data-part=\"image\" src=\"{src}\" alt=\"{alt}\">\n  <span data-part=\"fallback\" hidden>{initials}</span>\n</span>",
+    "html_fallback_only": "<span data-ui=\"avatar\" data-size=\"{size}\">\n  <span data-part=\"fallback\">{initials}</span>\n</span>"
+  },
+
+  "safe_transforms": [
+    "change-size",
+    "swap-image-src",
+    "change-fallback-text"
+  ],
+
+  "unsafe_transforms": [
+    "remove-fallback-slot",
+    "remove-alt-attribute-from-image"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["dashboard-shell"]
+  },
+
+  "files": {
+    "html": "avatar.html",
+    "css": "avatar.css",
+    "manifest": "avatar.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-span-element",
+    "fallback-slot-is-required",
+    "image-slot-is-optional",
+    "image-has-alt-attribute",
+    "sm-size-sets-data-size-sm",
+    "all-sizes-share-one-computed-bottom-baseline",
+    "every-size-keeps-the-required-part-set",
+    "fallback-shows-initials"
+  ]
+}

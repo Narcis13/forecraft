@@ -1,0 +1,117 @@
+<!-- @ui:component sidebar -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots overlay panel header brand brand-icon brand-label trigger nav item icon label footer -->
+<!-- @ui:states expanded rail drawer drawer-open -->
+<!-- @ui:controller sidebar.js -->
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Full app-shell composition: a collapsible sidebar beside a header + main.
+     On desktop the toggle flips expanded ↔ rail; below the breakpoint the
+     sidebar becomes an off-canvas drawer opened by the header button (which
+     targets the sidebar by id via data-sidebar-toggle).
+     ───────────────────────────────────────────────────────────────────────── -->
+<div style="display: flex; min-block-size: 100dvh">
+
+  <!-- ── Sidebar ── -->
+  <div data-ui="sidebar" data-state="expanded" id="app-sidebar">
+    <div data-part="overlay" hidden></div>
+
+    <aside data-part="panel" aria-label="Primary navigation">
+      <div data-part="header">
+        <a data-part="brand" href="#" aria-label="Acme home">
+          <span data-part="brand-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="currentColor"/></svg>
+          </span>
+          <span data-part="brand-label">Acme</span>
+        </a>
+        <button data-part="trigger" aria-label="Toggle sidebar" aria-expanded="true" aria-controls="app-sidebar">
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M10 3.5L5.5 8l4.5 4.5L8.5 14 2.5 8l6-6z"/></svg>
+        </button>
+      </div>
+
+      <nav data-part="nav" aria-label="Main">
+        <a data-part="item" href="#" aria-current="page">
+          <span data-part="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1L1 6v9h5v-5h4v5h5V6L8 1z"/></svg></span>
+          <span data-part="label">Dashboard</span>
+        </a>
+        <a data-part="item" href="#">
+          <span data-part="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16"><path fill="currentColor" d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg></span>
+          <span data-part="label">Orders</span>
+        </a>
+        <a data-part="item" href="#">
+          <span data-part="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 2a2 2 0 110 4 2 2 0 010-4zm0 10c-2 0-3.8-1-4.9-2.5C4.6 9.2 11.4 9.2 12.9 10.5 11.8 12 10 13 8 13z"/></svg></span>
+          <span data-part="label">Customers</span>
+        </a>
+        <a data-part="item" href="#">
+          <span data-part="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16"><path fill="currentColor" d="M2 2h5v5H2zm7 0h5v5H9zM2 9h5v5H2zm7 0h5v5H9z"/></svg></span>
+          <span data-part="label">Analytics</span>
+        </a>
+      </nav>
+
+      <div data-part="footer">
+        <a data-part="item" href="#">
+          <span data-part="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1a7 7 0 100 14A7 7 0 008 1zm1 4.5a1 1 0 11-2 0 1 1 0 012 0zM7 7h2v5H7V7z"/></svg></span>
+          <span data-part="label">Settings</span>
+        </a>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ── Main area ── -->
+  <div style="flex: 1 1 auto; display: flex; flex-direction: column; min-inline-size: 0">
+    <header role="banner" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-block-end: 1px solid var(--color-border)">
+      <!-- External toggle: opens the drawer on mobile, flips expanded/rail on desktop -->
+      <button
+        data-ui="button"
+        data-variant="ghost"
+        data-sidebar-toggle="app-sidebar"
+        aria-controls="app-sidebar"
+        aria-expanded="true"
+        aria-label="Toggle sidebar"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1 3h14v2H1zm0 4h14v2H1zm0 4h14v2H1z"/></svg>
+      </button>
+      <strong>Dashboard</strong>
+    </header>
+
+    <main role="main" style="flex: 1 1 auto; padding: 1.5rem; min-inline-size: 0">
+      <p>Application content sits beside the sidebar. Resize below the breakpoint to see the sidebar become an off-canvas drawer.</p>
+    </main>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Rail (icons-only) initial state — agents can set data-state="rail"
+     declaratively to boot collapsed.
+     ───────────────────────────────────────────────────────────────────────── -->
+<div style="display: flex; min-block-size: 24rem">
+  <div data-ui="sidebar" data-state="rail" id="rail-sidebar">
+    <div data-part="overlay" hidden></div>
+    <aside data-part="panel" aria-label="Compact navigation">
+      <div data-part="header">
+        <a data-part="brand" href="#" aria-label="Acme home">
+          <span data-part="brand-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="currentColor"/></svg>
+          </span>
+          <span data-part="brand-label">Acme</span>
+        </a>
+        <button data-part="trigger" aria-label="Toggle sidebar" aria-expanded="false" aria-controls="rail-sidebar">
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M10 3.5L5.5 8l4.5 4.5L8.5 14 2.5 8l6-6z"/></svg>
+        </button>
+      </div>
+      <nav data-part="nav" aria-label="Main">
+        <a data-part="item" href="#" aria-current="page" aria-label="Dashboard">
+          <span data-part="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1L1 6v9h5v-5h4v5h5V6L8 1z"/></svg></span>
+          <span data-part="label">Dashboard</span>
+        </a>
+        <a data-part="item" href="#" aria-label="Orders">
+          <span data-part="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16"><path fill="currentColor" d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg></span>
+          <span data-part="label">Orders</span>
+        </a>
+      </nav>
+    </aside>
+  </div>
+  <main role="main" style="flex: 1 1 auto; padding: 1.5rem; min-inline-size: 0">
+    <p>Content beside a rail sidebar.</p>
+  </main>
+</div>

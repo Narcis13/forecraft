@@ -1,0 +1,261 @@
+/* @ui:component grid */
+/* @ui:tokens space-0 space-1 space-2 space-3 space-4 space-6 space-8 space-10 space-12 space-16 */
+
+/* CSS Grid, mobile-first on the canon (task 0.8-04).
+ *
+ * `data-cols` is the base at EVERY width; `data-cols-{sm,md,lg,xl}` override it
+ * from that tier's `min-width` floor up (FAQIR-SPEC §15). This inverts the 1.x
+ * sheet, where `data-cols` was desktop-only and a blanket rule collapsed every
+ * grid to one column at ≤640px — collapsing is now an explicit authoring
+ * choice: `data-cols="1" data-cols-md="2" data-cols-lg="4"`.
+ *
+ * Tier precedence is encoded in SPECIFICITY, not source order: each tier block
+ * repeats `[data-ui="grid"]` once more than the tier below it (base (0,2,0),
+ * sm (0,3,0), md (0,4,0), lg (0,5,0), xl (0,6,0)), so a bundler that reorders
+ * or splits blocks cannot change which tier wins. The 1.x sheet resolved its
+ * overrides purely by document order at equal specificity — and its
+ * `max-width: 640px` / `min-width: 641px` range pair left a dead zone at
+ * fractional widths (640.5px matched neither); `min-width` floors leave none.
+ *
+ * `data-cols="auto"` is the intrinsic mode the doctrine says to reach for
+ * first (§15 doctrine 1): `repeat(auto-fit, minmax(min(100%, var(--grid-min)),
+ * 1fr))` — the column count derives from the space available, zero media
+ * queries. `data-min` moves the item floor over rem steps; it lives on the
+ * base rule at (0,1,0) so the `data-min` rules at (0,2,0) override it at any
+ * source position.
+ *
+ * `data-align-rows` is the cross-card alignment mode. Direct card children
+ * share exactly four row tracks (header, divider, body, footer) through
+ * subgrid. The feature-query fallback makes every card span the full grid
+ * instead: an older engine loses side-by-side density, never the visual truth
+ * of corresponding rows. Equal outer heights alone cannot provide that truth.
+ */
+
+/* ── Base ── */
+[data-ui="grid"] {
+  display: grid;
+  --grid-min: 16rem;
+}
+
+[data-ui="grid"][data-align-rows] {
+  align-items: stretch;
+}
+
+/* ── Columns — the base, at every width ──
+ * Tracks are `minmax(0, 1fr)`, not `1fr`: a bare `1fr` is `minmax(auto, 1fr)`,
+ * whose floor is the widest item's min-content, so one wide table or an
+ * unbreakable id widened the whole grid past its container. The floor is on
+ * the track rather than on the items (`> * { min-inline-size: 0 }`) because
+ * the `data-scroll` restore below sets the items' `min-inline-size` itself. */
+[data-ui="grid"][data-cols="1"] {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+[data-ui="grid"][data-cols="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+[data-ui="grid"][data-cols="3"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+[data-ui="grid"][data-cols="4"] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+[data-ui="grid"][data-cols="6"] {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+[data-ui="grid"][data-cols="12"] {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+/* ── Intrinsic mode — as many columns as fit, no query at all ── */
+[data-ui="grid"][data-cols="auto"] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min)), 1fr));
+}
+
+/* ── Item floor for the intrinsic mode (rem, not spacing steps) ── */
+[data-ui="grid"][data-min="8"] { --grid-min: 8rem; }
+[data-ui="grid"][data-min="12"] { --grid-min: 12rem; }
+[data-ui="grid"][data-min="16"] { --grid-min: 16rem; }
+[data-ui="grid"][data-min="20"] { --grid-min: 20rem; }
+[data-ui="grid"][data-min="24"] { --grid-min: 24rem; }
+
+/* ── Gap ── */
+[data-ui="grid"][data-gap="0"] { gap: var(--space-0, 0px); }
+[data-ui="grid"][data-gap="1"] { gap: var(--space-1); }
+[data-ui="grid"][data-gap="2"] { gap: var(--space-2); }
+[data-ui="grid"][data-gap="3"] { gap: var(--space-3); }
+[data-ui="grid"][data-gap="4"] { gap: var(--space-4); }
+[data-ui="grid"][data-gap="6"] { gap: var(--space-6); }
+[data-ui="grid"][data-gap="8"] { gap: var(--space-8); }
+[data-ui="grid"][data-gap="10"] { gap: var(--space-10); }
+[data-ui="grid"][data-gap="12"] { gap: var(--space-12); }
+[data-ui="grid"][data-gap="16"] { gap: var(--space-16); }
+
+/* ── Child span ──
+ * Holds at every width. The 1.x sheet crushed every span to `span 1` below
+ * 640px as part of the forced collapse; a child now keeps its span until the
+ * author changes the column count with a tier. */
+[data-ui="grid"] > [data-span="2"] {
+  grid-column: span 2;
+}
+
+[data-ui="grid"] > [data-span="3"] {
+  grid-column: span 3;
+}
+
+[data-ui="grid"] > [data-span="4"] {
+  grid-column: span 4;
+}
+
+[data-ui="grid"] > [data-span="6"] {
+  grid-column: span 6;
+}
+
+[data-ui="grid"] > [data-span="full"] {
+  grid-column: 1 / -1;
+}
+
+/* ── Cross-card row alignment ──
+ * Four rows is a deliberate contract, not an inferred child count. A wrapping
+ * grid creates a fresh four-track group for each visual row, so only cards that
+ * are actually side by side share their intrinsic maxima. */
+@supports (grid-template-rows: subgrid) {
+  [data-ui="grid"][data-align-rows] > [data-ui="card"] {
+    display: grid;
+    grid-row: span 4;
+    grid-template-rows: subgrid;
+  }
+}
+
+/* Correct fallback: without subgrid there must be no side-by-side cards whose
+ * internal landmarks pretend to align. Each card spans the grid and keeps the
+ * card primitive's intrinsic flex layout and complete content order. */
+@supports not (grid-template-rows: subgrid) {
+  [data-ui="grid"][data-align-rows] > [data-ui="card"] {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ── Scroll strip — mobile-first ──
+ * Below `sm` the grid is a horizontal snap strip; the sm tier block restores
+ * the grid. The restore carries the sm specificity boost, so it beats these
+ * base rules wherever a bundler puts them. */
+[data-ui="grid"][data-scroll] {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-block-end: var(--space-2);
+}
+
+[data-ui="grid"][data-scroll] > * {
+  min-inline-size: 280px;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* ── Tier `sm` — from 40rem up ── */
+@media (min-width: 40rem) {
+  [data-ui="grid"][data-ui="grid"][data-cols-sm="1"] { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-cols-sm="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-cols-sm="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-cols-sm="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-cols-sm="6"] { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-cols-sm="12"] { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-cols-sm="auto"] { grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min)), 1fr)); }
+
+  [data-ui="grid"][data-ui="grid"][data-gap-sm="0"] { gap: var(--space-0, 0px); }
+  [data-ui="grid"][data-ui="grid"][data-gap-sm="1"] { gap: var(--space-1); }
+  [data-ui="grid"][data-ui="grid"][data-gap-sm="2"] { gap: var(--space-2); }
+  [data-ui="grid"][data-ui="grid"][data-gap-sm="3"] { gap: var(--space-3); }
+  [data-ui="grid"][data-ui="grid"][data-gap-sm="4"] { gap: var(--space-4); }
+  [data-ui="grid"][data-ui="grid"][data-gap-sm="6"] { gap: var(--space-6); }
+  [data-ui="grid"][data-ui="grid"][data-gap-sm="8"] { gap: var(--space-8); }
+  [data-ui="grid"][data-ui="grid"][data-gap-sm="10"] { gap: var(--space-10); }
+  [data-ui="grid"][data-ui="grid"][data-gap-sm="12"] { gap: var(--space-12); }
+  [data-ui="grid"][data-ui="grid"][data-gap-sm="16"] { gap: var(--space-16); }
+
+  /* Restore the grid a `data-scroll` strip collapsed to. */
+  [data-ui="grid"][data-ui="grid"][data-scroll] {
+    display: grid;
+    overflow-x: visible;
+    scroll-snap-type: none;
+    padding-block-end: 0;
+  }
+
+  [data-ui="grid"][data-ui="grid"][data-scroll] > * {
+    min-inline-size: auto;
+    scroll-snap-align: none;
+    flex-shrink: 1;
+  }
+}
+
+/* ── Tier `md` — from 48rem up ── */
+@media (min-width: 48rem) {
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-md="1"] { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-md="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-md="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-md="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-md="6"] { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-md="12"] { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-md="auto"] { grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min)), 1fr)); }
+
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-md="0"] { gap: var(--space-0, 0px); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-md="1"] { gap: var(--space-1); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-md="2"] { gap: var(--space-2); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-md="3"] { gap: var(--space-3); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-md="4"] { gap: var(--space-4); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-md="6"] { gap: var(--space-6); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-md="8"] { gap: var(--space-8); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-md="10"] { gap: var(--space-10); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-md="12"] { gap: var(--space-12); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-md="16"] { gap: var(--space-16); }
+}
+
+/* ── Tier `lg` — from 64rem up ── */
+@media (min-width: 64rem) {
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-lg="1"] { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-lg="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-lg="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-lg="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-lg="6"] { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-lg="12"] { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-lg="auto"] { grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min)), 1fr)); }
+
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-lg="0"] { gap: var(--space-0, 0px); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-lg="1"] { gap: var(--space-1); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-lg="2"] { gap: var(--space-2); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-lg="3"] { gap: var(--space-3); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-lg="4"] { gap: var(--space-4); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-lg="6"] { gap: var(--space-6); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-lg="8"] { gap: var(--space-8); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-lg="10"] { gap: var(--space-10); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-lg="12"] { gap: var(--space-12); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-lg="16"] { gap: var(--space-16); }
+}
+
+/* ── Tier `xl` — from 80rem up ── */
+@media (min-width: 80rem) {
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-xl="1"] { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-xl="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-xl="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-xl="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-xl="6"] { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-xl="12"] { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-cols-xl="auto"] { grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min)), 1fr)); }
+
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-xl="0"] { gap: var(--space-0, 0px); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-xl="1"] { gap: var(--space-1); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-xl="2"] { gap: var(--space-2); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-xl="3"] { gap: var(--space-3); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-xl="4"] { gap: var(--space-4); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-xl="6"] { gap: var(--space-6); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-xl="8"] { gap: var(--space-8); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-xl="10"] { gap: var(--space-10); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-xl="12"] { gap: var(--space-12); }
+  [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-ui="grid"][data-gap-xl="16"] { gap: var(--space-16); }
+}

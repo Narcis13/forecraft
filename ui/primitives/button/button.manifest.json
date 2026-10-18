@@ -1,0 +1,170 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "button",
+  "version": "1.4.0",
+  "kind": "primitive",
+  "category": "actions",
+  "description": "Interactive button with multiple visual variants and sizes",
+
+  "changes": [
+    {
+      "version": "1.4.0",
+      "note": "Two more data-effect values for landing pages. arrow: the trailing icon part (the last child) leans one --space-1 toward the inline end on hover and focus-visible, flipped under :dir(rtl), where the glyph is also mirrored so an arrow-right points the way it moves; CSS cannot tell a trailing icon from a lone leading one, so use it only on a button whose icon trails; the movement exists only under prefers-reduced-motion: no-preference. sink: the neo-brutalist press. The button rests on the theme's --shadow-md (a hard offset in a hard-depth theme, a soft one elsewhere), lifts off it on hover (--shadow-lg, up and back by the sink distance) and on :active (the pointer, or Space held on the keyboard) collapses to --shadow-xs while travelling the same distance the other way. Two new custom-property knobs, --sink-distance and --sink-shadow. No change for a button without the attribute or with the existing values.",
+      "breaking": false
+    },
+    {
+      "version": "1.3.0",
+      "note": "A data-effect prop, additive to every variant: shine (a highlight sweeps across the face on hover and focus), pulse (a ring leaves the edge on a loop, cut from --motion-ambient-duration and frozen by --motion-ambient-play) and press (sinks to 0.96 under the pointer). The ring is drawn by ::before, so it never collides with the loading spinner on ::after. Every effect has a reduced-motion fallback. No change for a button without the attribute.",
+      "breaking": false
+    },
+    {
+      "version": "1.2.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the icon with descendant selectors, so a component nested inside with parts of the same name took this one's styles. The icon is the button's child. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.2.0",
+      "note": "New state `pressed` (aria-pressed=\"true\"): a toggle button in the default, outline or ghost variant now shows that it is on (--color-primary-subtle fill, --color-primary border and text), with a :hover twin and a forced-colors rule (Highlight / HighlightText). Filled variants get no pressed style; use the toggle primitive there. Also fixed: a link button with data-size kept the size's control height and inline padding (32px tall, 12px padding at sm), because the size rules have the link rule's specificity and come later. Link + size now means the size's font size in the text's own box.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "data-full is now declared (it was in button.css and in no manifest, so the docs site, the skill, faqir context and the vue/react bindings did not know it existed). It is a boolean prop rather than a variant or a state, by the reasoning stack's data-wrap settled in 0.8-03: it is authored, static, and valueless presence. No CSS or behaviour change. 0.8-10's undeclared-attribute rule now makes this class of drift impossible: an attribute a component's CSS selects on that its manifest never declares fails the registry gate.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "button",
+    "selector": "[data-ui='button']",
+    "content_model": "inline"
+  },
+
+  "slots": {
+    "icon": {
+      "selector": "[data-part='icon']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Optional icon container, leading by default; as the last child it is the trailing icon that data-effect=\"arrow\" leans toward the inline end"
+    }
+  },
+
+  "variants": {
+    "visual": {
+      "values": ["default", "primary", "secondary", "destructive", "ghost", "outline", "link"],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "default": { "attr": "data-state=\"default\"", "default": true },
+    "loading": { "attr": "data-state=\"loading\"" },
+    "disabled": { "attr": "disabled" },
+    "pressed": {
+      "attr": "aria-pressed",
+      "description": "A toggle button that is on: aria-pressed=\"true\". Styled for the default, outline and ghost variants; primary, secondary, destructive and link have no pressed style (use the toggle primitive). A button that is not a toggle carries no aria-pressed at all, and the page flips the value: button ships no controller."
+    }
+  },
+
+  "props": {
+    "effect": {"type":"enum","values":["shine","pulse","press","arrow","sink"],"attr":"data-effect","description":"Attention on top of the variant: shine sweeps a highlight across the face on hover; pulse sends a ring out from the edge on a loop — for the one action the screen is waiting on, never two; press sinks the button under the pointer; arrow leans the trailing icon part toward the inline end on hover and focus (give it an arrow-right icon as its last child; not for a button whose only icon leads); sink rests the button on the theme's shadow and presses it flush on :active — a hard offset in a hard-depth theme, a soft one elsewhere."},
+    "--sink-distance": {"type":"string","default":"calc(var(--space-1) / 2)","description":"With data-effect=sink: how far the button lifts on hover and travels on :active (custom property). Match it to the theme's hard-shadow offset."},
+    "--sink-shadow": {"type":"string","default":"var(--shadow-md) at rest, var(--shadow-lg) on hover","description":"With data-effect=sink: replaces the resting and hover shadow (custom property), for a theme that sets every --shadow-* to none. Pass a shadow built from tokens."},
+    "caption": { "type": "string", "default": "Click me", "description": "Button label text" },
+    "icon": { "type": "string", "default": "", "description": "Icon content for the icon slot" },
+    "disabled": { "type": "boolean", "default": false, "description": "Whether the button is disabled" },
+    "full": { "type": "boolean", "default": false, "attr": "data-full", "description": "Stretch the button to the full inline size of its container (display: flex; width: 100%)" }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-label required when icon-only (no text content)",
+      "type=\"button\" and aria-pressed=\"true|false\" on a toggle button"
+    ],
+    "keyboard": {
+      "Enter": "activate",
+      "Space": "activate"
+    },
+    "notes": "A button carrying aria-pressed is a toggle button. Give it type=\"button\" so it never submits a form, and keep aria-pressed present in both states: \"false\" when off, not removed, or assistive technology stops announcing it as a toggle. The label must not change with the state (\"Mute\", pressed or not, never \"Mute\" / \"Unmute\"): the pressed state already says which one it is, and a label that flips as well announces the opposite. An action whose label does change is a plain button with no aria-pressed."
+  },
+
+  "tokens_used": [
+    "color-primary", "color-primary-hover", "color-primary-fg", "color-secondary",
+    "color-secondary-hover", "color-secondary-fg", "color-destructive", "color-destructive-hover",
+    "color-destructive-fg", "color-bg", "color-bg-muted", "color-bg-subtle", "color-fg",
+    "color-border", "color-ring", "color-primary-subtle", "radius-md", "radius-full", "space-2",
+    "space-3", "space-4", "space-6", "space-1", "font-ui", "text-xs", "text-sm", "text-base",
+    "weight-medium", "duration-fast", "duration-slower", "duration-normal", "ease-default",
+    "ease-emphasized", "ease-out", "border-width", "border-width-strong", "border-width-md",
+    "corner-shape", "focus-ring-width", "focus-ring-offset", "focus-ring-style", "focus-ring-color",
+    "focus-shadow", "button-text-transform", "button-height-md", "button-radius",
+    "button-height-sm", "button-height-lg", "motion-hover-lift", "motion-ambient-duration",
+    "motion-ambient-play", "link-decoration", "disabled-opacity", "shadow-md", "shadow-lg",
+    "shadow-xs"
+  ],
+
+  "templates": {
+    "html": "<button data-ui=\"button\" data-variant=\"{variant}\" data-size=\"{size}\">{text}</button>",
+    "html_with_icon": "<button data-ui=\"button\" data-variant=\"{variant}\" data-size=\"{size}\"><span data-part=\"icon\">{icon}</span>{text}</button>",
+    "html_icon_only": "<button data-ui=\"button\" data-variant=\"{variant}\" data-size=\"{size}\" aria-label=\"{label}\">{icon}</button>",
+    "html_arrow": "<button data-ui=\"button\" data-variant=\"primary\" data-size=\"{size}\" data-effect=\"arrow\">{text}<span data-ui=\"icon\" data-icon=\"arrow-right\" data-part=\"icon\" aria-hidden=\"true\"></span></button>",
+    "html_sink": "<button data-ui=\"button\" data-variant=\"primary\" data-size=\"{size}\" data-effect=\"sink\">{text}</button>",
+    "html_pressed": "<button data-ui=\"button\" data-variant=\"outline\" data-size=\"{size}\" type=\"button\" aria-pressed=\"true\">{text}</button>"
+  },
+
+  "safe_transforms": [
+    "change-variant",
+    "change-size",
+    "add-icon",
+    "add-loading-state",
+    "set-pressed-true",
+    "set-pressed-false",
+    "wrap-in-button-group",
+    "change-text-content",
+    "set-effect",
+    "add-trailing-arrow-icon"
+  ],
+
+  "unsafe_transforms": [
+    "remove-button-element",
+    "change-to-div-without-role",
+    "remove-disabled-state-handling",
+    "remove-aria-pressed-when-off"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["card", "dialog", "auth-form", "crud-table"]
+  },
+
+  "files": {
+    "html": "button.html",
+    "css": "button.css",
+    "manifest": "button.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-button-element",
+    "default-variant-has-no-data-variant-attr",
+    "primary-variant-sets-data-variant-primary",
+    "sm-size-sets-data-size-sm",
+    "disabled-state-has-disabled-attribute",
+    "loading-state-sets-data-state-loading",
+    "icon-only-requires-aria-label",
+    "pressed-state-styles-off-aria-pressed-true",
+    "link-variant-keeps-its-text-box-under-a-size",
+    "effects-are-additive-to-every-variant",
+    "pulse-ring-never-collides-with-the-loading-spinner",
+    "effects-stop-under-reduced-motion",
+    "arrow-nudges-the-trailing-icon-only-under-no-preference",
+    "sink-presses-flush-on-active-and-keeps-the-theme-shadow"
+  ]
+}

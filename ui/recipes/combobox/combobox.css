@@ -1,0 +1,127 @@
+/* @ui:component combobox */
+/* @ui:tokens color-bg color-fg color-fg-muted color-border color-primary-subtle radius-md radius-lg shadow-md space-1 space-2 space-3 text-sm text-base text-xs z-dropdown duration-fast ease-default font-ui border-width focus-ring-color focus-ring-width */
+
+/* ── Root ── */
+[data-ui="combobox"] {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+/* ── Input ── */
+[data-ui="combobox"] > [data-part="input"] {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-default),
+              box-shadow var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="combobox"] > [data-part="input"]::placeholder {
+  color: var(--color-fg-muted);
+}
+
+[data-ui="combobox"] > [data-part="input"]:focus {
+  border-color: var(--focus-ring-color);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+}
+
+/* ── Listbox ── */
+[data-ui="combobox"] > [data-part="listbox"] {
+  position: absolute;
+  top: 100%;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  z-index: var(--z-dropdown);
+  margin-top: var(--space-1);
+  padding: var(--space-1);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-md);
+  max-height: 240px;
+  overflow-y: auto;
+  list-style: none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity var(--duration-fast) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="combobox"][data-state="open"] > [data-part="listbox"],
+[data-ui="combobox"][data-state="loading"] > [data-part="listbox"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Option ── */
+[data-ui="combobox"] > :where([data-part="listbox"]) > [data-part="option"] {
+  display: flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-fg);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="combobox"] > :where([data-part="listbox"]) > [data-part="option"]:hover {
+  background: var(--color-primary-subtle, oklch(0.96 0.04 264));
+}
+
+[data-ui="combobox"] > :where([data-part="listbox"]) > [data-part="option"][aria-selected="true"],
+[data-ui="combobox"] > :where([data-part="listbox"]) > [data-part="option"][data-highlighted] {
+  background: var(--color-primary-subtle, oklch(0.96 0.04 264));
+}
+
+[data-ui="combobox"] > :where([data-part="listbox"]) > [data-part="option"][data-hidden] {
+  display: none;
+}
+
+/* ── Empty State ── */
+[data-ui="combobox"] > :where([data-part="listbox"]) > [data-part="empty"] {
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-fg-muted);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* ── Size Variants ── */
+[data-ui="combobox"][data-size="sm"] > [data-part="input"] {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs, 0.75rem);
+}
+
+[data-ui="combobox"][data-size="sm"] > :where([data-part="listbox"]) > [data-part="option"] {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs, 0.75rem);
+}
+
+[data-ui="combobox"][data-size="lg"] > [data-part="input"] {
+  padding: var(--space-3) var(--space-3);
+  font-size: var(--text-base);
+}
+
+[data-ui="combobox"][data-size="lg"] > :where([data-part="listbox"]) > [data-part="option"] {
+  padding: var(--space-3) var(--space-3);
+  font-size: var(--text-base);
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="combobox"] > [data-part="input"],
+  [data-ui="combobox"] > [data-part="listbox"],
+  [data-ui="combobox"] > :where([data-part="listbox"]) > [data-part="option"] {
+    transition: none;
+  }
+}

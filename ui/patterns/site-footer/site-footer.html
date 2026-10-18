@@ -1,0 +1,95 @@
+<!-- @ui:component site-footer -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots brand logo tagline social columns column column-title bottom copyright legal -->
+<!-- @ui:variants layout=columns|compact -->
+<!-- @ui:composition nav link icon separator -->
+<!--
+  Site footer — composition only, zero JavaScript.
+    · The root is a real <footer>, so it is the page's contentinfo landmark.
+    · Every link group is a nested data-ui="nav" whose own [data-part="link"]
+      slots hold the links; the group heading is a site-footer part beside it,
+      and aria-labelledby ties the two together — which is also what keeps
+      multiple navigation landmarks distinguishable.
+    · No year is hardcoded in the copyright line: a template that goes stale on
+      1 January is worse than one that never claims a year.
+    · `faqir scaffold landing-page` composes the block marked below verbatim.
+-->
+
+<!-- @ui:scaffold landing-page -->
+<footer data-ui="site-footer" data-variant="columns">
+  <div data-part="brand">
+    <p data-part="logo">Acme</p>
+    <p data-part="tagline">Interface pieces you compose, audit, and ship.</p>
+    <div data-part="social">
+      <a data-ui="link" data-variant="muted" href="#source" aria-label="Source repository">
+        <span data-ui="icon" data-icon="git-branch" aria-hidden="true"></span>
+      </a>
+      <a data-ui="link" data-variant="muted" href="#chat" aria-label="Community chat">
+        <span data-ui="icon" data-icon="message-circle" aria-hidden="true"></span>
+      </a>
+      <a data-ui="link" data-variant="muted" href="#mail" aria-label="Email us">
+        <span data-ui="icon" data-icon="mail" aria-hidden="true"></span>
+      </a>
+    </div>
+  </div>
+
+  <div data-part="columns">
+    <div data-part="column">
+      <h2 data-part="column-title" id="site-footer-product">Product</h2>
+      <nav data-ui="nav" data-variant="vertical" aria-labelledby="site-footer-product">
+        <a data-part="link" href="#features">Features</a>
+        <a data-part="link" href="#pricing">Pricing</a>
+        <a data-part="link" href="#changelog">Changelog</a>
+      </nav>
+    </div>
+
+    <div data-part="column">
+      <h2 data-part="column-title" id="site-footer-resources">Resources</h2>
+      <nav data-ui="nav" data-variant="vertical" aria-labelledby="site-footer-resources">
+        <a data-part="link" href="#docs">Documentation</a>
+        <a data-part="link" href="#guides">Guides</a>
+        <a data-part="link" href="#support">Support</a>
+      </nav>
+    </div>
+
+    <div data-part="column">
+      <h2 data-part="column-title" id="site-footer-company">Company</h2>
+      <nav data-ui="nav" data-variant="vertical" aria-labelledby="site-footer-company">
+        <a data-part="link" href="#about">About</a>
+        <a data-part="link" href="#careers">Careers</a>
+        <a data-part="link" href="#contact">Contact</a>
+      </nav>
+    </div>
+  </div>
+
+  <hr data-ui="separator">
+
+  <div data-part="bottom">
+    <p data-part="copyright">&copy; Acme, Inc. All rights reserved.</p>
+    <div data-part="legal">
+      <nav data-ui="nav" aria-label="Legal">
+        <a data-part="link" href="#privacy">Privacy</a>
+        <a data-part="link" href="#terms">Terms</a>
+        <a data-part="link" href="#cookies">Cookies</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+<!-- @ui:scaffold-end -->
+
+<!-- Compact: one row, no link columns -->
+<footer data-ui="site-footer" data-variant="compact">
+  <div data-part="brand">
+    <p data-part="logo">Acme</p>
+  </div>
+
+  <div data-part="bottom">
+    <p data-part="copyright">&copy; Acme, Inc.</p>
+    <div data-part="legal">
+      <nav data-ui="nav" aria-label="Legal, compact footer">
+        <a data-part="link" href="#privacy-compact">Privacy</a>
+        <a data-part="link" href="#terms-compact">Terms</a>
+      </nav>
+    </div>
+  </div>
+</footer>

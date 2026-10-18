@@ -1,0 +1,69 @@
+<!-- @ui:component tabs -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots list trigger panel -->
+<!-- @ui:variants style=underline|pill|enclosed size=sm|md|lg -->
+<!-- @ui:controller tabs.js -->
+
+<!-- Underline (default) -->
+<div data-ui="tabs" data-variant="underline">
+  <div data-part="list" role="tablist">
+    <button data-part="trigger" role="tab" id="demo-tab-1" aria-controls="demo-panel-1" aria-selected="true">Account</button>
+    <button data-part="trigger" role="tab" id="demo-tab-2" aria-controls="demo-panel-2" aria-selected="false" tabindex="-1">Password</button>
+    <button data-part="trigger" role="tab" id="demo-tab-3" aria-controls="demo-panel-3" aria-selected="false" tabindex="-1">Notifications</button>
+  </div>
+  <div data-part="panel" role="tabpanel" id="demo-panel-1" aria-labelledby="demo-tab-1">
+    <p>Account settings content here.</p>
+  </div>
+  <div data-part="panel" role="tabpanel" id="demo-panel-2" aria-labelledby="demo-tab-2" hidden>
+    <p>Password settings content here.</p>
+  </div>
+  <div data-part="panel" role="tabpanel" id="demo-panel-3" aria-labelledby="demo-tab-3" hidden>
+    <p>Notification preferences content here.</p>
+  </div>
+</div>
+
+<!-- Pill variant -->
+<div data-ui="tabs" data-variant="pill">
+  <div data-part="list" role="tablist">
+    <button data-part="trigger" role="tab" id="pill-tab-1" aria-controls="pill-panel-1" aria-selected="true">Overview</button>
+    <button data-part="trigger" role="tab" id="pill-tab-2" aria-controls="pill-panel-2" aria-selected="false" tabindex="-1">Analytics</button>
+    <button data-part="trigger" role="tab" id="pill-tab-3" aria-controls="pill-panel-3" aria-selected="false" tabindex="-1">Reports</button>
+  </div>
+  <div data-part="panel" role="tabpanel" id="pill-panel-1" aria-labelledby="pill-tab-1">
+    <p>Overview content.</p>
+  </div>
+  <div data-part="panel" role="tabpanel" id="pill-panel-2" aria-labelledby="pill-tab-2" hidden>
+    <p>Analytics content.</p>
+  </div>
+  <div data-part="panel" role="tabpanel" id="pill-panel-3" aria-labelledby="pill-tab-3" hidden>
+    <p>Reports content.</p>
+  </div>
+</div>
+
+<!-- Enclosed variant -->
+<div data-ui="tabs" data-variant="enclosed">
+  <div data-part="list" role="tablist">
+    <button data-part="trigger" role="tab" id="enc-tab-1" aria-controls="enc-panel-1" aria-selected="true">Tab One</button>
+    <button data-part="trigger" role="tab" id="enc-tab-2" aria-controls="enc-panel-2" aria-selected="false" tabindex="-1">Tab Two</button>
+  </div>
+  <div data-part="panel" role="tabpanel" id="enc-panel-1" aria-labelledby="enc-tab-1">
+    <p>Content for tab one.</p>
+  </div>
+  <div data-part="panel" role="tabpanel" id="enc-panel-2" aria-labelledby="enc-tab-2" hidden>
+    <p>Content for tab two.</p>
+  </div>
+</div>
+
+<!-- Small size -->
+<div data-ui="tabs" data-variant="underline" data-size="sm">
+  <div data-part="list" role="tablist">
+    <button data-part="trigger" role="tab" id="sm-tab-1" aria-controls="sm-panel-1" aria-selected="true">Small A</button>
+    <button data-part="trigger" role="tab" id="sm-tab-2" aria-controls="sm-panel-2" aria-selected="false" tabindex="-1">Small B</button>
+  </div>
+  <div data-part="panel" role="tabpanel" id="sm-panel-1" aria-labelledby="sm-tab-1">
+    <p>Small tab content.</p>
+  </div>
+  <div data-part="panel" role="tabpanel" id="sm-panel-2" aria-labelledby="sm-tab-2" hidden>
+    <p>Small tab content B.</p>
+  </div>
+</div>

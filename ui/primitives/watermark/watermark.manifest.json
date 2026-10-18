@@ -1,0 +1,110 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "watermark",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "data-display",
+  "description": "Non-interactive diagonal text overlay with single or repeated print-safe layouts",
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='watermark']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "mark": {
+      "selector": "[data-part='mark']",
+      "required": true,
+      "tag_hint": "span",
+      "description": "Decorative mark whose data-text value is rendered through CSS; repeat nine times for the repeated pattern"
+    }
+  },
+  "variants": {
+    "position": {
+      "values": ["fixed", "absolute"],
+      "default": "fixed",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "pattern": {
+      "values": ["single", "repeated"],
+      "default": "single",
+      "attr": "data-pattern",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    },
+    "orientation": {
+      "values": ["diagonal", "horizontal"],
+      "default": "diagonal",
+      "attr": "data-orientation",
+      "applied_to": "root"
+    }
+  },
+  "states": {},
+  "props": {
+    "text": {
+      "type": "string",
+      "default": "Confidential",
+      "description": "Decorative label supplied as data-text on each mark part"
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "aria-hidden=\"true\" because watermark text is decorative and repeated"
+    ],
+    "keyboard": {}
+  },
+  "tokens_used": [
+    "color-fg-muted",
+    "doc-font",
+    "font-body",
+    "text-xl",
+    "text-4xl",
+    "weight-bold",
+    "leading-tight",
+    "space-8",
+    "space-20",
+    "z-raised"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"watermark\" data-pattern=\"single\" data-size=\"md\" aria-hidden=\"true\">\n  <span data-part=\"mark\" data-text=\"{text}\"></span>\n</div>",
+    "html_repeated": "<div data-ui=\"watermark\" data-pattern=\"repeated\" data-size=\"md\" aria-hidden=\"true\">\n  <span data-part=\"mark\" data-text=\"{text}\"></span>\n  <span data-part=\"mark\" data-text=\"{text}\"></span>\n  <span data-part=\"mark\" data-text=\"{text}\"></span>\n  <span data-part=\"mark\" data-text=\"{text}\"></span>\n  <span data-part=\"mark\" data-text=\"{text}\"></span>\n  <span data-part=\"mark\" data-text=\"{text}\"></span>\n  <span data-part=\"mark\" data-text=\"{text}\"></span>\n  <span data-part=\"mark\" data-text=\"{text}\"></span>\n  <span data-part=\"mark\" data-text=\"{text}\"></span>\n</div>"
+  },
+  "safe_transforms": [
+    "change-mark-text",
+    "change-position",
+    "change-pattern",
+    "change-size",
+    "change-orientation"
+  ],
+  "unsafe_transforms": [
+    "remove-aria-hidden",
+    "enable-pointer-events",
+    "remove-data-text-from-mark",
+    "remove-all-mark-parts"
+  ],
+  "composition": {
+    "contains": [],
+    "used_in": ["document"]
+  },
+  "files": {
+    "html": "watermark.html",
+    "css": "watermark.css",
+    "manifest": "watermark.manifest.json"
+  },
+  "tests": [
+    "pointer-events-are-disabled",
+    "text-is-css-generated-from-data-text",
+    "fixed-position-is-default",
+    "absolute-position-variant",
+    "diagonal-text-is-default",
+    "repeated-pattern-is-grid",
+    "print-keeps-fixed-overlay",
+    "print-color-adjust-is-exact",
+    "aria-hidden-is-required"
+  ]
+}

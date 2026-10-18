@@ -1,0 +1,109 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "cluster",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "layout",
+  "description": "A wrapping inline row — tag rows, button rows, meta rows. Children flow along one line and reflow onto the next when they run out of room, with no breakpoint involved; gap, alignment and justification are responsive on the canon tiers",
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='cluster']",
+    "content_model": "block"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "gap": {
+      "values": ["0", "1", "2", "3", "4", "6", "8", "10", "12", "16"],
+      "default": "2",
+      "attr": "data-gap",
+      "applied_to": "root",
+      "responsive": true
+    },
+    "align": {
+      "values": ["start", "center", "end", "stretch", "baseline"],
+      "default": "center",
+      "attr": "data-align",
+      "applied_to": "root",
+      "responsive": true
+    },
+    "justify": {
+      "values": ["start", "center", "end", "between", "around"],
+      "default": "start",
+      "attr": "data-justify",
+      "applied_to": "root",
+      "responsive": true
+    }
+  },
+
+  "props": {
+    "push": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-push",
+      "description": "Written on a CHILD of the cluster, never the root: that child — and everything after it — is pushed to the far end of the row (margin-inline-start: auto). The \"actions on the right\" idiom, and logical, so it is the far end in RTL too."
+    }
+  },
+
+  "states": {},
+
+  "a11y": {
+    "notes": "Layout-only primitive; no semantic role required. Wrapping is visual only — the DOM order is the reading order at every width, so a cluster never reorders content away from the sequence a screen reader announces.",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "space-0", "space-1", "space-2", "space-3", "space-4", "space-6", "space-8",
+    "space-10", "space-12", "space-16"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"cluster\" data-gap=\"{gap}\">{children}</div>",
+    "html_split": "<div data-ui=\"cluster\" data-gap=\"{gap}\">{children}<div data-push>{end}</div></div>",
+    "html_responsive": "<div data-ui=\"cluster\" data-gap=\"{gap}\" data-gap-md=\"{gapMd}\">{children}</div>"
+  },
+
+  "safe_transforms": [
+    "change-gap",
+    "change-align",
+    "change-justify",
+    "add-responsive-tier",
+    "add-children",
+    "remove-children",
+    "add-push",
+    "remove-push"
+  ],
+
+  "unsafe_transforms": [
+    "change-display-property",
+    "remove-flex-wrap"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": [],
+    "notes": [
+      "Reach for cluster before any breakpoint when the requirement is \"these things sit in a row and may reflow\": the wrap is intrinsic, so it is correct at widths nobody tested (FAQIR-SPEC §15 doctrine 1).",
+      "cluster vs stack: a horizontal stack is a row that holds its line — use it when the items must stay together and the container guarantees the room. cluster is the row that is allowed to break, which is what a tag list, a button bar or a meta line actually wants.",
+      "cluster vs switcher: cluster reflows item by item as space runs out; switcher flips the whole row to a column at one measured threshold. Choose cluster when the items are independent, switcher when they are peers that should share a line or none at all."
+    ]
+  },
+
+  "files": {
+    "html": "cluster.html",
+    "css": "cluster.css",
+    "manifest": "cluster.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "wraps-without-a-media-query",
+    "gap-resolves-from-the-spacing-scale",
+    "align-and-justify-resolve",
+    "tier-values-override-the-base-from-their-floor-up",
+    "tier-precedence-survives-stylesheet-reordering",
+    "push-child-uses-logical-margin"
+  ]
+}

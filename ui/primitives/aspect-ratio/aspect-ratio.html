@@ -1,0 +1,45 @@
+<!-- @ui:component aspect-ratio -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants ratio=square|16-9|4-3|3-2|21-9|portrait -->
+
+<!--
+  Drop a single child (img / video / iframe / picture) inside the wrapper — it is
+  stretched to fill the box and cropped with object-fit: cover. The demo children
+  below are placeholder boxes; in real use the child is typically an <img>.
+-->
+
+<!-- Square (default) -->
+<div data-ui="aspect-ratio">
+  <div style="display: grid; place-items: center; background: var(--color-bg-subtle); color: var(--color-fg-muted)">1 / 1</div>
+</div>
+
+<!-- 16:9 — video / hero -->
+<div data-ui="aspect-ratio" data-variant="16-9">
+  <div style="display: grid; place-items: center; background: var(--color-bg-subtle); color: var(--color-fg-muted)">16 / 9</div>
+</div>
+
+<!-- 4:3 -->
+<div data-ui="aspect-ratio" data-variant="4-3">
+  <div style="display: grid; place-items: center; background: var(--color-bg-subtle); color: var(--color-fg-muted)">4 / 3</div>
+</div>
+
+<!-- 3:2 — classic photo -->
+<div data-ui="aspect-ratio" data-variant="3-2">
+  <div style="display: grid; place-items: center; background: var(--color-bg-subtle); color: var(--color-fg-muted)">3 / 2</div>
+</div>
+
+<!-- 21:9 — ultrawide -->
+<div data-ui="aspect-ratio" data-variant="21-9">
+  <div style="display: grid; place-items: center; background: var(--color-bg-subtle); color: var(--color-fg-muted)">21 / 9</div>
+</div>
+
+<!-- Portrait (3:4) -->
+<div data-ui="aspect-ratio" data-variant="portrait">
+  <div style="display: grid; place-items: center; background: var(--color-bg-subtle); color: var(--color-fg-muted)">3 / 4</div>
+</div>
+
+<!-- A rounded 16:9 frame with a real image -->
+<div data-ui="aspect-ratio" data-variant="16-9" style="--aspect-ratio-radius: var(--radius-lg)">
+  <img src="cover.jpg" alt="Cover artwork">
+</div>

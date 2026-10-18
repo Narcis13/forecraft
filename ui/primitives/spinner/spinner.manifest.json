@@ -1,0 +1,74 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "spinner",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "feedback",
+  "description": "Circular loading spinner with multiple sizes",
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='spinner']",
+    "content_model": "empty"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "size": {
+      "values": ["sm", "md", "lg", "xl"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "a11y": {
+    "role": "status",
+    "required_attrs": ["role=\"status\"", "aria-label=\"Loading\""],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-border", "color-primary", "radius-full", "border-width-strong", "border-width-lg"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"spinner\" role=\"status\" aria-label=\"Loading\"></div>",
+    "html_sized": "<div data-ui=\"spinner\" data-size=\"{size}\" role=\"status\" aria-label=\"Loading\"></div>"
+  },
+
+  "safe_transforms": [
+    "change-size",
+    "change-aria-label"
+  ],
+
+  "unsafe_transforms": [
+    "remove-role-status",
+    "remove-aria-label"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["button", "search-results"]
+  },
+
+  "files": {
+    "html": "spinner.html",
+    "css": "spinner.css",
+    "manifest": "spinner.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "has-role-status",
+    "has-aria-label-loading",
+    "default-size-is-24px",
+    "sm-size-is-16px",
+    "lg-size-is-32px",
+    "xl-size-is-48px",
+    "reduced-motion-stops-animation"
+  ]
+}

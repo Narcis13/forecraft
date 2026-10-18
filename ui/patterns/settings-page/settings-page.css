@@ -1,0 +1,227 @@
+/* @ui:component settings-page */
+/* @ui:tokens color-bg color-fg color-fg-muted color-border color-primary color-border-strong space-1 space-2 space-3 space-4 space-6 space-8 space-48 radius-lg shadow-md font-heading font-body heading-tracking heading-transform heading-caps heading-leading text-sm text-lg text-xl weight-semibold leading-tight leading-normal duration-fast ease-default z-sticky border-width border-width-strong */
+
+/* ── Root ── */
+[data-ui="settings-page"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  width: 100%;
+  max-width: 768px;
+  margin-inline: auto;
+  font-family: var(--font-body);
+  color: var(--color-fg);
+}
+
+/* ── Header ── */
+[data-ui="settings-page"] [data-part="header"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* ── Title ── */
+[data-ui="settings-page"] [data-part="title"] {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-xl, 1.25rem);
+  font-weight: var(--weight-semibold, 600);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  line-height: var(--heading-leading);
+  color: var(--color-fg);
+}
+
+/* ── Description ── */
+[data-ui="settings-page"] [data-part="description"] {
+  margin: 0;
+  font-size: var(--text-sm, 0.875rem);
+  line-height: var(--leading-normal);
+  color: var(--color-fg-muted);
+}
+
+/* ── Sections ── */
+[data-ui="settings-page"] [data-part="section"] {
+  margin-block-start: var(--space-6);
+}
+
+[data-ui="settings-page"] [data-part="section"] + [data-part="section"] {
+  margin-block-start: var(--space-6);
+}
+
+/* ── Section Title ── */
+[data-ui="settings-page"] [data-part="section-title"] {
+  margin: 0;
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: var(--weight-semibold, 600);
+  line-height: var(--leading-tight);
+  color: var(--color-fg);
+}
+
+/* ── Section Description ── */
+[data-ui="settings-page"] [data-part="section-description"] {
+  margin: 0;
+  margin-block-start: var(--space-1);
+  font-size: var(--text-sm, 0.875rem);
+  line-height: var(--leading-normal);
+  color: var(--color-fg-muted);
+}
+
+/* ── Field Groups ── */
+[data-ui="settings-page"] [data-part="field-group"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+[data-ui="settings-page"] [data-part="field-group"] + [data-part="field-group"] {
+  margin-block-start: var(--space-4);
+}
+
+/* ── Card body spacing for fields ── */
+[data-ui="settings-page"] [data-ui="card"] [data-part="body"] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Actions (sticky bar) ── */
+[data-ui="settings-page"] [data-part="actions"] {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3, 0.75rem);
+  padding: var(--space-4);
+  background: var(--color-bg);
+  border-top: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  bottom: 0;
+  z-index: var(--z-sticky);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+/* ── Show actions bar when dirty or saving ── */
+[data-ui="settings-page"][data-state="dirty"] [data-part="actions"],
+[data-ui="settings-page"][data-state="saving"] [data-part="actions"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Saving state ── */
+[data-ui="settings-page"][data-state="saving"] [data-part="save-button"] {
+  cursor: not-allowed;
+}
+
+/* ── Saved state (briefly visible then fades) ── */
+[data-ui="settings-page"][data-state="saved"] [data-part="actions"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Confirm Dialog ── */
+[data-ui="settings-page"] [data-part="confirm-dialog"] {
+  /* Dialog component handles its own positioning and visibility */
+}
+
+/* ══════════════════════════════════════════════
+   Horizontal Layout Variant
+   Tabs on left, content on right
+   ══════════════════════════════════════════════ */
+
+[data-ui="settings-page"][data-variant="horizontal"] {
+  max-width: 960px;
+}
+
+/* Mobile-first. The horizontal variant is a fixed 192px rail beside a `1fr`
+   column, and this sheet carried NO media query at all — so on a 375px phone the
+   rail plus its gap plus the panel's own minimum forced the page 403px wide,
+   with the right-hand edge of every settings card painted outside the viewport.
+   Below the canon `md` tier the rail stacks above the panel, which is the layout
+   the default (vertical) variant already had. [W3-3] */
+[data-ui="settings-page"][data-variant="horizontal"] [data-ui="tabs"] {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+[data-ui="settings-page"][data-variant="horizontal"] [data-ui="tabs"] [data-part="list"] {
+  /* A row of tabs again, as in the default variant, until there is room for a
+     rail — and one that WRAPS. A horizontal scroller would keep the triggers
+     reachable, but reachable-by-gesture is not the same as visible, and a
+     settings page is not a place to hide a section behind a swipe. */
+  flex-direction: row;
+  flex-wrap: wrap;
+  border-inline-end: none;
+  border-bottom: var(--border-width) solid var(--color-border);
+  padding-inline-end: 0;
+  position: static;
+}
+
+[data-ui="settings-page"][data-variant="horizontal"] [data-ui="tabs"] [data-part="panel"] {
+  /* `grid-column: 2` has no column 2 to sit in while the grid is single-track. */
+  grid-column: 1;
+}
+
+@media (min-width: 48rem) {
+  [data-ui="settings-page"][data-variant="horizontal"] [data-ui="tabs"] {
+    grid-template-columns: var(--space-48) 1fr;
+    gap: var(--space-8);
+  }
+
+  [data-ui="settings-page"][data-variant="horizontal"] [data-ui="tabs"] [data-part="list"] {
+    flex-direction: column;
+    border-bottom: none;
+    border-inline-end: var(--border-width) solid var(--color-border);
+    padding-inline-end: var(--space-4);
+    position: sticky;
+    top: var(--space-4);
+    flex-wrap: nowrap;
+  }
+
+  [data-ui="settings-page"][data-variant="horizontal"] [data-ui="tabs"] [data-part="panel"] {
+    grid-column: 2;
+  }
+
+  /* The rail's own trigger treatment: a start-edge marker instead of the
+     underline. Below `md` the triggers are a row again, so they keep the
+     default tabs look rather than a border on an edge that is not there. */
+  [data-ui="settings-page"][data-variant="horizontal"] [data-ui="tabs"] [data-part="trigger"] {
+    justify-content: flex-start;
+    text-align: start;
+    border-bottom: none;
+    border-inline-start: var(--border-width-strong) solid transparent;
+    margin-bottom: 0;
+    margin-inline-end: -1px;
+    padding: var(--space-2) var(--space-3);
+    border-radius: 0;
+  }
+
+  [data-ui="settings-page"][data-variant="horizontal"] [data-ui="tabs"] [data-part="trigger"][aria-selected="true"] {
+    border-inline-start-color: var(--color-primary);
+    border-bottom-color: transparent;
+  }
+
+  [data-ui="settings-page"][data-variant="horizontal"] [data-ui="tabs"] [data-part="trigger"]:hover {
+    border-inline-start-color: var(--color-border-strong, var(--color-border));
+    border-bottom-color: transparent;
+  }
+
+  [data-ui="settings-page"][data-variant="horizontal"] [data-ui="tabs"] [data-part="trigger"][aria-selected="true"]:hover {
+    border-inline-start-color: var(--color-primary);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   Reduced Motion
+   ══════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="settings-page"] [data-part="actions"] {
+    transition: none;
+  }
+}

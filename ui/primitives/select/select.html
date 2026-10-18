@@ -1,0 +1,52 @@
+<!-- @ui:component select -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots  -->
+<!-- @ui:variants size=sm|md|lg -->
+
+<!-- Default -->
+<div data-ui="field-group">
+  <label data-part="label" for="country-select">Country</label>
+  <div data-part="input">
+    <select data-ui="select" id="country-select" aria-describedby="country-select-hint">
+      <option value="" disabled selected>Choose a country...</option>
+      <option value="us">United States</option>
+      <option value="uk">United Kingdom</option>
+      <option value="ca">Canada</option>
+    </select>
+  </div>
+  <p data-part="description" id="country-select-hint">Choose your primary country of residence.</p>
+</div>
+
+<!-- Error state -->
+<div data-ui="field-group" data-state="invalid">
+  <label data-part="label" for="role-select">Role</label>
+  <div data-part="input">
+    <select data-ui="select" id="role-select" data-state="error" aria-invalid="true" aria-describedby="role-select-error">
+      <option value="">Select a role...</option>
+      <option value="admin">Admin</option>
+      <option value="user">User</option>
+    </select>
+  </div>
+  <p data-part="error" id="role-select-error">Select a role before continuing.</p>
+</div>
+
+<!-- Disabled -->
+<div data-ui="field-group" data-state="disabled">
+  <label data-part="label" for="plan-select">Plan</label>
+  <div data-part="input">
+    <select data-ui="select" id="plan-select" disabled>
+      <option value="pro" selected>Pro (locked)</option>
+    </select>
+  </div>
+</div>
+
+<!-- Sizes -->
+<select data-ui="select" data-size="sm" aria-label="Small select">
+  <option>Small select</option>
+</select>
+<select data-ui="select" aria-label="Medium select">
+  <option>Medium select (default)</option>
+</select>
+<select data-ui="select" data-size="lg" aria-label="Large select">
+  <option>Large select</option>
+</select>

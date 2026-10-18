@@ -1,0 +1,159 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "quote",
+  "version": "1.0.1",
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Fix: every quote after the first on a page drew the nested mark (‘ instead of “), because open-quote raised the quote depth and nothing lowered it. An absolutely positioned no-close-quote on ::after lowers it without adding a grid row.",
+      "breaking": false
+    }
+  ],
+  "kind": "primitive",
+  "category": "typography",
+  "description": "A quotation and its attribution — testimonial, pull quote or featured endorsement — as a native figure/blockquote/figcaption. Plain, card and editorial pull variants, three sizes, an optional avatar and rating, and a large decorative opening mark in the document language's own quotation glyph. The card variant reads the card aliases, so themes restyle both together.",
+
+  "anatomy": {
+    "tag": "figure",
+    "selector": "[data-ui='quote']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "text": {
+      "selector": "[data-part='text']",
+      "required": true,
+      "tag_hint": "blockquote",
+      "description": "The quotation itself. Put one or more <p> inside; do not type quotation marks — the decorative mark is drawn by the stylesheet."
+    },
+    "author": {
+      "selector": "[data-part='author']",
+      "required": false,
+      "tag_hint": "figcaption",
+      "description": "Attribution: an optional media part followed by name and role."
+    },
+    "media": {
+      "selector": "[data-part='media']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Inside author: wrapper for a nested data-ui=\"avatar\" (or a logo image). The avatar keeps its own data-size."
+    },
+    "name": {
+      "selector": "[data-part='name']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Inside author: who said it."
+    },
+    "role": {
+      "selector": "[data-part='role']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Inside author: title, company or source."
+    }
+  },
+
+  "variants": {
+    "style": {
+      "values": ["plain", "card", "pull"],
+      "default": "plain",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    },
+    "align": {
+      "values": ["start", "center"],
+      "default": "start",
+      "attr": "data-align",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "--quote-accent": {
+      "type": "string",
+      "default": "var(--color-primary)",
+      "description": "Colour of the opening mark and of the pull variant's rule (custom property). Pass a colour token."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "the quotation in a <blockquote>, the attribution in the figure's <figcaption>",
+      "alt text on any image inside the media slot"
+    ],
+    "notes": "figure + blockquote + figcaption is the native quotation pattern: assistive technology announces the blockquote and associates the caption with the figure. The large opening mark is generated content with an empty text alternative; do not add literal quotation marks to the text as well.",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-primary", "color-fg", "color-fg-muted", "space-4", "space-3", "space-6", "font-body",
+    "font-heading", "text-4xl", "text-lg", "text-sm", "text-2xl", "text-base", "text-3xl",
+    "text-xl", "heading-weight", "heading-tracking", "leading-relaxed", "leading-snug",
+    "weight-semibold", "weight-medium", "card-padding", "card-border-width", "card-border",
+    "card-radius", "card-bg", "card-shadow", "corner-shape", "texture-surface", "duration-fast",
+    "ease-default", "motion-hover-lift", "surface-backdrop", "border-width-lg"
+  ],
+
+  "templates": {
+    "html": "<figure data-ui=\"quote\" data-variant=\"{style}\">\n  <blockquote data-part=\"text\">\n    <p>{quote}</p>\n  </blockquote>\n  <figcaption data-part=\"author\">\n    <span data-part=\"name\">{name}</span>\n    <span data-part=\"role\">{role}</span>\n  </figcaption>\n</figure>",
+    "html_with_avatar": "<figure data-ui=\"quote\" data-variant=\"card\">\n  <blockquote data-part=\"text\">\n    <p>{quote}</p>\n  </blockquote>\n  <figcaption data-part=\"author\">\n    <span data-part=\"media\">\n      <span data-ui=\"avatar\" data-size=\"sm\">\n        <span data-part=\"fallback\">{initials}</span>\n      </span>\n    </span>\n    <span data-part=\"name\">{name}</span>\n    <span data-part=\"role\">{role}</span>\n  </figcaption>\n</figure>",
+    "html_pull": "<figure data-ui=\"quote\" data-variant=\"pull\">\n  <blockquote data-part=\"text\">\n    <p>{quote}</p>\n  </blockquote>\n</figure>"
+  },
+
+  "safe_transforms": [
+    "change-style",
+    "change-size",
+    "change-align",
+    "add-author",
+    "remove-author",
+    "add-avatar-in-media",
+    "add-rating-before-text",
+    "change-custom-property-colors"
+  ],
+
+  "unsafe_transforms": [
+    "remove-text",
+    "replace-blockquote-with-a-div",
+    "type-literal-quotation-marks-in-the-text",
+    "put-the-attribution-inside-the-blockquote",
+    "add-data-size-to-the-media-part-instead-of-the-avatar"
+  ],
+
+  "composition": {
+    "contains": ["avatar", "rating"],
+    "used_in": ["testimonials", "article"],
+    "notes": [
+      "A nested data-ui=\"rating\" goes directly in the figure, before the text; it is a component of its own, not a part.",
+      "The avatar sits inside [data-part=\"media\"] and keeps its own five-attribute contract — its data-size belongs on the avatar, never on the part.",
+      "A wall of testimonials is the testimonials pattern: card quotes in a grid, columns or a marquee.",
+      "The pull variant belongs inside long-form content (the article pattern), between paragraphs."
+    ]
+  },
+
+  "files": {
+    "html": "quote.html",
+    "css": "quote.css",
+    "manifest": "quote.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-figure-with-blockquote",
+    "text-slot-is-required",
+    "author-is-the-figcaption",
+    "opening-mark-is-generated-content-in-the-document-language",
+    "author-stacks-name-over-role-with-or-without-media",
+    "card-variant-reads-the-card-aliases",
+    "pull-variant-uses-the-heading-voice-and-an-accent-rule",
+    "center-alignment-keeps-the-author-block-readable",
+    "does-not-break-across-printed-pages"
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "grid",
+  "version": "2.2.0",
+  "kind": "primitive",
+  "category": "layout",
+  "description": "CSS Grid container with configurable columns and gap — mobile-first responsive column tiers on the canon breakpoints, plus an intrinsic auto mode that needs no media query at all",
+
+  "changes": [
+    {
+      "version": "2.2.0",
+      "note": "Every fixed-count track is now repeat(N, minmax(0, 1fr)) instead of repeat(N, 1fr), on the base and on all four tiers. A bare 1fr is minmax(auto, 1fr): its floor is the widest item's min-content, so one wide table or one unbreakable id widened the whole grid past its container. With a zero floor the columns are always equal shares of the space the grid has, and wide content scrolls or wraps inside its item. Layout change to expect: a column that used to grow to fit an unbreakable item now stays at its share, so that item overflows its cell unless it scrolls or wraps. data-cols=\"auto\" is unchanged (its floor is data-min), and so is data-scroll.",
+      "breaking": false
+    },
+    {
+      "version": "2.1.0",
+      "note": "Added the declared data-align-rows mode for direct card children. Supporting engines make every card a four-row subgrid (header, divider, body, footer), aligning corresponding rows across each visual grid row even when one card carries extra content. Engines without subgrid take the documented correct fallback: every participating card spans the full grid width and retains its intrinsic card layout, trading density for truthful layout rather than leaving misaligned peers side by side.",
+      "breaking": false
+    },
+    {
+      "version": "2.0.0",
+      "note": "BREAKING: mobile-first inversion. data-cols is now the base at EVERY width — the 1.x sheet applied it desktop-only and force-collapsed every grid to one column at ≤640px, crushing data-span children to span 1; that blanket collapse is gone, so collapsing is an explicit authoring choice (data-cols=\"1\" data-cols-md=\"2\" data-cols-lg=\"4\"). The tier attributes data-cols-{sm,md,lg,xl} — never in the 1.x manifest, and range-scoped in the 1.x CSS (data-cols-md meant 641–1024px only) — are now the full min-width ladder: each value applies from its tier's floor up. Tier precedence is encoded in selector specificity rather than source order, so a bundler that reorders or splits blocks cannot change which tier wins; the 640/641 range pair's fractional-width dead zone is gone with the ranges. New intrinsic mode: data-cols=\"auto\" fits as many columns as the space allows (repeat(auto-fit, minmax(min(100%, var(--grid-min)), 1fr))) with data-min setting the item floor in rem — reach for it before any tier. Newly declared, previously shipped undeclared: gaps 10|12|16 (the set is now 0–16, matching stack), child data-span and data-scroll (now mobile-first: a snap strip below sm, a grid again from sm up). The declared gap default drops from 4 to 0 — the CSS never had a bare-grid gap rule, so 0 is what an omitted attribute always produced. Migration: a 1.x grid relying on the forced phone collapse rewrites data-cols=\"N\" as data-cols=\"1\" data-cols-md=\"N\"; a 1.x data-cols-sm/-md keeps its attribute but its value now holds from that tier up instead of inside a range.",
+      "breaking": true
+    }
+  ],
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='grid']",
+    "content_model": "block"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "cols": {
+      "values": ["1", "2", "3", "4", "6", "12", "auto"],
+      "default": "1",
+      "attr": "data-cols",
+      "applied_to": "root",
+      "responsive": true
+    },
+    "gap": {
+      "values": ["0", "1", "2", "3", "4", "6", "8", "10", "12", "16"],
+      "default": "0",
+      "attr": "data-gap",
+      "applied_to": "root",
+      "responsive": true
+    }
+  },
+
+  "props": {
+    "min": {
+      "type": "enum",
+      "values": ["8", "12", "16", "20", "24"],
+      "default": "16",
+      "attr": "data-min",
+      "description": "Item floor for the intrinsic auto mode, in rem: the narrowest a column may get before the grid drops a track. Only read when a cols value is \"auto\". The number is rem (data-min=\"16\" is 16rem/256px) — unlike data-gap, whose numbers are spacing-scale steps."
+    },
+    "span": {
+      "type": "enum",
+      "values": ["2", "3", "4", "6", "full"],
+      "attr": "data-span",
+      "description": "Written on a CHILD of the grid, never the root: the child spans that many columns; \"full\" spans the whole row (grid-column: 1 / -1). Holds at every width — pair wide spans with column tiers so the span never exceeds the column count."
+    },
+    "scroll": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-scroll",
+      "description": "Below the sm tier the grid becomes a horizontal snap-scroll strip (each child at least 280px, snap-aligned to start); from sm up it lays out as a normal grid again. An explicit alternative to collapsing dense card rows on phones."
+    },
+    "alignRows": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-align-rows",
+      "description": "Align the four direct rows of sibling card children (header, divider, body, footer) with grid-template-rows: subgrid. Every participating card must provide those four direct rows in that order. Alignment is scoped to each visual row after wrapping. Without subgrid, cards span the full grid width and stack, which preserves correct content relationships instead of showing falsely aligned side-by-side peers. Do not combine with data-scroll."
+    }
+  },
+
+  "states": {},
+
+  "a11y": {
+    "notes": "Layout-only primitive; no semantic role required",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "space-0", "space-1", "space-2", "space-3", "space-4", "space-6", "space-8",
+    "space-10", "space-12", "space-16"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"grid\" data-cols=\"{cols}\" data-gap=\"{gap}\">{children}</div>",
+    "html_responsive": "<div data-ui=\"grid\" data-cols=\"1\" data-cols-md=\"2\" data-cols-lg=\"{cols}\" data-gap=\"{gap}\">{children}</div>",
+    "html_auto": "<div data-ui=\"grid\" data-cols=\"auto\" data-min=\"{min}\" data-gap=\"{gap}\">{children}</div>",
+    "html_aligned_cards": "<div data-ui=\"grid\" data-cols=\"1\" data-cols-md=\"2\" data-gap=\"6\" data-align-rows>{cards_with_header_divider_body_footer}</div>"
+  },
+
+  "safe_transforms": [
+    "change-cols",
+    "change-gap",
+    "add-responsive-tier",
+    "switch-to-auto-mode",
+    "change-min",
+    "enable-card-row-alignment",
+    "add-children",
+    "remove-children"
+  ],
+
+  "unsafe_transforms": [
+    "change-display-property",
+    "replace-with-non-grid-container",
+    "use-row-alignment-with-non-card-children",
+    "change-the-four-row-card-contract-per-instance",
+    "combine-row-alignment-with-scroll"
+  ],
+
+  "composition": {
+    "contains": ["card"],
+    "used_in": ["dashboard-shell", "stats-dashboard", "pricing"],
+    "notes": [
+      "Prefer data-cols=\"auto\" + data-min to a tier ladder whenever the requirement is just \"as many cards as fit\" — it is correct at every width, including widths nobody tested (FAQIR-SPEC §15 doctrine 1).",
+      "data-cols holds at all widths. A grid that should be one column on a phone says so: data-cols=\"1\" data-cols-md=\"2\" data-cols-lg=\"4\". Nothing collapses implicitly.",
+      "Equal heights are not internal alignment. data-align-rows is the explicit card-in-grid composition for four direct card rows: header, divider, body, footer. A wrapped line starts a new alignment group.",
+      "The non-subgrid fallback deliberately stacks participating cards at full width. It preserves intrinsic content and removes the false side-by-side comparison; it does not attempt to imitate subgrid with guessed minimum heights or per-card padding."
+    ]
+  },
+
+  "files": {
+    "html": "grid.html",
+    "css": "grid.css",
+    "manifest": "grid.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "displays-as-grid",
+    "cols-hold-at-every-width",
+    "tier-overrides-win-from-their-floor-up",
+    "no-dead-zone-at-fractional-widths",
+    "tier-precedence-survives-stylesheet-reordering",
+    "auto-mode-is-media-query-free",
+    "data-min-moves-the-item-floor",
+    "span-children-are-never-crushed",
+    "scroll-strip-below-sm-grid-from-sm-up",
+    "aligned-card-children-share-four-subgrid-rows",
+    "row-alignment-stacks-cards-without-subgrid"
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "separator",
+  "version": "1.2.0",
+  "kind": "primitive",
+  "category": "layout",
+  "description": "Horizontal or vertical divider line",
+
+  "changes": [
+    {
+      "version": "1.2.0",
+      "note": "A fifth data-style value, ornament: a centred diamond in --color-primary with hairline rules running out to both sides and fading toward the ends, drawn by CSS alone (no text content, no extra element). With a label part the label sits in the centre instead of the diamond. Horizontal only: a vertical separator with data-style=\"ornament\" keeps its solid line. Forced colours reduce it to a system-colour rule with the diamond on it (both the hr and the label-less div form). The element, its role and its semantics are unchanged; the diamond is a pseudo-element with no content. No change for the existing styles.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the label with descendant selectors, so a component nested inside with parts of the same name took this one's styles. The label is the root's child. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "data-size is now declared (it was in separator.css and in no manifest). It sizes a vertical separator only, and its default is empty because absence is a real value: an unsized vertical separator stretches to its flex line (height: 100%) instead of taking a fixed height. No CSS or behaviour change. 0.8-10's undeclared-attribute rule now makes this class of drift impossible: an attribute a component's CSS selects on that its manifest never declares fails the registry gate.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "hr",
+    "selector": "[data-ui='separator']",
+    "content_model": "inline"
+  },
+
+  "slots": {
+    "label": {
+      "selector": "[data-part='label']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Optional text label centered on the separator"
+    }
+  },
+
+  "variants": {
+    "orientation": {
+      "values": ["horizontal", "vertical"],
+      "default": "horizontal",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "style": {
+      "values": ["solid", "dashed", "dotted", "thick", "ornament"],
+      "default": "solid",
+      "attr": "data-style",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "a11y": {
+    "role": "separator",
+    "required_attrs": ["aria-orientation when vertical"],
+    "keyboard": {},
+    "notes": "The ornament style is decoration on a separator that is still a separator: an hr keeps its implicit separator role, a labelled div keeps role=\"separator\", and the label is real text read as written. The diamond is a content-less pseudo-element, so there is nothing for assistive technology to announce. Use it for a break between sections, not as the only marker where a boundary matters: forced colors reduce it to a plain rule."
+  },
+
+  "tokens_used": [
+    "color-border", "color-fg-muted", "color-primary", "space-4", "space-3", "space-2", "font-ui",
+    "text-xs", "border-width-strong", "divider-width", "divider-style"
+  ],
+
+  "templates": {
+    "html": "<hr data-ui=\"separator\">",
+    "html_vertical": "<hr data-ui=\"separator\" data-variant=\"vertical\" aria-orientation=\"vertical\">",
+    "html_with_label": "<div data-ui=\"separator\" role=\"separator\">\n  <span data-part=\"label\">{text}</span>\n</div>",
+    "html_ornament": "<hr data-ui=\"separator\" data-style=\"ornament\">",
+    "html_ornament_with_label": "<div data-ui=\"separator\" data-style=\"ornament\" role=\"separator\">\n  <span data-part=\"label\">{text}</span>\n</div>"
+  },
+
+  "safe_transforms": [
+    "change-orientation",
+    "add-label",
+    "change-style"
+  ],
+
+  "unsafe_transforms": [
+    "remove-separator-element"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["auth-form", "settings-page"]
+  },
+
+  "files": {
+    "html": "separator.html",
+    "css": "separator.css",
+    "manifest": "separator.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-hr-element",
+    "horizontal-by-default",
+    "vertical-variant-sets-data-variant-vertical",
+    "vertical-has-aria-orientation",
+    "label-slot-is-optional",
+    "dashed-style-sets-border-dashed",
+    "dotted-style-sets-border-dotted",
+    "thick-style-sets-2px-border",
+    "labeled-dashed-applies-to-pseudo-lines",
+    "ornament-draws-a-diamond-and-two-fading-rules",
+    "ornament-with-a-label-puts-the-label-in-the-middle",
+    "ornament-is-horizontal-only"
+  ]
+}

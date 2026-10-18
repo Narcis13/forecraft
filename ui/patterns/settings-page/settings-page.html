@@ -1,0 +1,417 @@
+<!-- @ui:component settings-page -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots header title description tabs section section-title section-description field-group actions save-button discard-button confirm-dialog -->
+<!-- @ui:variants layout=vertical|horizontal -->
+<!-- @ui:composition tabs card input select switch button dialog -->
+
+<!-- Vertical layout (default) -->
+<!-- @ui:scaffold internal-tool -->
+<div data-ui="settings-page" data-state="default" data-variant="vertical" aria-labelledby="settings-title">
+
+  <!-- Page header -->
+  <div data-part="header">
+    <h1 data-part="title" id="settings-title">Settings</h1>
+    <p data-part="description">Manage your account settings and preferences.</p>
+  </div>
+
+  <!-- Tabs navigation -->
+  <div data-ui="tabs" data-variant="underline">
+    <div data-part="list" role="tablist">
+      <button data-part="trigger" role="tab" id="settings-tab-profile" aria-controls="settings-panel-profile" aria-selected="true">Profile</button>
+      <button data-part="trigger" role="tab" id="settings-tab-notifications" aria-controls="settings-panel-notifications" aria-selected="false" tabindex="-1">Notifications</button>
+      <button data-part="trigger" role="tab" id="settings-tab-security" aria-controls="settings-panel-security" aria-selected="false" tabindex="-1">Security</button>
+      <button data-part="trigger" role="tab" id="settings-tab-appearance" aria-controls="settings-panel-appearance" aria-selected="false" tabindex="-1">Appearance</button>
+    </div>
+
+    <!-- Profile tab panel -->
+    <div data-part="panel" role="tabpanel" id="settings-panel-profile" aria-labelledby="settings-tab-profile">
+
+      <!-- Profile section -->
+      <div data-part="section">
+        <div data-ui="card">
+          <div data-part="header">
+            <h2 data-part="section-title">Profile Information</h2>
+            <p data-part="section-description">Update your personal details and public profile.</p>
+          </div>
+          <div data-part="body">
+
+            <div data-part="field-group">
+              <label data-ui="label" for="settings-display-name">Display name</label>
+              <input data-ui="input" type="text" id="settings-display-name" placeholder="Your display name" value="Jane Doe">
+            </div>
+
+            <div data-part="field-group">
+              <label data-ui="label" for="settings-email">Email address</label>
+              <input data-ui="input" type="email" id="settings-email" placeholder="you@example.com" value="jane@example.com">
+            </div>
+
+            <div data-part="field-group">
+              <label data-ui="label" for="settings-bio">Bio</label>
+              <textarea data-ui="textarea" id="settings-bio" placeholder="Tell us about yourself..."></textarea>
+            </div>
+
+            <div data-part="field-group">
+              <label data-ui="label" for="settings-language">Language</label>
+              <select data-ui="select" id="settings-language">
+                <option value="en" selected>English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+              </select>
+            </div>
+
+            <div data-part="field-group">
+              <label data-ui="label" for="settings-timezone">Timezone</label>
+              <select data-ui="select" id="settings-timezone">
+                <option value="" disabled selected>Select a timezone...</option>
+                <option value="utc">UTC</option>
+                <option value="est">Eastern (US)</option>
+                <option value="pst">Pacific (US)</option>
+                <option value="cet">Central European</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Notifications tab panel -->
+    <div data-part="panel" role="tabpanel" id="settings-panel-notifications" aria-labelledby="settings-tab-notifications" hidden>
+
+      <div data-part="section">
+        <div data-ui="card">
+          <div data-part="header">
+            <h2 data-part="section-title">Email Notifications</h2>
+            <p data-part="section-description">Choose which emails you want to receive.</p>
+          </div>
+          <div data-part="body">
+
+            <div data-part="field-group">
+              <label data-ui="switch-label">
+                <button type="button" data-ui="switch" role="switch" aria-checked="true" data-state="on">
+                  <span data-part="thumb"></span>
+                </button>
+                <span data-part="label">Product updates</span>
+              </label>
+            </div>
+
+            <div data-part="field-group">
+              <label data-ui="switch-label">
+                <button type="button" data-ui="switch" role="switch" aria-checked="true" data-state="on">
+                  <span data-part="thumb"></span>
+                </button>
+                <span data-part="label">Security alerts</span>
+              </label>
+            </div>
+
+            <div data-part="field-group">
+              <label data-ui="switch-label">
+                <button type="button" data-ui="switch" role="switch" aria-checked="false">
+                  <span data-part="thumb"></span>
+                </button>
+                <span data-part="label">Marketing emails</span>
+              </label>
+            </div>
+
+            <div data-part="field-group">
+              <label data-ui="label" for="settings-digest">Email digest frequency</label>
+              <select data-ui="select" id="settings-digest">
+                <option value="realtime">Real-time</option>
+                <option value="daily" selected>Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="never">Never</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Security tab panel -->
+    <div data-part="panel" role="tabpanel" id="settings-panel-security" aria-labelledby="settings-tab-security" hidden>
+
+      <div data-part="section">
+        <div data-ui="card">
+          <div data-part="header">
+            <h2 data-part="section-title">Password</h2>
+            <p data-part="section-description">Change your password to keep your account secure.</p>
+          </div>
+          <div data-part="body">
+
+            <div data-part="field-group">
+              <label data-ui="label" for="settings-current-password">Current password</label>
+              <input data-ui="input" type="password" id="settings-current-password" placeholder="Enter current password">
+            </div>
+
+            <div data-part="field-group">
+              <label data-ui="label" for="settings-new-password">New password</label>
+              <input data-ui="input" type="password" id="settings-new-password" placeholder="Enter new password">
+            </div>
+
+            <div data-part="field-group">
+              <label data-ui="label" for="settings-confirm-password">Confirm new password</label>
+              <input data-ui="input" type="password" id="settings-confirm-password" placeholder="Confirm new password">
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div data-part="section">
+        <div data-ui="card">
+          <div data-part="header">
+            <h2 data-part="section-title">Two-Factor Authentication</h2>
+            <p data-part="section-description">Add an extra layer of security to your account.</p>
+          </div>
+          <div data-part="body">
+
+            <div data-part="field-group">
+              <label data-ui="switch-label">
+                <button type="button" data-ui="switch" role="switch" aria-checked="false">
+                  <span data-part="thumb"></span>
+                </button>
+                <span data-part="label">Enable two-factor authentication</span>
+              </label>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Appearance tab panel -->
+    <div data-part="panel" role="tabpanel" id="settings-panel-appearance" aria-labelledby="settings-tab-appearance" hidden>
+
+      <div data-part="section">
+        <div data-ui="card">
+          <div data-part="header">
+            <h2 data-part="section-title">Theme</h2>
+            <p data-part="section-description">Customize the look and feel of the application.</p>
+          </div>
+          <div data-part="body">
+
+            <div data-part="field-group">
+              <label data-ui="label" for="settings-theme">Color theme</label>
+              <select data-ui="select" id="settings-theme">
+                <option value="system" selected>System default</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </div>
+
+            <div data-part="field-group">
+              <label data-ui="switch-label">
+                <button type="button" data-ui="switch" role="switch" aria-checked="true" data-state="on">
+                  <span data-part="thumb"></span>
+                </button>
+                <span data-part="label">Reduce motion</span>
+              </label>
+            </div>
+
+            <div data-part="field-group">
+              <label data-ui="switch-label">
+                <button type="button" data-ui="switch" role="switch" aria-checked="false">
+                  <span data-part="thumb"></span>
+                </button>
+                <span data-part="label">Compact mode</span>
+              </label>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Sticky action bar -->
+  <div data-part="actions">
+    <button data-ui="button" data-part="discard-button" data-variant="outline">Discard changes</button>
+    <button data-ui="button" data-part="save-button" data-variant="primary">Save changes</button>
+  </div>
+
+  <!-- @ui:scaffold-omit -->
+  <!-- Unsaved changes confirmation dialog -->
+  <div data-ui="dialog" data-state="closed" data-part="confirm-dialog" id="settings-confirm-dialog">
+    <div data-part="overlay" hidden></div>
+    <div
+      data-part="panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settings-confirm-dialog-title"
+      data-size="sm"
+      hidden
+    >
+      <div data-part="header">
+        <h2 id="settings-confirm-dialog-title" data-part="title">Unsaved Changes</h2>
+        <button data-part="close" aria-label="Close dialog">&#x2715;</button>
+      </div>
+      <div data-part="body">
+        <p>You have unsaved changes. Are you sure you want to leave this page? Your changes will be lost.</p>
+      </div>
+      <div data-part="footer">
+        <button data-ui="button" data-part="close" data-variant="outline">Stay on page</button>
+        <button data-ui="button" data-variant="destructive">Discard changes</button>
+      </div>
+    </div>
+  </div>
+  <!-- @ui:scaffold-omit-end -->
+
+</div>
+<!-- @ui:scaffold-end -->
+
+<!-- Horizontal layout variant (tabs on left, content on right) -->
+<div data-ui="settings-page" data-state="default" data-variant="horizontal" aria-labelledby="settings-horiz-title">
+
+  <div data-part="header">
+    <h1 data-part="title" id="settings-horiz-title">Settings</h1>
+    <p data-part="description">Manage your account settings and preferences.</p>
+  </div>
+
+  <div data-ui="tabs" data-variant="underline">
+    <div data-part="list" role="tablist">
+      <button data-part="trigger" role="tab" id="horiz-tab-profile" aria-controls="horiz-panel-profile" aria-selected="true">Profile</button>
+      <button data-part="trigger" role="tab" id="horiz-tab-notifications" aria-controls="horiz-panel-notifications" aria-selected="false" tabindex="-1">Notifications</button>
+      <button data-part="trigger" role="tab" id="horiz-tab-security" aria-controls="horiz-panel-security" aria-selected="false" tabindex="-1">Security</button>
+    </div>
+
+    <div data-part="panel" role="tabpanel" id="horiz-panel-profile" aria-labelledby="horiz-tab-profile">
+      <div data-part="section">
+        <div data-ui="card">
+          <div data-part="header">
+            <h2 data-part="section-title">Profile Information</h2>
+          </div>
+          <div data-part="body">
+            <div data-part="field-group">
+              <label data-ui="label" for="horiz-display-name">Display name</label>
+              <input data-ui="input" type="text" id="horiz-display-name" placeholder="Your display name">
+            </div>
+            <div data-part="field-group">
+              <label data-ui="label" for="horiz-email">Email address</label>
+              <input data-ui="input" type="email" id="horiz-email" placeholder="you@example.com">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div data-part="panel" role="tabpanel" id="horiz-panel-notifications" aria-labelledby="horiz-tab-notifications" hidden>
+      <div data-part="section">
+        <div data-ui="card">
+          <div data-part="header">
+            <h2 data-part="section-title">Notifications</h2>
+          </div>
+          <div data-part="body">
+            <div data-part="field-group">
+              <label data-ui="switch-label">
+                <button type="button" data-ui="switch" role="switch" aria-checked="true" data-state="on">
+                  <span data-part="thumb"></span>
+                </button>
+                <span data-part="label">Email notifications</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div data-part="panel" role="tabpanel" id="horiz-panel-security" aria-labelledby="horiz-tab-security" hidden>
+      <div data-part="section">
+        <div data-ui="card">
+          <div data-part="header">
+            <h2 data-part="section-title">Security</h2>
+          </div>
+          <div data-part="body">
+            <div data-part="field-group">
+              <label data-ui="label" for="horiz-password">New password</label>
+              <input data-ui="input" type="password" id="horiz-password" placeholder="Enter new password">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div data-part="actions">
+    <button data-ui="button" data-part="discard-button" data-variant="outline">Discard changes</button>
+    <button data-ui="button" data-part="save-button" data-variant="primary">Save changes</button>
+  </div>
+
+</div>
+
+<!-- Dirty state (unsaved changes) -->
+<div data-ui="settings-page" data-state="dirty" data-variant="vertical" aria-labelledby="settings-dirty-title">
+
+  <div data-part="header">
+    <h1 data-part="title" id="settings-dirty-title">Settings</h1>
+    <p data-part="description">Manage your account settings and preferences.</p>
+  </div>
+
+  <div data-ui="tabs" data-variant="underline">
+    <div data-part="list" role="tablist">
+      <button data-part="trigger" role="tab" id="dirty-tab-profile" aria-controls="dirty-panel-profile" aria-selected="true">Profile</button>
+    </div>
+    <div data-part="panel" role="tabpanel" id="dirty-panel-profile" aria-labelledby="dirty-tab-profile">
+      <div data-part="section">
+        <div data-ui="card">
+          <div data-part="header">
+            <h2 data-part="section-title">Profile Information</h2>
+          </div>
+          <div data-part="body">
+            <div data-part="field-group">
+              <label data-ui="label" for="dirty-display-name">Display name</label>
+              <input data-ui="input" type="text" id="dirty-display-name" value="Updated Name">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div data-part="actions">
+    <button data-ui="button" data-part="discard-button" data-variant="outline">Discard changes</button>
+    <button data-ui="button" data-part="save-button" data-variant="primary">Save changes</button>
+  </div>
+
+</div>
+
+<!-- Saving state -->
+<div data-ui="settings-page" data-state="saving" data-variant="vertical" aria-labelledby="settings-saving-title">
+
+  <div data-part="header">
+    <h1 data-part="title" id="settings-saving-title">Settings</h1>
+    <p data-part="description">Manage your account settings and preferences.</p>
+  </div>
+
+  <div data-ui="tabs" data-variant="underline">
+    <div data-part="list" role="tablist">
+      <button data-part="trigger" role="tab" id="saving-tab-profile" aria-controls="saving-panel-profile" aria-selected="true">Profile</button>
+    </div>
+    <div data-part="panel" role="tabpanel" id="saving-panel-profile" aria-labelledby="saving-tab-profile">
+      <div data-part="section">
+        <div data-ui="card">
+          <div data-part="header">
+            <h2 data-part="section-title">Profile Information</h2>
+          </div>
+          <div data-part="body">
+            <div data-part="field-group">
+              <label data-ui="label" for="saving-display-name">Display name</label>
+              <input data-ui="input" type="text" id="saving-display-name" value="Jane Doe" disabled>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div data-part="actions">
+    <button data-ui="button" data-part="discard-button" data-variant="outline" disabled>Discard changes</button>
+    <button data-ui="button" data-part="save-button" data-variant="primary" data-state="loading" disabled>Saving...</button>
+  </div>
+
+</div>

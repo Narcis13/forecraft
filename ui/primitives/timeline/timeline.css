@@ -1,0 +1,235 @@
+/* @ui:component timeline */
+/* @ui:tokens color-border color-primary color-fg color-bg color-fg-muted color-primary-fg space-8 space-4 space-1 font-body font-ui font-heading border-width-md radius-full text-xs text-sm text-lg duration-normal ease-default ease-out ease-linear weight-semibold heading-tracking leading-snug leading-relaxed motion-ambient-duration motion-ambient-play */
+
+/* ── Root ──
+   An ordered list read down a rail. Each item draws its own segment of the
+   rail (from its marker to the next item's), so the line is exactly as long
+   as the content and stops at the last marker with nothing to measure. */
+[data-ui="timeline"] {
+  --faqir-timeline-rail: var(--timeline-rail, var(--color-border));
+  --faqir-timeline-ink: var(--timeline-color, var(--color-primary));
+  --faqir-timeline-marker: var(--timeline-marker-size, 0.875rem);
+  --faqir-timeline-gap: var(--timeline-gap, var(--space-8));
+  position: relative;
+  display: grid;
+  gap: var(--faqir-timeline-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-body);
+  color: var(--color-fg);
+}
+
+/* ── Item ── */
+[data-ui="timeline"] > [data-part="item"] {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--faqir-timeline-marker) minmax(0, 1fr);
+  column-gap: var(--space-4);
+  align-items: start;
+}
+
+/* The rail segment. It runs from this item's top to the next item's top — the
+   item's own height plus the gap — centred under the marker column. */
+[data-ui="timeline"] > [data-part="item"]::before {
+  content: "";
+  position: absolute;
+  inset-block: 0 calc(var(--faqir-timeline-gap) * -1);
+  inset-inline-start: calc((var(--faqir-timeline-marker) - var(--border-width-md)) / 2);
+  inline-size: var(--border-width-md);
+  background-color: var(--faqir-timeline-rail);
+}
+
+[data-ui="timeline"] > [data-part="item"]:last-child::before {
+  content: none;
+}
+
+/* ── Marker ──
+   A ring on the rail. It may hold a glyph (an icon, a step number), in which
+   case it grows to fit and the rail still meets it at its centre. */
+[data-ui="timeline"] > :where([data-part="item"]) > [data-part="marker"] {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  inline-size: var(--faqir-timeline-marker);
+  block-size: var(--faqir-timeline-marker);
+  margin-block-start: 0.3em;
+  border: var(--border-width-md) solid var(--faqir-timeline-rail);
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg);
+  color: var(--color-fg-muted);
+  font-size: var(--text-xs);
+  transition:
+    background-color var(--duration-normal) var(--ease-default),
+    border-color var(--duration-normal) var(--ease-default);
+}
+
+/* ── Content ── */
+[data-ui="timeline"] > :where([data-part="item"]) > [data-part="content"] {
+  display: grid;
+  gap: var(--space-1);
+  min-inline-size: 0;
+}
+
+[data-ui="timeline"] > :where([data-part="item"]) > :where([data-part="content"]) > [data-part="time"] {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg-muted);
+}
+
+[data-ui="timeline"] > :where([data-part="item"]) > :where([data-part="content"]) > [data-part="title"] {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--heading-tracking);
+  line-height: var(--leading-snug);
+  color: var(--color-fg);
+}
+
+[data-ui="timeline"] > :where([data-part="item"]) > :where([data-part="content"]) > [data-part="description"] {
+  margin: 0;
+  line-height: var(--leading-relaxed);
+  color: var(--color-fg-muted);
+}
+
+/* ── Status ──
+   What has happened, what is happening, what has not. `done` fills the marker
+   and inks the rail below it; `current` rings the marker in the accent and
+   lets it breathe; `upcoming` is the resting look, stated so a roadmap can say
+   it out loud. */
+[data-ui="timeline"] > [data-part="item"][data-status="done"]::before {
+  background-color: var(--faqir-timeline-ink);
+}
+
+[data-ui="timeline"] > [data-part="item"][data-status="done"] > [data-part="marker"] {
+  border-color: var(--faqir-timeline-ink);
+  background-color: var(--faqir-timeline-ink);
+  color: var(--color-primary-fg);
+}
+
+[data-ui="timeline"] > [data-part="item"][data-status="current"] > [data-part="marker"] {
+  border-color: var(--faqir-timeline-ink);
+  color: var(--faqir-timeline-ink);
+}
+
+[data-ui="timeline"] > [data-part="item"][data-status="current"] > [data-part="marker"]::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--border-width-md) * -1);
+  border: var(--border-width-md) solid var(--faqir-timeline-ink);
+  border-radius: inherit;
+  animation: faqir-timeline-ping calc(var(--motion-ambient-duration) / 12) var(--ease-out) infinite;
+  animation-play-state: var(--motion-ambient-play);
+}
+
+@keyframes faqir-timeline-ping {
+  from { scale: 1; opacity: 0.7; }
+  to   { scale: 2.4; opacity: 0; }
+}
+
+/* ── Size: large markers ──
+   Room for an icon or a number inside the marker. */
+[data-ui="timeline"][data-size="lg"] {
+  --faqir-timeline-marker: var(--timeline-marker-size, 2rem);
+}
+
+[data-ui="timeline"][data-size="lg"] > :where([data-part="item"]) > [data-part="marker"] {
+  margin-block-start: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+/* ── Variant: alternate ──
+   From the md tier the rail moves to the centre and items take turns on either
+   side of it. Below md it is the default one-sided list: two half-width columns
+   on a phone are two unreadable columns. */
+@media (min-width: 48rem) {
+  [data-ui="timeline"][data-variant="alternate"] > [data-part="item"] {
+    grid-template-columns: minmax(0, 1fr) var(--faqir-timeline-marker) minmax(0, 1fr);
+  }
+
+  [data-ui="timeline"][data-variant="alternate"] > [data-part="item"]::before {
+    inset-inline-start: calc(50% - var(--border-width-md) / 2);
+  }
+
+  [data-ui="timeline"][data-variant="alternate"] > :where([data-part="item"]) > [data-part="marker"] {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  [data-ui="timeline"][data-variant="alternate"] > :where([data-part="item"]) > [data-part="content"] {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  [data-ui="timeline"][data-variant="alternate"] > :where([data-part="item"]:nth-child(odd)) > [data-part="content"] {
+    grid-column: 1;
+    justify-items: end;
+    text-align: end;
+  }
+}
+
+/* ── Progress ──
+   With `data-progress` the timeline reports how far the reader has got: every
+   marker fills, and its rail segment inks in, as that item rises through the
+   viewport. A view timeline per item — scrubbed by the scrollbar, no script —
+   so each one answers for itself and nothing is measured. Where view timelines
+   are not supported the timeline simply shows its resting state. */
+@supports (animation-timeline: view()) {
+  [data-ui="timeline"][data-progress] > :where([data-part="item"]) > [data-part="marker"] {
+    animation: faqir-timeline-reach var(--ease-linear) both;
+    animation-timeline: view();
+    animation-range: cover 30% cover 50%;
+  }
+
+  [data-ui="timeline"][data-progress] > [data-part="item"]::before {
+    background-image: linear-gradient(var(--faqir-timeline-ink), var(--faqir-timeline-ink));
+    background-repeat: no-repeat;
+    background-size: 100% 0%;
+    animation: faqir-timeline-fill var(--ease-linear) both;
+    animation-timeline: view();
+    animation-range: cover 35% cover 75%;
+  }
+}
+
+@keyframes faqir-timeline-reach {
+  to {
+    border-color: var(--faqir-timeline-ink);
+    background-color: var(--faqir-timeline-ink);
+    color: var(--color-primary-fg);
+  }
+}
+
+@keyframes faqir-timeline-fill {
+  to { background-size: 100% 100%; }
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="timeline"] > :where([data-part="item"]) > [data-part="marker"],
+  [data-ui="timeline"] > [data-part="item"]::before {
+    animation: none;
+    transition: none;
+  }
+
+  [data-ui="timeline"] > [data-part="item"][data-status="current"] > [data-part="marker"]::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ── Print ── */
+@media print {
+  [data-ui="timeline"] > [data-part="item"] {
+    break-inside: avoid;
+  }
+
+  [data-ui="timeline"] > :where([data-part="item"]) > [data-part="marker"],
+  [data-ui="timeline"] > [data-part="item"]::before {
+    animation: none;
+  }
+}

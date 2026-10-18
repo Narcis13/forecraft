@@ -1,0 +1,116 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "chip",
+  "version": "1.0.1",
+  "kind": "primitive",
+  "category": "data-display",
+  "description": "Tag/chip with a label and an optional dismiss button",
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the label and dismiss button with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Both are the root's children. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "span",
+    "selector": "[data-ui='chip']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "label": {
+      "selector": "[data-part='label']",
+      "required": true,
+      "tag_hint": "span",
+      "description": "Chip text content"
+    },
+    "dismiss": {
+      "selector": "[data-part='dismiss']",
+      "required": false,
+      "tag_hint": "button",
+      "description": "Optional dismiss button — must be a <button type=\"button\"> with an aria-label"
+    }
+  },
+
+  "variants": {
+    "visual": {
+      "values": ["default", "primary", "outline", "destructive"],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {
+    "label": { "type": "string", "default": "", "description": "Chip label text" }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-label on dismiss",
+      "type=\"button\" on dismiss"
+    ],
+    "keyboard": {
+      "Enter/Space": "Activates the dismiss button when focused"
+    }
+  },
+
+  "tokens_used": [
+    "color-bg-muted", "color-fg", "color-fg-muted",
+    "color-primary", "color-primary-subtle",
+    "color-destructive", "color-destructive-subtle",
+    "color-border", "color-ring",
+    "radius-full", "space-1", "space-2", "space-3",
+    "font-ui", "text-xs", "text-sm", "weight-medium",
+    "border-width", "focus-ring-width", "focus-ring-offset", "focus-ring-style", "focus-ring-color", "focus-shadow"
+  ],
+
+  "templates": {
+    "html": "<span data-ui=\"chip\" data-variant=\"{variant}\"><span data-part=\"label\">{label}</span></span>",
+    "html_dismissible": "<span data-ui=\"chip\" data-variant=\"{variant}\"><span data-part=\"label\">{label}</span><button data-part=\"dismiss\" type=\"button\" aria-label=\"Remove {label}\">&times;</button></span>"
+  },
+
+  "safe_transforms": [
+    "change-variant",
+    "change-size",
+    "change-label-text",
+    "add-dismiss",
+    "remove-dismiss"
+  ],
+
+  "unsafe_transforms": [
+    "remove-label-slot",
+    "remove-dismiss-aria-label"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": []
+  },
+
+  "files": {
+    "html": "chip.html",
+    "css": "chip.css",
+    "manifest": "chip.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-span-element",
+    "label-slot-is-required",
+    "dismiss-slot-is-optional",
+    "dismiss-requires-aria-label",
+    "primary-variant-uses-primary-subtle",
+    "outline-variant-has-border",
+    "sm-size-sets-data-size-sm"
+  ]
+}

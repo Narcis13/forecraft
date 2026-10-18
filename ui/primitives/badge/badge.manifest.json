@@ -1,0 +1,101 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "badge",
+  "version": "1.2.0",
+  "kind": "primitive",
+  "category": "data-display",
+  "description": "Small status indicator with color variants",
+
+  "changes": [
+    {
+      "version": "1.2.0",
+      "note": "A data-live boolean: a breathing dot before the text, drawn in currentColor so it takes the variant colour, on a loop cut from --motion-ambient-duration and frozen by --motion-ambient-play or reduced motion. For Live, Online, Recording.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "Align sm, md, and lg atomic inline boxes to one bottom baseline so mixed-size badge rows no longer stagger.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "span",
+    "selector": "[data-ui='badge']",
+    "content_model": "inline"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "visual": {
+      "values": ["default", "primary", "secondary", "destructive", "success", "warning"],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {
+    "live": {"type":"boolean","default":false,"attr":"data-live","description":"A breathing dot before the text, in the variant colour — a status that is happening now (Live, Online, Recording)."},
+    "text": { "type": "string", "default": "", "description": "Badge text content" }
+  },
+
+  "a11y": {
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-bg-muted", "color-fg", "color-primary", "color-primary-subtle", "color-secondary",
+    "color-secondary-fg", "color-destructive", "color-destructive-subtle", "color-success",
+    "color-success-subtle", "color-warning", "color-warning-subtle", "radius-full", "space-1",
+    "space-2", "space-3", "font-ui", "text-xs", "text-sm", "weight-medium", "corner-shape",
+    "badge-radius", "badge-font", "motion-ambient-duration", "motion-ambient-play", "ease-in-out"
+  ],
+
+  "templates": {
+    "html": "<span data-ui=\"badge\" data-variant=\"{variant}\">{text}</span>"
+  },
+
+  "safe_transforms": [
+    "change-variant",
+    "change-size",
+    "change-text-content",
+    "toggle-live"
+  ],
+
+  "unsafe_transforms": [
+    "remove-badge-element"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["crud-table", "search-results"]
+  },
+
+  "files": {
+    "html": "badge.html",
+    "css": "badge.css",
+    "manifest": "badge.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-span-element",
+    "default-has-muted-background",
+    "primary-variant-uses-primary-subtle",
+    "destructive-variant-uses-destructive-subtle",
+    "sm-size-sets-data-size-sm",
+    "all-sizes-share-one-computed-bottom-baseline",
+    "every-size-keeps-the-required-part-set",
+    "live-dot-takes-the-variant-colour",
+    "live-dot-stops-under-reduced-motion"
+  ]
+}

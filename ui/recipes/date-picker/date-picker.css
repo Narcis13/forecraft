@@ -1,0 +1,98 @@
+/* @ui:component date-picker */
+/* @ui:tokens color-bg color-fg color-fg-muted color-border color-primary color-ring shadow-lg radius-md radius-lg space-1 space-2 space-3 space-4 space-8 space-6 space-10 text-xs text-sm text-base z-dropdown duration-fast ease-default font-ui border-width focus-ring-width focus-ring-style focus-ring-color focus-ring-offset */
+/* The month grid inside the popup is the `calendar` recipe — see calendar.css */
+
+/* ── Root ── */
+[data-ui="date-picker"] {
+  position: relative;
+  display: inline-block;
+}
+
+/* ── Trigger ── */
+[data-ui="date-picker"] > [data-part="trigger"] {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ── Input ── */
+[data-ui="date-picker"] > :where([data-part="trigger"]) > [data-part="input"] {
+  width: 100%;
+  padding: var(--space-2, 0.5rem) var(--space-3);
+  padding-inline-end: var(--space-8, 2.5rem);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="date-picker"] > :where([data-part="trigger"]) > [data-part="input"]::placeholder {
+  color: var(--color-fg-muted);
+}
+
+[data-ui="date-picker"] > :where([data-part="trigger"]) > [data-part="input"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-color: var(--color-primary);
+}
+
+/* ── Icon ── */
+[data-ui="date-picker"] > :where([data-part="trigger"]) > [data-part="icon"] {
+  position: absolute;
+  inset-inline-end: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-fg-muted);
+  font-size: var(--text-sm);
+}
+
+/* ── Calendar popup ── */
+[data-ui="date-picker"] > [data-part="calendar"] {
+  position: absolute;
+  top: 100%;
+  inset-inline-start: 0;
+  z-index: var(--z-dropdown);
+  margin-top: var(--space-1);
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity var(--duration-fast) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="date-picker"][data-state="open"] > [data-part="calendar"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Size: Small ── */
+[data-ui="date-picker"][data-size="sm"] > :where([data-part="trigger"]) > [data-part="input"] {
+  padding: var(--space-1) var(--space-2);
+  padding-inline-end: var(--space-6, 2rem);
+  font-size: var(--text-xs, 0.75rem);
+}
+
+/* ── Size: Large ── */
+[data-ui="date-picker"][data-size="lg"] > :where([data-part="trigger"]) > [data-part="input"] {
+  padding: var(--space-3) var(--space-4);
+  padding-inline-end: var(--space-10, 3rem);
+  font-size: var(--text-base, 1rem);
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="date-picker"] > [data-part="calendar"],
+  [data-ui="date-picker"] > :where([data-part="trigger"]) > [data-part="input"] {
+    transition: none;
+  }
+}

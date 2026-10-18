@@ -1,0 +1,98 @@
+/* @ui:component container */
+/* @ui:tokens measure-narrow measure-content measure-wide measure-prose space-0 space-1 space-2 space-3 space-4 space-6 space-8 space-10 space-12 space-16 */
+
+/* The centred measure column (task 0.8-06).
+ *
+ * Three call sites in this repository hand-rolled this component before it
+ * existed: the docs generator pinned an inline 72rem width onto the prose of
+ * every generated page, form-page and wizard each wrote their own
+ * `max-inline-size: 32rem; margin-inline: auto`, and surface hardcoded five
+ * `data-max` pixel values. They are all one idea — cap the line length, centre
+ * what is left — and they are all this file now.
+ *
+ * NAMING: `container` the component is not `container-type` the CSS feature.
+ * The collision is accepted (every framework has a container), and nothing here
+ * establishes a containment context — a container is a plain block box. The
+ * component that queries its own inline size is `switcher` (task 0.8-05).
+ *
+ * `data-measure` is responsive on the canon tiers, with precedence encoded in
+ * SPECIFICITY rather than source order — each tier block repeats
+ * `[data-ui="container"]` once more than the tier below, base (0,2,0) → xl
+ * (0,6,0) — so a bundler that reorders or splits the blocks cannot change which
+ * tier wins (the mechanism grid 2.0 introduced in task 0.8-04).
+ *
+ * `data-gutter` is deliberately NOT responsive: it is the breathing room between
+ * the column and the edge of whatever holds it, and a parent that already pads
+ * (the docs shell, a dashboard cell) wants it left at the declared default of 0.
+ * A tier ladder on top of that would be a second way to say the same thing.
+ */
+
+/* ── Base ──
+ * A bare `<div data-ui="container">` is already an article column: capped at the
+ * content measure and centred. Logical throughout — `max-inline-size` and
+ * `margin-inline` mean the same thing in Arabic as in English, which the
+ * `max-width` escapes this primitive replaces did not. Declared at (0,1,0) so
+ * every attribute rule below overrides it. */
+[data-ui="container"] {
+  max-inline-size: var(--measure-content);
+  margin-inline: auto;
+}
+
+/* ── Measure ──
+ * One ladder, four tokens, and `full` for the deliberate opt-out: a container
+ * that carries the centring and the gutter but imposes no cap. */
+[data-ui="container"][data-measure="narrow"] { max-inline-size: var(--measure-narrow); }
+[data-ui="container"][data-measure="content"] { max-inline-size: var(--measure-content); }
+[data-ui="container"][data-measure="wide"] { max-inline-size: var(--measure-wide); }
+[data-ui="container"][data-measure="prose"] { max-inline-size: var(--measure-prose); }
+[data-ui="container"][data-measure="full"] { max-inline-size: 100%; }
+
+/* ── Gutter ──
+ * Inline padding only. A gutter is the space beside the column, never above it:
+ * vertical rhythm belongs to the stack inside, not to the column's edge. */
+[data-ui="container"][data-gutter="0"] { padding-inline: var(--space-0, 0px); }
+[data-ui="container"][data-gutter="1"] { padding-inline: var(--space-1); }
+[data-ui="container"][data-gutter="2"] { padding-inline: var(--space-2); }
+[data-ui="container"][data-gutter="3"] { padding-inline: var(--space-3); }
+[data-ui="container"][data-gutter="4"] { padding-inline: var(--space-4); }
+[data-ui="container"][data-gutter="6"] { padding-inline: var(--space-6); }
+[data-ui="container"][data-gutter="8"] { padding-inline: var(--space-8); }
+[data-ui="container"][data-gutter="10"] { padding-inline: var(--space-10); }
+[data-ui="container"][data-gutter="12"] { padding-inline: var(--space-12); }
+[data-ui="container"][data-gutter="16"] { padding-inline: var(--space-16); }
+
+/* ── Tier `sm` — from 40rem up ── */
+@media (min-width: 40rem) {
+  [data-ui="container"][data-ui="container"][data-measure-sm="narrow"] { max-inline-size: var(--measure-narrow); }
+  [data-ui="container"][data-ui="container"][data-measure-sm="content"] { max-inline-size: var(--measure-content); }
+  [data-ui="container"][data-ui="container"][data-measure-sm="wide"] { max-inline-size: var(--measure-wide); }
+  [data-ui="container"][data-ui="container"][data-measure-sm="prose"] { max-inline-size: var(--measure-prose); }
+  [data-ui="container"][data-ui="container"][data-measure-sm="full"] { max-inline-size: 100%; }
+}
+
+/* ── Tier `md` — from 48rem up ── */
+@media (min-width: 48rem) {
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-measure-md="narrow"] { max-inline-size: var(--measure-narrow); }
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-measure-md="content"] { max-inline-size: var(--measure-content); }
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-measure-md="wide"] { max-inline-size: var(--measure-wide); }
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-measure-md="prose"] { max-inline-size: var(--measure-prose); }
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-measure-md="full"] { max-inline-size: 100%; }
+}
+
+/* ── Tier `lg` — from 64rem up ── */
+@media (min-width: 64rem) {
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-measure-lg="narrow"] { max-inline-size: var(--measure-narrow); }
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-measure-lg="content"] { max-inline-size: var(--measure-content); }
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-measure-lg="wide"] { max-inline-size: var(--measure-wide); }
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-measure-lg="prose"] { max-inline-size: var(--measure-prose); }
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-measure-lg="full"] { max-inline-size: 100%; }
+}
+
+/* ── Tier `xl` — from 80rem up ── */
+@media (min-width: 80rem) {
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-measure-xl="narrow"] { max-inline-size: var(--measure-narrow); }
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-measure-xl="content"] { max-inline-size: var(--measure-content); }
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-measure-xl="wide"] { max-inline-size: var(--measure-wide); }
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-measure-xl="prose"] { max-inline-size: var(--measure-prose); }
+  [data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-ui="container"][data-measure-xl="full"] { max-inline-size: 100%; }
+}

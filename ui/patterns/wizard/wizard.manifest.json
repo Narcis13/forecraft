@@ -1,0 +1,149 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "wizard",
+  "version": "1.0.0",
+  "kind": "pattern",
+  "category": "composite",
+  "description": "Multi-step form wizard composing stepper + card panels + field-group + buttons. Fully declarative: a single l-data `{ step }` drives step visibility and indicator state, and faqir-validate's on-valid hook advances the step, blocks advancing while the active step is invalid, and dispatches a completion event on the final step. Zero custom JS.",
+
+  "anatomy": {
+    "tag": "form",
+    "selector": "[data-ui='wizard']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "heading": {
+      "selector": "[data-part='heading']",
+      "required": false,
+      "tag_hint": "h1",
+      "description": "Page-level heading above the stepper"
+    },
+    "steps": {
+      "selector": "[data-part='steps']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "The stepper progress indicator (a nested data-ui='stepper')"
+    },
+    "panel": {
+      "selector": "[data-part='panel']",
+      "required": true,
+      "tag_hint": "section",
+      "description": "One step's content, a nested data-ui='card'; shown only when its step is active via :hidden binding"
+    },
+    "actions": {
+      "selector": "[data-part='actions']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Navigation button row (back / next / submit)"
+    },
+    "back": {
+      "selector": "[data-part='back']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Go to the previous step; disabled on the first step"
+    },
+    "next": {
+      "selector": "[data-part='next']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Submit-typed button that triggers per-step validation then advances; hidden on the final step"
+    },
+    "submit": {
+      "selector": "[data-part='submit']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Submit-typed button shown only on the final step; completes the wizard"
+    },
+    "complete": {
+      "selector": "[data-part='complete']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Completion message, revealed by CSS when the form reaches data-state='submitted'"
+    }
+  },
+
+  "variants": {
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "active": { "attr": "data-state=\"active\"", "default": true },
+    "submitted": { "attr": "data-state=\"submitted\"" }
+  },
+
+  "a11y": {
+    "role": "form",
+    "required_attrs": [
+      "aria-label or aria-labelledby on the form element",
+      "role=\"navigation\" + aria-label on the stepper",
+      "label[for] matching each input id inside every step",
+      "aria-required=\"true\" on required controls",
+      "aria-describedby pointing to the field-group error message",
+      "role=\"status\" on the completion message so its reveal is announced"
+    ],
+    "keyboard": {
+      "Tab": "move focus between the active step's controls and the nav buttons",
+      "Enter": "activate Next/Submit (submit-typed), triggering validation",
+      "Shift+Tab": "reverse focus order"
+    }
+  },
+
+  "tokens_used": [
+    "color-fg", "color-success-subtle", "measure-narrow", "radius-lg", "space-3", "space-4",
+    "space-6", "font-body", "text-sm", "text-2xl", "weight-semibold", "leading-tight",
+    "leading-normal"
+  ],
+
+  "templates": {
+    "html": "<form data-ui=\"wizard\" data-state=\"active\" aria-label=\"{label}\" l-data=\"{ step: 0 }\" l-validate=\"step &lt; {last} ? (step = step + 1) : ($el.dataset.state = 'submitted', $el.dispatchEvent(new CustomEvent('faqir:wizard-complete', { bubbles: true })))\">\n  <div data-ui=\"stepper\" data-part=\"steps\" role=\"navigation\" aria-label=\"Progress\">\n    <div data-part=\"step\" :data-state=\"step > {i} ? 'completed' : (step === {i} ? 'active' : null)\"><span data-part=\"indicator\">1</span><span data-part=\"label\">{step_label}</span></div>\n  </div>\n  <section data-ui=\"card\" data-variant=\"outlined\" data-part=\"panel\" :hidden=\"step !== {i}\">{fields}</section>\n  <div data-part=\"actions\">\n    <button type=\"button\" data-ui=\"button\" data-variant=\"outline\" data-part=\"back\" :disabled=\"step === 0\" @click=\"step = step - 1\">Back</button>\n    <button type=\"submit\" data-ui=\"button\" data-variant=\"primary\" data-part=\"next\" :hidden=\"step === {last}\">Next</button>\n    <button type=\"submit\" data-ui=\"button\" data-variant=\"primary\" data-part=\"submit\" :hidden=\"step !== {last}\">Submit</button>\n  </div>\n</form>"
+  },
+
+  "safe_transforms": [
+    "add-step",
+    "remove-step",
+    "change-step-fields",
+    "change-step-labels",
+    "change-size-variant",
+    "customize-button-text",
+    "add-completion-message"
+  ],
+
+  "unsafe_transforms": [
+    "remove-l-data",
+    "remove-l-validate",
+    "remove-disabled-binding-from-inactive-steps",
+    "remove-form-element",
+    "remove-labels-from-inputs",
+    "add-custom-script"
+  ],
+
+  "composition": {
+    "contains": ["stepper", "card", "field-group", "input", "radio-group", "button"],
+    "used_in": []
+  },
+
+  "files": {
+    "html": "wizard.html",
+    "css": "wizard.css",
+    "manifest": "wizard.manifest.json"
+  },
+
+  "tests": [
+    "renders-with-data-ui-wizard",
+    "shows-only-the-active-step-panel",
+    "step-indicator-reflects-active-and-completed-state",
+    "next-advances-when-active-step-valid",
+    "invalid-active-step-blocks-advance",
+    "inactive-step-controls-are-disabled",
+    "back-returns-to-previous-step",
+    "final-step-submit-marks-submitted",
+    "dispatches-faqir-wizard-complete-on-completion",
+    "reference-page-has-zero-custom-js"
+  ]
+}

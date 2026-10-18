@@ -1,0 +1,104 @@
+<!-- @ui:component bento -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots heading description items item media icon title -->
+<!-- @ui:variants -->
+<!-- @ui:composition backdrop icon -->
+<!--
+  Bento feature grid — composition only, zero JavaScript.
+    · Each tile is a real list item drawn by [data-part="item"], not a nested
+      card: a nested component would take ownership of the data-part on its
+      children. The tile reads the same --card-* aliases a card does.
+    · Tile shape is data-span on the ITEM (wide | tall | large), the way the
+      grid primitive's span is written on a child. Spans only apply in a tier
+      that has the tracks for them, so a phone always sees one clean column.
+    · [data-part="media"] is a stretched visual area: whatever single child it
+      holds fills it, so a nested data-ui="backdrop" paints the whole panel.
+      [data-part="icon"] is a tinted plate that WRAPS the icon primitive — an
+      icon paints its glyph through a mask, so a background on the icon itself
+      would repaint the glyph. Both are decoration, hence aria-hidden; the
+      meaning is carried by the title beside them.
+    · data-animate staggers the tiles in, the way a staggered reveal does, and
+      scrubs the same entrance with the scrollbar where view timelines exist.
+      Reduced motion and print resolve every tile to "already arrived".
+-->
+
+<!-- Animated mosaic: a large featured tile, a wide one, a tall one, and three plain tiles -->
+<section data-ui="bento" data-animate aria-labelledby="bento-heading">
+  <h2 data-part="heading" id="bento-heading">One registry, every surface</h2>
+  <p data-part="description">
+    The same five attributes describe a marketing page, a dashboard and a
+    printed invoice — and the same audit keeps all three honest.
+  </p>
+  <ul data-part="items">
+    <li data-part="item" data-span="large">
+      <div data-part="media" aria-hidden="true">
+        <div data-ui="backdrop" data-variant="aurora" data-static></div>
+      </div>
+      <h3 data-part="title">Themes that follow the brand</h3>
+      <p data-part="description">
+        Twenty-seven themes read one token layer. Swap the stylesheet and every
+        component, backdrop and chart re-colours itself.
+      </p>
+    </li>
+    <li data-part="item" data-span="wide">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="shield-check"></span></span>
+      <h3 data-part="title">Audited before it ships</h3>
+      <p data-part="description">
+        Roles, names, contrast and motion fallbacks are checked against each
+        component's manifest, on every page, in one command.
+      </p>
+    </li>
+    <li data-part="item" data-span="tall">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="zap"></span></span>
+      <h3 data-part="title">No runtime</h3>
+      <p data-part="description">
+        Markup and a stylesheet. Nothing to hydrate, nothing to bundle, nothing
+        to wait for.
+      </p>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="globe"></span></span>
+      <h3 data-part="title">Right-to-left ready</h3>
+      <p data-part="description">Logical properties throughout; a locale is a document attribute.</p>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="layers"></span></span>
+      <h3 data-part="title">Composable</h3>
+      <p data-part="description">Patterns are made of primitives you can read, not abstractions you must learn.</p>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="lock"></span></span>
+      <h3 data-part="title">Private registries</h3>
+      <p data-part="description">Publish your own components next to the maintained ones.</p>
+    </li>
+  </ul>
+</section>
+
+<!-- Still grid, no section description, tighter tiles -->
+<section data-ui="bento" aria-labelledby="bento-plain-heading" style="--bento-gap: var(--space-3); --bento-row: 10rem">
+  <h2 data-part="heading" id="bento-plain-heading">Under the hood</h2>
+  <ul data-part="items">
+    <li data-part="item" data-span="wide">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="cpu"></span></span>
+      <h3 data-part="title">A reactive engine, when you want one</h3>
+      <p data-part="description">Six directives bind data to markup; leave them out and nothing loads.</p>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="code"></span></span>
+      <h3 data-part="title">Typed bindings</h3>
+      <p data-part="description">Generated from the manifests for the common frameworks.</p>
+    </li>
+    <li data-part="item">
+      <span data-part="icon" aria-hidden="true"><span data-ui="icon" data-icon="printer"></span></span>
+      <h3 data-part="title">Print geometry</h3>
+      <p data-part="description">Invoices and reports with real page margins and running heads.</p>
+    </li>
+    <li data-part="item" data-span="wide">
+      <div data-part="media" aria-hidden="true">
+        <div data-ui="backdrop" data-variant="dots" data-intensity="subtle" data-static></div>
+      </div>
+      <h3 data-part="title">Dark mode is a token swap</h3>
+      <p data-part="description">Every theme ships both schemes; the page picks one with an attribute.</p>
+    </li>
+  </ul>
+</section>

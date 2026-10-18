@@ -1,0 +1,157 @@
+/* @ui:component field-group */
+/* @ui:tokens color-fg color-fg-muted color-destructive color-success field-validating-color field-disabled-opacity field-label-size field-label-weight field-label-color field-required-color field-required-marker field-description-size field-description-color field-error-size field-error-color space-1 space-2 space-3 space-4 text-xs text-sm font-body weight-medium border-width doc-font */
+
+/* ── Base / spacing ownership ──
+   A field-group owns only its tight, density-aware intra-field step: label →
+   control → description/error. The surrounding flow root owns the looser step
+   between sibling fields through base/rhythm.css (`--flow-space`, defaulting to
+   `--section-gap-sm`). Do not add an outer margin here: doing so would double a
+   form's default rhythm and make `data-gap="0"` unable to turn that rhythm off. */
+[data-ui="field-group"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-family: var(--doc-font, var(--font-body));
+}
+
+/* ── Label ── */
+[data-ui="field-group"] > [data-part="label"] {
+  font-size: var(--field-label-size);
+  font-weight: var(--field-label-weight);
+  color: var(--field-label-color);
+  line-height: 1.4;
+}
+
+/* ── Required Indicator ──
+   Standardized required marker (§7.1): the canonical form is an explicit
+   [data-part="required"] element inside the label — e.g.
+   `<label data-part="label">Email <span data-part="required">*</span></label>`.
+   It carries the marker's color and is announced/hidden as one unit. The legacy
+   [data-required] attribute still renders a CSS ::after marker for backward
+   compatibility; author pages should prefer the part. */
+[data-ui="field-group"] > :where([data-part="label"]) > [data-part="required"] {
+  color: var(--field-required-color);
+}
+
+[data-ui="field-group"][data-required] > [data-part="label"]::after {
+  content: var(--field-required-marker);
+  color: var(--field-required-color);
+}
+
+/* ── Input Slot ── */
+[data-ui="field-group"] > [data-part="input"] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Description ── */
+[data-ui="field-group"] > [data-part="description"] {
+  font-size: var(--field-description-size);
+  color: var(--field-description-color);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Error Message ── */
+[data-ui="field-group"] > [data-part="error"] {
+  font-size: var(--field-error-size);
+  color: var(--field-error-color);
+  margin: 0;
+  line-height: 1.4;
+  display: none;
+}
+
+/* ── State: Invalid ──
+   Normalized validation vocabulary (§7.1): invalid | validating | disabled.
+   Renamed from the shipped `error` state in v2.0.0 (breaking — see manifest
+   `changes`). The error part is revealed purely by state, no JS class toggling. */
+[data-ui="field-group"][data-state="invalid"] > [data-part="label"] {
+  color: var(--field-error-color);
+}
+
+[data-ui="field-group"][data-state="invalid"] > [data-part="error"] {
+  display: block;
+}
+
+[data-ui="field-group"][data-state="invalid"] > [data-part="description"] {
+  display: none;
+}
+
+[data-ui="field-group"][data-state="invalid"] [data-ui="input"],
+[data-ui="field-group"][data-state="invalid"] [data-ui="textarea"],
+[data-ui="field-group"][data-state="invalid"] [data-ui="select"] {
+  border-color: var(--field-error-color);
+  box-shadow: 0 0 0 var(--border-width) var(--field-error-color);
+}
+
+/* ── State: Validating ──
+   Async constraint in flight (e.g. server-side uniqueness check). Neutral,
+   muted affordance — not an error yet. Pair with aria-busy="true" on the control. */
+[data-ui="field-group"][data-state="validating"] [data-ui="input"],
+[data-ui="field-group"][data-state="validating"] [data-ui="textarea"],
+[data-ui="field-group"][data-state="validating"] [data-ui="select"] {
+  border-color: var(--field-validating-color);
+  box-shadow: 0 0 0 var(--border-width) var(--field-validating-color);
+}
+
+/* ── State: Disabled ──
+   Honest disabled affordance for the whole group. The control itself is also
+   [disabled] for interaction/focus; this dims the surrounding parts to match. */
+[data-ui="field-group"][data-state="disabled"] {
+  opacity: var(--field-disabled-opacity);
+  cursor: not-allowed;
+}
+
+[data-ui="field-group"][data-state="disabled"] > [data-part="label"] {
+  color: var(--field-description-color);
+}
+
+/* ── State: Valid ── */
+[data-ui="field-group"][data-state="valid"] [data-ui="input"],
+[data-ui="field-group"][data-state="valid"] [data-ui="textarea"],
+[data-ui="field-group"][data-state="valid"] [data-ui="select"] {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 var(--border-width) var(--color-success);
+}
+
+/* ── Variant: Horizontal ── */
+[data-ui="field-group"][data-variant="horizontal"] {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+[data-ui="field-group"][data-variant="horizontal"] > [data-part="label"] {
+  min-width: 8rem;
+  padding-top: var(--space-2);
+  flex-shrink: 0;
+}
+
+[data-ui="field-group"][data-variant="horizontal"] > [data-part="input"] {
+  flex: 1;
+}
+
+/* ── Size: Small ── */
+[data-ui="field-group"][data-size="sm"] {
+  gap: var(--space-1);
+}
+
+[data-ui="field-group"][data-size="sm"] > [data-part="label"] {
+  font-size: var(--text-xs);
+}
+
+/* ── Size: Large ── */
+[data-ui="field-group"][data-size="lg"] {
+  gap: var(--space-3);
+}
+
+[data-ui="field-group"][data-size="lg"] > [data-part="label"] {
+  font-size: var(--text-sm);
+}
+
+/* ── Print ── */
+@media print {
+  [data-ui="field-group"] {
+    break-inside: avoid;
+  }
+}

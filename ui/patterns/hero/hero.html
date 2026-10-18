@@ -1,0 +1,96 @@
+<!-- @ui:component hero -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots eyebrow headline description actions note media content -->
+<!-- @ui:variants layout=center|split|cover -->
+<!-- @ui:composition badge button image highlight backdrop -->
+<!--
+  Landing hero — composition only, zero JavaScript.
+    · The section is labelled by its own headline (aria-labelledby), so the
+      landmark carries a name without inventing one.
+    · Calls to action are plain <a data-ui="button"> elements inside
+      [data-part="actions"]; they carry their own data-variant/data-size, which
+      is why they are NOT hero parts (a part's data-variant is validated against
+      the *pattern's* variant set, not the button's).
+    · `faqir scaffold landing-page` composes the block marked below verbatim —
+      edit it here and every generated landing page follows.
+-->
+
+<!-- @ui:scaffold landing-page -->
+<section data-ui="hero" data-variant="center" aria-labelledby="hero-headline">
+  <span data-ui="badge" data-part="eyebrow">New in v2</span>
+  <h1 data-part="headline" id="hero-headline">Ship your interface, not your design system</h1>
+  <p data-part="description">
+    Everything you need to launch — accessible components, design tokens, and
+    print-ready documents — in markup your team already knows how to read.
+  </p>
+  <div data-part="actions">
+    <a data-ui="button" data-variant="primary" data-size="lg" href="#pricing">Get started</a>
+    <a data-ui="button" data-variant="outline" data-size="lg" href="#features">See how it works</a>
+  </div>
+  <p data-part="note">Free while you build · No credit card required</p>
+</section>
+<!-- @ui:scaffold-end -->
+
+<!-- Split: copy beside supporting media -->
+<section data-ui="hero" data-variant="split" aria-labelledby="hero-split-headline">
+  <div data-part="content">
+    <span data-ui="badge" data-part="eyebrow">Case study</span>
+    <h2 data-part="headline" id="hero-split-headline">From blank page to <span data-ui="highlight">production in a week</span></h2>
+    <p data-part="description">
+      Compose maintained patterns instead of hand-rolling markup, and keep every
+      page auditable as the product grows.
+    </p>
+    <div data-part="actions">
+      <a data-ui="button" data-variant="primary" href="#story">Read the story</a>
+    </div>
+  </div>
+  <figure data-ui="image" data-part="media">
+    <img data-part="img" src="https://example.com/product-screenshot.jpg" alt="The product dashboard showing a weekly summary" loading="lazy">
+  </figure>
+</section>
+
+<!-- Cover: the full-bleed opener, with a staggered entrance (data-animate).
+     · Near a whole viewport tall (88svh), the words anchored bottom-start, a
+       fluid display headline that wraps long words instead of widening a
+       360px page.
+     · The media slot is the backdrop BEHIND the words: a plain
+       <div data-part="media"> holding an image with data-variant="cover" —
+       the variant lives on the nested image, never on the part. A scrim of
+       the section colour keeps the words legible over any photograph.
+     · data-animate: the media settles first, then eyebrow → headline →
+       description → actions → note rise in, one --motion-stagger apart.
+       Reduced motion and print show everything at rest. -->
+<section data-ui="hero" data-variant="cover" data-animate aria-labelledby="hero-cover-headline">
+  <span data-ui="badge" data-part="eyebrow">Field notes, volume three</span>
+  <h2 data-part="headline" id="hero-cover-headline">Interfaces that read like printed matter</h2>
+  <p data-part="description">
+    Display type, honest structure and a theme that carries every page — from
+    the landing opener to the last invoice.
+  </p>
+  <div data-part="actions">
+    <a data-ui="button" data-variant="primary" data-size="lg" href="#start">Start building</a>
+    <a data-ui="button" data-variant="outline" data-size="lg" href="#showcase">Browse the showcase</a>
+  </div>
+  <p data-part="note">Open source · Zero dependencies</p>
+  <div data-part="media">
+    <figure data-ui="image" data-variant="cover" data-size="full">
+      <img data-part="img" src="https://example.com/studio-wide.jpg" alt="A sunlit design studio with long worktables and pinned-up layouts">
+    </figure>
+  </div>
+</section>
+
+<!-- Cover without media, inside a backdrop: a tall typographic hero whose
+     light comes from the wrapper. --hero-bg: transparent lets it show, and
+     the scrim (drawn in the section colour) goes transparent with it. -->
+<div data-ui="backdrop" data-variant="spotlight">
+  <section data-ui="hero" data-variant="cover" data-animate aria-labelledby="hero-cover-backdrop-headline" style="--hero-bg: transparent">
+    <div data-part="content">
+      <span data-ui="badge" data-part="eyebrow">Launch week</span>
+      <h2 data-part="headline" id="hero-cover-backdrop-headline">Everything ships on <span data-ui="highlight">Friday</span></h2>
+      <p data-part="description">Five days, five releases, one changelog worth reading.</p>
+      <div data-part="actions">
+        <a data-ui="button" data-variant="primary" data-size="lg" href="#launch-week">Follow along</a>
+      </div>
+    </div>
+  </section>
+</div>

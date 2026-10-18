@@ -1,0 +1,194 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "text",
+  "version": "1.3.0",
+  "kind": "primitive",
+  "category": "typography",
+  "description": "Text and heading primitives with size, color, weight, alignment, and truncation via data attributes",
+  "changes": [
+    {
+      "version": "1.3.0",
+      "note": "Landing-page typography, all additive. data-size=\"display\" (text and heading): fluid oversized type, clamp(min(--text-4xl, 11vw), 1rem + 6vw, 2.25 x --text-4xl), line-height 1, the theme's whole heading voice (--font-heading, --heading-weight, --heading-tracking, --heading-transform, --heading-caps), text-wrap: balance and overflow-wrap: anywhere so a long word breaks instead of scrolling the page at 360px. data-variant=\"eyebrow\" (text): a small kicker, uppercase, 0.14em tracking, semibold, in --font-ui and --color-primary; its --text-xs size is a default that a data-size on the same element overrides. data-dropcap (text, boolean): the first letter sunk three lines with initial-letter where supported, a float otherwise, in the heading face and --color-primary. No change for text that uses none of them.",
+      "breaking": false
+    },
+    {
+      "version": "1.2.0",
+      "note": "data-variant=\"mono\" text sets font-variant-ligatures: var(--mono-ligatures), a new typography token that defaults to none. --font-mono names Cascadia Code and JetBrains Mono, and both ligate by default, so on any machine with either installed an id, an operator or a path containing !=, => or -> was drawn as one joined glyph. none also turns contextual alternates off, which is how JetBrains Mono ligates. Set --mono-ligatures: normal to get a face's ligatures back. Text that is mono only because a theme points a type role at --font-mono (terminal) is not covered.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.3",
+      "note": "An anchor carrying data-ui=\"text\" reads as a link. The reset takes every anchor's colour and underline away and text.css gave nothing back, so <a data-ui=\"text\" href> could not be told from the text beside it. A [data-ui=\"text\"]:any-link rule now draws the underline from the link tokens (--link-decoration, --link-thickness, --link-underline-offset) in currentColor, and a :focus-visible twin draws the focus ring. The text keeps its own colour, variant and size, so a table of mono id links does not turn primary; an anchor with no href and every non-anchor root are untouched, and data-state=\"done\" still strikes a link through. New html_link template. :any-link selects on no attribute, so nothing new is declared.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.2",
+      "note": "Headings and data-variant=\"mono\" text set overflow-wrap: anywhere, so a heading or mono run that is one unbreakable token (an id, a hash, a path) breaks instead of widening its flex or grid parent past the page. anywhere rather than break-word, because only anywhere lowers the min-content width a parent sizes the element by. Text with ordinary break opportunities wraps where it always did. Inside a table cell the table's own wrapping applies instead (table 3.2.1). data-truncate is unchanged.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.1",
+      "note": "Keep visible subtle and completed text on the AA-gated muted foreground; color-fg-subtle remains reserved for decorative, placeholder, and disabled content.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "data-truncate, data-tabular and data-state=\"done\" are now declared — all three were in text.css and in no manifest. The two authored, valueless switches are boolean props; \"done\" is a state because it rides the protocol's data-state attribute, which is the runtime's vocabulary. No CSS or behaviour change. 0.8-10's undeclared-attribute rule now makes this class of drift impossible: an attribute a component's CSS selects on that its manifest never declares fails the registry gate.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "p",
+    "selector": "[data-ui='text'], [data-ui='heading']",
+    "content_model": "text"
+  },
+  "slots": {},
+  "variants": {
+    "variant": {
+      "values": [
+        "default",
+        "muted",
+        "subtle",
+        "primary",
+        "mono",
+        "eyebrow"
+      ],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": [
+        "xs",
+        "sm",
+        "base",
+        "lg",
+        "xl",
+        "2xl",
+        "3xl",
+        "4xl",
+        "display",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "default": "base",
+      "attr": "data-size"
+    },
+    "weight": {
+      "values": [
+        "normal",
+        "medium",
+        "semibold",
+        "bold"
+      ],
+      "default": "normal",
+      "attr": "data-weight"
+    },
+    "align": {
+      "values": [
+        "left",
+        "center",
+        "right"
+      ],
+      "default": "left",
+      "attr": "data-align"
+    },
+    "leading": {
+      "values": [
+        "tight",
+        "snug",
+        "normal",
+        "relaxed"
+      ],
+      "default": "normal",
+      "attr": "data-leading"
+    }
+  },
+  "states": {
+    "done": {
+      "attr": "data-state=\"done\"",
+      "applied_to": "root",
+      "description": "Completed item — strikes the text through and drops it to the AA-gated muted foreground (checklists, todo rows)"
+    }
+  },
+  "props": {
+    "truncate": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-truncate",
+      "description": "Clip overflowing text to a single line with an ellipsis"
+    },
+    "dropcap": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-dropcap",
+      "description": "Set the first letter of the paragraph as an ornamental drop cap three lines tall (initial-letter where supported, a float elsewhere), in the heading face and the primary colour. Text only; on a paragraph, not a one-line label"
+    },
+    "tabular": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-tabular",
+      "description": "Lay the text out as an aligned column at least --text-tabular-width wide (8ch by default) with tabular figures — for label/value lists"
+    }
+  },
+  "a11y": {
+    "keyboard": {
+      "Enter": "Follows the link (anchor root with an href only)"
+    },
+    "notes": "The root may be an <a href> when the text itself is the link: an id, a ref, a version or a timestamp in a table or a list. It keeps the text's colour, variant and size and gains the theme's link underline and the focus ring. Without an href an anchor is not a link and is not styled as one. Link text must say where it goes. For a link in running prose, or one that should stand out in the primary colour, use data-ui=\"link\" instead. Display size and the eyebrow are looks, not structure: a display line that is the page's title is still an <h1> (a heading root with data-size=\"display\"), and an eyebrow is a plain <p> that adds no heading level. The eyebrow's capitals are text-transform, so the source text keeps its own case and a screen reader reads it as written. The drop cap is ::first-letter: the letter is not duplicated or moved, so reading order and selection are unchanged."
+  },
+  "tokens_used": [
+    "color-fg", "color-fg-muted", "color-primary", "color-destructive", "font-heading", "font-body",
+    "font-mono", "font-ui", "heading-weight", "heading-tracking", "heading-transform",
+    "heading-caps", "heading-leading", "text-xs", "text-sm", "text-base", "text-lg", "text-xl",
+    "text-2xl", "text-3xl", "text-4xl", "weight-normal", "weight-medium", "weight-semibold",
+    "weight-bold", "leading-tight", "leading-snug", "leading-normal", "leading-relaxed",
+    "link-decoration", "link-thickness", "link-underline-offset", "focus-ring-width",
+    "focus-ring-style", "focus-ring-color", "focus-ring-offset", "focus-shadow", "mono-ligatures",
+    "space-2"
+  ],
+  "templates": {
+    "html": "<p data-ui=\"text\" data-size=\"{size}\" data-variant=\"{variant}\">{content}</p>",
+    "html_link": "<a data-ui=\"text\" data-size=\"{size}\" data-variant=\"{variant}\" href=\"{href}\">{content}</a>",
+    "html_display": "<h1 data-ui=\"heading\" data-size=\"display\">{content}</h1>",
+    "html_eyebrow": "<p data-ui=\"text\" data-variant=\"eyebrow\">{content}</p>",
+    "html_dropcap": "<p data-ui=\"text\" data-dropcap>{content}</p>"
+  },
+  "safe_transforms": [
+    "Change data-size to any listed value",
+    "Change data-variant to any listed value",
+    "Change data-weight to any listed value",
+    "Change data-align to any listed value",
+    "Change text content",
+    "Add or remove data-truncate attribute",
+    "Add or remove data-dropcap attribute",
+    "Make the root an <a href> when the text itself is the link"
+  ],
+  "unsafe_transforms": [
+    "Remove data-ui attribute"
+  ],
+  "composition": {
+    "contains": [],
+    "used_in": []
+  },
+  "files": {
+    "html": "text.html",
+    "css": "text.css",
+    "manifest": "text.manifest.json"
+  },
+  "tests": [
+    "Heading sizes map to correct font-size",
+    "Text variants change color",
+    "Weight attribute applies font-weight",
+    "Alignment attribute sets text-align",
+    "Truncate attribute clips overflow",
+    "Anchor root with an href is underlined in its own colour; a done link is struck through",
+    "Display size is fluid, uses the heading voice and breaks long words",
+    "Eyebrow is a tracked uppercase primary kicker whose size can still be set",
+    "Drop cap sinks three lines with initial-letter and falls back to a float"
+  ]
+}

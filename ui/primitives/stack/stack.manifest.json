@@ -1,0 +1,160 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "stack",
+  "version": "2.0.1",
+  "kind": "primitive",
+  "category": "layout",
+  "description": "Flexbox layout container for vertical or horizontal stacking with configurable gap, alignment, justification and wrapping — every group responsive on the canon breakpoint tiers",
+
+  "changes": [
+    {
+      "version": "2.0.1",
+      "note": "A data-flex=\"1\" or data-flex=\"auto\" child now sets min-inline-size: 0. The flex default (auto) kept a growing child at least as wide as its content, so a wide table or an unbreakable id inside it widened the whole row past its container; the child now takes the space it is given and the content scrolls or wraps in its own box. data-flex=\"none\" is content-sized by design and is unchanged. A child that relied on never being narrower than its content can set min-inline-size itself.",
+      "breaking": false
+    },
+    {
+      "version": "2.0.0",
+      "note": "BREAKING: direction moves from data-variant to data-direction. data-variant=\"horizontal\" is a deprecated 0.x alias — it selects exactly the same CSS rules and keeps working through 0.x, and is removed in 1.0. The move is what makes direction responsive: the responsive grammar (data-<attr>-<tier>) may not suffix the five frozen protocol attributes, so data-variant-md could never exist. Migration: data-variant=\"horizontal\" → data-direction=\"horizontal\"; data-responsive (also deprecated, also removed in 1.0) → data-direction=\"vertical\" data-direction-sm=\"horizontal\", which reads mobile-first. The deprecated collapse no longer forces align-items: stretch below sm, so a stack that sets data-align keeps its alignment in the collapsed column. Newly declared, previously undeclared in the manifest but always present in the CSS: data-justify, data-wrap, data-align-text, child data-flex, gaps 10|12|16 and align baseline.",
+      "breaking": true
+    }
+  ],
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='stack']",
+    "content_model": "block"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "direction": {
+      "values": ["vertical", "horizontal"],
+      "default": "vertical",
+      "attr": "data-direction",
+      "applied_to": "root",
+      "responsive": true
+    },
+    "direction-legacy": {
+      "values": ["vertical", "horizontal"],
+      "default": "vertical",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "gap": {
+      "values": ["0", "1", "2", "3", "4", "6", "8", "10", "12", "16"],
+      "default": "0",
+      "attr": "data-gap",
+      "applied_to": "root",
+      "responsive": true
+    },
+    "align": {
+      "values": ["start", "center", "end", "stretch", "baseline"],
+      "default": "stretch",
+      "attr": "data-align",
+      "applied_to": "root",
+      "responsive": true
+    },
+    "justify": {
+      "values": ["start", "center", "end", "between", "around"],
+      "default": "start",
+      "attr": "data-justify",
+      "applied_to": "root",
+      "responsive": true
+    }
+  },
+
+  "props": {
+    "wrap": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-wrap",
+      "description": "Bare `data-wrap` lets children reflow onto new lines (flex-wrap: wrap). Intrinsic — prefer it to a breakpoint whenever a row only needs to fit."
+    },
+    "align-text": {
+      "type": "enum",
+      "values": ["start", "center", "right"],
+      "default": "start",
+      "attr": "data-align-text",
+      "description": "Text alignment for the whole stack. Logical: `right` maps to text-align: end, so it flips under RTL."
+    },
+    "flex": {
+      "type": "enum",
+      "values": ["1", "auto", "none"],
+      "default": "none",
+      "attr": "data-flex",
+      "description": "Written on a CHILD of the stack, never the root: `1` grows to fill, `auto` sizes to content then grows, `none` freezes the child at its base size."
+    },
+    "responsive": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-responsive",
+      "description": "Deprecated 0.x collapse: a horizontal stack stays a column below the sm tier. Superseded by data-direction=\"vertical\" data-direction-sm=\"horizontal\"; removed in 1.0."
+    }
+  },
+
+  "states": {},
+
+  "a11y": {
+    "notes": "Layout-only primitive; no semantic role required",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "space-0", "space-1", "space-2", "space-3", "space-4", "space-6", "space-8",
+    "space-10", "space-12", "space-16"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"stack\" data-gap=\"{gap}\">{children}</div>",
+    "html_horizontal": "<div data-ui=\"stack\" data-direction=\"horizontal\" data-gap=\"{gap}\">{children}</div>",
+    "html_aligned": "<div data-ui=\"stack\" data-gap=\"{gap}\" data-align=\"{align}\">{children}</div>",
+    "html_responsive": "<div data-ui=\"stack\" data-direction=\"vertical\" data-direction-md=\"horizontal\" data-gap=\"{gap}\">{children}</div>"
+  },
+
+  "safe_transforms": [
+    "change-direction",
+    "change-gap",
+    "change-alignment",
+    "change-justification",
+    "toggle-wrap",
+    "add-responsive-tier",
+    "add-children",
+    "remove-children"
+  ],
+
+  "unsafe_transforms": [
+    "change-display-property",
+    "replace-with-non-flex-container"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["auth-form", "settings-page", "dashboard-shell"]
+  },
+
+  "files": {
+    "html": "stack.html",
+    "css": "stack.css",
+    "manifest": "stack.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "default-direction-is-column",
+    "horizontal-direction-sets-row-direction",
+    "deprecated-data-variant-selects-the-same-rules",
+    "gap-4-applies-space-4",
+    "gap-16-applies-space-16",
+    "align-center-applies-center",
+    "align-stretch-applies-stretch",
+    "align-baseline-applies-baseline",
+    "justify-between-applies-space-between",
+    "wrap-applies-flex-wrap",
+    "child-data-flex-1-grows",
+    "no-gap-attr-defaults-to-zero",
+    "direction-flips-at-the-md-tier",
+    "gap-tier-overrides-the-mobile-first-base",
+    "deprecated-data-responsive-collapses-below-sm"
+  ]
+}

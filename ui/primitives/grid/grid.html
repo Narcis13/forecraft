@@ -1,0 +1,97 @@
+<!-- @ui:component grid -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants cols=1|2|3|4|6|12|auto gap=0|1|2|3|4|6|8|10|12|16 -->
+<!--
+  Mobile-first (task 0.8-04): data-cols is the base at every width and
+  data-cols-{sm,md,lg,xl} override from that tier up. Nothing collapses
+  implicitly — a grid that should stack on a phone says data-cols="1" and
+  widens per tier. Prefer data-cols="auto" + data-min when the requirement is
+  just "as many columns as fit": it needs no breakpoint at all.
+
+  Cross-card alignment (task 0.9-09) is the declared data-align-rows mode.
+  Direct card children then provide exactly header/divider/body/footer rows;
+  pricing.html is the canonical unequal-content composition. Subgrid aligns
+  those rows per wrapped line. Without subgrid the cards stack at full width,
+  preserving correct content relationships rather than faking alignment.
+-->
+
+<!-- Intrinsic: as many 16rem columns as fit, at any width -->
+<div data-ui="grid" data-cols="auto" data-min="16" data-gap="4">
+  <div data-ui="surface" data-size="sm">Card 1</div>
+  <div data-ui="surface" data-size="sm">Card 2</div>
+  <div data-ui="surface" data-size="sm">Card 3</div>
+  <div data-ui="surface" data-size="sm">Card 4</div>
+</div>
+
+<!-- Intrinsic with a narrower floor: 12rem items pack tighter -->
+<div data-ui="grid" data-cols="auto" data-min="12" data-gap="4">
+  <div data-ui="surface" data-size="sm">Tag 1</div>
+  <div data-ui="surface" data-size="sm">Tag 2</div>
+  <div data-ui="surface" data-size="sm">Tag 3</div>
+  <div data-ui="surface" data-size="sm">Tag 4</div>
+  <div data-ui="surface" data-size="sm">Tag 5</div>
+  <div data-ui="surface" data-size="sm">Tag 6</div>
+</div>
+
+<!-- Mobile-first KPI row: 1 column on a phone, 2 from md, 4 from lg -->
+<div data-ui="grid" data-cols="1" data-cols-md="2" data-cols-lg="4" data-gap="6">
+  <div data-ui="surface" data-size="sm">Card 1</div>
+  <div data-ui="surface" data-size="sm">Card 2</div>
+  <div data-ui="surface" data-size="sm">Card 3</div>
+  <div data-ui="surface" data-size="sm">Card 4</div>
+</div>
+
+<!-- Fixed 2-Column Grid — holds at every width -->
+<div data-ui="grid" data-cols="2" data-gap="4">
+  <div data-ui="surface" data-size="sm">Card 1</div>
+  <div data-ui="surface" data-size="sm">Card 2</div>
+  <div data-ui="surface" data-size="sm">Card 3</div>
+  <div data-ui="surface" data-size="sm">Card 4</div>
+</div>
+
+<!-- 3-Column Grid -->
+<div data-ui="grid" data-cols="3" data-gap="4">
+  <div data-ui="surface" data-size="sm">Card 1</div>
+  <div data-ui="surface" data-size="sm">Card 2</div>
+  <div data-ui="surface" data-size="sm">Card 3</div>
+  <div data-ui="surface" data-size="sm">Card 4</div>
+  <div data-ui="surface" data-size="sm">Card 5</div>
+  <div data-ui="surface" data-size="sm">Card 6</div>
+</div>
+
+<!-- 6-Column Grid, Tight Gap -->
+<div data-ui="grid" data-cols="6" data-gap="2">
+  <div data-ui="surface" data-size="sm">1</div>
+  <div data-ui="surface" data-size="sm">2</div>
+  <div data-ui="surface" data-size="sm">3</div>
+  <div data-ui="surface" data-size="sm">4</div>
+  <div data-ui="surface" data-size="sm">5</div>
+  <div data-ui="surface" data-size="sm">6</div>
+</div>
+
+<!-- 12-Column Grid with spanning children -->
+<div data-ui="grid" data-cols="12" data-gap="4">
+  <div data-span="6">Span 6</div>
+  <div data-span="3">Span 3</div>
+  <div data-span="3">Span 3</div>
+  <div data-span="4">Span 4</div>
+  <div data-span="4">Span 4</div>
+  <div data-span="4">Span 4</div>
+  <div data-span="full">Full row</div>
+</div>
+
+<!-- Scroll strip: a snap-scrolling row below sm, a 4-column grid from sm up -->
+<div data-ui="grid" data-cols="4" data-gap="4" data-scroll tabindex="0">
+  <div data-ui="surface" data-size="sm">Card 1</div>
+  <div data-ui="surface" data-size="sm">Card 2</div>
+  <div data-ui="surface" data-size="sm">Card 3</div>
+  <div data-ui="surface" data-size="sm">Card 4</div>
+</div>
+
+<!-- Single Column (stacked) -->
+<div data-ui="grid" data-cols="1" data-gap="4">
+  <div data-ui="surface" data-size="sm">Full-width Item 1</div>
+  <div data-ui="surface" data-size="sm">Full-width Item 2</div>
+  <div data-ui="surface" data-size="sm">Full-width Item 3</div>
+</div>

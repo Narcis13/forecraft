@@ -1,0 +1,194 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "hero",
+  "version": "1.3.0",
+  "kind": "pattern",
+  "category": "marketing",
+  "description": "Landing-page hero section composing badge + heading + description + call-to-action buttons, with an optional media column. Composition only: zero JavaScript, no controller, no reactive directives — the three layout variants (centred, split, and a full-bleed cover with display type over a backdrop) are pure CSS grid, and data-animate plays a staggered CSS entrance.",
+
+  "anatomy": {
+    "tag": "section",
+    "selector": "[data-ui='hero']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "eyebrow": {
+      "selector": "[data-part='eyebrow']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Short kicker above the headline — typically a nested data-ui='badge'"
+    },
+    "headline": {
+      "selector": "[data-part='headline']",
+      "required": true,
+      "tag_hint": "h1",
+      "description": "The hero headline. Give it an id and point the section's aria-labelledby at it so the landmark is named"
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Supporting paragraph under the headline; capped at 42rem for readability"
+    },
+    "actions": {
+      "selector": "[data-part='actions']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Call-to-action row. Put nested data-ui='button' elements (or <a data-ui='button'>) directly inside; they keep their own data-variant/data-size and must NOT carry a data-part"
+    },
+    "note": {
+      "selector": "[data-part='note']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Fine print under the actions (pricing caveat, trust line)"
+    },
+    "content": {
+      "selector": "[data-part='content']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Text column wrapper — required by the split layout, omitted by the centered one"
+    },
+    "media": {
+      "selector": "[data-part='media']",
+      "required": false,
+      "tag_hint": "figure",
+      "description": "Media column of the split layout — typically a nested data-ui='image'. In the cover layout it is the backdrop BEHIND the words instead: a direct child of the section that absolutely fills it, holding one child that stretches to fill it — e.g. <figure data-ui='image' data-variant='cover' data-size='full'>, so the media element itself never carries a data-variant"
+    }
+  },
+
+  "variants": {
+    "layout": {
+      "values": ["center", "split", "cover"],
+      "default": "center",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "--hero-bg": {"type":"string","default":"var(--color-bg)","description":"Background of the section (custom property). Set it to transparent when the hero sits inside a data-ui=\"backdrop\"."},
+    "animate": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-animate",
+      "description": "Play a staggered entrance on load: eyebrow, headline, description, actions, note and media each rise and fade in one --motion-stagger after the part before, on the theme's --motion-reveal-duration, --motion-reveal-ease and --motion-reveal-distance — whether the copy sits on the section or inside [data-part=\"content\"]. In the cover layout the backdrop media settles first (a fade and a slight zoom-out) and the words arrive onto it. CSS keyframes with fill-mode both; reduced motion and print show every part already in place, so nothing is ever left hidden."
+    },
+    "--hero-display-size": {
+      "type": "string",
+      "default": "clamp(min(var(--text-4xl), 11vw), calc(var(--text-sm) + 7vw), calc(var(--text-4xl) * 3.5))",
+      "description": "Font size of the cover layout's headline (custom property, cover only). Fluid by default between the type scale's largest step and three and a half times it; pass a clamp() or a size token to fix it."
+    },
+    "--hero-scrim": {
+      "type": "string",
+      "default": "a gradient from the bottom edge, --hero-bg at 92% fading to transparent",
+      "description": "The layer between the cover's backdrop media and its words (custom property, cover only), there to hold the text's contrast over a photograph. Pass a background value; none removes it."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-labelledby on the section pointing at the headline id",
+      "alt text on any image inside the media slot",
+      "descriptive link text on every action (never 'click here')",
+      "a cover layout's backdrop photograph is still content to a screen reader unless it is decorative: give it real alt text, or alt='' when it only sets the mood"
+    ],
+    "keyboard": {
+      "Tab": "move through the call-to-action links in source order"
+    }
+  },
+
+  "tokens_used": [
+    "color-bg", "color-fg", "color-fg-muted", "space-3", "space-4", "space-6", "space-8",
+    "space-12", "space-16", "space-20", "space-24", "space-32", "font-heading", "font-body",
+    "heading-weight", "heading-tracking", "heading-transform", "heading-caps", "heading-leading",
+    "text-sm", "text-base", "text-lg", "text-3xl", "text-4xl", "weight-bold", "leading-tight",
+    "leading-relaxed", "radius-lg", "texture-surface", "measure-wide", "motion-reveal-duration",
+    "motion-reveal-ease", "motion-stagger", "motion-reveal-distance", "motion-reveal-scale"
+  ],
+
+  "templates": {
+    "html": "<section data-ui=\"hero\" data-variant=\"{layout}\" aria-labelledby=\"{id}-headline\">\n  <span data-ui=\"badge\" data-part=\"eyebrow\">{eyebrow}</span>\n  <h1 data-part=\"headline\" id=\"{id}-headline\">{headline}</h1>\n  <p data-part=\"description\">{description}</p>\n  <div data-part=\"actions\">\n    <a data-ui=\"button\" data-variant=\"primary\" data-size=\"lg\" href=\"{primary_href}\">{primary_label}</a>\n    <a data-ui=\"button\" data-variant=\"outline\" data-size=\"lg\" href=\"{secondary_href}\">{secondary_label}</a>\n  </div>\n  <p data-part=\"note\">{note}</p>\n</section>",
+    "html_cover": "<section data-ui=\"hero\" data-variant=\"cover\" data-animate aria-labelledby=\"{id}-headline\">\n  <span data-ui=\"badge\" data-part=\"eyebrow\">{eyebrow}</span>\n  <h1 data-part=\"headline\" id=\"{id}-headline\">{headline}</h1>\n  <p data-part=\"description\">{description}</p>\n  <div data-part=\"actions\">\n    <a data-ui=\"button\" data-variant=\"primary\" data-size=\"lg\" href=\"{primary_href}\">{primary_label}</a>\n    <a data-ui=\"button\" data-variant=\"outline\" data-size=\"lg\" href=\"{secondary_href}\">{secondary_label}</a>\n  </div>\n  <div data-part=\"media\">\n    <figure data-ui=\"image\" data-variant=\"cover\" data-size=\"full\">\n      <img data-part=\"img\" src=\"{image_src}\" alt=\"{image_alt}\">\n    </figure>\n  </div>\n</section>"
+  },
+
+  "safe_transforms": [
+    "change-layout-variant",
+    "change-headline-text",
+    "add-eyebrow",
+    "remove-eyebrow",
+    "add-secondary-action",
+    "remove-note",
+    "swap-media-image",
+    "change-layout-to-cover-with-a-backdrop-media",
+    "toggle-animate",
+    "override-the-cover-display-size"
+  ],
+
+  "unsafe_transforms": [
+    "remove-headline",
+    "remove-aria-labelledby",
+    "demote-headline-below-h2",
+    "add-data-part-to-action-buttons",
+    "add-custom-script",
+    "put-data-variant-on-the-cover-media-element",
+    "remove-the-cover-scrim-over-a-photograph"
+  ],
+
+  "composition": {
+    "contains": ["badge", "button", "image", "highlight", "backdrop"],
+    "used_in": ["landing-page"],
+    "notes": [
+      "Nested primitives inside a slot keep their own five-attribute contract. A nested element must not carry both data-part and data-variant: the pattern validates a part's data-variant against the *pattern's* variant values (center|split|cover), so a button's data-variant=\"primary\" on a part would be a false mismatch. Put buttons inside [data-part=\"actions\"] instead.",
+      "The centered layout is what `faqir scaffold landing-page` emits; the block between the <!-- @ui:scaffold landing-page --> markers in hero.html is copied into the generated page verbatim.",
+      "Inside a backdrop — <div data-ui=\"backdrop\"><section data-ui=\"hero\" style=\"--hero-bg: transparent\">…</section></div> — the section goes transparent so the light shows. Wrap a few headline words in <span data-ui=\"highlight\"> for the accent gradient.",
+      "The cover layout is the full-bleed opener: at least 88svh tall (88vh where svh is unknown), the words anchored to the bottom-start corner, and a fluid display headline (--hero-display-size) on the theme's heading role with tight leading, balanced lines and long words allowed to break, so it holds at 360px. Its media slot moves BEHIND the words — wrap the picture in a plain <div data-part=\"media\"> and give the nested image data-variant=\"cover\" data-size=\"full\" — under a scrim of the section colour (--hero-scrim). Without media it is a tall, typographic hero; inside a data-ui=\"backdrop\" with --hero-bg: transparent the light shows through it.",
+      "data-animate is the reveal primitive's stagger, re-stated on the hero's own parts: a reveal staggers its direct children and the copy may sit on the section or inside [data-part=\"content\"], so the entrance is an option of the pattern, reading the same --motion-reveal-* and --motion-stagger tokens, with the same reduced-motion and print fallbacks as bento and testimonials. It plays on load rather than on scroll — a hero is above the fold."
+    ]
+  },
+
+  "files": {
+    "html": "hero.html",
+    "css": "hero.css",
+    "manifest": "hero.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-section-with-data-ui-hero",
+    "headline-slot-is-required",
+    "section-is-labelled-by-its-headline",
+    "center-is-the-default-layout",
+    "split-variant-lays-copy-beside-media",
+    "actions-hold-nested-buttons-without-a-data-part",
+    "ships-zero-javascript",
+    "split-variant-gains-its-second-column-at-the-lg-floor",
+    "reference-page-is-audit-clean",
+    "cover-variant-fills-the-small-viewport-with-a-vh-fallback",
+    "cover-headline-is-fluid-and-wraps-long-words",
+    "cover-media-sits-behind-the-words",
+    "animate-staggers-the-parts-with-the-reveal-tokens",
+    "reduced-motion-and-print-remove-the-entrance"
+  ],
+
+  "changes": [
+    {
+      "version": "1.3.0",
+      "note": "A cover layout value and a data-animate prop. cover is a full-bleed, near-full-viewport hero (min-block-size 88svh, 88vh fallback) with the words anchored to the bottom-start corner, a fluid clamp() display headline on the theme's heading role (--hero-display-size), and the media slot as a backdrop behind the words under a section-coloured scrim (--hero-scrim). Its inline gutter grows so the words start on the --measure-wide line the sections below sit on, and the display size eases down on a phone so a long uppercase word does not split. data-animate staggers eyebrow → headline → description → actions → note → media in on load with the --motion-reveal-* and --motion-stagger tokens (a cover's media settles first); reduced motion and print show everything at rest. Existing markup is unchanged.",
+      "breaking": false
+    },
+    {
+      "version": "1.2.0",
+      "note": "A --hero-bg custom property: the section background, the page colour by default. A hero wrapped in a backdrop sets it transparent so the light behind shows through; a headline may hold a nested data-ui=\"highlight\". Nothing else changes.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "The responsive ladder moves onto the breakpoint canon, mobile-first (task 0.8-09). The sheet's max-width media blocks became min-width floors on canon tiers (sm 40rem/640px, md 48rem/768px, lg 64rem/1024px), so every unconditional rule is now the PHONE case and a tier block only ever widens it. The split variant gains its second column at lg and the action row becomes a row at sm. The floors keep their values, so the only behavioural shift is at exactly a floor: 1024px now gets the wide layout rather than the narrow one.",
+      "breaking": false
+    }
+  ]
+}

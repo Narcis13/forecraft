@@ -1,0 +1,77 @@
+<!-- @ui:component cluster -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants gap=0|1|2|3|4|6|8|10|12|16 align=start|center|end|stretch|baseline justify=start|center|end|between|around -->
+<!--
+  The wrapping inline row (task 0.8-05): a tag row, a button row, a meta row.
+  Wrapping is intrinsic — a cluster needs no breakpoint to be correct at any
+  width (FAQIR-SPEC §15 doctrine 1), which is why it is a primitive of its own
+  rather than a stack with a flag. gap, align and justify are responsive:
+  every value is also accepted as data-ATTR-TIER for sm|md|lg|xl.
+  data-push on a CHILD sends it and everything after it to the far end.
+-->
+
+<!-- Tag row — the canonical cluster: as many as fit, then a new line -->
+<div data-ui="cluster" data-gap="2">
+  <span data-ui="badge" data-variant="primary">design</span>
+  <span data-ui="badge">layout</span>
+  <span data-ui="badge">responsive</span>
+  <span data-ui="badge" data-variant="secondary">container-queries</span>
+  <span data-ui="badge">tokens</span>
+  <span data-ui="badge">accessibility</span>
+  <span data-ui="badge" data-variant="success">shipped</span>
+</div>
+
+<!-- Button row with a pushed action: the "actions on the right" idiom -->
+<div data-ui="cluster" data-gap="2">
+  <button data-ui="button" data-variant="primary" type="button">Save</button>
+  <button data-ui="button" data-variant="ghost" type="button">Cancel</button>
+  <button data-ui="button" data-variant="destructive" type="button" data-push>Delete</button>
+</div>
+
+<!-- Meta row — small facts separated by a tight gap -->
+<div data-ui="cluster" data-gap="3">
+  <div data-ui="surface" data-size="sm">12 min read</div>
+  <div data-ui="surface" data-size="sm">Updated today</div>
+  <div data-ui="surface" data-size="sm">4 contributors</div>
+</div>
+
+<!-- Tight cluster (no gap) -->
+<div data-ui="cluster" data-gap="0">
+  <span data-ui="chip"><span data-part="label">alpha</span></span>
+  <span data-ui="chip"><span data-part="label">beta</span></span>
+  <span data-ui="chip"><span data-part="label">gamma</span></span>
+</div>
+
+<!-- Spacious cluster -->
+<div data-ui="cluster" data-gap="8">
+  <span data-ui="badge" data-variant="warning">draft</span>
+  <span data-ui="badge">v2</span>
+  <span data-ui="badge">layout</span>
+</div>
+
+<!-- Centred cluster -->
+<div data-ui="cluster" data-gap="4" data-justify="center">
+  <button data-ui="button" data-variant="outline" type="button">Previous</button>
+  <button data-ui="button" data-variant="outline" type="button">Next</button>
+</div>
+
+<!-- Split cluster: first group left, last item right -->
+<div data-ui="cluster" data-gap="4" data-justify="between">
+  <span data-ui="badge" data-variant="primary">Filters</span>
+  <div data-ui="surface" data-size="sm">3 of 27 results</div>
+</div>
+
+<!-- Baseline-aligned cluster: text of different sizes sitting on one line -->
+<div data-ui="cluster" data-gap="2" data-align="baseline">
+  <span data-ui="badge" data-variant="secondary" data-size="lg">42</span>
+  <div data-ui="surface" data-size="sm">open issues</div>
+</div>
+
+<!-- Responsive gap: tight on a phone, roomier from md up -->
+<div data-ui="cluster" data-gap="1" data-gap-md="4">
+  <span data-ui="chip" data-variant="primary"><span data-part="label">one</span></span>
+  <span data-ui="chip"><span data-part="label">two</span></span>
+  <span data-ui="chip"><span data-part="label">three</span></span>
+  <span data-ui="chip"><span data-part="label">four</span></span>
+</div>

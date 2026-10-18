@@ -1,0 +1,84 @@
+<!-- @ui:component quote -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots text author media name role -->
+<!-- @ui:variants style=plain|card|pull size=sm|md|lg align=start|center -->
+<!--
+  Quote — someone else's words and who said them.
+    · A <figure> holding a <blockquote data-part="text"> and a
+      <figcaption data-part="author">: the native pairing, no ARIA needed.
+    · The large opening mark is decoration from CSS (`content: open-quote`), in
+      the quotation mark of the document's language.
+    · An avatar goes inside [data-part="media"]; it keeps its own contract.
+-->
+
+<!-- Plain (default) -->
+<figure data-ui="quote">
+  <blockquote data-part="text">
+    <p>We replaced four thousand lines of utility classes with markup our whole team can read.</p>
+  </blockquote>
+  <figcaption data-part="author">
+    <span data-part="name">Ada Okafor</span>
+    <span data-part="role">Staff engineer, Northwind</span>
+  </figcaption>
+</figure>
+
+<!-- Card, with an avatar and a rating -->
+<figure data-ui="quote" data-variant="card">
+  <span data-ui="rating" data-value="5" role="img" aria-label="Rated 5 out of 5"></span>
+  <blockquote data-part="text">
+    <p>The audit caught a missing label before our users did. That alone paid for the migration.</p>
+  </blockquote>
+  <figcaption data-part="author">
+    <span data-part="media">
+      <span data-ui="avatar" data-size="sm">
+        <span data-part="fallback">MR</span>
+      </span>
+    </span>
+    <span data-part="name">Mateo Rossi</span>
+    <span data-part="role">Head of design, Lumen</span>
+  </figcaption>
+</figure>
+
+<!-- Card, small -->
+<figure data-ui="quote" data-variant="card" data-size="sm">
+  <blockquote data-part="text">
+    <p>One stylesheet, one script, done.</p>
+  </blockquote>
+  <figcaption data-part="author">
+    <span data-part="name">Priya Nair</span>
+    <span data-part="role">Indie maker</span>
+  </figcaption>
+</figure>
+
+<!-- Pull quote — editorial, inside an article -->
+<figure data-ui="quote" data-variant="pull">
+  <blockquote data-part="text">
+    <p>The selector is the documentation.</p>
+  </blockquote>
+</figure>
+
+<!-- Pull quote, large, in a custom accent -->
+<figure data-ui="quote" data-variant="pull" data-size="lg" style="--quote-accent: var(--color-success)">
+  <blockquote data-part="text">
+    <p>An interface an agent can read is an interface a new hire can read.</p>
+  </blockquote>
+  <figcaption data-part="author">
+    <span data-part="name">Faqir field notes</span>
+  </figcaption>
+</figure>
+
+<!-- Centered, large — a single featured testimonial -->
+<figure data-ui="quote" data-size="lg" data-align="center">
+  <blockquote data-part="text">
+    <p>It is the first UI kit where the generated code is something I would have written by hand.</p>
+  </blockquote>
+  <figcaption data-part="author">
+    <span data-part="media">
+      <span data-ui="avatar">
+        <span data-part="fallback">LK</span>
+      </span>
+    </span>
+    <span data-part="name">Lena Kowalski</span>
+    <span data-part="role">CTO, Fieldnote</span>
+  </figcaption>
+</figure>

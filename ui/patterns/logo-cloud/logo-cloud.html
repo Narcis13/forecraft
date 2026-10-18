@@ -1,0 +1,73 @@
+<!-- @ui:component logo-cloud -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots heading items item logo -->
+<!-- @ui:variants layout=grid|marquee -->
+<!-- @ui:composition marquee -->
+<!--
+  Logo cloud — composition only, zero JavaScript.
+    · A "trusted by" strip: a small muted eyebrow over a row of customer marks.
+      The section is labelled by the eyebrow (aria-labelledby), which is a <p>,
+      so the strip names its landmark without adding a heading to the outline.
+    · The logos are real list items, so assistive tech announces "list, 6
+      items"; every mark is an <img> whose alt is the company name — the
+      picture IS the name, so the alt is not decorative.
+    · Two shapes. grid: the pattern's own [data-part="items"] list, a centred
+      wrapping cluster. marquee: the items live inside a nested
+      data-ui="marquee" and its two [data-part="track"] lists ARE the lists —
+      the pattern's items part is absent. The second track is aria-hidden and
+      its images carry empty alt, so a screen reader meets each company once.
+    · Marks are desaturated and dimmed at rest and return to colour under the
+      pointer; data-color keeps them in colour throughout.
+    · The last example shows the whole section inside a data-ui="reveal" — the
+      usual way to let the strip fade in as it enters the page. The reveal
+      wraps the section; it is not one of the pattern's parts.
+-->
+
+<!-- Grid (default): a centred, wrapping cluster of marks -->
+<section data-ui="logo-cloud" data-variant="grid" aria-labelledby="logo-cloud-heading">
+  <p data-part="heading" id="logo-cloud-heading">Trusted by teams at</p>
+  <ul data-part="items">
+    <li data-part="item"><img data-part="logo" src="https://example.com/logos/northwind.svg" alt="Northwind"></li>
+    <li data-part="item"><img data-part="logo" src="https://example.com/logos/contoso.svg" alt="Contoso"></li>
+    <li data-part="item"><img data-part="logo" src="https://example.com/logos/fabrikam.svg" alt="Fabrikam"></li>
+    <li data-part="item"><img data-part="logo" src="https://example.com/logos/litware.svg" alt="Litware"></li>
+    <li data-part="item"><img data-part="logo" src="https://example.com/logos/tailspin.svg" alt="Tailspin Toys"></li>
+    <li data-part="item"><img data-part="logo" src="https://example.com/logos/wingtip.svg" alt="Wingtip"></li>
+  </ul>
+</section>
+
+<!-- Marquee: the marks drift by in an endless strip; the marquee's tracks are the lists -->
+<section data-ui="logo-cloud" data-variant="marquee" aria-labelledby="logo-cloud-marquee-heading">
+  <p data-part="heading" id="logo-cloud-marquee-heading">Powering products at</p>
+  <div data-ui="marquee" data-fade data-speed="slow" role="group" aria-label="Customer logos">
+    <ul data-part="track">
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/northwind.svg" alt="Northwind"></li>
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/contoso.svg" alt="Contoso"></li>
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/fabrikam.svg" alt="Fabrikam"></li>
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/litware.svg" alt="Litware"></li>
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/tailspin.svg" alt="Tailspin Toys"></li>
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/wingtip.svg" alt="Wingtip"></li>
+    </ul>
+    <ul data-part="track" aria-hidden="true">
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/northwind.svg" alt=""></li>
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/contoso.svg" alt=""></li>
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/fabrikam.svg" alt=""></li>
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/litware.svg" alt=""></li>
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/tailspin.svg" alt=""></li>
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/wingtip.svg" alt=""></li>
+    </ul>
+  </div>
+</section>
+
+<!-- In colour, taller marks, fading in on arrival: the section wrapped by a reveal (usage, not a part) -->
+<div data-ui="reveal" data-variant="fade">
+  <section data-ui="logo-cloud" data-variant="grid" data-color aria-labelledby="logo-cloud-color-heading" style="--logo-cloud-height: var(--space-10)">
+    <p data-part="heading" id="logo-cloud-color-heading">Built with partners</p>
+    <ul data-part="items">
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/adventure-works.svg" alt="Adventure Works"></li>
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/proseware.svg" alt="Proseware"></li>
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/woodgrove.svg" alt="Woodgrove Bank"></li>
+      <li data-part="item"><img data-part="logo" src="https://example.com/logos/alpine-ski-house.svg" alt="Alpine Ski House"></li>
+    </ul>
+  </section>
+</div>

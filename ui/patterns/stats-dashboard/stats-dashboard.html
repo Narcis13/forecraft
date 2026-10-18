@@ -1,0 +1,223 @@
+<!-- @ui:component stats-dashboard -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots heading description period metrics reports report footnote -->
+<!-- @ui:composition grid stat card table badge button -->
+<!-- @ui:requires faqir-core.js -->
+<!--
+  Reporting page — composition only, zero JavaScript of its own.
+    · The KPI row IS the grid primitive: [data-part="metrics"] carries
+      data-ui="grid", so the responsive column behaviour comes from grid.css
+      rather than from this pattern — mobile-first since grid 2.0: one column
+      is the base and the md/lg tiers widen it (1 → 2 → 4). The consequence is
+      that the stats inside it carry NO data-part: a data-part there would
+      belong to the grid,
+      which declares no slots. Address one KPI as
+      [data-part="metrics"] > [data-ui="stat"].
+    · Every report panel is a real data-ui="card". Inside one you address the
+      CARD's slots (header, title, description, body, footer) — a
+      stats-dashboard part there would be an orphan part of the card. The part
+      is called `report`, not `panel`: `panel` is the describable surface of a
+      dialog, and the audit's aria-describedby rule expects one to be pointed at
+      by the component's description.
+    · The report table is the table recipe with its full formatting contract:
+      data-format on the column headers, data-value + data-format on the cells
+      and a <tfoot> whose cells recompute with data-aggregate="sum". Loading
+      faqir-core.js (which bundles table.js) makes the totals live and the
+      columns sortable; without it the authored numbers stand on their own.
+-->
+
+<section data-ui="stats-dashboard" aria-labelledby="stats-revenue-heading">
+  <h2 data-part="heading" id="stats-revenue-heading">Revenue overview</h2>
+  <p data-part="description">How the store performed this period, by product and by channel.</p>
+  <p data-part="period">1–30 June 2026 · compared with May</p>
+
+  <div data-ui="grid" data-part="metrics" data-cols="1" data-cols-md="2" data-cols-lg="4" data-gap="6">
+    <div data-ui="stat" data-variant="card" data-trend="up">
+      <span data-part="label">Revenue</span>
+      <span data-part="value">$45,231</span>
+      <span data-part="change">+20.1% vs May</span>
+    </div>
+    <div data-ui="stat" data-variant="card" data-trend="up">
+      <span data-part="label">Orders</span>
+      <span data-part="value">1,204</span>
+      <span data-part="change">+8.4% vs May</span>
+    </div>
+    <div data-ui="stat" data-variant="card" data-trend="down">
+      <span data-part="label">Refunds</span>
+      <span data-part="value">$1,980</span>
+      <span data-part="change">-3.2% vs May</span>
+    </div>
+    <div data-ui="stat" data-variant="card" data-trend="neutral">
+      <span data-part="label">Average order</span>
+      <span data-part="value">$37.57</span>
+      <span data-part="change">No change</span>
+    </div>
+  </div>
+
+  <div data-part="reports">
+
+    <section data-ui="card" data-part="report" aria-labelledby="stats-panel-products">
+      <div data-part="header">
+        <h3 data-part="title" id="stats-panel-products">Sales by product</h3>
+        <p data-part="description">Units sold and revenue for every product in the period.</p>
+      </div>
+      <div data-part="body">
+        <div data-ui="table" data-size="sm" data-locale="en-US" data-currency="USD" tabindex="0">
+          <table data-part="table">
+            <caption>Sales by product, June 2026</caption>
+            <thead data-part="thead">
+              <tr data-part="tr">
+                <th data-part="th" scope="col" data-sortable aria-sort="none">Product</th>
+                <th data-part="th" scope="col" data-sortable aria-sort="none" data-align="right" data-format="number">Units</th>
+                <th data-part="th" scope="col" data-sortable aria-sort="none" data-align="right" data-format="currency">Unit price</th>
+                <th data-part="th" scope="col" data-sortable aria-sort="none" data-align="right" data-format="currency">Revenue</th>
+                <th data-part="th" scope="col" data-align="right" data-format="percent">Share</th>
+              </tr>
+            </thead>
+            <tbody data-part="tbody">
+              <tr data-part="tr">
+                <td data-part="td">Desk lamp</td>
+                <td data-part="td" data-align="right" data-format="number" data-value="412">412</td>
+                <td data-part="td" data-align="right" data-format="currency" data-value="48">$48.00</td>
+                <td data-part="td" data-align="right" data-format="currency" data-value="19776">$19,776.00</td>
+                <td data-part="td" data-align="right" data-format="percent" data-value="0.437">43.7%</td>
+              </tr>
+              <tr data-part="tr">
+                <td data-part="td">Wall shelf</td>
+                <td data-part="td" data-align="right" data-format="number" data-value="318">318</td>
+                <td data-part="td" data-align="right" data-format="currency" data-value="39">$39.00</td>
+                <td data-part="td" data-align="right" data-format="currency" data-value="12402">$12,402.00</td>
+                <td data-part="td" data-align="right" data-format="percent" data-value="0.274">27.4%</td>
+              </tr>
+              <tr data-part="tr">
+                <td data-part="td">Floor rug</td>
+                <td data-part="td" data-align="right" data-format="number" data-value="274">274</td>
+                <td data-part="td" data-align="right" data-format="currency" data-value="34">$34.00</td>
+                <td data-part="td" data-align="right" data-format="currency" data-value="9316">$9,316.00</td>
+                <td data-part="td" data-align="right" data-format="percent" data-value="0.206">20.6%</td>
+              </tr>
+              <tr data-part="tr">
+                <td data-part="td">Side table</td>
+                <td data-part="td" data-align="right" data-format="number" data-value="200">200</td>
+                <td data-part="td" data-align="right" data-format="currency" data-value="18.7">$18.70</td>
+                <td data-part="td" data-align="right" data-format="currency" data-value="3737">$3,737.00</td>
+                <td data-part="td" data-align="right" data-format="percent" data-value="0.083">8.3%</td>
+              </tr>
+            </tbody>
+            <tfoot data-part="tfoot">
+              <tr data-part="tr">
+                <td data-part="td">Total</td>
+                <td data-part="td" data-align="right" data-format="number" data-aggregate="sum" data-col="1">1,204</td>
+                <td data-part="td" data-align="right"></td>
+                <td data-part="td" data-align="right" data-format="currency" data-aggregate="sum" data-col="3">$45,231.00</td>
+                <td data-part="td" data-align="right" data-format="percent" data-value="1">100%</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section data-ui="card" data-part="report" aria-labelledby="stats-panel-channels">
+      <div data-part="header">
+        <h3 data-part="title" id="stats-panel-channels">Revenue by channel</h3>
+      </div>
+      <div data-part="body">
+        <ul>
+          <li>
+            <span>Direct</span>
+            <span data-ui="badge" data-variant="primary">52%</span>
+          </li>
+          <li>
+            <span>Marketplace</span>
+            <span data-ui="badge" data-variant="secondary">31%</span>
+          </li>
+          <li>
+            <span>Wholesale</span>
+            <span data-ui="badge" data-variant="secondary">12%</span>
+          </li>
+          <li>
+            <span>Retail partners</span>
+            <span data-ui="badge">5%</span>
+          </li>
+        </ul>
+      </div>
+      <div data-part="footer">
+        <a data-ui="button" data-variant="ghost" href="#channels-report">Open the channel report</a>
+      </div>
+    </section>
+
+  </div>
+
+  <p data-part="footnote">Revenue excludes shipping and tax. Refunds are counted in the period they were issued.</p>
+</section>
+
+<!-- Three metrics, one panel, no footnote -->
+<section data-ui="stats-dashboard" aria-labelledby="stats-support-heading">
+  <h2 data-part="heading" id="stats-support-heading">Support desk</h2>
+  <p data-part="period">Last 7 days</p>
+
+  <div data-ui="grid" data-part="metrics" data-cols="1" data-cols-md="3" data-gap="6">
+    <div data-ui="stat" data-variant="card" data-trend="down">
+      <span data-part="label">Open tickets</span>
+      <span data-part="value">37</span>
+      <span data-part="change">-12 vs last week</span>
+    </div>
+    <div data-ui="stat" data-variant="card" data-trend="up">
+      <span data-part="label">First response</span>
+      <span data-part="value">42 min</span>
+      <span data-part="change">+6 min vs last week</span>
+    </div>
+    <div data-ui="stat" data-variant="card" data-trend="up">
+      <span data-part="label">Satisfaction</span>
+      <span data-part="value">94%</span>
+      <span data-part="change">+2 pts vs last week</span>
+    </div>
+  </div>
+
+  <div data-part="reports">
+    <section data-ui="card" data-part="report" aria-labelledby="stats-panel-queues">
+      <div data-part="header">
+        <h3 data-part="title" id="stats-panel-queues">Tickets by queue</h3>
+      </div>
+      <div data-part="body">
+        <div data-ui="table" data-size="sm" tabindex="0">
+          <table data-part="table">
+            <caption>Open tickets by queue, last 7 days</caption>
+            <thead data-part="thead">
+              <tr data-part="tr">
+                <th data-part="th" scope="col" data-sortable aria-sort="none">Queue</th>
+                <th data-part="th" scope="col" data-align="right" data-format="number">Open</th>
+                <th data-part="th" scope="col" data-align="right" data-format="percent">Breached SLA</th>
+              </tr>
+            </thead>
+            <tbody data-part="tbody">
+              <tr data-part="tr">
+                <td data-part="td">Billing</td>
+                <td data-part="td" data-align="right" data-format="number" data-value="18">18</td>
+                <td data-part="td" data-align="right" data-format="percent" data-value="0.11">11%</td>
+              </tr>
+              <tr data-part="tr">
+                <td data-part="td">Technical</td>
+                <td data-part="td" data-align="right" data-format="number" data-value="13">13</td>
+                <td data-part="td" data-align="right" data-format="percent" data-value="0.04">4%</td>
+              </tr>
+              <tr data-part="tr">
+                <td data-part="td">Shipping</td>
+                <td data-part="td" data-align="right" data-format="number" data-value="6">6</td>
+                <td data-part="td" data-align="right" data-format="percent" data-value="0">0%</td>
+              </tr>
+            </tbody>
+            <tfoot data-part="tfoot">
+              <tr data-part="tr">
+                <td data-part="td">All queues</td>
+                <td data-part="td" data-align="right" data-format="number" data-aggregate="sum" data-col="1">37</td>
+                <td data-part="td" data-align="right"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>

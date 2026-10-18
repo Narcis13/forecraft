@@ -1,0 +1,115 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "toggle",
+  "version": "1.1.1",
+  "kind": "primitive",
+  "category": "actions",
+  "description": "Two-state toggle button whose pressed appearance is driven entirely by aria-pressed; compose sibling toggles in a cluster with data-gap=4 while one may stand alone",
+
+  "changes": [
+    {
+      "version": "1.1.1",
+      "note": "Forced colors (Windows High Contrast): a pressed toggle is now Highlight / HighlightText. Pressed was carried by colour alone, so the OS palette made it look like an unpressed one.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "Canonical toggle rows now use cluster data-gap='4' so adjacent buttons cannot read as one control; a single toggle remains valid without a cluster.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "button",
+    "selector": "[data-ui='toggle']",
+    "content_model": "inline"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "pressed": {
+      "attr": "aria-pressed",
+      "default": false
+    }
+  },
+
+  "props": {
+    "pressed": { "type": "boolean", "default": false, "description": "Whether the toggle is on (reflected as aria-pressed)" },
+    "label": { "type": "string", "default": "", "description": "Toggle label text" }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "type=\"button\" on root"
+    ],
+    "keyboard": {
+      "Enter/Space": "Toggles the pressed state (native button behavior)"
+    },
+    "notes": "The toggle MUST be a <button type=\"button\"> carrying aria-pressed=\"true|false\". aria-pressed is the source of truth for both state and styling — the CSS reacts to [aria-pressed=\"true\"]. Flipping the attribute (e.g. on click) is left to page/application code; the primitive itself ships no controller. A single toggle may stand alone; two or more sibling toggles use cluster data-gap=\"4\" so each button remains a distinct visual target."
+  },
+
+  "tokens_used": [
+    "color-bg", "color-bg-muted", "color-fg", "color-fg-muted",
+    "color-border", "color-primary", "color-primary-subtle", "color-ring",
+    "radius-md",
+    "space-1", "space-1h", "space-2", "space-3", "space-4",
+    "text-xs", "text-sm", "text-base",
+    "font-ui", "weight-medium",
+    "duration-fast", "ease-default",
+    "border-width", "focus-ring-width", "focus-ring-offset", "focus-ring-style", "focus-ring-color", "focus-shadow", "disabled-opacity"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"cluster\" data-gap=\"4\">\n  <button data-ui=\"toggle\" type=\"button\" aria-pressed=\"false\">{label1}</button>\n  <button data-ui=\"toggle\" type=\"button\" aria-pressed=\"false\">{label2}</button>\n</div>",
+    "html_single": "<button data-ui=\"toggle\" type=\"button\" aria-pressed=\"false\">{label}</button>",
+    "html_pressed": "<button data-ui=\"toggle\" type=\"button\" aria-pressed=\"true\">{label}</button>",
+    "html_row": "<div data-ui=\"cluster\" data-gap=\"4\">\n  <button data-ui=\"toggle\" type=\"button\" aria-pressed=\"false\">{label1}</button>\n  <button data-ui=\"toggle\" type=\"button\" aria-pressed=\"false\">{label2}</button>\n</div>"
+  },
+
+  "safe_transforms": [
+    "change-size",
+    "change-label-text",
+    "set-pressed-true",
+    "set-pressed-false",
+    "add-disabled",
+    "remove-disabled"
+  ],
+
+  "unsafe_transforms": [
+    "remove-aria-pressed",
+    "change-tag-from-button",
+    "remove-type-button"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": []
+  },
+
+  "files": {
+    "html": "toggle.html",
+    "css": "toggle.css",
+    "manifest": "toggle.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-button-element",
+    "requires-type-button",
+    "pressed-styling-reacts-to-aria-pressed-true",
+    "unpressed-uses-muted-foreground",
+    "sm-size-sets-data-size-sm",
+    "disabled-lowers-opacity",
+    "control-rows-use-cluster-gap-4",
+    "single-control-may-stand-alone"
+  ]
+}

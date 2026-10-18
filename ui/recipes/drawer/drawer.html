@@ -1,0 +1,122 @@
+<!-- @ui:component drawer -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots trigger overlay panel header title body footer close -->
+<!-- @ui:variants side=left|right size=sm|md|lg|full -->
+<!-- @ui:controller drawer.js -->
+
+<!-- Default (left, medium) -->
+<div data-ui="drawer" data-state="closed" id="demo-drawer">
+  <button data-part="trigger" data-ui="button" data-variant="primary">Open Drawer</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    data-variant="left"
+    data-size="md"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="demo-drawer-title"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="demo-drawer-title" data-part="title">Drawer Title</h2>
+      <button data-part="close" aria-label="Close drawer">&#x2715;</button>
+    </div>
+    <div data-part="body">
+      <p>This is the drawer body content.</p>
+    </div>
+    <div data-part="footer">
+      <button data-ui="button" data-part="close" data-variant="outline">Cancel</button>
+      <button data-ui="button" data-variant="primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Right side, small variant -->
+<div data-ui="drawer" data-state="closed" id="right-drawer">
+  <button data-part="trigger" data-ui="button" data-variant="outline">Open Right Drawer</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    data-variant="right"
+    data-size="sm"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="right-drawer-title"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="right-drawer-title" data-part="title">Settings</h2>
+      <button data-part="close" aria-label="Close drawer">&#x2715;</button>
+    </div>
+    <div data-part="body">
+      <p>Quick settings panel.</p>
+    </div>
+    <div data-part="footer">
+      <button data-ui="button" data-part="close" data-variant="outline">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Large left variant -->
+<div data-ui="drawer" data-state="closed" id="large-drawer">
+  <button data-part="trigger" data-ui="button" data-variant="outline">Open Large Drawer</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    data-variant="left"
+    data-size="lg"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="large-drawer-title"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="large-drawer-title" data-part="title">Navigation</h2>
+      <button data-part="close" aria-label="Close drawer">&#x2715;</button>
+    </div>
+    <div data-part="body">
+      <p>This drawer has more room for content.</p>
+    </div>
+    <div data-part="footer">
+      <button data-ui="button" data-part="close" data-variant="outline">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Full-width variant -->
+<div data-ui="drawer" data-state="closed" id="full-drawer">
+  <button data-part="trigger" data-ui="button" data-variant="outline">Open Full Drawer</button>
+
+  <div data-part="overlay" hidden></div>
+
+  <div
+    data-part="panel"
+    tabindex="-1"
+    data-variant="left"
+    data-size="full"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="full-drawer-title"
+    hidden
+  >
+    <div data-part="header">
+      <h2 id="full-drawer-title" data-part="title">Full Width</h2>
+      <button data-part="close" aria-label="Close drawer">&#x2715;</button>
+    </div>
+    <div data-part="body">
+      <p>This drawer takes up the full viewport width.</p>
+    </div>
+    <div data-part="footer">
+      <button data-ui="button" data-part="close" data-variant="outline">Close</button>
+    </div>
+  </div>
+</div>

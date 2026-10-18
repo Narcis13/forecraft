@@ -1,0 +1,269 @@
+/* @ui:component pricing */
+/* @ui:tokens color-bg color-fg color-fg-muted color-primary color-surface-1 space-1 space-2 space-4 space-6 space-8 space-12 space-16 space-3 space-48 font-heading font-body heading-tracking heading-transform heading-caps heading-leading heading-weight text-sm text-base text-lg text-3xl text-2xl weight-semibold weight-bold leading-tight leading-normal leading-relaxed shadow-md border-width-strong motion-enter-duration motion-enter-ease motion-slide-distance texture-surface card-bg */
+
+/* ── Root ──
+   Mobile-first (task 0.8-09): everything outside the two `@media` blocks at the
+   foot of the sheet is the phone case, and the canon floors widen it. */
+[data-ui="pricing"] {
+  display: grid;
+  gap: var(--space-4);
+  padding-block: var(--space-12);
+  padding-inline: var(--space-4);
+  font-family: var(--font-body);
+  color: var(--color-fg);
+  background: var(--color-bg);
+}
+
+/* ── Section heading ── */
+/* The heading speaks in the theme's heading voice, like bento's and the
+   hero's: weight, tracking, case and caps come from the type axis. */
+[data-ui="pricing"] [data-part="heading"] {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+[data-ui="pricing"] > [data-part="description"] {
+  margin: 0;
+  max-inline-size: 44rem;
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--color-fg-muted);
+}
+
+/* ── Billing switch ──
+   A monthly/yearly switch with zero JavaScript: a segmented toggle-group of
+   two native radios (value="monthly" / value="yearly") in a direct-child
+   [data-part="billing"], and every price written twice — once inside a
+   [data-part="monthly"] wrapper, once inside a [data-part="yearly"] one.
+   `:has()` reads which radio is checked and shows one wrapper of each pair.
+
+   Hidden until `:has()` is known to work: without it the radios could not
+   change a single price, so nobody is shown a switch that does nothing. The
+   prices then read monthly, which is what the wrappers say by default. */
+[data-ui="pricing"] > [data-part="billing"] {
+  display: none;
+}
+
+@supports selector(:has(*)) {
+  [data-ui="pricing"] > [data-part="billing"] {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-block-start: var(--space-4);
+  }
+
+  /* Exactly one wrapper of each pair is in the render tree — and so in the
+     accessibility tree — at a time: display:none, never opacity, so a screen
+     reader hears one price per tier. */
+  [data-ui="pricing"]:not(:has(> [data-part="billing"] input[value="yearly"]:checked)) [data-part="yearly"],
+  [data-ui="pricing"]:has(> [data-part="billing"] input[value="yearly"]:checked) [data-part="monthly"] {
+    display: none;
+  }
+
+  /* The price that just arrived settles in: a short fade and a small rise on
+     the enter tokens. It replays whenever the wrapper comes back from
+     display:none, which is exactly when the switch flips. */
+  [data-ui="pricing"]:has(> [data-part="billing"] input[value="yearly"]:checked) [data-part="yearly"],
+  [data-ui="pricing"]:has(> [data-part="billing"] input[value="monthly"]:checked) [data-part="monthly"] {
+    animation: faqir-pricing-swap var(--motion-enter-duration) var(--motion-enter-ease) both;
+  }
+}
+
+/* No `:has()`: the yearly wrappers never show. `not selector()` is also true
+   in an engine too old to know the selector() test at all. */
+@supports not selector(:has(*)) {
+  [data-ui="pricing"] [data-part="yearly"] {
+    display: none;
+  }
+}
+
+/* An inline wrapper (a <span> inside the stat's value or label) is laid out as
+   an inline-block so the rise can move it; inline boxes ignore translate. In
+   :where() so every hiding rule above outranks it. */
+:where([data-ui="pricing"] span:is([data-part="monthly"], [data-part="yearly"])) {
+  display: inline-block;
+}
+
+/* Only a `from`: the price ends exactly where it already is. */
+@keyframes faqir-pricing-swap {
+  from {
+    opacity: 0;
+    translate: 0 calc(var(--motion-slide-distance) / 2);
+  }
+}
+
+/* ── Tiers ──
+   A real grid primitive owns the layout attributes while manifest-aware part
+   ownership keeps `tiers` and `tier` with pricing (grid declares neither slot).
+   `data-align-rows` makes every direct card a four-row subgrid. The redundant
+   contextual column declarations preserve pricing's root `data-cols` API; the
+   nested grid attributes are the canonical ladder and the browser-test oracle. */
+[data-ui="pricing"] [data-part="tiers"] {
+  margin-block-start: var(--space-8);
+  align-items: stretch;
+  grid-template-columns: 1fr;
+}
+
+/* ── Tier ──
+   The tier IS a card; everything below restyles the card's own slots in the
+   pricing context, so the card primitive stays the single source of its box. */
+[data-ui="pricing"] [data-part="tier"] {
+  row-gap: var(--space-4);
+}
+
+[data-ui="pricing"] [data-part="tier"] [data-part="header"] {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+[data-ui="pricing"] [data-part="tier"] [data-part="title"] {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  line-height: var(--heading-leading);
+}
+
+[data-ui="pricing"] [data-part="tier"] [data-part="header"] [data-part="description"] {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-fg-muted);
+}
+
+/* The price is the stat primitive. Its label carries `order: -1` so the caption
+   sits above the number; in a price block the number leads, so DOM order wins. */
+[data-ui="pricing"] [data-part="tier"] [data-ui="stat"] {
+  margin-block-start: auto;
+  padding-block-start: var(--space-2);
+}
+
+[data-ui="pricing"] [data-part="tier"] [data-ui="stat"] [data-part="label"] {
+  order: 0;
+  color: var(--color-fg-muted);
+}
+
+/* ── Feature list ──
+   Plain <ul> inside the card body: a data-part here would belong to the card. */
+[data-ui="pricing"] [data-part="tier"] [data-part="body"] ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+[data-ui="pricing"] [data-part="tier"] [data-part="body"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+}
+
+[data-ui="pricing"] [data-part="tier"] [data-part="body"] li [data-ui="icon"] {
+  flex-shrink: 0;
+  margin-block-start: var(--space-1);
+  color: var(--color-primary);
+}
+
+/* ── Tier footer ── */
+[data-ui="pricing"] [data-part="tier"] [data-part="footer"] {
+  display: flex;
+  padding-block-start: var(--space-2);
+}
+
+[data-ui="pricing"] [data-part="tier"] [data-part="footer"] > * {
+  inline-size: 100%;
+  text-align: center;
+}
+
+/* ── Featured tier ── */
+[data-ui="pricing"] [data-part="tier"][data-state="featured"] {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  outline: var(--border-width-strong) solid var(--color-primary);
+}
+
+/* The ring says "this one"; a faint wash of the accent from the top edge says
+   it from across the room. The card's own layers stay underneath — its
+   texture and its fill, a colour or a gradient — so the wash tints whatever
+   the theme's card already is. It sits above its neighbours so the ring and
+   the shadow are never clipped by the next card's paint. */
+[data-ui="pricing"] > :where([data-part="tiers"]) > [data-part="tier"][data-state="featured"] {
+  position: relative;
+  z-index: 1;
+  background:
+    linear-gradient(to bottom, color-mix(in oklch, var(--color-primary) 7%, transparent), transparent var(--space-48)),
+    var(--texture-surface),
+    var(--card-bg, var(--color-surface-1));
+}
+
+/* ── Footnote ── */
+[data-ui="pricing"] [data-part="footnote"] {
+  margin: 0;
+  margin-block-start: var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+}
+
+/* ── Motion ──
+   Reduced motion swaps the prices without the settle; paper has nothing to
+   settle. The selectors repeat the swap's own, so they meet it at its weight
+   and win by coming later. */
+@media (prefers-reduced-motion: reduce), print {
+  [data-ui="pricing"]:has(> [data-part="billing"] input[value="yearly"]:checked) [data-part="yearly"],
+  [data-ui="pricing"]:has(> [data-part="billing"] input[value="monthly"]:checked) [data-part="monthly"] {
+    animation: none;
+  }
+}
+
+/* ── Responsive ──
+   Canon tiers only, min-width only, ascending (FAQIR-NEXT §19). One tier per row
+   on a phone, two from sm, the declared count from lg — the same 640/1024 steps
+   as before, now expressed as floors. `data-cols="2"` needs no sm rule (two is
+   already the sm default) but does need an lg one, or it would inherit three. */
+@media (min-width: 40rem) {
+  [data-ui="pricing"] [data-part="heading"] {
+    font-size: var(--text-3xl);
+  }
+
+  [data-ui="pricing"] {
+    padding-block: var(--space-16);
+    padding-inline: var(--space-6);
+  }
+
+  [data-ui="pricing"] [data-part="tiers"] {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-ui="pricing"] [data-part="tiers"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  [data-ui="pricing"][data-cols="2"] [data-part="tiers"],
+  [data-ui="pricing"][data-cols="2"] > [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-part="tiers"] {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  [data-ui="pricing"][data-cols="3"] [data-part="tiers"],
+  [data-ui="pricing"][data-cols="3"] > [data-ui="grid"][data-ui="grid"][data-ui="grid"][data-part="tiers"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

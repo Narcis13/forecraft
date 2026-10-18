@@ -1,0 +1,107 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "nav",
+  "version": "1.0.1",
+  "kind": "primitive",
+  "category": "navigation",
+  "description": "Navigation bar with link slots, active state, and horizontal/vertical/underline/pill variants",
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the links and separators with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Both are the root's children. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "nav",
+    "selector": "[data-ui='nav']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "link": {
+      "selector": "[data-part='link']",
+      "required": true,
+      "tag_hint": "a",
+      "description": "Navigation link or button"
+    },
+    "separator": {
+      "selector": "[data-part='separator']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Visual separator between link groups"
+    }
+  },
+
+  "variants": {
+    "variant": {
+      "values": ["horizontal", "vertical", "underline", "pill"],
+      "default": "horizontal",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "active": {
+      "attr": "data-state",
+      "default": false,
+      "transient": false,
+      "applied_to": "link"
+    }
+  },
+
+  "a11y": {
+    "role": "navigation",
+    "required_attrs": ["aria-label"],
+    "keyboard": {
+      "Tab": "Move focus between links"
+    }
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted", "color-primary", "color-primary-subtle",
+    "color-bg-subtle", "color-bg", "color-border",
+    "text-sm", "weight-medium", "radius-md",
+    "space-0h", "space-1", "space-2", "space-3", "space-4",
+    "shadow-sm", "duration-fast", "ease-default",
+    "border-width", "border-width-strong"
+  ],
+
+  "templates": {
+    "html": "<nav data-ui=\"nav\" data-variant=\"{variant}\" aria-label=\"{label}\"><a data-part=\"link\" data-state=\"active\" href=\"{href}\">{text}</a></nav>"
+  },
+
+  "safe_transforms": [
+    "Change data-variant to any listed variant",
+    "Change link data-state to active",
+    "Add or remove links",
+    "Add or remove separators",
+    "Change link content"
+  ],
+  "unsafe_transforms": [
+    "Remove data-ui attribute",
+    "Remove all link slots",
+    "Remove aria-label"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["dashboard-shell"]
+  },
+
+  "files": {
+    "html": "nav.html",
+    "css": "nav.css",
+    "manifest": "nav.manifest.json"
+  },
+
+  "tests": [
+    "Renders links horizontally by default",
+    "Active state highlights link",
+    "Vertical variant stacks links",
+    "Underline variant shows bottom border on active",
+    "Pill variant shows contained background"
+  ]
+}

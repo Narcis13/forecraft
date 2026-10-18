@@ -1,0 +1,65 @@
+<!-- @ui:component switcher -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants threshold=sm|md|lg|xl gap=0|1|2|3|4|6|8|10|12|16 -->
+<!--
+  The container-driven row (task 0.8-05): equal-width columns while the
+  switcher itself is at least data-threshold wide, one column under it. It asks
+  its OWN inline size, never the viewport (FAQIR-SPEC §15 doctrine 2) — the same
+  markup is right full-bleed, in a sidebar, and in a dialog. There is no @media
+  rule in switcher.css, and none of these attributes takes a tier suffix: the
+  threshold IS the responsiveness.
+  Thresholds are the canon lengths measured on the component: sm 40rem ·
+  md 48rem · lg 64rem · xl 80rem. Omitting data-threshold means sm.
+-->
+
+<!-- Default threshold: two columns once the switcher itself reaches 40rem -->
+<div data-ui="switcher">
+  <div data-ui="surface" data-size="md">Side by side while there is room for both.</div>
+  <div data-ui="surface" data-size="md">One above the other as soon as there is not.</div>
+</div>
+
+<!-- Explicit sm threshold, three columns -->
+<div data-ui="switcher" data-threshold="sm" data-gap="4">
+  <div data-ui="surface" data-size="md">Intrinsic first</div>
+  <div data-ui="surface" data-size="md">Container second</div>
+  <div data-ui="surface" data-size="md">Viewport last</div>
+</div>
+
+<!-- A wider threshold: these two only share a line on a roomy container -->
+<div data-ui="switcher" data-threshold="lg" data-gap="6">
+  <div data-ui="card">
+    <div data-part="header">
+      <h3 data-part="title">Summary</h3>
+    </div>
+    <div data-part="body">Wants 64rem of the switcher's own width before it sits beside its sibling.</div>
+  </div>
+  <div data-ui="card">
+    <div data-part="header">
+      <h3 data-part="title">Detail</h3>
+    </div>
+    <div data-part="body">Below that, each panel gets the full measure to itself.</div>
+  </div>
+</div>
+
+<!-- Form actions: a row of buttons that becomes a stack in a narrow column -->
+<div data-ui="switcher" data-threshold="sm" data-gap="2">
+  <button data-ui="button" data-variant="primary" type="button">Save changes</button>
+  <button data-ui="button" data-variant="outline" type="button">Preview</button>
+  <button data-ui="button" data-variant="ghost" type="button">Discard</button>
+</div>
+
+<!-- Tight switcher -->
+<div data-ui="switcher" data-gap="0">
+  <div data-ui="surface" data-size="md">No gap, still switching.</div>
+  <div data-ui="surface" data-size="md">The threshold is about width, not spacing.</div>
+</div>
+
+<!-- Nested: the inner switcher measures the column it landed in, not the page -->
+<div data-ui="switcher" data-threshold="md" data-gap="4">
+  <div data-ui="surface" data-size="md">Outer column</div>
+  <div data-ui="switcher" data-threshold="sm" data-gap="2">
+    <div data-ui="surface" data-size="md">Inner A</div>
+    <div data-ui="surface" data-size="md">Inner B</div>
+  </div>
+</div>

@@ -1,0 +1,122 @@
+/* @ui:base rhythm — the default vertical rhythm (task 0.9-02, FAQIR-SPEC §20) */
+
+/* THE RULE, in one sentence:
+ *
+ *   Inside a flow root, consecutive block-level Faqir components and nested flow
+ *   roots are separated by `--flow-space` of vertical space.
+ *
+ * ── "and nested flow roots" ──
+ * Not a widening for its own sake: a page written as a run of bare `<section>`s
+ * is the commonest shape there is, and a rule that spaced `[data-ui]` children
+ * only would leave exactly that page flush. A sectioning element is a block box
+ * by definition, so the same margin is safe on it. The participant set is
+ * therefore `[data-ui]` plus the flow-root tags — never "any child", which would
+ * put 3rem between a heading and its own paragraph.
+ *
+ * ── "consecutive" ──
+ * The margin goes on the SECOND of two participants, so a non-participant
+ * between them suppresses it: `<h2>` followed by a table is a label and the
+ * thing it labels, and a rule that pushed them 3rem apart would be a worse
+ * defect than the one it fixed. (Measured, not assumed: the first draft used
+ * "not the first child" and the printed invoice scaffold came back with every
+ * heading floating 48px above its own section.) Prose headings keep their own
+ * margins from `base/prose.css`, where that decision belongs.
+ *
+ * That is the whole of §20, and it is deliberately a sentence an agent can be
+ * told once. Nothing has to be wrapped, no attribute has to be written, and a
+ * bare sequence of components pasted into an empty file is spaced — which is
+ * the defect this rule exists to remove: v0.8 shipped a complete spacing
+ * vocabulary (`--space-0…64`, `--section-gap-{sm,md,lg}`, `--content-gutter`,
+ * `data-gap` on all five layout primitives) in which *every gap was opt-in*, so
+ * 42 of the 86 reference pages rendered with 183 zero-gap seams between demos
+ * while every gate stayed green (task 0.9-01 measured it).
+ *
+ * ── flow root ──
+ * The page's own structure: the HTML sectioning and grouping elements, plus the
+ * two Faqir primitives that *are* plain block boxes (`container`, the centred
+ * measure column, and `surface`, the generic padded box). An element carrying
+ * any other `data-ui` is NOT a flow root — a component owns its own internal
+ * layout, and `stack`/`cluster`/`grid`/`switcher` in particular already space
+ * their children with `gap`, so adding a margin there would silently double it.
+ *
+ * ── block-level ──
+ * Vertical margins on an atomic inline box (`inline-flex`, `inline-block`) do
+ * not stack it — they shift it inside its line box and break the baseline it
+ * shares with its neighbours. A row of badges is a row, and its spacing is a
+ * different question (task 0.9-08). CSS cannot select on computed display, so
+ * the 26 inline-level components are named below; the list is not maintained by
+ * hand but *derived* from the registry — `tests/utils/rhythm.test.ts` recomputes
+ * it from every component's root `display` (falling back to the root tag's UA
+ * default, which is what makes `link` inline) and fails if this list and
+ * `INLINE_LEVEL_COMPONENTS` in `src/utils/layout.ts` disagree with it.
+ *
+ * ── `--flow-space` ──
+ * Defaults to `--section-gap-sm` (3rem), the rhythm token 0.8-07 shipped for
+ * "dense pages — docs, dashboards", which is exactly the shape a bare sequence
+ * of components makes. `data-gap` on the flow root changes it — the same ladder
+ * and the same spelling the five layout primitives use, so nothing new has to be
+ * learned — and `data-gap="0"` turns the rhythm off. It inherits, so it is set
+ * once on a page and applies all the way down until another flow root says
+ * otherwise.
+ *
+ * ── specificity ──
+ * The whole selector is wrapped in `:where()` and every negation takes a
+ * `:where()` argument, so it weighs (0,0,0): any component rule, any authored
+ * rule, and any `data-gap` on the flow root beats it. A default that cannot be
+ * overridden is not a default.
+ *
+ * ── two rejected candidates, recorded because the question will be asked again ──
+ * 1. A `flow` PRIMITIVE (`> * + *` behind a sixth layout component). Rejected:
+ *    it is a wrapper, and a rule whose answer is "wrap it" fails the one test
+ *    this decision had to pass — an agent must produce spaced output without
+ *    wrapping anything. It would also have spent a new component immediately
+ *    before the 1.0 schema freeze.
+ * 2. A `data-flow` PROP on `stack`/`surface`/`container`. Rejected for the same
+ *    reason (still opt-in, still per-element) and one more: three manifests
+ *    would grow an attribute meaning the same thing in three places, which is
+ *    the drift the manifest system exists to prevent.
+ */
+
+/* ── the rule ── */
+:where(
+    body, main, article, section, aside, header, footer,
+    form, fieldset, dialog, blockquote, figure,
+    [data-ui="container"], [data-ui="surface"]
+  ):not(:where([data-ui]:not([data-ui="container"], [data-ui="surface"])))
+  > :where(
+    [data-ui],
+    body, main, article, section, aside, header, footer,
+    form, fieldset, dialog, blockquote, figure
+  )
+  + :where(
+    [data-ui],
+    body, main, article, section, aside, header, footer,
+    form, fieldset, dialog, blockquote, figure
+  ):not(
+    :where(
+      [data-ui="avatar"], [data-ui="badge"], [data-ui="barcode"], [data-ui="button"],
+      [data-ui="calendar"], [data-ui="checkbox"], [data-ui="chip"], [data-ui="combobox"],
+      [data-ui="date-picker"], [data-ui="dropdown"], [data-ui="highlight"], [data-ui="icon"],
+      [data-ui="image"], [data-ui="input-otp"], [data-ui="kbd"], [data-ui="link"],
+      [data-ui="menubar"], [data-ui="pagination"], [data-ui="popover"], [data-ui="qr-code"],
+      [data-ui="radio"], [data-ui="rating"], [data-ui="select-custom"], [data-ui="spinner"],
+      [data-ui="switch"], [data-ui="toggle"], [data-ui="toggle-group"], [data-ui="tooltip"]
+    )
+  ) {
+  margin-block-start: var(--flow-space, var(--section-gap-sm));
+}
+
+/* ── the ladder ──
+ * `data-gap` on a flow root, on the same spacing scale the layout primitives
+ * take. Scoped to flow roots so a `data-gap` written for a stack's own flex gap
+ * cannot silently re-tune the rhythm of everything below it. */
+:where(body, main, article, section, aside, header, footer, form, fieldset, dialog, blockquote, figure, [data-ui="container"], [data-ui="surface"])[data-gap="0"] { --flow-space: 0px; }
+:where(body, main, article, section, aside, header, footer, form, fieldset, dialog, blockquote, figure, [data-ui="container"], [data-ui="surface"])[data-gap="1"] { --flow-space: var(--space-1); }
+:where(body, main, article, section, aside, header, footer, form, fieldset, dialog, blockquote, figure, [data-ui="container"], [data-ui="surface"])[data-gap="2"] { --flow-space: var(--space-2); }
+:where(body, main, article, section, aside, header, footer, form, fieldset, dialog, blockquote, figure, [data-ui="container"], [data-ui="surface"])[data-gap="3"] { --flow-space: var(--space-3); }
+:where(body, main, article, section, aside, header, footer, form, fieldset, dialog, blockquote, figure, [data-ui="container"], [data-ui="surface"])[data-gap="4"] { --flow-space: var(--space-4); }
+:where(body, main, article, section, aside, header, footer, form, fieldset, dialog, blockquote, figure, [data-ui="container"], [data-ui="surface"])[data-gap="6"] { --flow-space: var(--space-6); }
+:where(body, main, article, section, aside, header, footer, form, fieldset, dialog, blockquote, figure, [data-ui="container"], [data-ui="surface"])[data-gap="8"] { --flow-space: var(--space-8); }
+:where(body, main, article, section, aside, header, footer, form, fieldset, dialog, blockquote, figure, [data-ui="container"], [data-ui="surface"])[data-gap="10"] { --flow-space: var(--space-10); }
+:where(body, main, article, section, aside, header, footer, form, fieldset, dialog, blockquote, figure, [data-ui="container"], [data-ui="surface"])[data-gap="12"] { --flow-space: var(--space-12); }
+:where(body, main, article, section, aside, header, footer, form, fieldset, dialog, blockquote, figure, [data-ui="container"], [data-ui="surface"])[data-gap="16"] { --flow-space: var(--space-16); }

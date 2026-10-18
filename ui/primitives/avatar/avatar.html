@@ -1,0 +1,29 @@
+<!-- @ui:component avatar -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots image fallback -->
+<!-- @ui:variants size=sm|md|lg -->
+
+<!-- Image Avatar -->
+<span data-ui="avatar">
+  <img data-part="image" src="https://example.com/photo.jpg" alt="Jane Doe">
+  <span data-part="fallback" hidden>JD</span>
+</span>
+
+<!-- Fallback (no image) -->
+<span data-ui="avatar">
+  <span data-part="fallback">JD</span>
+</span>
+
+<!-- Sizes -->
+<span data-ui="avatar" data-size="sm">
+  <img data-part="image" src="https://example.com/small.jpg" alt="Small avatar" hidden>
+  <span data-part="fallback">SM</span>
+</span>
+<span data-ui="avatar">
+  <img data-part="image" src="https://example.com/medium.jpg" alt="Medium avatar" hidden>
+  <span data-part="fallback">MD</span>
+</span>
+<span data-ui="avatar" data-size="lg">
+  <img data-part="image" src="https://example.com/large.jpg" alt="Large avatar" hidden>
+  <span data-part="fallback">LG</span>
+</span>

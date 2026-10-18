@@ -1,0 +1,32 @@
+<!-- @ui:component skeleton -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants shape=text|circle|rect -->
+
+<!-- Text (default) — one line of placeholder text -->
+<div data-ui="skeleton" aria-hidden="true"></div>
+
+<!-- Text with custom width via component custom property -->
+<div data-ui="skeleton" aria-hidden="true" style="--skeleton-width: 60%"></div>
+
+<!-- Circle — avatar placeholder -->
+<div data-ui="skeleton" data-variant="circle" aria-hidden="true"></div>
+
+<!-- Circle with custom size -->
+<div data-ui="skeleton" data-variant="circle" aria-hidden="true" style="--skeleton-size: 4rem"></div>
+
+<!-- Rect — image/card placeholder -->
+<div data-ui="skeleton" data-variant="rect" aria-hidden="true"></div>
+
+<!-- Composed loading card -->
+<div data-ui="card">
+  <div data-part="body">
+    <div data-ui="stack" data-variant="horizontal" data-gap="3" data-align="center">
+      <div data-ui="skeleton" data-variant="circle" aria-hidden="true"></div>
+      <div data-ui="stack" data-gap="2" style="flex: 1">
+        <div data-ui="skeleton" aria-hidden="true" style="--skeleton-width: 40%"></div>
+        <div data-ui="skeleton" aria-hidden="true" style="--skeleton-width: 70%"></div>
+      </div>
+    </div>
+  </div>
+</div>

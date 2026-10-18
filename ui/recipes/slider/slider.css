@@ -1,0 +1,135 @@
+/* @ui:component slider */
+/* @ui:tokens color-bg color-fg-muted color-primary color-primary-subtle color-ring color-bg-muted space-3 radius-full text-sm shadow-sm duration-fast ease-default font-ui border-width border-width-strong focus-ring-width focus-ring-style focus-ring-color focus-ring-offset disabled-opacity */
+
+/* ── Root ── */
+[data-ui="slider"] {
+  --slider-thumb-size: 1.25rem;
+  --slider-track-size: 0.375rem;
+  /* Filled span, written by the controller as percentages. */
+  --slider-start: 0%;
+  --slider-end: 0%;
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  inline-size: 100%;
+  min-block-size: var(--slider-thumb-size);
+  /* The controller owns dragging; keep the browser from scrolling/panning. */
+  touch-action: none;
+  user-select: none;
+}
+
+/* ── Track ── */
+[data-ui="slider"] > [data-part="track"] {
+  position: relative;
+  flex: 1 1 auto;
+  block-size: var(--slider-track-size);
+  background: var(--color-bg-muted, oklch(0.92 0.004 260));
+  border-radius: var(--radius-full, 9999px);
+}
+
+/* ── Filled range ── */
+[data-ui="slider"] > :where([data-part="track"]) > [data-part="range"] {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: var(--slider-start, 0%);
+  inset-inline-end: calc(100% - var(--slider-end, 0%));
+  background: var(--color-primary);
+  border-radius: inherit;
+}
+
+/* ── Thumb ── */
+[data-ui="slider"] > :where([data-part="track"]) > [data-part="thumb"] {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: var(--pos, 0%);
+  inline-size: var(--slider-thumb-size);
+  block-size: var(--slider-thumb-size);
+  /* inset-inline-start puts the leading edge; translate centres the thumb on the
+     value in both LTR and RTL (translateX is physical, so -50% always recentres). */
+  transform: translate(-50%, -50%);
+  background: var(--color-bg, white);
+  border: var(--border-width-strong) solid var(--color-primary);
+  border-radius: var(--radius-full, 9999px);
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+  touch-action: none;
+  transition: box-shadow var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="slider"] > :where([data-part="track"]) > [data-part="thumb"]:hover {
+  box-shadow: var(--shadow-sm),
+              0 0 0 4px var(--color-primary-subtle);
+}
+
+[data-ui="slider"] > :where([data-part="track"]) > [data-part="thumb"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+[data-ui="slider"] > :where([data-part="track"]) > [data-part="thumb"][data-state="dragging"] {
+  cursor: grabbing;
+  box-shadow: var(--shadow-sm),
+              0 0 0 5px var(--color-primary-subtle);
+}
+
+/* ── Value output ── */
+[data-ui="slider"] > [data-part="output"] {
+  flex: 0 0 auto;
+  min-inline-size: 3ch;
+  color: var(--color-fg-muted);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+/* ── Sizes ── */
+[data-ui="slider"][data-size="sm"] {
+  --slider-thumb-size: 1rem;
+  --slider-track-size: 0.25rem;
+}
+
+[data-ui="slider"][data-size="lg"] {
+  --slider-thumb-size: 1.5rem;
+  --slider-track-size: 0.5rem;
+}
+
+/* ── Disabled ── */
+[data-ui="slider"][data-disabled] {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="slider"] > :where([data-part="track"]) > [data-part="thumb"] {
+    transition: none;
+  }
+}
+
+/* ── Forced colors (Windows High Contrast) ──
+   The filled range and the empty track differ only by background, and the OS
+   drops both: the slider showed no value. The range and the thumb opt out of
+   the substitution so the control still reads as "this much, up to here". [W3-3] */
+@media (forced-colors: active) {
+  [data-ui="slider"] > [data-part="track"] {
+    border: var(--border-width) solid ButtonText;
+  }
+
+  [data-ui="slider"] > :where([data-part="track"]) > [data-part="range"] {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+
+  [data-ui="slider"] > :where([data-part="track"]) > [data-part="thumb"] {
+    forced-color-adjust: none;
+    background: ButtonText;
+    border: var(--border-width) solid ButtonFace;
+  }
+
+  [data-ui="slider"] > :where([data-part="track"]) > [data-part="thumb"]:focus-visible {
+    outline-color: Highlight;
+  }
+}

@@ -1,0 +1,68 @@
+<!-- @ui:component stamp -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants visual=default|primary|destructive|success size=sm|md|lg -->
+<!--
+  Stamp — an edition or status mark. CSS only.
+    · Real text in a span: capitals come from text-transform, the angle from
+      `rotate`, so reading order and selection are untouched.
+    · The ink is the variant; the double rule and the text share it.
+    · data-shape="round" is a circular seal; --stamp-rotate sets the angle.
+-->
+
+<!-- Variants -->
+<span data-ui="stamp">Sold out</span>
+<span data-ui="stamp" data-variant="primary">Limited edition</span>
+<span data-ui="stamp" data-variant="destructive">Cancelled</span>
+<span data-ui="stamp" data-variant="success">Confirmed</span>
+
+<!-- Sizes -->
+<span data-ui="stamp" data-size="sm">Look 07</span>
+<span data-ui="stamp">Look 07</span>
+<span data-ui="stamp" data-size="lg">Look 07</span>
+
+<!-- Shapes: the round seal wraps and balances its text inside a fixed disc -->
+<span data-ui="stamp" data-variant="primary" data-shape="round" data-size="sm">Limited edition</span>
+<span data-ui="stamp" data-variant="primary" data-shape="round">Limited edition</span>
+<span data-ui="stamp" data-variant="success" data-shape="round" data-size="lg">No. 0417</span>
+
+<!-- The angle is a custom property: straight, and leaning the other way -->
+<span data-ui="stamp" style="--stamp-rotate: 0deg">Straight</span>
+<span data-ui="stamp" data-variant="destructive" style="--stamp-rotate: 4deg">Final sale</span>
+
+<!-- A tour date that has sold out: the stamp states it in words, beside the date -->
+<div data-ui="card">
+  <div data-part="body">
+    <div data-ui="stack" data-gap="4">
+      <div data-ui="cluster" data-gap="4" data-align="center">
+        <p data-ui="text" data-weight="semibold">14 Nov</p>
+        <p data-ui="text">Lisbon, Coliseu dos Recreios</p>
+        <span data-ui="stamp" data-variant="destructive" data-size="sm" data-push>Sold out</span>
+      </div>
+      <hr data-ui="separator">
+      <div data-ui="cluster" data-gap="4" data-align="center">
+        <p data-ui="text" data-weight="semibold">21 Nov</p>
+        <p data-ui="text">Madrid, Sala But</p>
+        <span data-ui="stamp" data-variant="success" data-size="sm" data-push>Tickets on sale</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- An edition mark on a card -->
+<div data-ui="card">
+  <div data-part="header">
+    <div data-ui="cluster" data-gap="3" data-align="center">
+      <h3 data-part="title">Autumn Capsule</h3>
+      <span data-ui="stamp" data-variant="primary" data-size="sm" data-push>Look 07</span>
+    </div>
+    <p data-part="description">Hand-finished wool coat</p>
+  </div>
+  <div data-part="body">
+    <p data-ui="text">Made in an edition of 120, numbered inside the collar.</p>
+  </div>
+  <div data-part="footer">
+    <span data-ui="stamp" data-shape="round" data-size="sm">No. 0417</span>
+    <button data-ui="button" data-variant="primary">Reserve yours</button>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+<!-- @ui:component scroll-progress -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants position=top|bottom scope=page|nearest -->
+<!--
+  Scroll progress — a reading-progress bar. CSS only, zero JavaScript.
+    · An empty, aria-hidden element: the browser's own scrollbar already
+      reports position to assistive technology.
+    · Put ONE page-scoped bar anywhere in <body>; it pins itself to the top.
+    · Renders nothing where scroll timelines are unsupported.
+-->
+
+<!-- Page progress, pinned to the top (default) -->
+<div data-ui="scroll-progress" aria-hidden="true"></div>
+
+<!-- Pinned to the bottom edge, thicker, in a single colour -->
+<div data-ui="scroll-progress" data-variant="bottom" aria-hidden="true" style="--scroll-progress-size: var(--space-1); --scroll-progress-color: var(--color-success)"></div>
+
+<!-- Scoped to the nearest scroller: first child of a scrolling pane -->
+<div data-ui="surface" data-variant="raised" tabindex="0" role="region" aria-label="Release notes" style="max-height: 12rem; overflow: auto">
+  <div data-ui="scroll-progress" data-scope="nearest" aria-hidden="true"></div>
+  <p>Scroll this pane and the bar at its top edge follows.</p>
+  <p>Reveal, marquee, backdrop, glow and highlight arrive as CSS-only primitives.</p>
+  <p>Every entrance reads the motion tokens, so a theme restyles them all at once.</p>
+  <p>Scroll-linked effects use view and scroll timelines where the browser has them.</p>
+  <p>Where it does not, content simply appears — nothing is ever left hidden.</p>
+  <p>Ambient loops share one duration and one play state.</p>
+  <p>Reduced motion is honoured by every component that moves.</p>
+</div>

@@ -1,0 +1,213 @@
+/* @ui:component drawer */
+/* @ui:tokens color-bg color-fg color-border color-fg-muted color-bg-muted panel-bg shadow-xl space-4 space-6 space-3 radius-none radius-md z-overlay z-modal duration-normal duration-slow ease-out ease-default font-heading border-width focus-ring-width focus-ring-style focus-ring-color focus-ring-offset surface-backdrop text-lg text-base weight-semibold */
+
+/* ── Root ── */
+[data-ui="drawer"] {
+  position: relative;
+}
+
+/* ── Overlay ── */
+[data-ui="drawer"] > [data-part="overlay"] {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: var(--drawer-overlay-bg, oklch(0 0 0 / 0.5));
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-default);
+}
+
+[data-ui="drawer"][data-state="open"] > [data-part="overlay"] {
+  opacity: 1;
+}
+
+[data-ui="drawer"][data-state="closing"] > [data-part="overlay"] {
+  opacity: 0;
+}
+
+/* ── Panel ── */
+[data-ui="drawer"] > [data-part="panel"] {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  width: var(--drawer-width, 400px);
+  max-width: 100vw;
+  background: var(--panel-bg);
+  border: none;
+  box-shadow: var(--drawer-shadow, var(--shadow-xl));
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+
+/* The panel is focused on open (tabindex="-1") only so the focus trap and the
+   Escape key have somewhere to start. It is not a control, so it draws no ring:
+   the global :focus-visible would otherwise outline the whole panel when the
+   overlay is opened from the keyboard. */
+[data-ui="drawer"] > [data-part="panel"]:focus {
+  outline: none;
+}
+
+@supports ((-webkit-backdrop-filter: blur(1rem)) or (backdrop-filter: blur(1rem))) {
+  [data-ui="drawer"] > [data-part="panel"] {
+    -webkit-backdrop-filter: var(--surface-backdrop);
+    backdrop-filter: var(--surface-backdrop);
+  }
+}
+
+/* ── Side Variants ── */
+[data-ui="drawer"] > [data-part="panel"][data-variant="left"] {
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+  border-inline-end: var(--border-width) solid var(--color-border);
+  border-radius: 0 var(--radius-none, 0) var(--radius-none, 0) 0;
+  transform: translateX(-100%);
+}
+
+[data-ui="drawer"] > [data-part="panel"][data-variant="right"] {
+  inset-inline-end: 0;
+  inset-inline-start: auto;
+  border-inline-start: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-none, 0) 0 0 var(--radius-none, 0);
+  transform: translateX(100%);
+}
+
+/* ── Open State ── */
+[data-ui="drawer"][data-state="open"] > [data-part="panel"][data-variant="left"],
+[data-ui="drawer"][data-state="open"] > [data-part="panel"][data-variant="right"] {
+  transform: translateX(0);
+}
+
+/* ── Closing State ── */
+[data-ui="drawer"][data-state="closing"] > [data-part="panel"][data-variant="left"] {
+  transform: translateX(-100%);
+}
+
+[data-ui="drawer"][data-state="closing"] > [data-part="panel"][data-variant="right"] {
+  transform: translateX(100%);
+}
+
+/* ── Size Variants ── */
+[data-ui="drawer"] > [data-part="panel"][data-size="sm"] {
+  --drawer-width: 320px;
+  width: var(--drawer-width);
+}
+
+[data-ui="drawer"] > [data-part="panel"][data-size="md"] {
+  --drawer-width: 400px;
+  width: var(--drawer-width);
+}
+
+[data-ui="drawer"] > [data-part="panel"][data-size="lg"] {
+  --drawer-width: 560px;
+  width: var(--drawer-width);
+}
+
+[data-ui="drawer"] > [data-part="panel"][data-size="full"] {
+  --drawer-width: 100vw;
+  width: var(--drawer-width);
+}
+
+/* ── Header ──
+   Every part is reached from the root by child combinators, so a component in
+   the body keeps its own header, title and close (1.1F-21); the hops are in
+   :where(), so every rule keeps the weight it had. Beyond direct children: the
+   header, body and footer may sit in a <form> that is the panel's child (a form
+   dialog), and a title or close button may sit in one plain div, stack or
+   cluster inside its section. */
+[data-ui="drawer"] > :where([data-part="panel"]) > [data-part="header"],
+[data-ui="drawer"] > :where([data-part="panel"]) > :where(form) > [data-part="header"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-6);
+  padding-bottom: 0;
+  flex-shrink: 0;
+}
+
+/* ── Title ── */
+[data-ui="drawer"] > :where([data-part="panel"]) > :where([data-part="header"]) > [data-part="title"],
+[data-ui="drawer"] > :where([data-part="panel"]) > :where([data-part="header"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="title"],
+[data-ui="drawer"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"]) > [data-part="title"],
+[data-ui="drawer"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="title"] {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: var(--weight-semibold, 600);
+  color: var(--color-fg);
+}
+
+/* ── Close Button ──
+   `:not([data-ui])` is the trigger contract read backwards (task 0.9-05): a part
+   that delegates its look to a primitive must not then be restyled by the recipe.
+   Without it this icon-close rule also caught the footer's
+   `<button data-ui="button" data-part="close">Cancel</button>` and squashed it to
+   a 32px borderless square — invisible for as long as the panel was, and the
+   first thing the forced-open preview showed. */
+[data-ui="drawer"] > :where([data-part="panel"]) > [data-part="close"]:not([data-ui]),
+[data-ui="drawer"] > :where([data-part="panel"]) > :where([data-part="header"], [data-part="footer"]) > [data-part="close"]:not([data-ui]),
+[data-ui="drawer"] > :where([data-part="panel"]) > :where([data-part="header"], [data-part="footer"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="close"]:not([data-ui]),
+[data-ui="drawer"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"], [data-part="footer"]) > [data-part="close"]:not([data-ui]),
+[data-ui="drawer"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"], [data-part="footer"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="close"]:not([data-ui]) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-md, 0.375rem);
+  background: transparent;
+  color: var(--color-fg-muted, oklch(0.55 0 0));
+  font-size: var(--text-base, 1rem);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+[data-ui="drawer"] > :where([data-part="panel"]) > [data-part="close"]:not([data-ui]):hover,
+[data-ui="drawer"] > :where([data-part="panel"]) > :where([data-part="header"], [data-part="footer"]) > [data-part="close"]:not([data-ui]):hover,
+[data-ui="drawer"] > :where([data-part="panel"]) > :where([data-part="header"], [data-part="footer"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="close"]:not([data-ui]):hover,
+[data-ui="drawer"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"], [data-part="footer"]) > [data-part="close"]:not([data-ui]):hover,
+[data-ui="drawer"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"], [data-part="footer"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="close"]:not([data-ui]):hover {
+  background: var(--color-bg-muted, oklch(0.96 0.004 260));
+  color: var(--color-fg);
+}
+
+[data-ui="drawer"] > :where([data-part="panel"]) > [data-part="close"]:not([data-ui]):focus-visible,
+[data-ui="drawer"] > :where([data-part="panel"]) > :where([data-part="header"], [data-part="footer"]) > [data-part="close"]:not([data-ui]):focus-visible,
+[data-ui="drawer"] > :where([data-part="panel"]) > :where([data-part="header"], [data-part="footer"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="close"]:not([data-ui]):focus-visible,
+[data-ui="drawer"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"], [data-part="footer"]) > [data-part="close"]:not([data-ui]):focus-visible,
+[data-ui="drawer"] > :where([data-part="panel"]) > :where(form) > :where([data-part="header"], [data-part="footer"]) > :where(div:not([data-ui]), [data-ui="stack"], [data-ui="cluster"]) > [data-part="close"]:not([data-ui]):focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ── Body ── */
+[data-ui="drawer"] > :where([data-part="panel"]) > [data-part="body"],
+[data-ui="drawer"] > :where([data-part="panel"]) > :where(form) > [data-part="body"] {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-6);
+  color: var(--color-fg);
+}
+
+/* ── Footer ── */
+[data-ui="drawer"] > :where([data-part="panel"]) > [data-part="footer"],
+[data-ui="drawer"] > :where([data-part="panel"]) > :where(form) > [data-part="footer"] {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3, 0.75rem);
+  padding: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: var(--border-width) solid var(--color-border);
+  flex-shrink: 0;
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="drawer"] > [data-part="overlay"],
+  [data-ui="drawer"] > [data-part="panel"] {
+    transition: none;
+  }
+}

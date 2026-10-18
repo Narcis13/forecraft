@@ -1,0 +1,1054 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/Narcis13/faqir-ui/main/manifest.schema.json",
+  "schema_version": "1.1",
+  "title": "Faqir manifest",
+  "description": "The machine-readable contract shipped beside every Faqir component and theme. A file validates as either a component manifest (`<name>.manifest.json`) or a theme manifest (`<name>.theme.json`). The PROTOCOL it describes is FROZEN at 1.0: until 2.0 this schema may only gain optional fields and widened enums — no field is renamed, removed, or made required — which is why `schema_version` (1.1) moves while `protocol_version` (1.0) does not. See SPEC-1.0.md §6 and §8.",
+  "stability": "frozen",
+  "protocol_version": "1.0",
+  "amendment_policy": "https://github.com/Narcis13/faqir-ui/blob/v1.0.0/SPEC-1.0.md#8-stability-and-the-amendment-process",
+  "$comment": "The copy of this file pinned to the 1.0 freeze is published at https://raw.githubusercontent.com/Narcis13/faqir-ui/v1.0.0/manifest.schema.json; the $id above tracks `main` and is the alias that always serves the newest 1.x schema. Both are byte-identical until an additive 1.x amendment lands, after which the pinned URL keeps serving the bytes 1.0 froze with — which is the whole point of pinning it. Every release tag serves the schema as that release shipped it.",
+  "changelog": [
+    {
+      "version": "0.5",
+      "task": "0.5-07",
+      "note": "First published as a file: component and theme manifests in one document, `changes[]` changelog entries, an `$id`, and a resolvable `$schema` on every registry manifest. Before this the contract existed only as the validator in `src/manifest.ts`.",
+      "breaking": false
+    },
+    {
+      "version": "0.8",
+      "task": "0.8-02",
+      "note": "`props` — the non-variant attributes — declared; `variants.<group>.responsive` added for the tier suffix grammar; `category` closed to a documented enum, which retired the `form` spelling in favour of `forms`.",
+      "breaking": true
+    },
+    {
+      "version": "1.0",
+      "task": "1.0-01",
+      "note": "Frozen. `schema_version` is `1.0`, `stability` and `amendment_policy` are declared in the file, this changelog is carried in it, and the schema is published at a versioned URL beside the spec. No field changed shape.",
+      "breaking": false
+    },
+    {
+      "version": "1.0",
+      "task": "W2-4",
+      "note": "`api` — a component's controller surface, generated from the controller's `@ui:provides` annotation. Optional, so every 1.0 manifest still validates; additive under SPEC-1.0 §8. It exists because the data was already in every controller and on no surface an agent reads: `faqir explain <recipe> --json` returned no `api` for any of the 29 JS-backed recipes.",
+      "breaking": false
+    },
+    {
+      "version": "1.1",
+      "task": "1.1A-07",
+      "note": "Five optional theme-manifest fields: `seed` (the generator input, absent on an authored theme), `axes` (the fourteen axes derived from the CSS, never hand-written), `fonts`, `distinctiveness` and `visual_matrix`. Optional, so every manifest written against 1.0 still validates; additive under SPEC-1.0 §8, which is why the protocol stays frozen at 1.0 while the schema moves to 1.1. The seed's vocabulary is stated in full — every axis, every enum, every default — because it is the generator's input contract, not a hint.",
+      "breaking": false
+    }
+  ],
+  "oneOf": [
+    {
+      "$ref": "#/definitions/componentManifest"
+    },
+    {
+      "$ref": "#/definitions/themeManifest"
+    }
+  ],
+  "definitions": {
+    "componentManifest": {
+      "type": "object",
+      "description": "A primitive, recipe, pattern, or scaffold component manifest.",
+      "required": [
+        "name",
+        "version",
+        "kind",
+        "category",
+        "description",
+        "anatomy",
+        "slots",
+        "variants",
+        "states",
+        "a11y",
+        "tokens_used",
+        "templates",
+        "safe_transforms",
+        "unsafe_transforms",
+        "composition",
+        "files",
+        "tests"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "primitive",
+            "recipe",
+            "pattern",
+            "scaffold"
+          ]
+        },
+        "category": {
+          "$ref": "#/definitions/category"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/change"
+          }
+        },
+        "anatomy": {
+          "$ref": "#/definitions/anatomy"
+        },
+        "slots": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/slot"
+          }
+        },
+        "variants": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/variant"
+          }
+        },
+        "props": {
+          "type": "object",
+          "description": "Attributes that are not variant groups: booleans, free-form strings and numbers read by a controller or by CSS. Consumed by the bindings codegen (framework props + defaults) and by the generated agent surfaces.",
+          "additionalProperties": {
+            "$ref": "#/definitions/prop"
+          }
+        },
+        "states": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "api": {
+          "type": "object",
+          "description": "The controller's public surface — the methods `$ui` resolves to, and the object a recipe factory returns. GENERATED from the controller's own `// @ui:provides` line and its function declarations by `scripts/build-manifest-api.mjs`; never authored by hand, and checked for drift in CI. Present only on a component that ships a controller. Optional, which SPEC-1.0 §8 classifies as an additive amendment.",
+          "required": [
+            "methods"
+          ],
+          "properties": {
+            "methods": {
+              "type": "array",
+              "description": "Methods in the order `@ui:provides` declares them.",
+              "items": {
+                "$ref": "#/definitions/apiMethod"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "a11y": {
+          "type": "object"
+        },
+        "tokens_used": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "templates": {
+          "$ref": "#/definitions/templates"
+        },
+        "safe_transforms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unsafe_transforms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "composition": {
+          "$ref": "#/definitions/composition"
+        },
+        "files": {
+          "$ref": "#/definitions/files"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "anatomy": {
+      "type": "object",
+      "required": [
+        "tag",
+        "selector"
+      ],
+      "properties": {
+        "tag": {
+          "type": "string"
+        },
+        "selector": {
+          "type": "string"
+        },
+        "content_model": {
+          "type": "string",
+          "enum": [
+            "inline",
+            "block",
+            "slots",
+            "text",
+            "empty"
+          ]
+        }
+      }
+    },
+    "slot": {
+      "type": "object",
+      "required": [
+        "selector",
+        "required"
+      ],
+      "properties": {
+        "selector": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "tag_hint": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "variant": {
+      "type": "object",
+      "required": [
+        "values",
+        "default",
+        "attr"
+      ],
+      "properties": {
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "default": {
+          "type": "string"
+        },
+        "attr": {
+          "type": "string"
+        },
+        "applied_to": {
+          "type": "string"
+        },
+        "responsive": {
+          "type": "boolean",
+          "description": "When true, every declared value is ALSO accepted as `<attr>-<tier>` for each canon breakpoint tier (sm, md, lg, xl) — `data-cols-md=\"6\"` means \"6 from the md tier up\" (FAQIR-SPEC §15). Generators expand the group into per-tier props/columns automatically; the responsive grammar never applies to the five frozen protocol attributes."
+        }
+      }
+    },
+    "prop": {
+      "type": "object",
+      "description": "One non-variant attribute of a component: a boolean toggle, a free-form string/number, or a small enum whose values are listed but which is not a visual variant group.",
+      "required": [
+        "type",
+        "description"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "string",
+            "boolean",
+            "number",
+            "enum"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "default": {
+          "type": [
+            "string",
+            "boolean",
+            "number",
+            "null"
+          ]
+        },
+        "attr": {
+          "type": "string",
+          "minLength": 1
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "apiMethod": {
+      "type": "object",
+      "description": "One method a controller exposes.",
+      "required": [
+        "name",
+        "params"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Method name, exactly as `@ui:provides` lists it."
+        },
+        "params": {
+          "type": "string",
+          "description": "Parameter list as the controller writes it; empty for a nullary method."
+        },
+        "description": {
+          "type": "string",
+          "description": "First sentence of the method's JSDoc, when it has one."
+        }
+      },
+      "additionalProperties": false
+    },
+    "category": {
+      "type": "string",
+      "description": "The component's shelf in the registry. A closed vocabulary — the same list CONTRIBUTING.md documents. `custom` is reserved for components scaffolded by `faqir create` outside the registry.",
+      "enum": [
+        "actions",
+        "composite",
+        "custom",
+        "data-display",
+        "feedback",
+        "forms",
+        "layout",
+        "marketing",
+        "navigation",
+        "overlay",
+        "typography"
+      ]
+    },
+    "change": {
+      "type": "object",
+      "description": "One changelog entry (task 0.5-04). Consumed by `faqir upgrade`.",
+      "required": [
+        "version",
+        "note",
+        "breaking"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        },
+        "breaking": {
+          "type": "boolean"
+        }
+      }
+    },
+    "templates": {
+      "type": "object",
+      "description": "Named HTML templates. Most components ship an `html` template; some ship only variant-specific templates (`html_group`, `html_single`, …). Every value is an HTML string.",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "composition": {
+      "type": "object",
+      "required": [
+        "contains",
+        "used_in"
+      ],
+      "properties": {
+        "contains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "used_in": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "files": {
+      "type": "object",
+      "required": [
+        "html",
+        "css",
+        "manifest"
+      ],
+      "properties": {
+        "html": {
+          "type": "string"
+        },
+        "css": {
+          "type": "string"
+        },
+        "js": {
+          "type": "string"
+        },
+        "manifest": {
+          "type": "string"
+        }
+      }
+    },
+    "themeManifest": {
+      "type": "object",
+      "description": "A theme descriptor shipped as `<name>.theme.json` beside `<name>.css`. The nine required fields are schema 1.0's; the five optional ones are schema 1.1's. Two of the optional pair — `axes` and `distinctiveness` — are DERIVED from the stylesheet by a generator rather than written by hand, which is the rule `tokens_overridden` and `tokens_inherited` have followed since 0.4.",
+      "required": [
+        "name",
+        "version",
+        "mood",
+        "scheme",
+        "dark_mode",
+        "tokens_overridden",
+        "tokens_inherited",
+        "pairs_with",
+        "preview"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mood": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "scheme": {
+          "type": "string",
+          "enum": [
+            "light",
+            "dark",
+            "both"
+          ]
+        },
+        "dark_mode": {
+          "type": "string",
+          "enum": [
+            "native",
+            "none"
+          ]
+        },
+        "tokens_overridden": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "tokens_inherited": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "pairs_with": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "preview": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seed": {
+          "$ref": "#/definitions/themeSeed"
+        },
+        "axes": {
+          "$ref": "#/definitions/themeAxes"
+        },
+        "fonts": {
+          "type": "array",
+          "description": "The self-hosted families this theme's role tokens name. Absent or empty on a theme that asks only for system faces.",
+          "items": {
+            "$ref": "#/definitions/themeFont"
+          }
+        },
+        "distinctiveness": {
+          "$ref": "#/definitions/themeDistinctiveness"
+        },
+        "visual_matrix": {
+          "type": "boolean",
+          "description": "Whether this theme enters the full screenshot and axe matrix. ABSENT MEANS TRUE: a theme opts out explicitly with `false`, so a new theme is covered by default and a skipped one carries the reason in its own file (1.1A-13)."
+        }
+      }
+    },
+    "themeSeed": {
+      "type": "object",
+      "description": "The generator input for a generated theme, written whole by `faqir theme generate` and absent on an authored theme (which has no seed). Every axis but `name` and `accent` is optional and states its own default, so `{ \"name\": …, \"accent\": … }` is a COMPLETE seed: the defaults together describe the shipped `default` theme's character, which is what makes an accent-only seed produce a theme rather than a fragment. The axis vocabulary is shared with `themeAxes` — the same fourteen axes, seen from the input side instead of the derived one.",
+      "required": [
+        "name",
+        "accent"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The theme's name — the same string as the manifest's `name`. It is carried here too because the seed is also written standalone as `<name>.seed.json`, which has to be re-runnable on its own."
+        },
+        "accent": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Axis `accent` — the hue and chroma the primary ramp, the ring, the gradient accent and the chart palette are built from. One of the three forms the colour parser accepts: `oklch(L C H)`, a hex triplet, or `white`/`black`. The only axis with no default: a seed without an accent is not a theme.",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|white|black|oklch\\([^()]*\\))$"
+        },
+        "neutral": {
+          "type": "string",
+          "description": "Axis `neutral` — the bg / fg / border ramps' cast — `tinted` mixes the accent into the neutrals. Default `gray`.",
+          "enum": [
+            "gray",
+            "cool",
+            "warm",
+            "tinted"
+          ],
+          "default": "gray"
+        },
+        "scheme": {
+          "type": "string",
+          "description": "Axis `scheme` — which scheme blocks the theme ships, the same vocabulary as the manifest's own `scheme`. Default `both`.",
+          "enum": [
+            "light",
+            "dark",
+            "both"
+          ],
+          "default": "both"
+        },
+        "type": {
+          "$ref": "#/definitions/themeAxisType"
+        },
+        "shape": {
+          "$ref": "#/definitions/themeAxisShape"
+        },
+        "depth": {
+          "type": "string",
+          "description": "Axis `depth` — the `--shadow-*` ramp, `--shadow-color` and `--surface-backdrop`. Default `soft`.",
+          "enum": [
+            "flat",
+            "soft",
+            "layered",
+            "hard",
+            "glass",
+            "inset"
+          ],
+          "default": "soft"
+        },
+        "material": {
+          "type": "string",
+          "description": "Axis `material` — which named texture `--texture-page` and `--texture-surface` point at. Default `none`.",
+          "enum": [
+            "none",
+            "grain",
+            "paper",
+            "dots",
+            "grid",
+            "stripes",
+            "mesh"
+          ],
+          "default": "none"
+        },
+        "motion": {
+          "type": "string",
+          "description": "Axis `motion` — the `--duration-*` and `--ease-*` families (including the `linear()` springs) and `--motion-hover-lift`. Default `smooth`.",
+          "enum": [
+            "none",
+            "minimal",
+            "smooth",
+            "snappy",
+            "springy",
+            "playful"
+          ],
+          "default": "smooth"
+        },
+        "density": {
+          "type": "string",
+          "description": "Axis `density` — the root default for the `data-density` modifier. Default `comfortable`.",
+          "enum": [
+            "compact",
+            "comfortable",
+            "spacious"
+          ],
+          "default": "comfortable"
+        },
+        "focus": {
+          "type": "string",
+          "description": "Axis `focus` — the `--focus-ring-*` family and `--focus-shadow`. Default `ring`.",
+          "enum": [
+            "ring",
+            "glow",
+            "inset",
+            "bold"
+          ],
+          "default": "ring"
+        },
+        "decoration": {
+          "$ref": "#/definitions/themeAxisDecoration"
+        },
+        "controls": {
+          "$ref": "#/definitions/themeAxisControls"
+        },
+        "contrast": {
+          "type": "string",
+          "description": "Axis `contrast` — how far the ramps are pushed apart — `high` is the mechanism the hand-written `contrast` theme spelled out by hand. Default `standard`.",
+          "enum": [
+            "standard",
+            "high"
+          ],
+          "default": "standard"
+        },
+        "document": {
+          "type": "boolean",
+          "description": "Axis `document` — whether the seed also emits the paged `<name>-document` theme beside the screen one. Default `false`.",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "themeAxes": {
+      "type": "object",
+      "description": "The fourteen axes a theme actually lands on, DERIVED from its CSS by `bun run gen:theme-manifests` (1.1A-08) and never hand-written — the same rule `tokens_overridden` and `tokens_inherited` have carried since 0.4. It is the seed's vocabulary minus `accent` and `document` (an authored theme has neither) plus `accent_hue` and `accent_chroma`, because a derived accent is two numbers rather than a colour string. Every axis is present: an incomplete `axes` block is the drift the field exists to catch. Agents pick a theme by these, not by the adjectives in `mood`.",
+      "required": [
+        "accent_hue",
+        "accent_chroma",
+        "neutral",
+        "scheme",
+        "type",
+        "shape",
+        "depth",
+        "material",
+        "motion",
+        "density",
+        "focus",
+        "decoration",
+        "controls",
+        "contrast"
+      ],
+      "properties": {
+        "accent_hue": {
+          "type": "number",
+          "description": "Axis `accent`, first half: the accent's OKLCH hue in degrees, read off the generated ramp. Paired with `accent_chroma` it replaces the seed's free-form `accent` string with two numbers a distance metric can subtract (1.1A-12).",
+          "minimum": 0,
+          "maximum": 360
+        },
+        "accent_chroma": {
+          "type": "number",
+          "description": "Axis `accent`, second half: the accent's OKLCH chroma. 0 is a neutral theme with no accent colour at all.",
+          "minimum": 0,
+          "maximum": 0.5
+        },
+        "neutral": {
+          "type": "string",
+          "description": "Axis `neutral`, read back out of the theme's CSS — the bg / fg / border ramps' cast — `tinted` mixes the accent into the neutrals.",
+          "enum": [
+            "gray",
+            "cool",
+            "warm",
+            "tinted"
+          ]
+        },
+        "scheme": {
+          "type": "string",
+          "description": "Axis `scheme`, read back out of the theme's CSS — which scheme blocks the theme ships, the same vocabulary as the manifest's own `scheme`.",
+          "enum": [
+            "light",
+            "dark",
+            "both"
+          ]
+        },
+        "type": {
+          "$ref": "#/definitions/themeAxisType"
+        },
+        "shape": {
+          "$ref": "#/definitions/themeAxisShape"
+        },
+        "depth": {
+          "type": "string",
+          "description": "Axis `depth`, read back out of the theme's CSS — the `--shadow-*` ramp, `--shadow-color` and `--surface-backdrop`.",
+          "enum": [
+            "flat",
+            "soft",
+            "layered",
+            "hard",
+            "glass",
+            "inset"
+          ]
+        },
+        "material": {
+          "type": "string",
+          "description": "Axis `material`, read back out of the theme's CSS — which named texture `--texture-page` and `--texture-surface` point at.",
+          "enum": [
+            "none",
+            "grain",
+            "paper",
+            "dots",
+            "grid",
+            "stripes",
+            "mesh"
+          ]
+        },
+        "motion": {
+          "type": "string",
+          "description": "Axis `motion`, read back out of the theme's CSS — the `--duration-*` and `--ease-*` families (including the `linear()` springs) and `--motion-hover-lift`.",
+          "enum": [
+            "none",
+            "minimal",
+            "smooth",
+            "snappy",
+            "springy",
+            "playful"
+          ]
+        },
+        "density": {
+          "type": "string",
+          "description": "Axis `density`, read back out of the theme's CSS — the root default for the `data-density` modifier.",
+          "enum": [
+            "compact",
+            "comfortable",
+            "spacious"
+          ]
+        },
+        "focus": {
+          "type": "string",
+          "description": "Axis `focus`, read back out of the theme's CSS — the `--focus-ring-*` family and `--focus-shadow`.",
+          "enum": [
+            "ring",
+            "glow",
+            "inset",
+            "bold"
+          ]
+        },
+        "decoration": {
+          "$ref": "#/definitions/themeAxisDecoration"
+        },
+        "controls": {
+          "$ref": "#/definitions/themeAxisControls"
+        },
+        "contrast": {
+          "type": "string",
+          "description": "Axis `contrast`, read back out of the theme's CSS — how far the ramps are pushed apart — `high` is the mechanism the hand-written `contrast` theme spelled out by hand.",
+          "enum": [
+            "standard",
+            "high"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "themeAxisVoice": {
+      "type": "object",
+      "description": "Axis `type.voice` — how headings are set, independently of which family sets them. Drives `--heading-weight`, `--heading-tracking` and `--heading-transform`.",
+      "properties": {
+        "weight": {
+          "type": "string",
+          "description": "Heading weight, resolved against the `--weight-*` ramp. Default `bold`.",
+          "enum": [
+            "regular",
+            "medium",
+            "semibold",
+            "bold",
+            "black"
+          ],
+          "default": "bold"
+        },
+        "tracking": {
+          "type": "string",
+          "description": "Heading letter-spacing, added to a heading's own optical tightening. Default `normal`.",
+          "enum": [
+            "tight",
+            "normal",
+            "wide"
+          ],
+          "default": "normal"
+        },
+        "transform": {
+          "type": "string",
+          "description": "Heading `text-transform`. Default `none`.",
+          "enum": [
+            "none",
+            "uppercase",
+            "small-caps"
+          ],
+          "default": "none"
+        }
+      },
+      "additionalProperties": false
+    },
+    "themeAxisType": {
+      "type": "object",
+      "description": "Axis `type` — the three type decisions a theme makes: which families it pairs, how big and how far apart the ramp steps are, and how headings are voiced. Drives `--font-heading`, `--font-body`, `--font-ui`, the `--text-*` ramp and the `--heading-*` family.",
+      "properties": {
+        "pairing": {
+          "type": "string",
+          "description": "Which families the role tokens name. `custom` means the theme states `--font-heading` and `--font-body` itself; every other value is a catalogue pairing the generator knows how to install (1.1A-18). Default `system`.",
+          "enum": [
+            "system",
+            "sans-humanist",
+            "sans-grotesque",
+            "sans-geometric",
+            "rounded",
+            "serif-editorial",
+            "serif-modern",
+            "slab",
+            "mono",
+            "custom"
+          ],
+          "default": "system"
+        },
+        "scale": {
+          "type": "number",
+          "description": "The ratio between adjacent `--text-*` steps. Default `1.2`.",
+          "enum": [
+            1.125,
+            1.2,
+            1.25,
+            1.333
+          ],
+          "default": 1.2
+        },
+        "base": {
+          "type": "integer",
+          "description": "`--text-base` in CSS pixels; every other step is computed from it and the scale. Default `16`.",
+          "enum": [
+            15,
+            16,
+            17,
+            18
+          ],
+          "default": 16
+        },
+        "voice": {
+          "$ref": "#/definitions/themeAxisVoice"
+        }
+      },
+      "additionalProperties": false
+    },
+    "themeAxisShape": {
+      "type": "object",
+      "description": "Axis `shape` — the silhouette. Drives the `--radius-*` ramp, the `--border-width-*` family and `--corner-shape`.",
+      "properties": {
+        "radius": {
+          "type": "string",
+          "description": "How round a corner is: `sharp` is 0, `pill` is `--radius-full`, and the three between walk the `--radius-*` ramp. Default `soft`.",
+          "enum": [
+            "sharp",
+            "crisp",
+            "soft",
+            "round",
+            "pill"
+          ],
+          "default": "soft"
+        },
+        "border": {
+          "type": "string",
+          "description": "How heavy an edge is: `hairline` is `--border-width-sm` (today's 1px default), `regular` `-md`, `heavy` `-lg`. Default `hairline`.",
+          "enum": [
+            "hairline",
+            "regular",
+            "heavy"
+          ],
+          "default": "hairline"
+        },
+        "corner": {
+          "type": "string",
+          "description": "`--corner-shape` — progressive, so a browser without `corner-shape` renders `round` whatever the theme asks for. Default `round`.",
+          "enum": [
+            "round",
+            "bevel",
+            "scoop",
+            "notch"
+          ],
+          "default": "round"
+        }
+      },
+      "additionalProperties": false
+    },
+    "themeAxisDecoration": {
+      "type": "object",
+      "description": "Axis `decoration` — the small marks a theme makes on text and between things. Drives `--link-decoration`, `--link-underline-offset`, `--link-underline-thickness` and `--divider-style`.",
+      "properties": {
+        "link": {
+          "type": "string",
+          "description": "How a link is underlined. `none` silences every underline in the registry at once, `offset` is today's underline with `--link-underline-offset`, `thick` leans on `--link-underline-thickness`. Default `offset`.",
+          "enum": [
+            "none",
+            "plain",
+            "offset",
+            "thick"
+          ],
+          "default": "offset"
+        },
+        "divider": {
+          "type": "string",
+          "description": "`--divider-style` — the line style a separator, a divided list and a table rule draw with. Default `solid`.",
+          "enum": [
+            "solid",
+            "dashed",
+            "dotted",
+            "double"
+          ],
+          "default": "solid"
+        }
+      },
+      "additionalProperties": false
+    },
+    "themeAxisControls": {
+      "type": "object",
+      "description": "Axis `controls` — the silhouette of the four controls a theme is recognised by. Drives the component aliases in `registry/tokens/aliases.css` (`--button-radius`, `--input-fill`, `--checkbox-radius`, `--switch-radius`, …), never a component's own stylesheet.",
+      "properties": {
+        "button": {
+          "type": "string",
+          "description": "Button silhouette. Default `soft`.",
+          "enum": [
+            "rect",
+            "pill",
+            "soft"
+          ],
+          "default": "soft"
+        },
+        "input": {
+          "type": "string",
+          "description": "Text-control silhouette: a bordered `box`, a `filled` plate (`--input-fill`), or a single `underline` rule. Default `box`.",
+          "enum": [
+            "box",
+            "filled",
+            "underline"
+          ],
+          "default": "box"
+        },
+        "checkbox": {
+          "type": "string",
+          "description": "Checkbox corner: `square` is `--checkbox-radius`, `round` is a circle. Default `square`.",
+          "enum": [
+            "square",
+            "round"
+          ],
+          "default": "square"
+        },
+        "switch": {
+          "type": "string",
+          "description": "Switch track and thumb corner. Default `pill`.",
+          "enum": [
+            "pill",
+            "square"
+          ],
+          "default": "pill"
+        }
+      },
+      "additionalProperties": false
+    },
+    "themeFont": {
+      "type": "object",
+      "description": "One self-hosted family a theme's role tokens name, installed by `faqir fonts add` (1.1A-18). Declared here so a project can see what a theme will download before it applies it, and so the licence travels with the theme rather than with the download.",
+      "required": [
+        "family",
+        "license",
+        "role"
+      ],
+      "properties": {
+        "family": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The family name as `font-family` spells it, e.g. `Fraunces`."
+        },
+        "license": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The licence the family ships under, e.g. `OFL-1.1`. Faqir installs open-licensed families only; the string is what a project's own licence audit reads."
+        },
+        "role": {
+          "type": "string",
+          "description": "Which role token names the family.",
+          "enum": [
+            "heading",
+            "body",
+            "ui",
+            "mono"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Where the files came from — a catalogue id or a URL. Optional: a family already on the machine has no source."
+        }
+      },
+      "additionalProperties": false
+    },
+    "themeDistinctiveness": {
+      "type": "object",
+      "description": "How far this theme sits from the nearest other shipped theme, written by the distinctiveness gate (1.1A-12) and never by hand. It exists because 1.0 shipped twelve themes that read as one: the gate refuses a generated theme that is too close to an existing one, and this block records the measurement it refused or allowed on.",
+      "required": [
+        "nearest",
+        "axis_distance",
+        "token_distance"
+      ],
+      "properties": {
+        "nearest": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The name of the closest other shipped theme."
+        },
+        "axis_distance": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "How many of the fourteen axes the two themes differ on. Two shipped themes must differ on at least four (FAQIR-VISION §5.2)."
+        },
+        "token_distance": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Mean OKLab ΔE between the two themes' resolved colour tokens, over every scheme they both ship. The axis count says they are described differently; this says they LOOK different. The gate's floor is the same separation the framework demands between two adjacent surfaces inside one theme."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "aspect-ratio",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "layout",
+  "description": "CSS wrapper that locks a child (image, video, iframe) to a fixed width-to-height ratio and crops the overflow",
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='aspect-ratio']",
+    "content_model": "block"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "ratio": {
+      "values": ["square", "16-9", "4-3", "3-2", "21-9", "portrait"],
+      "default": "square",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {
+    "--aspect-ratio-value": { "type": "string", "default": "1 / 1", "description": "Explicit ratio (custom property) — overrides the default when no variant is set" },
+    "--aspect-ratio-radius": { "type": "string", "default": "var(--radius-none)", "description": "Corner radius of the frame (custom property)" },
+    "--aspect-ratio-fit": { "type": "string", "default": "cover", "description": "object-fit for the framed child (custom property)" },
+    "--aspect-ratio-bg": { "type": "string", "default": "var(--color-bg-muted)", "description": "Placeholder background shown before the child loads (custom property)" }
+  },
+
+  "a11y": {
+    "required_attrs": [],
+    "keyboard": {},
+    "notes": "Purely presentational — adds no ARIA semantics of its own. Media inside still needs its own accessibility (e.g. alt text on <img>, a title on <iframe>)."
+  },
+
+  "tokens_used": [
+    "color-bg-muted", "radius-none"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"aspect-ratio\" data-variant=\"{ratio}\"><img src=\"{src}\" alt=\"{alt}\"></div>"
+  },
+
+  "safe_transforms": [
+    "change-variant",
+    "change-ratio-custom-property",
+    "change-radius-custom-property",
+    "change-fit-custom-property",
+    "swap-child-media"
+  ],
+
+  "unsafe_transforms": [
+    "add-multiple-children"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": []
+  },
+
+  "files": {
+    "html": "aspect-ratio.html",
+    "css": "aspect-ratio.css",
+    "manifest": "aspect-ratio.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "default-is-square",
+    "16-9-variant-sets-ratio",
+    "portrait-variant-is-3-4",
+    "child-fills-with-object-fit-cover",
+    "clips-overflow"
+  ]
+}

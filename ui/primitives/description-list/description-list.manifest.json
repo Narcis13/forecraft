@@ -1,0 +1,117 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "description-list",
+  "version": "1.0.2",
+  "kind": "primitive",
+  "category": "data-display",
+  "description": "Styled description list (dl/dt/dd) for longer descriptive key-value content",
+
+  "changes": [
+    {
+      "version": "1.0.2",
+      "note": "Nested components keep their own parts. The term and details rules were descendant selectors, so a list nested in a <dd> took the outer list's size and dividers, and so would any component with a term or details part. They now match a direct child of the list, or a child of a plain <div> grouping one pair (dl > div > dt + dd, which HTML allows); the <div> hop is in :where(), so both shapes keep the old specificity. Also documented on the details slot: data-size=\"sm\" maps to --text-xs by the registry-wide convention for components whose md is --text-sm, so a nested text should omit data-size to inherit the list's size.",
+      "breaking": false
+    },
+    {
+      "version": "1.0.1",
+      "note": "The horizontal variant's details track is minmax(0, 1fr) instead of 1fr. A bare 1fr cannot be narrower than its widest item's min-content, so details holding a scrolling block or a wide table widened the list past its container. The term track keeps its minmax(8rem, auto) floor.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "dl",
+    "selector": "[data-ui='description-list']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "term": {
+      "selector": "[data-part='term']",
+      "required": true,
+      "tag_hint": "dt",
+      "description": "The term or key (dt element)"
+    },
+    "details": {
+      "selector": "[data-part='details']",
+      "required": true,
+      "tag_hint": "dd",
+      "description": "The description or value (dd element). A nested text should omit data-size so it inherits the list's size"
+    }
+  },
+
+  "variants": {
+    "variant": {
+      "values": ["vertical", "horizontal"],
+      "default": "vertical",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {
+    "divided": { "type": "boolean", "default": false, "description": "Show divider lines between items (data-divided attribute)" }
+  },
+
+  "a11y": {
+    "required_attrs": ["Uses semantic dl/dt/dd elements for screen reader support"],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted", "color-border", "space-2", "space-3", "space-4", "space-6",
+    "space-1", "text-xs", "text-sm", "text-base", "font-body", "weight-semibold", "border-width",
+    "doc-font", "doc-line-height"
+  ],
+
+  "templates": {
+    "html": "<dl data-ui=\"description-list\" data-variant=\"{variant}\">\n  <dt data-part=\"term\">{term}</dt>\n  <dd data-part=\"details\">{details}</dd>\n</dl>"
+  },
+
+  "safe_transforms": [
+    "change-variant",
+    "change-size",
+    "toggle-divided",
+    "add-item",
+    "remove-item",
+    "change-term-text",
+    "change-details-text"
+  ],
+
+  "unsafe_transforms": [
+    "remove-term",
+    "remove-details",
+    "remove-dl-semantics"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["document", "card"]
+  },
+
+  "files": {
+    "html": "description-list.html",
+    "css": "description-list.css",
+    "manifest": "description-list.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-dl-element",
+    "term-uses-dt-element",
+    "details-uses-dd-element",
+    "default-variant-is-vertical",
+    "vertical-stacks-term-above-details",
+    "horizontal-places-term-beside-details",
+    "divided-shows-border-between-items",
+    "sm-size-reduces-spacing",
+    "lg-size-increases-spacing"
+  ]
+}

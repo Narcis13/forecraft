@@ -1,0 +1,110 @@
+/* @ui:component switcher */
+/* @ui:tokens space-0 space-1 space-2 space-3 space-4 space-6 space-8 space-10 space-12 space-16 */
+
+/* The container-driven row (task 0.8-05).
+ *
+ * A switcher is a row that becomes a column when it is not given enough room —
+ * and it asks its OWN inline size, never the viewport. That is the doctrine's
+ * middle rung (FAQIR-SPEC §15 doctrine 2) made concrete: the same markup is
+ * correct full-bleed on a desktop, inside a 20rem sidebar, and inside a modal,
+ * because none of those places are things a media query can see. This file
+ * contains no `@media` rule at all, and that absence is the component.
+ *
+ * The mechanism is `container-type: inline-size` plus `@container`, the second
+ * such precedent after `table`. One consequence shapes the CSS: `@container`
+ * styles the container's DESCENDANTS, never the container itself, so the flip
+ * cannot be written as `flex-direction` on the root. It is written on the
+ * children instead — `flex-basis: 100%` puts every child on its own line
+ * (a column), and the container rules release them to `flex-basis: 0`
+ * (equal-width columns of one row). Mobile-first, exactly like the viewport
+ * ladder: narrow is the base, width is what adds the row.
+ *
+ * `data-threshold` names the width at which the row is affordable, over the
+ * canon tiers (`sm` 40rem · `md` 48rem · `lg` 64rem · `xl` 80rem — the numbers
+ * of FAQIR-SPEC §15, `src/utils/breakpoints.ts`). The tier names mean the same
+ * lengths they always did; only the box being measured is different, which is
+ * why they are NOT the viewport grammar and may not be suffixed onto anything.
+ * A prelude cannot read a custom property, so the numbers are literal here for
+ * the same reason the canon is a module and not a token.
+ *
+ * `data-gap` is deliberately not responsive: a `data-gap-md` would couple a
+ * switcher to the viewport, which is the one thing it exists not to do.
+ */
+
+/* ── Base ──
+ * The element is its own query container, and a column until told otherwise.
+ *
+ * `inline-size: 100%` is not decoration: inline-size containment means the box's
+ * own width may not depend on its contents, so in a shrink-to-fit context (a
+ * flex or grid item, a floated parent) an unsized container resolves to zero
+ * width and every threshold reads as "narrow". Taking the width from the parent
+ * is what makes the query answer a real question — the same reason `table` sizes
+ * its container root. */
+[data-ui="switcher"] {
+  container-type: inline-size;
+  container-name: faqir-switcher;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+/* Every child on its own line: the column half of the switch. */
+[data-ui="switcher"] > * {
+  flex-basis: 100%;
+  flex-grow: 1;
+  /* Long words and tables may shrink instead of forcing an overflow once the
+   * children sit side by side. */
+  min-inline-size: 0;
+}
+
+/* ── Gap ── */
+[data-ui="switcher"][data-gap="0"] { gap: var(--space-0, 0px); }
+[data-ui="switcher"][data-gap="1"] { gap: var(--space-1); }
+[data-ui="switcher"][data-gap="2"] { gap: var(--space-2); }
+[data-ui="switcher"][data-gap="3"] { gap: var(--space-3); }
+[data-ui="switcher"][data-gap="4"] { gap: var(--space-4); }
+[data-ui="switcher"][data-gap="6"] { gap: var(--space-6); }
+[data-ui="switcher"][data-gap="8"] { gap: var(--space-8); }
+[data-ui="switcher"][data-gap="10"] { gap: var(--space-10); }
+[data-ui="switcher"][data-gap="12"] { gap: var(--space-12); }
+[data-ui="switcher"][data-gap="16"] { gap: var(--space-16); }
+
+/* ── The switch — container queries only ──
+ * Each block releases the children of the switchers whose threshold it is, so
+ * exactly one block can ever apply to one element and the four cannot fight.
+ * Every selector here is (0,2,0) against the (0,1,0) base above, so the row
+ * wins wherever a bundler puts these blocks.
+ *
+ * `:not([data-threshold])` is the declared default (`sm`) made real rather than
+ * documented: a switcher that names no threshold flips at 40rem of its own
+ * width. */
+
+/* Threshold `sm` — a row once the switcher itself is 40rem wide. */
+@container faqir-switcher (min-width: 40rem) {
+  [data-ui="switcher"]:not([data-threshold]) > *,
+  [data-ui="switcher"][data-threshold="sm"] > * {
+    flex-basis: 0;
+  }
+}
+
+/* Threshold `md` — from 48rem of its own width. */
+@container faqir-switcher (min-width: 48rem) {
+  [data-ui="switcher"][data-threshold="md"] > * {
+    flex-basis: 0;
+  }
+}
+
+/* Threshold `lg` — from 64rem of its own width. */
+@container faqir-switcher (min-width: 64rem) {
+  [data-ui="switcher"][data-threshold="lg"] > * {
+    flex-basis: 0;
+  }
+}
+
+/* Threshold `xl` — from 80rem of its own width. */
+@container faqir-switcher (min-width: 80rem) {
+  [data-ui="switcher"][data-threshold="xl"] > * {
+    flex-basis: 0;
+  }
+}

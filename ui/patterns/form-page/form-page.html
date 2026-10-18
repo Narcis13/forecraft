@@ -1,0 +1,58 @@
+<!-- @ui:component form-page -->
+<!-- @ui:kind pattern -->
+<!-- @ui:composition field-group input radio-group textarea checkbox -->
+
+<!-- @ui:requires faqir-core.js faqir-validate.js -->
+<form id="form-page-form" l-data l-validate aria-label="Create your account" aria-describedby="form-page-form-description">
+  <h1>Create your account</h1>
+  <p id="form-page-form-description">Join the workspace. You can change any of this later in settings.</p>
+  <div data-ui="field-group">
+    <label data-part="label" for="form-page-field-fullname">Full name <span data-part="required">*</span></label>
+    <div data-part="input">
+      <input data-ui="input" id="form-page-field-fullname" name="fullName" required aria-required="true" aria-describedby="form-page-field-fullname-hint form-page-field-fullname-error" type="text" minlength="2">
+    </div>
+    <p data-part="description" id="form-page-field-fullname-hint">Shown on your profile.</p>
+    <p data-part="error" id="form-page-field-fullname-error" aria-live="polite"></p>
+  </div>
+  <div data-ui="field-group">
+    <label data-part="label" for="form-page-field-email">Work email <span data-part="required">*</span></label>
+    <div data-part="input">
+      <input data-ui="input" id="form-page-field-email" name="email" required aria-required="true" aria-describedby="form-page-field-email-error" type="email">
+    </div>
+    <p data-part="error" id="form-page-field-email-error" aria-live="polite"></p>
+  </div>
+  <div data-ui="field-group">
+    <label data-part="label" id="form-page-field-role-label" for="form-page-field-role-option-1">Role</label>
+    <div data-part="input">
+      <div data-ui="radio-group" role="radiogroup" aria-labelledby="form-page-field-role-label" aria-describedby="form-page-field-role-error">
+        <label data-ui="radio-label">
+          <input data-ui="radio" type="radio" id="form-page-field-role-option-1" name="role" value="developer" aria-describedby="form-page-field-role-error" checked>
+          <span data-part="label">developer</span>
+        </label>
+        <label data-ui="radio-label">
+          <input data-ui="radio" type="radio" id="form-page-field-role-option-2" name="role" value="designer" aria-describedby="form-page-field-role-error">
+          <span data-part="label">designer</span>
+        </label>
+        <label data-ui="radio-label">
+          <input data-ui="radio" type="radio" id="form-page-field-role-option-3" name="role" value="manager" aria-describedby="form-page-field-role-error">
+          <span data-part="label">manager</span>
+        </label>
+      </div>
+    </div>
+    <p data-part="error" id="form-page-field-role-error" aria-live="polite"></p>
+  </div>
+  <div data-ui="field-group">
+    <label data-part="label" for="form-page-field-bio">About you</label>
+    <div data-part="input">
+      <textarea data-ui="textarea" id="form-page-field-bio" name="bio" aria-describedby="form-page-field-bio-error" rows="4" placeholder="A sentence or two."></textarea>
+    </div>
+    <p data-part="error" id="form-page-field-bio-error" aria-live="polite"></p>
+  </div>
+  <div data-ui="field-group">
+    <label data-part="label" for="form-page-field-newsletter">Send me product updates</label>
+    <div data-part="input">
+      <input data-ui="checkbox" type="checkbox" id="form-page-field-newsletter" name="newsletter" aria-describedby="form-page-field-newsletter-error">
+    </div>
+    <p data-part="error" id="form-page-field-newsletter-error" aria-live="polite"></p>
+  </div>
+</form>

@@ -1,0 +1,60 @@
+<!-- @ui:component image -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots img caption -->
+<!-- @ui:variants variant=responsive|thumbnail|cover|contain size=xs|sm|md|lg|full -->
+
+<!-- Responsive (default) -->
+<figure data-ui="image">
+  <img data-part="img" src="https://example.com/photo.jpg" alt="A descriptive alt text" loading="lazy">
+</figure>
+
+<!-- With caption -->
+<figure data-ui="image" data-size="lg">
+  <img data-part="img" src="https://example.com/photo.jpg" alt="Mountain landscape" loading="lazy">
+  <figcaption data-part="caption">A beautiful mountain landscape at sunset</figcaption>
+</figure>
+
+<!-- Thumbnail (square crop) -->
+<figure data-ui="image" data-variant="thumbnail" data-size="sm">
+  <img data-part="img" src="https://example.com/avatar.jpg" alt="Product photo" loading="lazy">
+</figure>
+
+<!-- Cover (fills container) -->
+<figure data-ui="image" data-variant="cover" data-size="full">
+  <img data-part="img" src="https://example.com/hero.jpg" alt="Hero banner" loading="lazy">
+</figure>
+
+<!-- Contain (fits inside, shows background) -->
+<figure data-ui="image" data-variant="contain" data-size="md">
+  <img data-part="img" src="https://example.com/logo.png" alt="Company logo" loading="lazy">
+</figure>
+
+<!-- All sizes -->
+<figure data-ui="image" data-size="xs">
+  <img data-part="img" src="https://example.com/icon.png" alt="Icon" loading="lazy">
+</figure>
+<figure data-ui="image" data-size="sm">
+  <img data-part="img" src="https://example.com/thumb.jpg" alt="Small image" loading="lazy">
+</figure>
+<figure data-ui="image" data-size="md">
+  <img data-part="img" src="https://example.com/photo.jpg" alt="Medium image" loading="lazy">
+</figure>
+<figure data-ui="image" data-size="lg">
+  <img data-part="img" src="https://example.com/photo.jpg" alt="Large image" loading="lazy">
+</figure>
+<figure data-ui="image" data-size="full">
+  <img data-part="img" src="https://example.com/photo.jpg" alt="Full width image" loading="lazy">
+</figure>
+
+<!-- Hover: zoom (the figure clips, the picture leans in) -->
+<figure data-ui="image" data-variant="thumbnail" data-size="md" data-hover="zoom">
+  <img data-part="img" src="https://example.com/harbour.jpg" alt="Fishing boats in a harbour at dusk" loading="lazy">
+</figure>
+
+<!-- Hover: lift and fade, on images that are links -->
+<a href="#lift"><figure data-ui="image" data-variant="thumbnail" data-size="sm" data-hover="lift">
+  <img data-part="img" src="https://example.com/lift.jpg" alt="A paper plane mid-flight" loading="lazy">
+</figure></a>
+<a href="#fade"><figure data-ui="image" data-variant="thumbnail" data-size="sm" data-hover="fade">
+  <img data-part="img" src="https://example.com/fade.jpg" alt="A fogged window at dawn" loading="lazy">
+</figure></a>

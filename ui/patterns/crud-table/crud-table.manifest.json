@@ -1,0 +1,248 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "crud-table",
+  "version": "1.0.0",
+  "kind": "pattern",
+  "category": "composite",
+  "description": "Data table with create, read, update, delete operations, search, and pagination",
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='crud-table']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "toolbar": {
+      "selector": "[data-part='toolbar']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Top bar containing search, filters, and primary actions"
+    },
+    "search": {
+      "selector": "[data-part='search']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Search input group for filtering table rows"
+    },
+    "filters": {
+      "selector": "[data-part='filters']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Active filter badges area"
+    },
+    "actions": {
+      "selector": "[data-part='actions']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Toolbar action buttons area"
+    },
+    "create-button": {
+      "selector": "[data-part='create-button']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Primary button to create a new record"
+    },
+    "table-wrapper": {
+      "selector": "[data-part='table-wrapper']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Scrollable container for the data table"
+    },
+    "table": {
+      "selector": "[data-part='table']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Nested Faqir table component"
+    },
+    "row-actions": {
+      "selector": "[data-part='row-actions']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Edit and delete action buttons per row. A read-only crud-table has no per-row actions. Optional since 0.9-04."
+    },
+    "edit-dialog": {
+      "selector": "[data-part='edit-dialog']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Dialog for creating or editing a record. A read-only crud-table has no editing affordance. Optional since 0.9-04."
+    },
+    "delete-dialog": {
+      "selector": "[data-part='delete-dialog']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Confirmation dialog for deleting a record. A crud-table without destructive actions has no delete dialog. Optional since 0.9-04."
+    },
+    "pagination": {
+      "selector": "[data-part='pagination']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Nested Faqir pagination component. A crud-table that fits on one page has no pager. Optional since 0.9-04."
+    },
+    "empty-state": {
+      "selector": "[data-part='empty-state']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Shown when the table has no data"
+    },
+    "bulk-actions": {
+      "selector": "[data-part='bulk-actions']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Action bar shown when rows are selected"
+    },
+    "field": {
+      "selector": "[data-part='field']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "One labelled control inside the create/edit dialog"
+    },
+    "selection-count": {
+      "selector": "[data-part='selection-count']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Live count of selected rows in the bulk-actions bar"
+    },
+    "empty-icon": {
+      "selector": "[data-part='empty-icon']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Illustration shown when the table has no rows"
+    },
+    "empty-title": {
+      "selector": "[data-part='empty-title']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Headline of the empty state"
+    },
+    "empty-description": {
+      "selector": "[data-part='empty-description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Supporting copy of the empty state"
+    }
+  },
+  "variants": {
+    "density": {
+      "values": [
+        "compact",
+        "default",
+        "comfortable"
+      ],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+  "states": {
+    "default": {
+      "attr": "data-state=\"default\"",
+      "default": true
+    },
+    "loading": {
+      "attr": "data-state=\"loading\""
+    },
+    "empty": {
+      "attr": "data-state=\"empty\""
+    },
+    "error": {
+      "attr": "data-state=\"error\""
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "aria-label on search input",
+      "aria-label on create button when icon-only",
+      "aria-label on row action buttons",
+      "Proper table semantics delegated to nested table component",
+      "Dialog a11y delegated to nested dialog components"
+    ],
+    "keyboard": {
+      "Tab": "navigate between toolbar, table, and pagination",
+      "Enter/Space": "activate buttons and controls",
+      "Escape": "close open dialogs"
+    }
+  },
+  "tokens_used": [
+    "color-bg",
+    "color-bg-subtle",
+    "color-fg",
+    "color-fg-muted",
+    "color-border",
+    "color-destructive",
+    "radius-md",
+    "radius-lg",
+    "space-1",
+    "space-2",
+    "space-3",
+    "space-4",
+    "space-6",
+    "space-8",
+    "font-body",
+    "text-sm",
+    "text-base",
+    "text-lg",
+    "weight-medium",
+    "weight-semibold",
+    "duration-fast",
+    "ease-default",
+    "border-width"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"crud-table\" data-state=\"default\" data-variant=\"default\">\n  <div data-part=\"toolbar\">...</div>\n  <div data-part=\"table-wrapper\">\n    <div data-ui=\"table\">...</div>\n  </div>\n  <div data-part=\"pagination\">\n    <div data-ui=\"pagination\">...</div>\n  </div>\n</div>"
+  },
+  "safe_transforms": [
+    "change-density-variant",
+    "add-column",
+    "remove-column",
+    "add-filter-badge",
+    "remove-filter-badge",
+    "customize-row-actions",
+    "customize-edit-dialog-fields",
+    "change-pagination-size",
+    "restyle-toolbar-background",
+    "add-bulk-action",
+    "change-empty-state-content"
+  ],
+  "unsafe_transforms": [
+    "remove-table-semantics",
+    "remove-dialog-a11y",
+    "remove-search-label",
+    "remove-pagination",
+    "remove-row-action-labels",
+    "remove-delete-confirmation"
+  ],
+  "composition": {
+    "contains": [
+      "table",
+      "button",
+      "dialog",
+      "pagination",
+      "input",
+      "badge"
+    ],
+    "used_in": []
+  },
+  "files": {
+    "html": "crud-table.html",
+    "css": "crud-table.css",
+    "manifest": "crud-table.manifest.json"
+  },
+  "tests": [
+    "renders-toolbar-with-search-and-create",
+    "search-input-has-aria-label",
+    "create-button-opens-edit-dialog",
+    "table-renders-with-proper-semantics",
+    "sortable-columns-have-aria-sort",
+    "row-selection-checkboxes-have-labels",
+    "row-edit-button-opens-edit-dialog",
+    "row-delete-button-opens-delete-dialog",
+    "edit-dialog-has-form-fields",
+    "delete-dialog-has-confirmation",
+    "pagination-renders-below-table",
+    "empty-state-shown-when-no-data",
+    "loading-state-disables-interactions",
+    "bulk-actions-shown-when-rows-selected",
+    "filter-badges-are-dismissible",
+    "compact-density-reduces-spacing",
+    "comfortable-density-increases-spacing"
+  ]
+}

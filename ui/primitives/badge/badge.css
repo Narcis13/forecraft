@@ -1,0 +1,84 @@
+/* @ui:component badge */
+/* @ui:tokens color-bg-muted color-fg color-primary color-primary-subtle color-secondary color-secondary-fg color-destructive color-destructive-subtle color-success color-success-subtle color-warning color-warning-subtle radius-full space-1 space-2 space-3 font-ui text-xs text-sm weight-medium corner-shape badge-radius badge-font motion-ambient-duration motion-ambient-play ease-in-out */
+
+/* ── Base ── */
+[data-ui="badge"] {
+  display: inline-flex;
+  vertical-align: bottom;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0.125rem var(--space-2);
+  border-radius: var(--badge-radius, var(--radius-full));
+  corner-shape: var(--corner-shape);
+  background: var(--color-bg-muted);
+  color: var(--color-fg);
+  font-family: var(--badge-font, var(--font-ui));
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+/* ── Variants ── */
+[data-ui="badge"][data-variant="primary"] {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+
+[data-ui="badge"][data-variant="secondary"] {
+  background: var(--color-secondary);
+  color: var(--color-secondary-fg);
+}
+
+[data-ui="badge"][data-variant="destructive"] {
+  background: var(--color-destructive-subtle);
+  color: var(--color-destructive);
+}
+
+[data-ui="badge"][data-variant="success"] {
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+}
+
+[data-ui="badge"][data-variant="warning"] {
+  background: var(--color-warning-subtle);
+  color: var(--color-warning);
+}
+
+/* ── Sizes ── */
+[data-ui="badge"][data-size="sm"] {
+  font-size: 0.625rem;
+  padding: 0 var(--space-1);
+}
+
+[data-ui="badge"][data-size="lg"] {
+  font-size: var(--text-sm);
+  padding: 0.25rem var(--space-3, 0.75rem);
+}
+
+/* ── Live ──
+   A dot before the text, breathing: "Live", "Online", "Recording". The dot
+   takes the variant's colour (it is drawn in currentColor), so a success badge
+   breathes green and a destructive one red. */
+[data-ui="badge"][data-live]::before {
+  content: "";
+  position: relative;
+  inline-size: 0.5em;
+  block-size: 0.5em;
+  border-radius: var(--radius-full);
+  background-color: currentColor;
+  flex-shrink: 0;
+  animation: faqir-badge-live calc(var(--motion-ambient-duration) / 12) var(--ease-in-out) infinite alternate;
+  animation-play-state: var(--motion-ambient-play);
+}
+
+@keyframes faqir-badge-live {
+  from { opacity: 1; scale: 1; }
+  to   { opacity: 0.45; scale: 0.8; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="badge"][data-live]::before {
+    animation: none;
+  }
+}

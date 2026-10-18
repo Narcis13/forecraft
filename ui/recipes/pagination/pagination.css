@@ -1,0 +1,154 @@
+/* @ui:component pagination */
+/* @ui:tokens color-bg color-bg-muted color-fg color-fg-muted color-primary color-primary-fg color-border radius-md space-1 space-2 space-3 space-4 text-xs text-sm text-base weight-medium duration-fast ease-default font-ui border-width focus-ring-width focus-ring-style focus-ring-color focus-ring-offset disabled-opacity */
+
+/* ── Root ── */
+[data-ui="pagination"] {
+  display: inline-flex;
+  /* An `inline-flex` box is sized by its content, so without a ceiling the
+     numbered nav sets the width and pushes the whole component past a phone
+     window. The ceiling is what lets the wrap below actually happen. */
+  max-inline-size: 100%;
+}
+
+/* ── Nav ──
+   Wraps rather than scrolls: the page numbers are the navigation, so a row that
+   runs off the window is a row whose last pages cannot be reached. Wrapping
+   keeps every target on screen at any width, with no breakpoint involved. */
+[data-ui="pagination"] > [data-part="nav"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  /* A flex item's automatic minimum size is its min-content width; the nav must
+     be allowed below that of the un-wrapped row for the ceiling above to bind. */
+  min-inline-size: 0;
+}
+
+/* ── Shared button styles ── */
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="page"],
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="prev"],
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="next"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--duration-fast) var(--ease-default),
+              color var(--duration-fast) var(--ease-default),
+              border-color var(--duration-fast) var(--ease-default);
+}
+
+/* ── Hover ── */
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="page"]:hover,
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="prev"]:hover,
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="next"]:hover {
+  background: var(--color-bg-muted, oklch(0.96 0.004 260));
+}
+
+/* ── Focus ── */
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="page"]:focus-visible,
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="prev"]:focus-visible,
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="next"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ── Active page ── */
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="page"][data-state="active"] {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  border-color: var(--color-primary);
+}
+
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="page"][data-state="active"]:hover {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+/* ── Prev / Next text ── */
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="prev"],
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="next"] {
+  padding: 0 var(--space-3);
+}
+
+/* ── Disabled ── */
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="prev"]:disabled,
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="next"]:disabled {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Ellipsis ── */
+[data-ui="pagination"] > :where([data-part="nav"]) > [data-part="ellipsis"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  color: var(--color-fg-muted);
+  font-size: var(--text-sm);
+  user-select: none;
+}
+
+/* ── Size: Small ── */
+[data-ui="pagination"][data-size="sm"] > :where([data-part="nav"]) > [data-part="page"],
+[data-ui="pagination"][data-size="sm"] > :where([data-part="nav"]) > [data-part="prev"],
+[data-ui="pagination"][data-size="sm"] > :where([data-part="nav"]) > [data-part="next"] {
+  min-width: 28px;
+  height: 28px;
+  font-size: var(--text-xs, 0.75rem);
+  padding: 0 var(--space-1);
+}
+
+[data-ui="pagination"][data-size="sm"] > :where([data-part="nav"]) > [data-part="prev"],
+[data-ui="pagination"][data-size="sm"] > :where([data-part="nav"]) > [data-part="next"] {
+  padding: 0 var(--space-2);
+}
+
+[data-ui="pagination"][data-size="sm"] > :where([data-part="nav"]) > [data-part="ellipsis"] {
+  min-width: 28px;
+  height: 28px;
+  font-size: var(--text-xs, 0.75rem);
+}
+
+/* ── Size: Large ── */
+[data-ui="pagination"][data-size="lg"] > :where([data-part="nav"]) > [data-part="page"],
+[data-ui="pagination"][data-size="lg"] > :where([data-part="nav"]) > [data-part="prev"],
+[data-ui="pagination"][data-size="lg"] > :where([data-part="nav"]) > [data-part="next"] {
+  min-width: 44px;
+  height: 44px;
+  font-size: var(--text-base, 1rem);
+  padding: 0 var(--space-3);
+}
+
+[data-ui="pagination"][data-size="lg"] > :where([data-part="nav"]) > [data-part="prev"],
+[data-ui="pagination"][data-size="lg"] > :where([data-part="nav"]) > [data-part="next"] {
+  padding: 0 var(--space-4, 1rem);
+}
+
+[data-ui="pagination"][data-size="lg"] > :where([data-part="nav"]) > [data-part="ellipsis"] {
+  min-width: 44px;
+  height: 44px;
+  font-size: var(--text-base, 1rem);
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="pagination"] > :where([data-part="nav"]) > [data-part="page"],
+  [data-ui="pagination"] > :where([data-part="nav"]) > [data-part="prev"],
+  [data-ui="pagination"] > :where([data-part="nav"]) > [data-part="next"] {
+    transition: none;
+  }
+}

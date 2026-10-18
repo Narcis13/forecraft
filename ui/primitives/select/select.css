@@ -1,0 +1,97 @@
+/* @ui:component select */
+/* @ui:tokens color-fg color-border color-border-strong color-ring color-destructive radius-md space-2 space-3 space-4 space-8 space-7 space-10 font-ui text-xs text-sm text-base duration-fast ease-default border-width focus-ring-width focus-ring-style focus-ring-color focus-shadow input-border-width input-fill disabled-opacity */
+
+/* -- Base -- */
+[data-ui="select"] {
+  display: block;
+  width: 100%;
+  height: var(--select-height, 40px);
+  padding-inline: var(--space-3);
+  padding-inline-end: var(--space-8, 2rem);
+  /* Longhands, not the `border:` shorthand: the shorthand's width slot takes
+     ONE value, and `controls.input: underline` (1.1A-10) states the silhouette
+     as a four-value box — `0 0 var(--border-width) 0` — so only a bottom rule
+     is drawn. Identical to the shorthand at every other value of the token. */
+  border-style: solid;
+  border-color: var(--color-border);
+  border-width: var(--input-border-width);
+  border-radius: var(--select-radius, var(--radius-md));
+  background: var(--select-bg, var(--input-fill));
+  color: var(--color-fg);
+  font-family: var(--select-font, var(--font-ui));
+  font-size: var(--text-sm);
+  line-height: 1;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  /* `background-position` is PHYSICAL and CSS gives it no logical form, so in
+     an RTL page the padding flipped to the left while the chevron stayed on the
+     right — painted straight over the option text. One variable holds the edge,
+     one holds its inset, and the two RTL rules below flip the edge. [W3-3] */
+  background-position: var(--select-chevron-edge, right) var(--select-chevron-inset, var(--space-2)) center;
+  background-size: 16px 16px;
+  transition: border-color var(--duration-fast) var(--ease-default),
+              box-shadow var(--duration-fast) var(--ease-default);
+}
+
+[dir="rtl"] [data-ui="select"],
+[data-ui="select"][dir="rtl"] {
+  --select-chevron-edge: left;
+}
+[data-ui="select"]:dir(rtl) {
+  --select-chevron-edge: left;
+}
+
+[data-ui="select"]:hover {
+  border-color: var(--color-border-strong);
+}
+
+[data-ui="select"]:focus {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  /* The ring replaces the border rather than sitting outside it: inset by
+     exactly the edge it covers, so a heavier shape theme stays aligned. */
+  outline-offset: calc(-1 * var(--input-border-width));
+  box-shadow: var(--focus-shadow);
+  border-color: transparent;
+}
+
+/* -- Sizes -- */
+[data-ui="select"][data-size="sm"] {
+  height: 32px;
+  padding-inline: var(--space-2);
+  padding-inline-end: var(--space-7, 1.75rem);
+  font-size: var(--text-xs);
+  background-size: 14px 14px;
+}
+
+[data-ui="select"][data-size="lg"] {
+  height: 48px;
+  padding-inline: var(--space-4);
+  padding-inline-end: var(--space-10, 2.5rem);
+  font-size: var(--text-base);
+  background-size: 18px 18px;
+  --select-chevron-inset: var(--space-3);
+}
+
+/* -- States -- */
+[data-ui="select"][data-state="error"],
+[data-ui="select"][aria-invalid="true"] {
+  border-color: var(--color-destructive);
+}
+[data-ui="select"][data-state="error"]:focus,
+[data-ui="select"][aria-invalid="true"]:focus {
+  outline-color: var(--color-destructive);
+}
+
+[data-ui="select"]:disabled {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+}
+
+/* -- Motion -- */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="select"] {
+    transition: none;
+  }
+}

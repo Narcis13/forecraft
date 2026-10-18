@@ -1,0 +1,116 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "surface",
+  "version": "2.1.0",
+  "kind": "primitive",
+  "category": "layout",
+  "description": "Generic visual box with elevation and configurable padding, optionally capped at one of the shared measure widths",
+
+  "changes": [
+    {
+      "version": "2.1.0",
+      "note": "Elevation variants now map to the guaranteed semantic ramp: flat uses the page background, raised/default use surface-1 and its border, and overlay uses surface-2 and its border.",
+      "breaking": false
+    },
+    {
+      "version": "2.0.0",
+      "note": "BREAKING: data-max is re-expressed over the shared measure tokens (task 0.8-06). Its 1.x values were five hardcoded pixel widths named after the breakpoint canon — sm 640px, md 768px, lg 1024px, xl 1280px, 2xl 1400px — so data-max=\"lg\" read as \"at the lg tier\" when it meant \"1024px wide\", which is exactly the multi-ladder drift task 0.8-01 set out to kill. The values are now the same vocabulary the container primitive speaks, resolving to the same tokens: narrow (--measure-narrow, 32rem), content (--measure-content, 48rem), wide (--measure-wide, 72rem), prose (--measure-prose, 65ch) and the unchanged full. Migration: data-max=\"sm\" → \"narrow\"; \"md\" → \"content\" (768px = 48rem, the one value that is preserved exactly); \"lg\"/\"xl\"/\"2xl\" → \"wide\", or a container around the surface when the old pixel width was load-bearing. The cap is also logical now (max-inline-size, not max-width), so it flips under RTL. Newly declared, previously present in the CSS but absent from the manifest: data-max and data-align-text — nothing generated from manifests knew either attribute existed.",
+      "breaking": true
+    }
+  ],
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='surface']",
+    "content_model": "block"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "elevation": {
+      "values": ["flat", "raised", "overlay"],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "padding": {
+      "values": ["0", "sm", "md", "lg"],
+      "default": "0",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "max": {
+      "type": "enum",
+      "values": ["narrow", "content", "wide", "prose", "full"],
+      "default": "full",
+      "attr": "data-max",
+      "description": "Caps the surface at one of the shared measure tokens and centres it. Same vocabulary as the container primitive's data-measure — when the measure is the only thing wanted, reach for container instead; this is for a box that needs the elevation too."
+    },
+    "align-text": {
+      "type": "enum",
+      "values": ["start", "center", "right"],
+      "default": "start",
+      "attr": "data-align-text",
+      "description": "Text alignment for the whole surface. Logical: `right` maps to text-align: end, so it flips under RTL."
+    }
+  },
+
+  "states": {},
+
+  "a11y": {
+    "notes": "Layout-only primitive; no semantic role required. Use landmark roles on the content inside when appropriate.",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-bg", "color-surface-1", "color-surface-2", "color-surface-1-border",
+    "color-surface-2-border", "measure-content", "measure-narrow", "measure-prose", "measure-wide",
+    "radius-lg", "shadow-sm", "shadow-lg", "space-3", "space-4", "space-6", "border-width",
+    "corner-shape", "surface-backdrop", "texture-surface"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"surface\" data-variant=\"{elevation}\" data-size=\"{padding}\">{children}</div>",
+    "html_default": "<div data-ui=\"surface\" data-size=\"{padding}\">{children}</div>"
+  },
+
+  "safe_transforms": [
+    "change-elevation",
+    "change-padding",
+    "add-children",
+    "remove-children"
+  ],
+
+  "unsafe_transforms": [
+    "remove-background",
+    "remove-border-radius"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["empty-state", "dashboard-shell"]
+  },
+
+  "files": {
+    "html": "surface.html",
+    "css": "surface.css",
+    "manifest": "surface.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "default-has-border",
+    "flat-variant-has-no-border",
+    "raised-variant-has-shadow-sm",
+    "overlay-variant-has-shadow-lg",
+    "overlay-variant-uses-surface-2-border",
+    "sm-padding-applies-space-3",
+    "md-padding-applies-space-4",
+    "lg-padding-applies-space-6",
+    "no-padding-by-default"
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "logo-cloud",
+  "version": "1.0.0",
+  "kind": "pattern",
+  "category": "marketing",
+  "description": "\"Trusted by\" strip: a small muted eyebrow over a row of customer marks, each an <img> set to one height, desaturated at rest and returning to colour under the pointer. Composition only: zero JavaScript, no controller, no reactive directives — the grid layout is a centred wrapping cluster, the marquee layout hands the items to the nested marquee primitive.",
+
+  "anatomy": {
+    "tag": "section",
+    "selector": "[data-ui='logo-cloud']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "heading": {
+      "selector": "[data-part='heading']",
+      "required": true,
+      "tag_hint": "p",
+      "description": "The eyebrow ('Trusted by teams at'). A paragraph, not a heading, so the strip stays out of the document outline; give it an id and point the section's aria-labelledby at it so the landmark is named"
+    },
+    "items": {
+      "selector": "[data-part='items']",
+      "required": false,
+      "tag_hint": "ul",
+      "description": "The list of marks in the grid layout — a centred, wrapping cluster. Absent in the marquee layout, where the nested marquee's two [data-part='track'] lists take its place"
+    },
+    "item": {
+      "selector": "[data-part='item']",
+      "required": false,
+      "tag_hint": "li",
+      "description": "One mark. A direct child of the items list, or of a marquee track; holds the logo as its direct child (or a link wrapping it — focus inside the item brings the colour back)"
+    },
+    "logo": {
+      "selector": "[data-part='logo']",
+      "required": false,
+      "tag_hint": "img",
+      "description": "The mark itself, an <img> whose alt is the company name. Sized to --logo-cloud-height with its own width (object-fit: contain), greyscale and dimmed at rest unless data-color is set. In a marquee's aria-hidden second track the copies carry alt=''"
+    }
+  },
+
+  "variants": {
+    "layout": {
+      "values": ["grid", "marquee"],
+      "default": "grid",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "color": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-color",
+      "description": "Keep every mark in its own colours at rest instead of greyscale-and-dimmed; the hover return is then a no-op."
+    },
+    "--logo-cloud-height": {
+      "type": "string",
+      "default": "var(--space-8)",
+      "description": "Height every mark is set to (custom property); widths follow each image's own ratio."
+    },
+    "--logo-cloud-width": {
+      "type": "string",
+      "default": "var(--space-32)",
+      "description": "Widest a single mark may grow (custom property), so a long wordmark cannot dwarf the glyphs beside it."
+    },
+    "--logo-cloud-dim": {
+      "type": "string",
+      "default": "0.7",
+      "description": "Opacity of a mark at rest, before the pointer brings it back to 1 (custom property). Ignored with data-color."
+    },
+    "--logo-cloud-max": {
+      "type": "string",
+      "default": "var(--measure-wide)",
+      "description": "Maximum width of the grid layout's cluster before it wraps (custom property)."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-labelledby on the section pointing at the heading id",
+      "alt text on every logo image naming the company (empty alt only on the copies in a marquee's aria-hidden second track)",
+      "in the marquee layout: role='group' and an aria-label on the nested marquee, and aria-hidden='true' on its second track"
+    ],
+    "notes": "The marks are a real list, so assistive technology announces how many there are. Greyscale is a visual treatment only — the accessible name of each mark is its alt text, unchanged by the filter. In the marquee layout the strip pauses on hover and on focus-within (the marquee's own behaviour) and, under reduced motion, becomes a wrapped row of each mark once. Keep links out of a marquee track; a link inside the hidden copy would be a second, unlabelled tab stop.",
+    "keyboard": {
+      "Tab": "move through any links wrapping the marks, in source order; a focused item shows its mark in colour"
+    }
+  },
+
+  "tokens_used": [
+    "space-6", "space-10", "space-4", "space-8", "space-32", "space-12", "font-body", "font-ui",
+    "color-fg", "color-fg-muted", "text-sm", "weight-medium", "leading-normal", "measure-wide",
+    "duration-normal", "ease-default"
+  ],
+
+  "templates": {
+    "html": "<section data-ui=\"logo-cloud\" data-variant=\"grid\" aria-labelledby=\"{id}-heading\">\n  <p data-part=\"heading\" id=\"{id}-heading\">{heading}</p>\n  <ul data-part=\"items\">\n    <li data-part=\"item\"><img data-part=\"logo\" src=\"{logo_src}\" alt=\"{company}\"></li>\n  </ul>\n</section>",
+    "html_marquee": "<section data-ui=\"logo-cloud\" data-variant=\"marquee\" aria-labelledby=\"{id}-heading\">\n  <p data-part=\"heading\" id=\"{id}-heading\">{heading}</p>\n  <div data-ui=\"marquee\" data-fade data-speed=\"slow\" role=\"group\" aria-label=\"{label}\">\n    <ul data-part=\"track\">\n      <li data-part=\"item\"><img data-part=\"logo\" src=\"{logo_src}\" alt=\"{company}\"></li>\n    </ul>\n    <ul data-part=\"track\" aria-hidden=\"true\">\n      <li data-part=\"item\"><img data-part=\"logo\" src=\"{logo_src}\" alt=\"\"></li>\n    </ul>\n  </div>\n</section>"
+  },
+
+  "safe_transforms": [
+    "change-layout-variant",
+    "toggle-color",
+    "add-logo",
+    "remove-logo",
+    "add-logo-to-both-marquee-tracks",
+    "remove-logo-from-both-marquee-tracks",
+    "change-heading-text",
+    "set-custom-property-knobs",
+    "wrap-the-section-in-a-reveal"
+  ],
+
+  "unsafe_transforms": [
+    "remove-heading",
+    "remove-aria-labelledby",
+    "promote-heading-to-an-h-element",
+    "remove-alt-from-a-logo-in-the-first-track",
+    "keep-items-list-in-the-marquee-layout",
+    "edit-one-marquee-track-without-the-other",
+    "put-a-link-in-the-hidden-marquee-track",
+    "add-custom-script"
+  ],
+
+  "composition": {
+    "contains": ["marquee"],
+    "used_in": ["landing-page"],
+    "notes": [
+      "In the marquee layout the <ul> elements are the MARQUEE's [data-part='track'] slots, not logo-cloud's; logo-cloud's own items part is absent. The items and logos inside the tracks are still logo-cloud's parts (the marquee declares neither), and the stylesheet reaches them through the track as an element, never as another component's part.",
+      "The two marquee tracks must be identical, down to the marks' order; only the alt text differs (empty on the hidden copy).",
+      "To let the strip arrive with the page, wrap the whole section in a data-ui='reveal' (data-variant='fade' is the calm choice), as the reference markup shows. The reveal is a wrapper around the pattern, not a part of it — a reveal must wrap, and the pattern's parts are its own.",
+      "Image sources in the reference markup are https://example.com placeholders; replace them with the marks, and keep the alt text as the company name."
+    ]
+  },
+
+  "files": {
+    "html": "logo-cloud.html",
+    "css": "logo-cloud.css",
+    "manifest": "logo-cloud.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-section-with-data-ui-logo-cloud",
+    "heading-slot-is-required-and-is-a-paragraph",
+    "section-is-labelled-by-its-heading",
+    "grid-is-the-default-layout",
+    "marks-are-list-items-with-named-alt-text",
+    "logos-share-one-height-and-keep-their-own-width",
+    "logos-are-greyscale-at-rest-and-colour-on-hover",
+    "color-prop-keeps-logos-in-colour",
+    "marquee-layout-uses-the-marquee-tracks-as-its-lists",
+    "hidden-track-copies-carry-empty-alt",
+    "ships-zero-javascript",
+    "reference-page-is-audit-clean"
+  ]
+}

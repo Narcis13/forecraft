@@ -1,0 +1,374 @@
+<!-- @ui:component testimonials -->
+<!-- @ui:kind pattern -->
+<!-- @ui:slots heading description items item strips slide footer -->
+<!-- @ui:variants layout=grid|columns|marquee -->
+<!-- @ui:composition quote rating avatar marquee button -->
+<!--
+  Testimonials — a wall of quotes, composition only, zero JavaScript.
+    · The section is labelled by its own heading (aria-labelledby), so the
+      landmark carries a name without inventing one.
+    · Every quote is the quote primitive in its card variant, wrapped in a real
+      list item: assistive technology announces "list, 6 items", and the quote
+      keeps its own contract (figure, blockquote, figcaption, an optional
+      rating before the text and an avatar inside the author). The item WRAPS
+      the quote rather than being it — a nested component never carries a
+      data-part of its own.
+    · Three layouts from one markup: a grid of equal rows, packed columns for
+      quotes of different lengths, and a marquee that stacks two strips moving
+      against each other. The strips are the marquee primitive, written the
+      marquee's way (two identical tracks, the second aria-hidden); each card
+      sits in [data-part="slide"], the pattern's own wrapper, which is where
+      its width is set.
+    · data-animate plays the reveal primitive's stagger on the items. A reveal
+      cannot wrap the list — it staggers its direct children and the list is
+      this pattern's part — so the entrance is an option of the pattern itself,
+      reading the same --motion-reveal-* and --motion-stagger tokens.
+-->
+
+<!-- Grid (default), arriving in order, with a closing action -->
+<section data-ui="testimonials" data-variant="grid" data-animate aria-labelledby="testimonials-heading">
+  <h2 data-part="heading" id="testimonials-heading">Teams that ship with it</h2>
+  <p data-part="description">
+    From a two-person studio to a platform team of forty: the same markup,
+    audited the same way, read by the same agents.
+  </p>
+  <ul data-part="items">
+    <li data-part="item">
+      <figure data-ui="quote" data-variant="card">
+        <span data-ui="rating" data-value="5" role="img" aria-label="Rated 5 out of 5"></span>
+        <blockquote data-part="text">
+          <p>We replaced four thousand lines of utility classes with markup our whole team can read.</p>
+        </blockquote>
+        <figcaption data-part="author">
+          <span data-part="media">
+            <span data-ui="avatar" data-size="sm">
+              <span data-part="fallback">AO</span>
+            </span>
+          </span>
+          <span data-part="name">Ada Okafor</span>
+          <span data-part="role">Staff engineer, Northwind</span>
+        </figcaption>
+      </figure>
+    </li>
+    <li data-part="item">
+      <figure data-ui="quote" data-variant="card">
+        <blockquote data-part="text">
+          <p>The audit caught a missing label before our users did. That alone paid for the migration.</p>
+        </blockquote>
+        <figcaption data-part="author">
+          <span data-part="name">Mateo Rossi</span>
+          <span data-part="role">Head of design, Lumen</span>
+        </figcaption>
+      </figure>
+    </li>
+    <li data-part="item">
+      <figure data-ui="quote" data-variant="card">
+        <span data-ui="rating" data-value="5" role="img" aria-label="Rated 5 out of 5"></span>
+        <blockquote data-part="text">
+          <p>One stylesheet, one script, done. Our landing page went from a sprint to an afternoon.</p>
+        </blockquote>
+        <figcaption data-part="author">
+          <span data-part="media">
+            <span data-ui="avatar" data-size="sm">
+              <span data-part="fallback">PN</span>
+            </span>
+          </span>
+          <span data-part="name">Priya Nair</span>
+          <span data-part="role">Indie maker</span>
+        </figcaption>
+      </figure>
+    </li>
+    <li data-part="item">
+      <figure data-ui="quote" data-variant="card">
+        <blockquote data-part="text">
+          <p>It is the first UI kit where the generated code is something I would have written by hand.</p>
+        </blockquote>
+        <figcaption data-part="author">
+          <span data-part="name">Lena Kowalski</span>
+          <span data-part="role">CTO, Fieldnote</span>
+        </figcaption>
+      </figure>
+    </li>
+    <li data-part="item">
+      <figure data-ui="quote" data-variant="card">
+        <span data-ui="rating" data-value="4" role="img" aria-label="Rated 4 out of 5"></span>
+        <blockquote data-part="text">
+          <p>Switching themes is one attribute. Our white-label customers noticed before we announced it.</p>
+        </blockquote>
+        <figcaption data-part="author">
+          <span data-part="name">Tomasz Zieliński</span>
+          <span data-part="role">Product lead, Harbor</span>
+        </figcaption>
+      </figure>
+    </li>
+    <li data-part="item">
+      <figure data-ui="quote" data-variant="card">
+        <blockquote data-part="text">
+          <p>The selector is the documentation. New hires read the markup and know the system by lunch.</p>
+        </blockquote>
+        <figcaption data-part="author">
+          <span data-part="media">
+            <span data-ui="avatar" data-size="sm">
+              <span data-part="fallback">SB</span>
+            </span>
+          </span>
+          <span data-part="name">Sofia Bernard</span>
+          <span data-part="role">Engineering manager, Tessel</span>
+        </figcaption>
+      </figure>
+    </li>
+  </ul>
+  <div data-part="footer">
+    <a data-ui="button" data-variant="outline" href="#stories">Read the customer stories</a>
+  </div>
+</section>
+
+<!-- Columns: quotes of different lengths pack like a masonry wall -->
+<section data-ui="testimonials" data-variant="columns" aria-labelledby="testimonials-columns-heading">
+  <h2 data-part="heading" id="testimonials-columns-heading">In their words</h2>
+  <ul data-part="items">
+    <li data-part="item">
+      <figure data-ui="quote" data-variant="card">
+        <blockquote data-part="text">
+          <p>Zero classes, zero build step.</p>
+        </blockquote>
+        <figcaption data-part="author">
+          <span data-part="name">Priya Nair</span>
+          <span data-part="role">Indie maker</span>
+        </figcaption>
+      </figure>
+    </li>
+    <li data-part="item">
+      <figure data-ui="quote" data-variant="card">
+        <blockquote data-part="text">
+          <p>We handed the manifests to our agent and it scaffolded a settings page that passed the audit on the first run.</p>
+          <p>Our designers now review markup, because they can read it.</p>
+        </blockquote>
+        <figcaption data-part="author">
+          <span data-part="media">
+            <span data-ui="avatar" data-size="sm">
+              <span data-part="fallback">LK</span>
+            </span>
+          </span>
+          <span data-part="name">Lena Kowalski</span>
+          <span data-part="role">CTO, Fieldnote</span>
+        </figcaption>
+      </figure>
+    </li>
+    <li data-part="item">
+      <figure data-ui="quote" data-variant="card">
+        <span data-ui="rating" data-value="5" role="img" aria-label="Rated 5 out of 5"></span>
+        <blockquote data-part="text">
+          <p>Printable invoices from the same tokens as the dashboard. We deleted a second stylesheet.</p>
+        </blockquote>
+        <figcaption data-part="author">
+          <span data-part="name">Mateo Rossi</span>
+          <span data-part="role">Head of design, Lumen</span>
+        </figcaption>
+      </figure>
+    </li>
+    <li data-part="item">
+      <figure data-ui="quote" data-variant="card">
+        <blockquote data-part="text">
+          <p>Right-to-left was a document attribute. Nothing else changed.</p>
+        </blockquote>
+        <figcaption data-part="author">
+          <span data-part="name">Yara Haddad</span>
+          <span data-part="role">Localisation lead, Sahl</span>
+        </figcaption>
+      </figure>
+    </li>
+    <li data-part="item">
+      <figure data-ui="quote" data-variant="card">
+        <blockquote data-part="text">
+          <p>Every colour, space and radius resolves from a token, so a rebrand was a theme file and a pull request of one line.</p>
+        </blockquote>
+        <figcaption data-part="author">
+          <span data-part="media">
+            <span data-ui="avatar" data-size="sm">
+              <span data-part="fallback">AO</span>
+            </span>
+          </span>
+          <span data-part="name">Ada Okafor</span>
+          <span data-part="role">Staff engineer, Northwind</span>
+        </figcaption>
+      </figure>
+    </li>
+  </ul>
+</section>
+
+<!-- Marquee: two strips moving against each other, fading at the edges -->
+<section data-ui="testimonials" data-variant="marquee" aria-labelledby="testimonials-marquee-heading">
+  <h2 data-part="heading" id="testimonials-marquee-heading">What people are saying</h2>
+  <p data-part="description">Hover or focus a strip to pause it.</p>
+  <div data-part="strips">
+    <div data-ui="marquee" data-fade role="group" aria-label="Quotes from customers, first strip">
+      <ul data-part="track">
+        <li>
+          <div data-part="slide">
+            <figure data-ui="quote" data-variant="card" data-size="sm">
+              <blockquote data-part="text">
+                <p>Markup our whole team can read.</p>
+              </blockquote>
+              <figcaption data-part="author">
+                <span data-part="name">Ada Okafor</span>
+                <span data-part="role">Northwind</span>
+              </figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <div data-part="slide">
+            <figure data-ui="quote" data-variant="card" data-size="sm">
+              <blockquote data-part="text">
+                <p>The audit caught it before our users did.</p>
+              </blockquote>
+              <figcaption data-part="author">
+                <span data-part="name">Mateo Rossi</span>
+                <span data-part="role">Lumen</span>
+              </figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <div data-part="slide">
+            <figure data-ui="quote" data-variant="card" data-size="sm">
+              <blockquote data-part="text">
+                <p>One stylesheet, one script, done.</p>
+              </blockquote>
+              <figcaption data-part="author">
+                <span data-part="name">Priya Nair</span>
+                <span data-part="role">Indie maker</span>
+              </figcaption>
+            </figure>
+          </div>
+        </li>
+      </ul>
+      <ul data-part="track" aria-hidden="true">
+        <li>
+          <div data-part="slide">
+            <figure data-ui="quote" data-variant="card" data-size="sm">
+              <blockquote data-part="text">
+                <p>Markup our whole team can read.</p>
+              </blockquote>
+              <figcaption data-part="author">
+                <span data-part="name">Ada Okafor</span>
+                <span data-part="role">Northwind</span>
+              </figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <div data-part="slide">
+            <figure data-ui="quote" data-variant="card" data-size="sm">
+              <blockquote data-part="text">
+                <p>The audit caught it before our users did.</p>
+              </blockquote>
+              <figcaption data-part="author">
+                <span data-part="name">Mateo Rossi</span>
+                <span data-part="role">Lumen</span>
+              </figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <div data-part="slide">
+            <figure data-ui="quote" data-variant="card" data-size="sm">
+              <blockquote data-part="text">
+                <p>One stylesheet, one script, done.</p>
+              </blockquote>
+              <figcaption data-part="author">
+                <span data-part="name">Priya Nair</span>
+                <span data-part="role">Indie maker</span>
+              </figcaption>
+            </figure>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div data-ui="marquee" data-fade data-direction="reverse" data-speed="slow" role="group" aria-label="Quotes from customers, second strip">
+      <ul data-part="track">
+        <li>
+          <div data-part="slide">
+            <figure data-ui="quote" data-variant="card" data-size="sm">
+              <blockquote data-part="text">
+                <p>Code I would have written by hand.</p>
+              </blockquote>
+              <figcaption data-part="author">
+                <span data-part="name">Lena Kowalski</span>
+                <span data-part="role">Fieldnote</span>
+              </figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <div data-part="slide">
+            <figure data-ui="quote" data-variant="card" data-size="sm">
+              <blockquote data-part="text">
+                <p>Switching themes is one attribute.</p>
+              </blockquote>
+              <figcaption data-part="author">
+                <span data-part="name">Tomasz Zieliński</span>
+                <span data-part="role">Harbor</span>
+              </figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <div data-part="slide">
+            <figure data-ui="quote" data-variant="card" data-size="sm">
+              <blockquote data-part="text">
+                <p>The selector is the documentation.</p>
+              </blockquote>
+              <figcaption data-part="author">
+                <span data-part="name">Sofia Bernard</span>
+                <span data-part="role">Tessel</span>
+              </figcaption>
+            </figure>
+          </div>
+        </li>
+      </ul>
+      <ul data-part="track" aria-hidden="true">
+        <li>
+          <div data-part="slide">
+            <figure data-ui="quote" data-variant="card" data-size="sm">
+              <blockquote data-part="text">
+                <p>Code I would have written by hand.</p>
+              </blockquote>
+              <figcaption data-part="author">
+                <span data-part="name">Lena Kowalski</span>
+                <span data-part="role">Fieldnote</span>
+              </figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <div data-part="slide">
+            <figure data-ui="quote" data-variant="card" data-size="sm">
+              <blockquote data-part="text">
+                <p>Switching themes is one attribute.</p>
+              </blockquote>
+              <figcaption data-part="author">
+                <span data-part="name">Tomasz Zieliński</span>
+                <span data-part="role">Harbor</span>
+              </figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <div data-part="slide">
+            <figure data-ui="quote" data-variant="card" data-size="sm">
+              <blockquote data-part="text">
+                <p>The selector is the documentation.</p>
+              </blockquote>
+              <figcaption data-part="author">
+                <span data-part="name">Sofia Bernard</span>
+                <span data-part="role">Tessel</span>
+              </figcaption>
+            </figure>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,114 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "rating",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "data-display",
+  "description": "A read-only five-star score drawn by a single element: a repeated star mask over a gradient filled to value/5, so half stars and exact averages need no extra markup. Sizes with the surrounding text, fills from the line's start edge in either direction, and stays legible in forced colours.",
+
+  "anatomy": {
+    "tag": "span",
+    "selector": "[data-ui='rating']",
+    "content_model": "empty"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "value": {
+      "type": "enum",
+      "values": ["0", "0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5"],
+      "default": "0",
+      "attr": "data-value",
+      "description": "The score, in half steps from 0 to 5. For a fraction that is not a half step, omit this and set --rating-value instead."
+    },
+    "--rating-value": {
+      "type": "string",
+      "default": "0",
+      "description": "The score as a bare number, 0–5, for exact averages such as 4.3 (custom property). data-value wins when both are present."
+    },
+    "--rating-color": {
+      "type": "string",
+      "default": "var(--color-warning)",
+      "description": "Colour of the filled share (custom property). Pass a colour token."
+    },
+    "--rating-track": {
+      "type": "string",
+      "default": "var(--color-bg-muted)",
+      "description": "Colour of the unfilled share (custom property)."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "role": "img",
+    "required_attrs": [
+      "role=\"img\" on the root",
+      "aria-label stating the score in words, e.g. \"Rated 4.5 out of 5\""
+    ],
+    "notes": "The stars are a picture of a number, so the element is an image whose name is the number. The label must state the real score — when --rating-value carries 4.3, the label says 4.3. This is a display primitive: for a rating the user sets, use radio inputs.",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-warning", "color-bg-muted", "text-sm", "text-2xl"
+  ],
+
+  "templates": {
+    "html": "<span data-ui=\"rating\" data-value=\"{value}\" role=\"img\" aria-label=\"Rated {value} out of 5\"></span>",
+    "html_exact": "<span data-ui=\"rating\" role=\"img\" aria-label=\"Rated {value} out of 5\" style=\"--rating-value: {value}\"></span>"
+  },
+
+  "safe_transforms": [
+    "change-value-and-label-together",
+    "change-size",
+    "change-custom-property-colors"
+  ],
+
+  "unsafe_transforms": [
+    "remove-aria-label",
+    "remove-role-img",
+    "change-the-value-without-the-label",
+    "add-child-elements",
+    "use-as-an-input"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["quote", "testimonials"],
+    "notes": [
+      "Always change data-value and aria-label together: one is what sighted readers see, the other is what everyone else hears.",
+      "Put a review count beside it as ordinary text; the rating itself has no children.",
+      "Inside a quote it goes directly in the figure, above the text."
+    ]
+  },
+
+  "files": {
+    "html": "rating.html",
+    "css": "rating.css",
+    "manifest": "rating.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-empty-span-with-role-img",
+    "has-an-aria-label-stating-the-score",
+    "fill-is-value-over-five",
+    "half-steps-are-attribute-values",
+    "exact-fractions-go-through-the-custom-property",
+    "sizes-with-the-font-size",
+    "fills-from-the-start-edge-in-rtl",
+    "forced-colors-keep-filled-and-empty-distinct"
+  ]
+}

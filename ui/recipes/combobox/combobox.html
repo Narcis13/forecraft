@@ -1,0 +1,82 @@
+<!-- @ui:component combobox -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots input listbox option empty -->
+<!-- @ui:variants size=sm|md|lg -->
+<!-- @ui:controller combobox.js -->
+
+<!-- Default (medium) -->
+<div data-ui="combobox" data-state="closed" data-size="md">
+  <input
+    data-part="input"
+    type="text"
+    role="combobox"
+    aria-expanded="false"
+    aria-autocomplete="list"
+    aria-controls="combobox-listbox-1"
+    placeholder="Search..."
+  >
+  <ul data-part="listbox" role="listbox" id="combobox-listbox-1" hidden>
+    <li data-part="option" role="option" aria-selected="false">Apple</li>
+    <li data-part="option" role="option" aria-selected="false">Banana</li>
+    <li data-part="option" role="option" aria-selected="false">Cherry</li>
+    <li data-part="option" role="option" aria-selected="false">Grape</li>
+    <li data-part="option" role="option" aria-selected="false">Orange</li>
+    <li data-part="empty" role="option" aria-disabled="true" hidden>No results found</li>
+  </ul>
+</div>
+
+<!-- Small size -->
+<div data-ui="combobox" data-state="closed" data-size="sm">
+  <input
+    data-part="input"
+    type="text"
+    role="combobox"
+    aria-expanded="false"
+    aria-autocomplete="list"
+    aria-controls="combobox-listbox-2"
+    placeholder="Search..."
+  >
+  <ul data-part="listbox" role="listbox" id="combobox-listbox-2" hidden>
+    <li data-part="option" role="option" aria-selected="false">Red</li>
+    <li data-part="option" role="option" aria-selected="false">Green</li>
+    <li data-part="option" role="option" aria-selected="false">Blue</li>
+    <li data-part="empty" role="option" aria-disabled="true" hidden>No results found</li>
+  </ul>
+</div>
+
+<!-- Large size -->
+<div data-ui="combobox" data-state="closed" data-size="lg">
+  <input
+    data-part="input"
+    type="text"
+    role="combobox"
+    aria-expanded="false"
+    aria-autocomplete="list"
+    aria-controls="combobox-listbox-3"
+    placeholder="Search countries..."
+  >
+  <ul data-part="listbox" role="listbox" id="combobox-listbox-3" hidden>
+    <li data-part="option" role="option" aria-selected="false">United States</li>
+    <li data-part="option" role="option" aria-selected="false">United Kingdom</li>
+    <li data-part="option" role="option" aria-selected="false">Canada</li>
+    <li data-part="option" role="option" aria-selected="false">Australia</li>
+    <li data-part="empty" role="option" aria-disabled="true" hidden>No results found</li>
+  </ul>
+</div>
+
+<!-- Loading state example -->
+<div data-ui="combobox" data-state="loading" data-size="md">
+  <input
+    data-part="input"
+    type="text"
+    role="combobox"
+    aria-expanded="true"
+    aria-autocomplete="list"
+    aria-controls="combobox-listbox-4"
+    placeholder="Search..."
+    value="load"
+  >
+  <ul data-part="listbox" role="listbox" id="combobox-listbox-4">
+    <li data-part="empty" role="option" aria-disabled="true">Loading...</li>
+  </ul>
+</div>

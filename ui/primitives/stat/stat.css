@@ -1,0 +1,103 @@
+/* @ui:component stat */
+/* @ui:tokens color-fg color-fg-muted color-success color-destructive color-bg color-border space-1 space-4 radius-md shadow-sm font-heading font-body text-xs text-sm text-lg text-2xl text-3xl weight-semibold weight-bold border-width doc-font doc-print-border-color stat-label-size stat-label-color stat-value-size stat-value-weight stat-value-num-font stat-change-positive stat-change-negative */
+
+/* ── Base ── */
+[data-ui="stat"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-family: var(--doc-font, var(--font-body));
+}
+
+/* ── Label ── */
+[data-ui="stat"] > [data-part="label"] {
+  font-size: var(--stat-label-size);
+  font-weight: var(--weight-semibold);
+  color: var(--stat-label-color);
+  line-height: 1.2;
+  order: -1;
+}
+
+/* ── Value ── */
+[data-ui="stat"] > [data-part="value"] {
+  font-family: var(--font-heading);
+  font-size: var(--stat-value-size);
+  font-weight: var(--stat-value-weight);
+  color: var(--color-fg);
+  line-height: 1.1;
+  font-variant-numeric: var(--stat-value-num-font);
+  font-feature-settings: "tnum";
+}
+
+/* ── Change Indicator ── */
+[data-ui="stat"] > [data-part="change"] {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-fg-muted);
+  line-height: 1.2;
+}
+
+/* ── Icon ── */
+[data-ui="stat"] > [data-part="icon"] {
+  flex-shrink: 0;
+  color: var(--color-fg-muted);
+}
+
+/* ── Trend: Up ── */
+[data-ui="stat"][data-trend="up"] > [data-part="change"] {
+  color: var(--stat-change-positive);
+}
+
+/* ── Trend: Down ── */
+[data-ui="stat"][data-trend="down"] > [data-part="change"] {
+  color: var(--stat-change-negative);
+}
+
+/* ── Trend: Neutral ── */
+[data-ui="stat"][data-trend="neutral"] > [data-part="change"] {
+  color: var(--color-fg-muted);
+}
+
+/* ── Size: Small ── */
+[data-ui="stat"][data-size="sm"] > [data-part="value"] {
+  font-size: var(--text-lg, 1.125rem);
+}
+
+[data-ui="stat"][data-size="sm"] > [data-part="label"] {
+  font-size: var(--text-xs);
+}
+
+/* ── Size: Large ── */
+[data-ui="stat"][data-size="lg"] > [data-part="value"] {
+  font-size: var(--text-3xl, 1.875rem);
+}
+
+[data-ui="stat"][data-size="lg"] > [data-part="label"] {
+  font-size: var(--text-sm);
+}
+
+/* ── Variant: Card ── */
+[data-ui="stat"][data-variant="card"] {
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md, 0.375rem);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Value + Change Inline ── */
+[data-ui="stat"] > [data-part="value"] + [data-part="change"] {
+  margin-top: var(--space-1);
+}
+
+/* ── Print ── */
+@media print {
+  [data-ui="stat"][data-variant="card"] {
+    box-shadow: none;
+    border: var(--border-width) solid var(--doc-print-border-color, var(--color-border, #ccc));
+  }
+
+  [data-ui="stat"] {
+    break-inside: avoid;
+  }
+}

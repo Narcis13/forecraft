@@ -1,0 +1,182 @@
+/* @ui:component card */
+/* @ui:tokens color-surface-1 color-surface-2 color-surface-1-border color-surface-2-border color-fg color-fg-muted color-bg-muted color-primary radius-lg shadow-sm space-1 space-2 space-4 space-6 font-heading text-sm text-lg weight-semibold leading-tight border-width corner-shape card-border-width card-border card-radius card-bg card-shadow card-padding card-media-ratio card-hover-shadow surface-backdrop texture-surface motion-hover-lift duration-fast duration-slower duration-normal ease-default ease-emphasized ease-out */
+
+/* ── Base ── */
+[data-ui="card"] {
+  display: flex;
+  flex-direction: column;
+  border: var(--card-border-width) solid var(--card-border, var(--color-surface-1-border));
+  border-radius: var(--card-radius, var(--radius-lg));
+  corner-shape: var(--corner-shape);
+  /* One shorthand, two layers: the material on top, the fill beneath. The fill
+     is the final layer, so `--card-bg` may be a colour OR a gradient — what 1.0
+     projects set it to — and the texture (`none` by default) never clobbers it. */
+  background: var(--texture-surface), var(--card-bg, var(--color-surface-1));
+  box-shadow: var(--card-shadow, var(--shadow-sm));
+  overflow: hidden;
+  transition: translate var(--duration-fast) var(--ease-default);
+}
+
+/* The hover lift, the same axis `button` reads. `none` by default (the initial
+   value of `translate`), so a card sits exactly where it always sat until a
+   theme says surfaces rise under the pointer. */
+[data-ui="card"]:hover {
+  translate: var(--motion-hover-lift);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1rem)) or (backdrop-filter: blur(1rem))) {
+  [data-ui="card"] {
+    -webkit-backdrop-filter: var(--surface-backdrop);
+    backdrop-filter: var(--surface-backdrop);
+  }
+}
+
+/* ── Variants ── */
+[data-ui="card"][data-variant="outlined"] {
+  box-shadow: none;
+}
+
+[data-ui="card"][data-variant="filled"] {
+  background: var(--texture-surface), var(--color-surface-2);
+  border-color: var(--color-surface-2-border);
+  box-shadow: none;
+}
+
+/* ── Parts ── */
+[data-ui="card"] > [data-part="header"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 0.25rem);
+  padding: var(--card-padding, var(--space-6));
+  padding-bottom: 0;
+}
+
+[data-ui="card"] > [data-part="header"] > [data-part="title"],
+[data-ui="card"] > [data-part="title"] {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  color: var(--color-fg);
+  margin: 0;
+}
+
+[data-ui="card"] > [data-part="header"] > [data-part="description"],
+[data-ui="card"] > [data-part="description"] {
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+  margin: 0;
+}
+
+/* The header is optional: a title and description written straight into the
+   card (the shape @faqir-ui/forms emits for each wizard step) take the header's
+   inset themselves instead of sitting flush against the border. */
+[data-ui="card"] > [data-part="title"],
+[data-ui="card"] > [data-part="description"] {
+  padding-inline: var(--card-padding, var(--space-6));
+}
+
+[data-ui="card"] > [data-part="title"] {
+  padding-block-start: var(--card-padding, var(--space-6));
+}
+
+[data-ui="card"] > [data-part="description"] {
+  padding-block-start: var(--space-1, 0.25rem);
+}
+
+[data-ui="card"] > [data-part="body"] {
+  padding: var(--card-padding, var(--space-6));
+  flex: 1;
+}
+
+[data-ui="card"] > [data-part="footer"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  padding: var(--card-padding, var(--space-6));
+  padding-top: 0;
+  justify-content: flex-end;
+}
+
+/* ── Sizes ── */
+[data-ui="card"][data-size="sm"] > [data-part="header"],
+[data-ui="card"][data-size="sm"] > [data-part="body"],
+[data-ui="card"][data-size="sm"] > [data-part="footer"] {
+  padding: var(--space-4);
+}
+[data-ui="card"][data-size="sm"] > [data-part="header"] {
+  padding-bottom: 0;
+}
+[data-ui="card"][data-size="sm"] > [data-part="footer"] {
+  padding-top: 0;
+}
+
+/* ── Motion ── */
+/* The hover lift is the only thing a card animates, and it is `none` until a
+   theme states one — but the house rule is that a stylesheet which transitions
+   carries its own opt-out, so a reader never has to check the token first. */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="card"] {
+    transition: none;
+  }
+}
+
+/* ── Media ──
+   A picture across the top of the card: full bleed to the card's edges, cut to
+   `--card-media-ratio`, the image covering the frame. The figure is the part;
+   the image inside is the content. */
+[data-ui="card"] > [data-part="media"] {
+  margin: 0;
+  overflow: hidden;
+  aspect-ratio: var(--card-media-ratio);
+  background-color: var(--color-bg-muted);
+}
+
+[data-ui="card"] > :where([data-part="media"]) > img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  transition: scale var(--duration-slower) var(--ease-emphasized);
+}
+
+/* ── Hover ──
+   What a card does under the pointer, beyond the theme's lift. Each value is
+   one gesture, stated once: `lift` rises by a step of the spacing scale, `raise`
+   climbs the shadow ramp, `tint` draws the accent along its edge, and `zoom`
+   leans into its own picture. Every one also answers to focus-within, so a
+   card holding a link signals the same way from the keyboard. */
+[data-ui="card"][data-hover] {
+  transition:
+    translate var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out);
+}
+
+[data-ui="card"][data-hover="lift"]:hover,
+[data-ui="card"][data-hover="lift"]:focus-within {
+  translate: 0 calc(var(--space-1) * -1);
+}
+
+[data-ui="card"][data-hover="raise"]:hover,
+[data-ui="card"][data-hover="raise"]:focus-within {
+  translate: 0 calc(var(--space-1) * -1);
+  box-shadow: var(--card-hover-shadow);
+}
+
+[data-ui="card"][data-hover="tint"]:hover,
+[data-ui="card"][data-hover="tint"]:focus-within {
+  border-color: var(--color-primary);
+}
+
+[data-ui="card"][data-hover="zoom"]:hover > :where([data-part="media"]) > img,
+[data-ui="card"][data-hover="zoom"]:focus-within > :where([data-part="media"]) > img {
+  scale: 1.05;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="card"][data-hover],
+  [data-ui="card"] > :where([data-part="media"]) > img {
+    transition: none;
+  }
+}

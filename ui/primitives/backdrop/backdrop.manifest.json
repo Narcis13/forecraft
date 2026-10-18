@@ -1,0 +1,146 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "backdrop",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "marketing",
+  "description": "Ambient animated light behind a section — aurora, spotlight, grid, dots or beams — painted by the wrapper's own pseudo-elements, so there is no decorative element to hide and nothing to position. Colours come from the theme's accent, info and success; pure CSS, still under reduced motion, gone in forced colours and print.",
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='backdrop']",
+    "content_model": "block"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "scene": {
+      "values": ["aurora", "spotlight", "grid", "dots", "beams"],
+      "default": "aurora",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "intensity": {
+      "values": ["subtle", "normal", "vivid"],
+      "default": "normal",
+      "attr": "data-intensity",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "static": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-static",
+      "description": "Keep the light and stop the movement. Use it for a second backdrop on the same screen, or wherever motion would compete with the content."
+    },
+    "--backdrop-color-1": {
+      "type": "string",
+      "default": "var(--color-primary)",
+      "description": "The leading colour of the scene (custom property). Pass a colour token."
+    },
+    "--backdrop-color-2": {
+      "type": "string",
+      "default": "var(--color-info)",
+      "description": "The second colour — the answering light in aurora, spotlight and beams (custom property)."
+    },
+    "--backdrop-color-3": {
+      "type": "string",
+      "default": "var(--color-success)",
+      "description": "The third colour, used by aurora's lower sheet (custom property)."
+    },
+    "--backdrop-ink": {
+      "type": "string",
+      "default": "var(--color-fg)",
+      "description": "The colour grid lines and dots are drawn in, at low alpha (custom property)."
+    },
+    "--backdrop-opacity": {
+      "type": "string",
+      "default": "0.55",
+      "description": "Base strength of the light, 0–1 (custom property). data-intensity multiplies it."
+    },
+    "--backdrop-size": {
+      "type": "string",
+      "default": "3rem (grid) / 1.5rem (dots)",
+      "description": "Cell size of the grid and dots scenes (custom property)."
+    },
+    "--backdrop-blur": {
+      "type": "string",
+      "default": "3.5rem (aurora) / 0.5rem (beams)",
+      "description": "How soft the light is (custom property)."
+    },
+    "--backdrop-duration": {
+      "type": "string",
+      "default": "var(--motion-ambient-duration)",
+      "description": "Length of one drift (custom property). Each scene scales it for its own loop."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "notes": "Decoration only: the light is drawn by pseudo-elements, so it adds nothing to the accessibility tree and cannot receive focus or pointer events. The wrapper is a plain div — the content inside keeps its own landmarks and headings. Text over a backdrop still has to meet contrast against the page colour; keep data-intensity at subtle or normal behind body copy.",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-primary", "color-info", "color-success", "color-fg", "motion-ambient-duration",
+    "motion-ambient-play", "ease-in-out", "ease-linear", "border-width"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"backdrop\" data-variant=\"{scene}\">{children}</div>",
+    "html_subtle": "<div data-ui=\"backdrop\" data-variant=\"{scene}\" data-intensity=\"subtle\">{children}</div>",
+    "html_static": "<div data-ui=\"backdrop\" data-variant=\"{scene}\" data-static>{children}</div>"
+  },
+
+  "safe_transforms": [
+    "change-scene",
+    "change-intensity",
+    "toggle-static",
+    "change-custom-property-colors",
+    "change-custom-property-timing",
+    "wrap-a-section",
+    "unwrap-a-section"
+  ],
+
+  "unsafe_transforms": [
+    "use-vivid-intensity-behind-body-text",
+    "nest-a-backdrop-directly-inside-another",
+    "pass-a-hardcoded-color-instead-of-a-token"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["cta", "landing-page"],
+    "notes": [
+      "Wrap the section — <div data-ui=\"backdrop\"><section data-ui=\"hero\">…</section></div> — rather than placing an empty element behind it. The hero's own background is the page colour, so give a wrapped hero `background: transparent` through its --hero-bg knob, or the light will sit behind an opaque section.",
+      "The root clips its light (overflow: clip), not its content's scroll: sticky and fixed descendants keep working.",
+      "One moving backdrop per screen. A second one below the fold should be data-static or a different, quieter scene.",
+      "Freeze every ambient loop on a page with `--motion-ambient-play: paused` on :root, or slow them all with `--motion-ambient-duration`."
+    ]
+  },
+
+  "files": {
+    "html": "backdrop.html",
+    "css": "backdrop.css",
+    "manifest": "backdrop.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-wrapper",
+    "aurora-is-the-default-scene",
+    "light-is-painted-by-pseudo-elements-behind-the-content",
+    "root-isolates-and-clips-without-scrolling",
+    "colours-default-to-the-theme-accent-info-success",
+    "grid-lines-read-the-theme-border-width",
+    "intensity-scales-one-opacity",
+    "static-removes-the-animation-only",
+    "reduced-motion-stops-the-movement",
+    "forced-colors-and-print-drop-the-decoration"
+  ]
+}

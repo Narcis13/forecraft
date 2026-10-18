@@ -1,0 +1,195 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "accordion",
+  "version": "1.0.2",
+  "kind": "recipe",
+  "category": "data-display",
+  "description": "Expandable section panels with single or multiple expand modes",
+  "changes": [
+    {
+      "version": "1.0.2",
+      "note": "Nested components keep their own parts. The stylesheet reached items, triggers, icons and content with descendant selectors, so an expanded section rotated every chevron below it (a collapsed accordion nested in its content looked open) and styled the trigger of a dropdown in its content as a section header. Every part rule is now a child chain: root > item > trigger > icon and root > item > content. A trigger may also sit in a heading that is the item's child (<h3><button data-part=\"trigger\">, the APG shape). The hops are in :where(), so no rule changes specificity.",
+      "breaking": false
+    },
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. Items are now the root's direct children, and a click or Enter/Space only toggles an item when it comes from that item's own trigger. Before, a dropdown's trigger in a section's content collapsed the section (and Enter on it was swallowed), and a nested accordion's trigger toggled its item twice.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='accordion']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "item": {
+      "selector": "[data-part='item']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Individual accordion section container"
+    },
+    "trigger": {
+      "selector": "[data-part='trigger']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Button that toggles the section, has aria-expanded and aria-controls. A direct child of its item, or of a heading (h1-h6) that is"
+    },
+    "content": {
+      "selector": "[data-part='content']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Collapsible content region with role=region and aria-labelledby"
+    },
+    "icon": {
+      "selector": "[data-part='icon']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Chevron icon that rotates when expanded"
+    }
+  },
+  "variants": {
+    "type": {
+      "values": [
+        "single",
+        "multiple"
+      ],
+      "default": "single",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "bordered": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false",
+      "attr": "data-bordered",
+      "applied_to": "root"
+    }
+  },
+  "states": {
+    "collapsed": {
+      "attr": "data-state=\"collapsed\"",
+      "default": true,
+      "applied_to": "item"
+    },
+    "expanded": {
+      "attr": "data-state=\"expanded\"",
+      "applied_to": "item"
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "toggle",
+        "params": "index"
+      },
+      {
+        "name": "expand",
+        "params": "index"
+      },
+      {
+        "name": "collapse",
+        "params": "index"
+      },
+      {
+        "name": "expandAll",
+        "params": ""
+      },
+      {
+        "name": "collapseAll",
+        "params": ""
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "mode": {
+      "type": "string",
+      "default": "single",
+      "description": "Expand mode: single or multiple"
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "aria-expanded on trigger",
+      "aria-controls on trigger pointing to content id",
+      "role=\"region\" on content",
+      "aria-labelledby on content pointing to trigger id"
+    ],
+    "keyboard": {
+      "Enter": "toggle focused section",
+      "Space": "toggle focused section"
+    }
+  },
+  "tokens_used": [
+    "color-fg",
+    "color-fg-muted",
+    "color-border",
+    "color-bg-muted",
+    "space-4",
+    "text-sm",
+    "text-base",
+    "weight-medium",
+    "duration-normal",
+    "ease-default",
+    "radius-lg",
+    "radius-sm",
+    "font-ui",
+    "border-width",
+    "focus-ring-width",
+    "focus-ring-style",
+    "focus-ring-color",
+    "focus-ring-offset"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"accordion\" data-variant=\"{type}\" id=\"{id}\">\n  <div data-part=\"item\" data-state=\"collapsed\">\n    <button data-part=\"trigger\" id=\"{id}-trigger-1\" aria-expanded=\"false\" aria-controls=\"{id}-content-1\">\n      <span>{label1}</span>\n      <span data-part=\"icon\" aria-hidden=\"true\">▾</span>\n    </button>\n    <div data-part=\"content\" id=\"{id}-content-1\" role=\"region\" aria-labelledby=\"{id}-trigger-1\" hidden>{content1}</div>\n  </div>\n  <div data-part=\"item\" data-state=\"collapsed\">\n    <button data-part=\"trigger\" id=\"{id}-trigger-2\" aria-expanded=\"false\" aria-controls=\"{id}-content-2\">\n      <span>{label2}</span>\n      <span data-part=\"icon\" aria-hidden=\"true\">▾</span>\n    </button>\n    <div data-part=\"content\" id=\"{id}-content-2\" role=\"region\" aria-labelledby=\"{id}-trigger-2\" hidden>{content2}</div>\n  </div>\n</div>"
+  },
+  "safe_transforms": [
+    "add-item",
+    "remove-item",
+    "change-variant-type",
+    "toggle-bordered",
+    "restyle-trigger-background",
+    "change-icon"
+  ],
+  "unsafe_transforms": [
+    "remove-aria-expanded",
+    "remove-aria-controls",
+    "remove-region-role",
+    "remove-aria-labelledby",
+    "remove-keyboard-handler"
+  ],
+  "composition": {
+    "contains": [],
+    "used_in": [
+      "settings-page"
+    ]
+  },
+  "files": {
+    "html": "accordion.html",
+    "css": "accordion.css",
+    "js": "accordion.js",
+    "manifest": "accordion.manifest.json"
+  },
+  "tests": [
+    "all-items-collapsed-by-default",
+    "click-trigger-expands-item",
+    "click-expanded-trigger-collapses-item",
+    "single-mode-collapses-others-on-expand",
+    "multiple-mode-allows-multiple-expanded",
+    "trigger-has-aria-expanded",
+    "trigger-has-aria-controls",
+    "content-has-role-region",
+    "content-has-aria-labelledby",
+    "enter-key-toggles-item",
+    "space-key-toggles-item",
+    "icon-rotates-when-expanded",
+    "content-is-hidden-when-collapsed",
+    "bordered-variant-has-border-and-radius"
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "popover",
+  "version": "1.0.2",
+  "kind": "recipe",
+  "category": "overlay",
+  "description": "Content popup anchored to a trigger element with click toggle",
+  "changes": [
+    {
+      "version": "1.0.2",
+      "note": "Nested components keep their own parts. The stylesheet reached the trigger, content and close button with descendant selectors, so a dropdown or dialog inside the content had its trigger styled as the popover's and its close button as the popover's. Parts are now root > trigger, root > content, root > content > close. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. A close button belonging to a dialog or popover inside the content was bound as this popover's close, so closing the nested component closed the popover too. The close button now goes through the owner guard.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='popover']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "trigger": {
+      "selector": "[data-part='trigger']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Button that toggles the popover content"
+    },
+    "content": {
+      "selector": "[data-part='content']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "The popover content container"
+    },
+    "close": {
+      "selector": "[data-part='close']",
+      "required": false,
+      "tag_hint": "button",
+      "description": "Optional close button inside content"
+    }
+  },
+  "variants": {
+    "position": {
+      "values": [
+        "top",
+        "bottom",
+        "left",
+        "right"
+      ],
+      "default": "bottom",
+      "attr": "data-variant",
+      "applied_to": "content"
+    },
+    "align": {
+      "values": [
+        "start",
+        "center",
+        "end"
+      ],
+      "default": "start",
+      "attr": "data-align",
+      "applied_to": "content"
+    }
+  },
+  "states": {
+    "closed": {
+      "attr": "data-state=\"closed\"",
+      "default": true
+    },
+    "open": {
+      "attr": "data-state=\"open\""
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "open",
+        "params": ""
+      },
+      {
+        "name": "close",
+        "params": ""
+      },
+      {
+        "name": "toggle",
+        "params": ""
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "triggerText": {
+      "type": "string",
+      "default": "Open",
+      "description": "Text for the trigger button"
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "aria-expanded on trigger",
+      "aria-haspopup on trigger"
+    ],
+    "keyboard": {
+      "Escape": "close popover",
+      "Enter/Space": "toggle popover via trigger"
+    }
+  },
+  "tokens_used": [
+    "color-bg",
+    "color-fg",
+    "color-border",
+    "color-bg-muted",
+    "color-fg-muted",
+    "panel-bg",
+    "shadow-md",
+    "radius-lg",
+    "radius-md",
+    "space-3",
+    "space-4",
+    "space-2",
+    "z-dropdown",
+    "duration-fast",
+    "ease-default",
+    "font-ui",
+    "border-width",
+    "focus-ring-width",
+    "focus-ring-style",
+    "focus-ring-color",
+    "focus-ring-offset",
+    "surface-backdrop",
+    "text-sm",
+    "text-xs",
+    "weight-medium"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"popover\" data-state=\"closed\">\n  <button data-part=\"trigger\" aria-haspopup=\"true\" aria-expanded=\"false\">{trigger_text}</button>\n  <div data-part=\"content\" data-variant=\"{position}\" data-align=\"{align}\" hidden>\n    {content}\n    <button data-part=\"close\" aria-label=\"Close popover\">✕</button>\n  </div>\n</div>"
+  },
+  "safe_transforms": [
+    "change-position",
+    "change-alignment",
+    "restyle-content-background",
+    "add-content",
+    "remove-close-button",
+    "customize-arrow"
+  ],
+  "unsafe_transforms": [
+    "remove-aria-expanded",
+    "remove-aria-haspopup",
+    "remove-click-outside-handler",
+    "remove-escape-handler"
+  ],
+  "composition": {
+    "contains": [
+      "button"
+    ],
+    "used_in": []
+  },
+  "files": {
+    "html": "popover.html",
+    "css": "popover.css",
+    "js": "popover.js",
+    "manifest": "popover.manifest.json"
+  },
+  "tests": [
+    "opens-on-trigger-click",
+    "closes-on-trigger-click-when-open",
+    "closes-on-escape",
+    "closes-on-click-outside",
+    "closes-on-close-button-click",
+    "trigger-has-aria-expanded",
+    "trigger-has-aria-haspopup",
+    "content-is-hidden-when-closed",
+    "sets-data-state-open-when-opened",
+    "sets-data-state-closed-when-closed",
+    "bottom-variant-positions-below",
+    "top-variant-positions-above",
+    "left-variant-positions-left",
+    "right-variant-positions-right",
+    "align-start-aligns-left",
+    "align-center-centers",
+    "align-end-aligns-right"
+  ]
+}

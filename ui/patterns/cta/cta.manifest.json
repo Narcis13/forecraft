@@ -1,0 +1,193 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "cta",
+  "version": "1.0.0",
+  "kind": "pattern",
+  "category": "marketing",
+  "description": "Call-to-action panel — eyebrow, headline, description, a row of nested buttons and a line of fine print — stacked and centred, split beside media, or compressed into one banner row, painted as a bordered surface, the accent, or the accent gradient, and able to go transparent inside a backdrop. Composition only: zero JavaScript, no controller, no reactive directives.",
+
+  "anatomy": {
+    "tag": "section",
+    "selector": "[data-ui='cta']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "eyebrow": {
+      "selector": "[data-part='eyebrow']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Short kicker above the headline, set small in the accent (in the ink on a filled tone)"
+    },
+    "headline": {
+      "selector": "[data-part='headline']",
+      "required": true,
+      "tag_hint": "h2",
+      "description": "The ask, in the heading voice with balanced wrapping. Give it an id and point the section's aria-labelledby at it so the landmark is named. May hold a nested data-ui='highlight' around the words that matter"
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Supporting paragraph under the headline; capped at the prose measure for readability"
+    },
+    "actions": {
+      "selector": "[data-part='actions']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Call-to-action row. Put nested <a data-ui='button'> elements directly inside (optionally one wrapped in a data-ui='glow'); they keep their own data-variant/data-size and must NOT carry a data-part. Use the button's secondary variant on the primary and gradient tones"
+    },
+    "note": {
+      "selector": "[data-part='note']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Fine print under the actions (pricing caveat, trust line)"
+    },
+    "content": {
+      "selector": "[data-part='content']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Text column wrapper — required by the split and banner layouts, omitted by the centred one"
+    },
+    "media": {
+      "selector": "[data-part='media']",
+      "required": false,
+      "tag_hint": "figure",
+      "description": "Media column of the split layout, holding an <img> with real alt text; rounded and clipped by the pattern"
+    }
+  },
+
+  "variants": {
+    "layout": {
+      "values": ["center", "split", "banner"],
+      "default": "center",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "tone": {
+      "values": ["surface", "primary", "gradient"],
+      "default": "surface",
+      "attr": "data-tone",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "transparent": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-transparent",
+      "description": "Drop the panel's fill and edge, keeping its padding and radius — for a section inside a data-ui='backdrop', which paints its light behind its content and would otherwise be hidden by the panel."
+    },
+    "--cta-bg": {
+      "type": "string",
+      "default": "var(--card-bg) on the surface tone, var(--color-primary) on the primary tone",
+      "description": "Fill of the panel on the surface and primary tones (custom property). Pass a colour token."
+    },
+    "--cta-fg": {
+      "type": "string",
+      "default": "var(--color-fg) on the surface tone, var(--color-primary-fg) on the primary and gradient tones",
+      "description": "Ink of the headline; the description, note and eyebrow derive from it on a filled tone (custom property). Pass a colour token."
+    },
+    "--cta-gradient": {
+      "type": "string",
+      "default": "var(--gradient-accent), else the accent → info gradient",
+      "description": "Fill of the gradient tone (custom property). Defaults to the theme's --gradient-accent where the theme states one."
+    },
+    "--cta-padding": {
+      "type": "string",
+      "default": "var(--space-12)",
+      "description": "Padding of the panel from the sm floor (custom property); var(--space-8) on a phone and in the banner layout. Pass a space token."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-labelledby on the section pointing at the headline id",
+      "alt text on any image inside the media slot",
+      "descriptive link text on every action (never 'click here')"
+    ],
+    "notes": "The section is a named region. A highlight inside the headline is real text with a background under the glyphs, so it is announced once; a glow around a button is decoration with no role, no name and no focus stop. The primary and gradient tones set the copy in the accent's own foreground and the muted copy at most of its strength, so the panel keeps its contrast in every theme that keeps the accent pair's.",
+    "keyboard": {
+      "Tab": "move through the call-to-action links in source order"
+    }
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted", "color-primary", "color-primary-fg", "color-info", "space-4",
+    "space-8", "space-3", "space-12", "font-body", "font-heading", "card-bg", "card-border",
+    "border-width", "radius-2xl", "radius-lg", "corner-shape", "text-sm", "text-3xl", "text-base",
+    "text-2xl", "text-4xl", "text-lg", "weight-semibold", "leading-snug", "leading-relaxed",
+    "heading-weight", "heading-tracking", "heading-transform", "heading-caps", "heading-leading",
+    "measure-prose"
+  ],
+
+  "templates": {
+    "html": "<section data-ui=\"cta\" data-variant=\"{layout}\" data-tone=\"{tone}\" aria-labelledby=\"{id}-headline\">\n  <p data-part=\"eyebrow\">{eyebrow}</p>\n  <h2 data-part=\"headline\" id=\"{id}-headline\">{headline}</h2>\n  <p data-part=\"description\">{description}</p>\n  <div data-part=\"actions\">\n    <a data-ui=\"button\" data-variant=\"primary\" data-size=\"lg\" href=\"{primary_href}\">{primary_label}</a>\n    <a data-ui=\"button\" data-variant=\"outline\" data-size=\"lg\" href=\"{secondary_href}\">{secondary_label}</a>\n  </div>\n  <p data-part=\"note\">{note}</p>\n</section>",
+    "html_split": "<section data-ui=\"cta\" data-variant=\"split\" data-tone=\"{tone}\" aria-labelledby=\"{id}-headline\">\n  <div data-part=\"content\">\n    <p data-part=\"eyebrow\">{eyebrow}</p>\n    <h2 data-part=\"headline\" id=\"{id}-headline\">{headline}</h2>\n    <p data-part=\"description\">{description}</p>\n    <div data-part=\"actions\">\n      <a data-ui=\"button\" data-variant=\"primary\" data-size=\"lg\" href=\"{primary_href}\">{primary_label}</a>\n    </div>\n  </div>\n  <figure data-part=\"media\">\n    <img src=\"{image_src}\" alt=\"{image_alt}\" loading=\"lazy\">\n  </figure>\n</section>",
+    "html_banner": "<section data-ui=\"cta\" data-variant=\"banner\" data-tone=\"{tone}\" aria-labelledby=\"{id}-headline\">\n  <div data-part=\"content\">\n    <h2 data-part=\"headline\" id=\"{id}-headline\">{headline}</h2>\n    <p data-part=\"description\">{description}</p>\n  </div>\n  <div data-part=\"actions\">\n    <a data-ui=\"button\" data-variant=\"primary\" href=\"{primary_href}\">{primary_label}</a>\n  </div>\n</section>"
+  },
+
+  "safe_transforms": [
+    "change-layout-variant",
+    "change-tone",
+    "toggle-transparent",
+    "change-headline-text",
+    "add-eyebrow",
+    "remove-eyebrow",
+    "add-highlight-inside-the-headline",
+    "add-secondary-action",
+    "wrap-the-featured-button-in-a-glow",
+    "remove-note",
+    "swap-media-image",
+    "change-custom-property-colors-or-padding"
+  ],
+
+  "unsafe_transforms": [
+    "remove-headline",
+    "remove-aria-labelledby",
+    "demote-headline-below-h2",
+    "add-data-part-to-action-buttons",
+    "restyle-nested-buttons-from-the-pattern",
+    "put-the-backdrop-inside-the-section",
+    "add-custom-script"
+  ],
+
+  "composition": {
+    "contains": ["button", "highlight", "glow"],
+    "used_in": ["landing-page"],
+    "notes": [
+      "Nested primitives inside a slot keep their own five-attribute contract. A nested element must not carry both data-part and data-variant: the pattern validates a part's data-variant against the *pattern's* variant values (center|split|banner), so a button's data-variant=\"primary\" on a part would be a false mismatch. Put buttons inside [data-part=\"actions\"] instead.",
+      "The pattern never restyles a nested button. On the primary and gradient tones the markup picks the button's secondary variant, which is what reads on a filled panel; a theme that restyles buttons restyles these with them.",
+      "A data-ui=\"backdrop\" WRAPS the section — the backdrop paints its light behind its content — and the section carries data-transparent so its own fill and edge do not hide it. The surface tone is for a section that stands on the page by itself.",
+      "A data-ui=\"glow\" wraps exactly one button inside the actions; its --glow-radius and --glow-width are matched to the button's tokens on the glow element, as the glow primitive documents.",
+      "A data-ui=\"highlight\" goes inside the headline around the words to read first; on a filled tone prefer its underline or marker variant, since the gradient variant is the accent itself."
+    ]
+  },
+
+  "files": {
+    "html": "cta.html",
+    "css": "cta.css",
+    "manifest": "cta.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-section-with-data-ui-cta",
+    "headline-slot-is-required",
+    "section-is-labelled-by-its-headline",
+    "center-is-the-default-layout",
+    "surface-is-the-default-tone",
+    "split-variant-lays-copy-beside-media-at-the-lg-floor",
+    "banner-variant-becomes-one-row-at-the-md-floor",
+    "primary-tone-paints-the-accent-with-its-foreground",
+    "gradient-tone-reads-the-theme-gradient-with-a-fallback",
+    "transparent-drops-the-fill-and-edge-for-a-backdrop",
+    "actions-hold-nested-buttons-without-a-data-part",
+    "ships-zero-javascript",
+    "reference-page-is-audit-clean"
+  ]
+}

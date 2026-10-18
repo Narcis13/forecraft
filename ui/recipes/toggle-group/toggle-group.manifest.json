@@ -1,0 +1,222 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "toggle-group",
+  "version": "1.2.0",
+  "kind": "recipe",
+  "category": "forms",
+  "description": "Single- or multi-select group of toggle buttons over native radio/checkbox controls, with roving-tabindex keyboard navigation and native l-model binding. A segmented style turns a single-select group into one track with a sliding thumb — the monthly/yearly switch of a pricing page — in pure CSS.",
+  "changes": [
+    {
+      "version": "1.2.0",
+      "note": "A data-variant style group: default (the existing look, unchanged, and what a group without the attribute renders) and segmented — one filled track on the theme's button radius, equal-width items and a single raised thumb (the root's ::before) that slides under the checked item; the checked label is also semibold, so the choice is never told by the thumb fill alone. It is pure CSS over the native radios: :has() counts the items (up to six) and finds the checked one, so it works before and without the controller, and the keyboard model is untouched. Single mode only; a segmented multi group keeps the default look, an engine without :has() keeps the default per-item fill, and forced colours paint the checked item in the system selection colours. The default checked rule was also split in two so an engine without :has() still honours data-state=\"on\".",
+      "breaking": false
+    },
+    {
+      "version": "1.1.2",
+      "note": "Nested components keep their own parts. The stylesheet reached the items and controls with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Parts are root > item > control, and the checked, focus and disabled rules ask :has(> control). Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.1.1",
+      "note": "The group now follows store-driven l-model writes. l-model sets a control's checked property silently, so data-state and the roving tabindex used to go stale (the checked radio kept tabindex=-1). The engine now announces checked/selected writes with a bubbling faqir:model event; the controller re-syncs on it and on a form reset, without emitting faqir:change. A plain script write (input.checked = x) is still not observed — use setValue().",
+      "breaking": false
+    },
+    {
+      "version": "1.1.0",
+      "note": "data-state=\"on\" / \"off\" on the items is now declared. The controller has always reflected every control's checked property onto its item wrapper (that is the whole styling hook — the real radio/checkbox is visually hidden), but the manifest declared no states at all. 0.8-10's undeclared-attribute rule now makes this class of drift impossible: an attribute a component's CSS selects on that its manifest never declares fails the registry gate.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='toggle-group']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "item": {
+      "selector": "[data-part='item']",
+      "required": true,
+      "tag_hint": "label",
+      "description": "One toggle button — a <label> wrapping a native control and its text; repeated per option"
+    },
+    "control": {
+      "selector": "[data-part='control']",
+      "required": true,
+      "tag_hint": "input",
+      "description": "The native radio (single mode) or checkbox (multi mode) input carrying the option's value; visually hidden but the accessible, focusable, l-model-bindable control"
+    },
+    "label": {
+      "selector": "[data-part='label']",
+      "required": true,
+      "tag_hint": "span",
+      "description": "Visible option text; provides the control's accessible name via the wrapping label"
+    }
+  },
+  "variants": {
+    "mode": {
+      "values": [
+        "single",
+        "multi"
+      ],
+      "default": "single",
+      "attr": "data-mode",
+      "applied_to": "root"
+    },
+    "style": {
+      "values": [
+        "default",
+        "segmented"
+      ],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+  "states": {
+    "off": {
+      "attr": "data-state=\"off\"",
+      "applied_to": "item",
+      "description": "The item's control is unchecked. The controller reflects it on init and whenever a control's checked state changes, including l-model writes and a form reset; it is the default, so an item that has never been touched still carries it"
+    },
+    "on": {
+      "attr": "data-state=\"on\"",
+      "applied_to": "item",
+      "description": "The item's control is checked — the pressed appearance. The controller writes it; nothing else should"
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "getValue",
+        "params": ""
+      },
+      {
+        "name": "setValue",
+        "params": "val"
+      },
+      {
+        "name": "toggle",
+        "params": "value"
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "mode": {
+      "type": "string",
+      "default": "single",
+      "description": "single (radiogroup, one value) or multi (independent toggles, array value)"
+    },
+    "--toggle-group-track-bg": {
+      "type": "string",
+      "default": "var(--color-bg-muted)",
+      "description": "Fill of the segmented track (custom property, segmented style only). Pass a colour token."
+    },
+    "--toggle-group-thumb-bg": {
+      "type": "string",
+      "default": "var(--color-bg)",
+      "description": "Fill of the segmented thumb — the raised pill under the checked item (custom property, segmented style only). Pass a colour token; it is lifted by --shadow-sm and a hairline of --color-border."
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "role=\"radiogroup\" on root in single mode; role=\"group\" in multi mode",
+      "aria-label (or aria-labelledby) on root",
+      "type=\"radio\" on each control in single mode; type=\"checkbox\" in multi mode",
+      "a wrapping <label> (or aria-label) giving every control an accessible name"
+    ],
+    "keyboard": {
+      "Tab": "moves into the group to the single roving tab-stop (the checked control, else the first enabled one)",
+      "ArrowRight/ArrowDown": "move focus to the next enabled control (wrapping); in single mode focus-follows-selection",
+      "ArrowLeft/ArrowUp": "move focus to the previous enabled control (wrapping); in single mode focus-follows-selection",
+      "Home/End": "focus the first/last enabled control",
+      "Space/Enter": "toggle the focused control (select in single mode)"
+    },
+    "notes": "The controls are REAL <input type=\"radio\"|\"checkbox\"> elements, so the platform provides the pressed/checked semantics and l-model binds through the engine's native radio (string) / checkbox-array (array) paths with no engine changes. Do not combine :checked with l-model on one control (two writers). The controller adds only roving tabindex, single-mode exclusivity for uncontrolled use, the [data-state] styling hook, and a faqir:change notification. Design note: multi mode uses native checkbox aria-checked rather than button aria-pressed specifically so array l-model works natively. The segmented style changes paint only: the thumb is a decorative ::before with no content, the checked item still carries the visible :focus-visible ring and the strongest text colour, so the selection is never told by the thumb alone. It applies to single mode (role=\"radiogroup\") only; a segmented group in multi mode renders the default look."
+  },
+  "tokens_used": [
+    "color-bg",
+    "color-bg-muted",
+    "color-fg",
+    "color-fg-muted",
+    "color-border",
+    "color-primary",
+    "color-primary-subtle",
+    "color-ring",
+    "radius-md",
+    "space-1",
+    "space-1h",
+    "space-3",
+    "text-sm",
+    "font-ui",
+    "weight-medium",
+    "weight-semibold",
+    "duration-fast",
+    "duration-normal",
+    "ease-default",
+    "ease-emphasized",
+    "border-width",
+    "focus-ring-width",
+    "focus-ring-style",
+    "focus-ring-color",
+    "focus-ring-offset",
+    "disabled-opacity",
+    "button-radius",
+    "shadow-sm"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"toggle-group\" data-mode=\"{mode}\" role=\"radiogroup\" aria-label=\"{label}\">\n  <label data-part=\"item\" data-state=\"off\"><input data-part=\"control\" type=\"radio\" name=\"{id}\" value=\"{value1}\"><span data-part=\"label\">{option1}</span></label>\n  <label data-part=\"item\" data-state=\"off\"><input data-part=\"control\" type=\"radio\" name=\"{id}\" value=\"{value2}\"><span data-part=\"label\">{option2}</span></label>\n</div>",
+    "html_segmented": "<div data-ui=\"toggle-group\" data-mode=\"single\" data-variant=\"segmented\" role=\"radiogroup\" aria-label=\"{label}\">\n  <label data-part=\"item\" data-state=\"on\"><input data-part=\"control\" type=\"radio\" name=\"{id}\" value=\"{value1}\" checked><span data-part=\"label\">{option1}</span></label>\n  <label data-part=\"item\" data-state=\"off\"><input data-part=\"control\" type=\"radio\" name=\"{id}\" value=\"{value2}\"><span data-part=\"label\">{option2}</span></label>\n</div>"
+  },
+  "safe_transforms": [
+    "add-item",
+    "remove-item",
+    "change-mode",
+    "change-label-text",
+    "add-disabled",
+    "remove-disabled",
+    "restyle-item-background",
+    "change-style-to-segmented-in-single-mode",
+    "change-style-to-default"
+  ],
+  "unsafe_transforms": [
+    "remove-control-input",
+    "change-control-from-native-input",
+    "remove-role-radiogroup-or-group",
+    "remove-accessible-name",
+    "remove-keyboard-navigation",
+    "use-segmented-style-in-multi-mode",
+    "put-more-than-six-items-in-a-segmented-group",
+    "put-non-item-children-in-a-segmented-group"
+  ],
+  "composition": {
+    "contains": [],
+    "used_in": [
+      "pricing"
+    ]
+  },
+  "files": {
+    "html": "toggle-group.html",
+    "css": "toggle-group.css",
+    "js": "toggle-group.js",
+    "manifest": "toggle-group.manifest.json"
+  },
+  "tests": [
+    "roving-tabindex-single-tab-stop",
+    "arrow-keys-move-focus-and-wrap",
+    "home-end-jump-to-edges",
+    "single-mode-enforces-exclusivity",
+    "multi-mode-toggles-independently",
+    "single-value-is-a-string",
+    "multi-value-is-an-array",
+    "l-model-binds-string-in-single-mode",
+    "l-model-binds-array-in-multi-mode",
+    "disabled-controls-are-skipped",
+    "emits-faqir-change-on-selection",
+    "segmented-style-slides-one-thumb-under-the-checked-item",
+    "segmented-style-is-feature-detected-and-single-mode-only"
+  ]
+}

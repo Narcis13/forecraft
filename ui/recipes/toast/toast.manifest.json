@@ -1,0 +1,237 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "toast",
+  "version": "1.0.1",
+  "kind": "recipe",
+  "category": "feedback",
+  "description": "Auto-dismissing notification messages with stack management",
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. The stylesheet reached each toast's icon, message, action and close button with descendant selectors, so a component in a toast with parts of those names (a button's icon) took the toast's. Parts are root > toast > icon, message, action and close. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='toast']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "container": {
+      "selector": "[data-part='container']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Fixed-position toast stack container with role=region"
+    },
+    "toast": {
+      "selector": "[data-part='toast']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Individual toast notification with role=status"
+    },
+    "icon": {
+      "selector": "[data-part='icon']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Visual indicator icon for the toast tone"
+    },
+    "message": {
+      "selector": "[data-part='message']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Toast message text content. Required of an individual toast, not of the container: the resting state of a toast region is empty, and the controller appends toasts into it. Optional since 0.9-04."
+    },
+    "action": {
+      "selector": "[data-part='action']",
+      "required": false,
+      "tag_hint": "button",
+      "description": "Optional action button with custom callback"
+    },
+    "close": {
+      "selector": "[data-part='close']",
+      "required": false,
+      "tag_hint": "button",
+      "description": "Dismiss button, must have aria-label. Required of a dismissible toast, not of the container. Optional since 0.9-04."
+    }
+  },
+  "variants": {
+    "tone": {
+      "values": [
+        "default",
+        "success",
+        "error",
+        "warning"
+      ],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "toast"
+    },
+    "position": {
+      "values": [
+        "top-right",
+        "top-left",
+        "bottom-right",
+        "bottom-left"
+      ],
+      "default": "top-right",
+      "attr": "data-variant",
+      "applied_to": "container"
+    }
+  },
+  "states": {
+    "entering": {
+      "attr": "data-state=\"entering\"",
+      "transient": true,
+      "applied_to": "toast"
+    },
+    "visible": {
+      "attr": "data-state=\"visible\"",
+      "default": true,
+      "applied_to": "toast"
+    },
+    "exiting": {
+      "attr": "data-state=\"exiting\"",
+      "transient": true,
+      "applied_to": "toast"
+    },
+    "removed": {
+      "attr": "data-state=\"removed\"",
+      "applied_to": "toast"
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "add",
+        "params": "options = {}",
+        "description": "Add a new toast to the container."
+      },
+      {
+        "name": "dismiss",
+        "params": "id",
+        "description": "Dismiss a toast by id with exit animation."
+      },
+      {
+        "name": "dismissAll",
+        "params": "",
+        "description": "Dismiss all toasts."
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "message": {
+      "type": "string",
+      "default": "",
+      "description": "Toast message text"
+    },
+    "tone": {
+      "type": "string",
+      "default": "default",
+      "description": "Toast tone: default, success, error, warning"
+    },
+    "duration": {
+      "type": "number",
+      "default": 5000,
+      "description": "Auto-dismiss duration in milliseconds"
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "role=\"region\" on container",
+      "aria-label=\"Notifications\" on container",
+      "role=\"status\" on individual toasts",
+      "aria-live=\"polite\" on individual toasts",
+      "aria-label on close button"
+    ],
+    "keyboard": {}
+  },
+  "tokens_used": [
+    "color-bg",
+    "color-fg",
+    "color-fg-muted",
+    "color-border",
+    "color-success",
+    "color-destructive",
+    "color-warning",
+    "color-bg-muted",
+    "panel-bg",
+    "shadow-lg",
+    "radius-lg",
+    "radius-md",
+    "space-2",
+    "space-3",
+    "space-4",
+    "space-1",
+    "text-sm",
+    "text-xs",
+    "weight-medium",
+    "z-toast",
+    "duration-normal",
+    "ease-out",
+    "font-ui",
+    "border-width",
+    "border-width-lg",
+    "focus-ring-width",
+    "focus-ring-style",
+    "focus-ring-color",
+    "focus-ring-offset",
+    "surface-backdrop"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"toast\" data-variant=\"{position}\" data-part=\"container\" role=\"region\" aria-label=\"Notifications\" id=\"{id}\"></div>"
+  },
+  "safe_transforms": [
+    "change-position",
+    "change-auto-dismiss-duration",
+    "restyle-toast-background",
+    "customize-tone-colors",
+    "add-progress-bar",
+    "change-max-width",
+    "modify-enter-exit-animations"
+  ],
+  "unsafe_transforms": [
+    "remove-role-region",
+    "remove-aria-label",
+    "remove-role-status",
+    "remove-aria-live",
+    "remove-close-button",
+    "remove-auto-dismiss"
+  ],
+  "composition": {
+    "contains": [
+      "button"
+    ],
+    "used_in": []
+  },
+  "files": {
+    "html": "toast.html",
+    "css": "toast.css",
+    "js": "toast.js",
+    "manifest": "toast.manifest.json"
+  },
+  "tests": [
+    "container-has-role-region",
+    "container-has-aria-label-notifications",
+    "add-creates-toast-element",
+    "toast-has-role-status",
+    "toast-has-aria-live-polite",
+    "toast-enters-with-entering-state",
+    "toast-transitions-to-visible-state",
+    "toast-auto-dismisses-after-duration",
+    "close-button-dismisses-immediately",
+    "action-button-calls-callback",
+    "dismiss-transitions-to-exiting-state",
+    "dismissAll-removes-all-toasts",
+    "success-tone-has-green-accent",
+    "error-tone-has-red-accent",
+    "warning-tone-has-amber-accent",
+    "top-right-positions-at-top-right",
+    "bottom-left-positions-at-bottom-left",
+    "close-button-has-aria-label"
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "stamp",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "marketing",
+  "description": "A rubber-stamp or edition mark: wide-tracked capitals in a double rule, set at a slight angle. For \"Sold out\", \"Look 07\", \"No. 0417\", \"Limited edition\" — in a default, primary, destructive or success ink, three sizes, as a rectangle or a round seal. Pure CSS; the mark is real text.",
+
+  "anatomy": {
+    "tag": "span",
+    "selector": "[data-ui='stamp']",
+    "content_model": "inline"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "visual": {
+      "values": ["default", "primary", "destructive", "success"],
+      "default": "default",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {
+    "shape": {
+      "type": "enum",
+      "values": ["rect", "round"],
+      "default": "rect",
+      "attr": "data-shape",
+      "description": "rect is a framed label that is as wide as its text; round is a circular seal, a fixed 8em disc per size, with the text wrapping and balancing inside it."
+    },
+    "--stamp-rotate": {
+      "type": "string",
+      "default": "-6deg",
+      "description": "The angle the mark is pressed at (custom property). Any angle; 0deg sets it straight, a positive angle leans it the other way."
+    },
+    "text": { "type": "string", "default": "", "description": "Stamp text content" }
+  },
+
+  "a11y": {
+    "keyboard": {},
+    "notes": "A stamp is real text in a span with no role: it is read as written, in the document's reading order, and the capitals are text-transform so the source keeps its own case. The rotation is visual only. When a stamp carries status (Sold out, Cancelled) say it in words, as the text does; never rely on the ink colour alone, because destructive and success are colour cues. A stamp that only repeats a status stated beside it may be hidden from assistive technology with aria-hidden=\"true\" so it is not read twice. Keep a round seal's text short: it is a fixed disc, and long words break rather than overflow."
+  },
+
+  "tokens_used": [
+    "color-fg", "color-primary", "color-destructive", "color-success", "space-3", "space-1",
+    "space-2", "space-4", "border-width-lg", "radius-sm", "radius-full", "corner-shape", "font-ui",
+    "text-sm", "text-xs", "text-lg", "weight-bold"
+  ],
+
+  "templates": {
+    "html": "<span data-ui=\"stamp\" data-variant=\"{variant}\" data-size=\"{size}\">{text}</span>",
+    "html_round": "<span data-ui=\"stamp\" data-variant=\"{variant}\" data-size=\"{size}\" data-shape=\"round\">{text}</span>"
+  },
+
+  "safe_transforms": [
+    "change-variant",
+    "change-size",
+    "change-shape",
+    "change-text-content",
+    "change-rotation"
+  ],
+
+  "unsafe_transforms": [
+    "remove-stamp-element",
+    "use-colour-alone-to-convey-status",
+    "pass-a-hardcoded-color-instead-of-a-token"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": []
+  },
+
+  "files": {
+    "html": "stamp.html",
+    "css": "stamp.css",
+    "manifest": "stamp.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-span-element",
+    "default-ink-is-the-foreground",
+    "variants-set-the-semantic-ink",
+    "sizes-change-type-and-padding",
+    "round-shape-is-a-square-disc",
+    "rotation-is-a-declared-custom-property",
+    "text-stays-real-text"
+  ]
+}

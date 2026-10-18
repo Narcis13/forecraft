@@ -1,0 +1,197 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "pagination",
+  "version": "1.0.1",
+  "kind": "recipe",
+  "category": "navigation",
+  "description": "Page navigation with numbered controls, previous/next, and ellipsis",
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the nav, pages, prev, next and ellipsis with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Parts are root > nav > page, prev, next and ellipsis. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='pagination']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "nav": {
+      "selector": "[data-part='nav']",
+      "required": true,
+      "tag_hint": "nav",
+      "description": "Navigation container with role=navigation"
+    },
+    "prev": {
+      "selector": "[data-part='prev']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Previous page button"
+    },
+    "next": {
+      "selector": "[data-part='next']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Next page button"
+    },
+    "page": {
+      "selector": "[data-part='page']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Individual page number button. Carries data-page=\"<n>\" — the 1-based page it selects, which is how the controller derives the current page, the total, and what a click means. A page button without it is inert."
+    },
+    "ellipsis": {
+      "selector": "[data-part='ellipsis']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Ellipsis indicator for skipped pages"
+    }
+  },
+  "variants": {
+    "size": {
+      "values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+  "states": {
+    "default": {
+      "attr": "",
+      "default": true
+    },
+    "active": {
+      "attr": "data-state=\"active\"",
+      "applied_to": "page"
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "setPage",
+        "params": "n"
+      },
+      {
+        "name": "getPage",
+        "params": ""
+      },
+      {
+        "name": "setTotal",
+        "params": "n"
+      },
+      {
+        "name": "render",
+        "params": "current, total"
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "currentPage": {
+      "type": "number",
+      "default": 1,
+      "description": "Current active page number"
+    },
+    "totalPages": {
+      "type": "number",
+      "default": 1,
+      "description": "Total number of pages"
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "role=\"navigation\" on nav",
+      "aria-label=\"Pagination\" on nav",
+      "aria-current=\"page\" on active page button",
+      "aria-label on prev button",
+      "aria-label on next button"
+    ],
+    "keyboard": {
+      "Enter/Space": "activate page button",
+      "Tab": "navigate between controls"
+    }
+  },
+  "tokens_used": [
+    "color-bg",
+    "color-bg-muted",
+    "color-fg",
+    "color-fg-muted",
+    "color-primary",
+    "color-primary-fg",
+    "color-border",
+    "radius-md",
+    "space-1",
+    "space-2",
+    "space-3",
+    "space-4",
+    "text-xs",
+    "text-sm",
+    "text-base",
+    "weight-medium",
+    "duration-fast",
+    "ease-default",
+    "font-ui",
+    "border-width",
+    "focus-ring-width",
+    "focus-ring-style",
+    "focus-ring-color",
+    "focus-ring-offset",
+    "disabled-opacity"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"pagination\" data-size=\"{size}\">\n  <nav data-part=\"nav\" role=\"navigation\" aria-label=\"Pagination\">\n    <button data-part=\"prev\" aria-label=\"Previous page\">&laquo; Prev</button>\n    <button data-part=\"page\" data-page=\"1\" data-state=\"active\" aria-current=\"page\">1</button>\n    <button data-part=\"page\" data-page=\"2\">2</button>\n    <span data-part=\"ellipsis\">&hellip;</span>\n    <button data-part=\"page\" data-page=\"{total}\">{total}</button>\n    <button data-part=\"next\" aria-label=\"Next page\">Next &raquo;</button>\n  </nav>\n</div>"
+  },
+  "safe_transforms": [
+    "change-size",
+    "add-page-buttons",
+    "remove-ellipsis",
+    "restyle-active-page",
+    "change-prev-next-text"
+  ],
+  "unsafe_transforms": [
+    "remove-navigation-role",
+    "remove-aria-current",
+    "remove-aria-labels",
+    "remove-disabled-state"
+  ],
+  "composition": {
+    "contains": [
+      "button"
+    ],
+    "used_in": [
+      "crud-table",
+      "search-results"
+    ]
+  },
+  "files": {
+    "html": "pagination.html",
+    "css": "pagination.css",
+    "js": "pagination.js",
+    "manifest": "pagination.manifest.json"
+  },
+  "tests": [
+    "clicking-page-button-activates-it",
+    "clicking-next-advances-page",
+    "clicking-prev-goes-back",
+    "prev-disabled-on-first-page",
+    "next-disabled-on-last-page",
+    "emits-faqir-page-change-event",
+    "active-page-has-aria-current",
+    "nav-has-role-navigation",
+    "nav-has-aria-label",
+    "prev-has-aria-label",
+    "next-has-aria-label",
+    "setPage-updates-active-state",
+    "setTotal-updates-total-pages",
+    "getPage-returns-current-page"
+  ]
+}

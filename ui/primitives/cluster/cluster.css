@@ -1,0 +1,181 @@
+/* @ui:component cluster */
+/* @ui:tokens space-0 space-1 space-2 space-3 space-4 space-6 space-8 space-10 space-12 space-16 */
+
+/* The wrapping inline row (task 0.8-05).
+ *
+ * A cluster is a row of things that belong together and are allowed to reflow:
+ * a tag row, a button row, a meta row. Its responsiveness is INTRINSIC —
+ * `flex-wrap: wrap` needs no threshold, so a cluster is correct at every width,
+ * including widths nobody tested (FAQIR-SPEC §15 doctrine 1). That is the whole
+ * reason it exists as its own primitive rather than as a stack with a flag: the
+ * wrap is not a variant of the row, it IS the row.
+ *
+ * Gap, alignment and justification are responsive variant groups on the canon
+ * tiers (`data-gap-md`, `data-align-lg`, …) for the cases where a cluster wants
+ * to breathe differently on a wide page. Tier precedence is encoded in
+ * SPECIFICITY, not source order — each tier block repeats `[data-ui="cluster"]`
+ * once more than the tier below it, base (0,2,0) → xl (0,6,0) — so a bundler
+ * that reorders or splits blocks cannot change which tier wins (the mechanism
+ * grid 2.0 introduced in task 0.8-04).
+ */
+
+/* ── Base ──
+ * Wrapping, centred on the cross axis, one spacing step apart. A bare
+ * `<div data-ui="cluster">` is already the row you wanted; the attributes only
+ * tune it. Declared at (0,1,0) so every attribute rule below overrides it. */
+[data-ui="cluster"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ── Gap ── */
+[data-ui="cluster"][data-gap="0"] { gap: var(--space-0, 0px); }
+[data-ui="cluster"][data-gap="1"] { gap: var(--space-1); }
+[data-ui="cluster"][data-gap="2"] { gap: var(--space-2); }
+[data-ui="cluster"][data-gap="3"] { gap: var(--space-3); }
+[data-ui="cluster"][data-gap="4"] { gap: var(--space-4); }
+[data-ui="cluster"][data-gap="6"] { gap: var(--space-6); }
+[data-ui="cluster"][data-gap="8"] { gap: var(--space-8); }
+[data-ui="cluster"][data-gap="10"] { gap: var(--space-10); }
+[data-ui="cluster"][data-gap="12"] { gap: var(--space-12); }
+[data-ui="cluster"][data-gap="16"] { gap: var(--space-16); }
+
+/* ── Alignment (cross axis) ── */
+[data-ui="cluster"][data-align="start"] { align-items: flex-start; }
+[data-ui="cluster"][data-align="center"] { align-items: center; }
+[data-ui="cluster"][data-align="end"] { align-items: flex-end; }
+[data-ui="cluster"][data-align="stretch"] { align-items: stretch; }
+[data-ui="cluster"][data-align="baseline"] { align-items: baseline; }
+
+/* ── Justification (main axis) ── */
+[data-ui="cluster"][data-justify="start"] { justify-content: flex-start; }
+[data-ui="cluster"][data-justify="center"] { justify-content: center; }
+[data-ui="cluster"][data-justify="end"] { justify-content: flex-end; }
+[data-ui="cluster"][data-justify="between"] { justify-content: space-between; }
+[data-ui="cluster"][data-justify="around"] { justify-content: space-around; }
+
+/* ── Child push ──
+ * `data-push` on a child sends it — and everything after it — to the far end of
+ * the row: the "actions on the right" idiom, written once. Logical, so it is the
+ * far end in Arabic and Hebrew too. */
+[data-ui="cluster"] > [data-push] {
+  margin-inline-start: auto;
+}
+
+/* ── Tier `sm` — from 40rem up ── */
+@media (min-width: 40rem) {
+  /* Gap */
+  [data-ui="cluster"][data-ui="cluster"][data-gap-sm="0"] { gap: var(--space-0, 0px); }
+  [data-ui="cluster"][data-ui="cluster"][data-gap-sm="1"] { gap: var(--space-1); }
+  [data-ui="cluster"][data-ui="cluster"][data-gap-sm="2"] { gap: var(--space-2); }
+  [data-ui="cluster"][data-ui="cluster"][data-gap-sm="3"] { gap: var(--space-3); }
+  [data-ui="cluster"][data-ui="cluster"][data-gap-sm="4"] { gap: var(--space-4); }
+  [data-ui="cluster"][data-ui="cluster"][data-gap-sm="6"] { gap: var(--space-6); }
+  [data-ui="cluster"][data-ui="cluster"][data-gap-sm="8"] { gap: var(--space-8); }
+  [data-ui="cluster"][data-ui="cluster"][data-gap-sm="10"] { gap: var(--space-10); }
+  [data-ui="cluster"][data-ui="cluster"][data-gap-sm="12"] { gap: var(--space-12); }
+  [data-ui="cluster"][data-ui="cluster"][data-gap-sm="16"] { gap: var(--space-16); }
+
+  /* Alignment (cross axis) */
+  [data-ui="cluster"][data-ui="cluster"][data-align-sm="start"] { align-items: flex-start; }
+  [data-ui="cluster"][data-ui="cluster"][data-align-sm="center"] { align-items: center; }
+  [data-ui="cluster"][data-ui="cluster"][data-align-sm="end"] { align-items: flex-end; }
+  [data-ui="cluster"][data-ui="cluster"][data-align-sm="stretch"] { align-items: stretch; }
+  [data-ui="cluster"][data-ui="cluster"][data-align-sm="baseline"] { align-items: baseline; }
+
+  /* Justification (main axis) */
+  [data-ui="cluster"][data-ui="cluster"][data-justify-sm="start"] { justify-content: flex-start; }
+  [data-ui="cluster"][data-ui="cluster"][data-justify-sm="center"] { justify-content: center; }
+  [data-ui="cluster"][data-ui="cluster"][data-justify-sm="end"] { justify-content: flex-end; }
+  [data-ui="cluster"][data-ui="cluster"][data-justify-sm="between"] { justify-content: space-between; }
+  [data-ui="cluster"][data-ui="cluster"][data-justify-sm="around"] { justify-content: space-around; }
+}
+
+/* ── Tier `md` — from 48rem up ── */
+@media (min-width: 48rem) {
+  /* Gap */
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-md="0"] { gap: var(--space-0, 0px); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-md="1"] { gap: var(--space-1); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-md="2"] { gap: var(--space-2); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-md="3"] { gap: var(--space-3); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-md="4"] { gap: var(--space-4); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-md="6"] { gap: var(--space-6); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-md="8"] { gap: var(--space-8); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-md="10"] { gap: var(--space-10); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-md="12"] { gap: var(--space-12); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-md="16"] { gap: var(--space-16); }
+
+  /* Alignment (cross axis) */
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-md="start"] { align-items: flex-start; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-md="center"] { align-items: center; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-md="end"] { align-items: flex-end; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-md="stretch"] { align-items: stretch; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-md="baseline"] { align-items: baseline; }
+
+  /* Justification (main axis) */
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-md="start"] { justify-content: flex-start; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-md="center"] { justify-content: center; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-md="end"] { justify-content: flex-end; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-md="between"] { justify-content: space-between; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-md="around"] { justify-content: space-around; }
+}
+
+/* ── Tier `lg` — from 64rem up ── */
+@media (min-width: 64rem) {
+  /* Gap */
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-lg="0"] { gap: var(--space-0, 0px); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-lg="1"] { gap: var(--space-1); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-lg="2"] { gap: var(--space-2); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-lg="3"] { gap: var(--space-3); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-lg="4"] { gap: var(--space-4); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-lg="6"] { gap: var(--space-6); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-lg="8"] { gap: var(--space-8); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-lg="10"] { gap: var(--space-10); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-lg="12"] { gap: var(--space-12); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-lg="16"] { gap: var(--space-16); }
+
+  /* Alignment (cross axis) */
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-lg="start"] { align-items: flex-start; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-lg="center"] { align-items: center; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-lg="end"] { align-items: flex-end; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-lg="stretch"] { align-items: stretch; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-lg="baseline"] { align-items: baseline; }
+
+  /* Justification (main axis) */
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-lg="start"] { justify-content: flex-start; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-lg="center"] { justify-content: center; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-lg="end"] { justify-content: flex-end; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-lg="between"] { justify-content: space-between; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-lg="around"] { justify-content: space-around; }
+}
+
+/* ── Tier `xl` — from 80rem up ── */
+@media (min-width: 80rem) {
+  /* Gap */
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-xl="0"] { gap: var(--space-0, 0px); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-xl="1"] { gap: var(--space-1); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-xl="2"] { gap: var(--space-2); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-xl="3"] { gap: var(--space-3); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-xl="4"] { gap: var(--space-4); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-xl="6"] { gap: var(--space-6); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-xl="8"] { gap: var(--space-8); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-xl="10"] { gap: var(--space-10); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-xl="12"] { gap: var(--space-12); }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-gap-xl="16"] { gap: var(--space-16); }
+
+  /* Alignment (cross axis) */
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-xl="start"] { align-items: flex-start; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-xl="center"] { align-items: center; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-xl="end"] { align-items: flex-end; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-xl="stretch"] { align-items: stretch; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-align-xl="baseline"] { align-items: baseline; }
+
+  /* Justification (main axis) */
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-xl="start"] { justify-content: flex-start; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-xl="center"] { justify-content: center; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-xl="end"] { justify-content: flex-end; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-xl="between"] { justify-content: space-between; }
+  [data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-ui="cluster"][data-justify-xl="around"] { justify-content: space-around; }
+}

@@ -1,0 +1,102 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "textarea",
+  "version": "1.1.0",
+  "kind": "primitive",
+  "category": "forms",
+  "description": "Multi-line text input with error, disabled states and size variants; compose labeled or described textareas inside field-group for correct form proximity",
+
+  "changes": [
+    {
+      "version": "1.1.0",
+      "note": "Labeled reference fields now compose field-group, keeping label/control/help text on a tight density-aware step and leaving the looser sibling-field step to the default rhythm.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "textarea",
+    "selector": "[data-ui='textarea']",
+    "content_model": "inline"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "default": { "attr": "data-state=\"default\"", "default": true },
+    "error": { "attr": "data-state=\"error\"" },
+    "disabled": { "attr": "disabled" }
+  },
+
+  "props": {
+    "placeholder": { "type": "string", "default": "", "description": "Placeholder text" },
+    "value": { "type": "string", "default": "", "description": "Textarea value" },
+    "disabled": { "type": "boolean", "default": false, "description": "Whether the textarea is disabled" },
+    "rows": { "type": "number", "default": 3, "description": "Number of visible text rows" }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-invalid=\"true\" when in error state",
+      "id + matching label[for] for accessibility"
+    ],
+    "keyboard": {
+      "Tab": "focus textarea"
+    }
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted",
+    "color-border", "color-border-strong", "color-ring", "color-destructive",
+    "radius-md", "space-2", "space-3", "space-4",
+    "font-ui", "text-xs", "text-sm", "text-base",
+    "duration-fast", "ease-default",
+    "border-width", "focus-ring-width", "focus-ring-style", "focus-ring-color", "focus-shadow", "input-border-width", "input-fill", "disabled-opacity"
+  ],
+
+  "templates": {
+    "html": "<textarea data-ui=\"textarea\" placeholder=\"{placeholder}\"></textarea>"
+  },
+
+  "safe_transforms": [
+    "change-size",
+    "add-placeholder",
+    "change-rows",
+    "set-resize-direction"
+  ],
+
+  "unsafe_transforms": [
+    "remove-textarea-element",
+    "change-to-div-without-role"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["field-group", "auth-form", "settings-page"]
+  },
+
+  "files": {
+    "html": "textarea.html",
+    "css": "textarea.css",
+    "manifest": "textarea.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-textarea-element",
+    "error-state-sets-data-state-error",
+    "error-state-has-aria-invalid",
+    "disabled-state-has-disabled-attribute",
+    "sm-size-sets-data-size-sm",
+    "placeholder-is-styled",
+    "resize-is-vertical"
+  ]
+}

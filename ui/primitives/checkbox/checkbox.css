@@ -1,0 +1,153 @@
+/* @ui:component checkbox */
+/* @ui:tokens color-bg color-primary color-primary-fg color-border color-border-strong color-ring space-2 duration-fast ease-default border-width focus-ring-width focus-ring-offset focus-ring-style focus-ring-color focus-shadow checkbox-radius checkbox-size disabled-opacity */
+
+/* -- Label wrapper -- */
+[data-ui="checkbox-label"] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+[data-ui="checkbox-label"]:has([data-ui="checkbox"]:disabled) {
+  cursor: not-allowed;
+  opacity: var(--disabled-opacity);
+}
+
+/* -- Base -- */
+[data-ui="checkbox"] {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--checkbox-size, 18px);
+  height: var(--checkbox-size, 18px);
+  flex-shrink: 0;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--checkbox-radius);
+  background: var(--color-bg);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-default),
+              border-color var(--duration-fast) var(--ease-default),
+              box-shadow var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="checkbox"]:hover {
+  border-color: var(--color-border-strong);
+}
+
+[data-ui="checkbox"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-shadow);
+}
+
+/* -- Checked -- */
+[data-ui="checkbox"]:checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* The tick is a MASK, not an image.
+   A data-URI `stroke` is a literal no token can reach, and it shipped as
+   `white`: 1.00:1 — literally invisible — on the brutalist dark primary, and
+   under 3:1 in 8 of 12 dark themes. Masking paints the same glyph in
+   `--color-primary-fg`, which is the token that already answers "what colour
+   goes on top of --color-primary" — exactly what the indeterminate bar twenty
+   lines below has always done. The mask's own stroke colour is irrelevant
+   (only its alpha is read), so it is a plain opaque black. Same
+   prefixed+unprefixed pair the `icon` primitive uses. [W3-3] */
+[data-ui="checkbox"]:checked::before {
+  content: "";
+  display: block;
+  width: 10px;
+  height: 10px;
+  background: var(--color-primary-fg);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* -- Indeterminate -- */
+[data-ui="checkbox"]:indeterminate,
+[data-ui="checkbox"][data-state="indeterminate"] {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+[data-ui="checkbox"]:indeterminate::before,
+[data-ui="checkbox"][data-state="indeterminate"]::before {
+  content: "";
+  display: block;
+  width: 8px;
+  height: 2px;
+  background: var(--color-primary-fg);
+  border-radius: 1px;
+}
+
+/* -- Sizes -- */
+[data-ui="checkbox"][data-size="sm"] {
+  width: 14px;
+  height: 14px;
+}
+[data-ui="checkbox"][data-size="sm"]:checked::before {
+  width: 8px;
+  height: 8px;
+}
+[data-ui="checkbox"][data-size="sm"]:indeterminate::before,
+[data-ui="checkbox"][data-size="sm"][data-state="indeterminate"]::before {
+  width: 6px;
+}
+
+[data-ui="checkbox"][data-size="lg"] {
+  width: 22px;
+  height: 22px;
+}
+[data-ui="checkbox"][data-size="lg"]:checked::before {
+  width: 14px;
+  height: 14px;
+}
+[data-ui="checkbox"][data-size="lg"]:indeterminate::before,
+[data-ui="checkbox"][data-size="lg"][data-state="indeterminate"]::before {
+  width: 10px;
+  height: 2px;
+}
+
+/* -- Disabled -- */
+[data-ui="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+/* -- Motion -- */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="checkbox"] {
+    transition: none;
+  }
+}
+
+/* ── Forced colors (Windows High Contrast) ──
+   `--color-primary` becomes the system fill, and the tick — painted through a
+   mask in `--color-primary-fg` — becomes the same colour as the box it sits in.
+   The mask has to opt out of the substitution to stay readable. [W3-3] */
+@media (forced-colors: active) {
+  [data-ui="checkbox"] {
+    border: var(--border-width) solid ButtonText;
+  }
+
+  [data-ui="checkbox"]:checked,
+  [data-ui="checkbox"]:indeterminate,
+  [data-ui="checkbox"][data-state="indeterminate"] {
+    background: Highlight;
+    border-color: Highlight;
+  }
+
+  [data-ui="checkbox"]:checked::before,
+  [data-ui="checkbox"]:indeterminate::before,
+  [data-ui="checkbox"][data-state="indeterminate"]::before {
+    forced-color-adjust: none;
+    background: HighlightText;
+  }
+
+  [data-ui="checkbox"]:disabled {
+    border-color: GrayText;
+  }
+}

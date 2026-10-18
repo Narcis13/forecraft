@@ -1,0 +1,25 @@
+<!-- @ui:component label -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots -->
+<!-- @ui:variants size=sm|md|lg -->
+
+<!-- Default -->
+<label data-ui="label" for="my-input">Email address</label>
+
+<!-- Required -->
+<label data-ui="label" for="my-input" data-variant="required">
+  Password <span data-part="indicator" aria-hidden="true">*</span>
+</label>
+
+<!-- Optional indicator -->
+<label data-ui="label" for="my-input">
+  Nickname <span data-part="indicator">(optional)</span>
+</label>
+
+<!-- Sizes -->
+<label data-ui="label" data-size="sm" for="input-sm">Small Label</label>
+<label data-ui="label" for="input-md">Medium Label</label>
+<label data-ui="label" data-size="lg" for="input-lg">Large Label</label>
+
+<!-- Disabled appearance -->
+<label data-ui="label" data-state="disabled" for="disabled-input">Disabled field</label>

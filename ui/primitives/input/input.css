@@ -1,0 +1,128 @@
+/* @ui:component input */
+/* @ui:tokens color-fg color-fg-muted color-border color-border-strong color-ring color-destructive radius-md space-2 space-3 space-4 space-10 font-ui text-xs text-sm text-base duration-fast ease-default border-width corner-shape focus-ring-width focus-ring-style focus-ring-color focus-shadow input-border-width input-fill input-height input-radius input-font disabled-opacity */
+
+/* ── Base ── */
+[data-ui="input"] {
+  display: block;
+  width: 100%;
+  height: var(--input-height, 40px);
+  padding-inline: var(--space-3);
+  /* Longhands, not the `border:` shorthand: the shorthand's width slot takes
+     ONE value, and `controls.input: underline` (1.1A-10) states the silhouette
+     as a four-value box — `0 0 var(--border-width) 0` — so only a bottom rule
+     is drawn. Identical to the shorthand at every other value of the token. */
+  border-style: solid;
+  border-color: var(--color-border);
+  border-width: var(--input-border-width);
+  border-radius: var(--input-radius, var(--radius-md));
+  corner-shape: var(--corner-shape);
+  background: var(--input-fill);
+  color: var(--color-fg);
+  font-family: var(--input-font, var(--font-ui));
+  font-size: var(--text-sm);
+  line-height: 1;
+  transition: border-color var(--duration-fast) var(--ease-default),
+              box-shadow var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="input"]::placeholder {
+  color: var(--color-fg-muted);
+}
+
+[data-ui="input"]:hover {
+  border-color: var(--color-border-strong);
+}
+
+[data-ui="input"]:focus {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  /* The ring replaces the border rather than sitting outside it: inset by
+     exactly the edge it covers, so a heavier shape theme stays aligned. */
+  outline-offset: calc(-1 * var(--input-border-width));
+  box-shadow: var(--focus-shadow);
+  border-color: transparent;
+}
+
+/* ── Sizes ── */
+[data-ui="input"][data-size="sm"] {
+  height: 32px;
+  padding-inline: var(--space-2);
+  font-size: var(--text-xs);
+}
+
+[data-ui="input"][data-size="lg"] {
+  height: 48px;
+  padding-inline: var(--space-4);
+  font-size: var(--text-base);
+}
+
+/* ── States ── */
+[data-ui="input"][data-state="error"],
+[data-ui="input"][aria-invalid="true"] {
+  border-color: var(--color-destructive);
+}
+[data-ui="input"][data-state="error"]:focus,
+[data-ui="input"][aria-invalid="true"]:focus {
+  outline-color: var(--color-destructive);
+}
+
+[data-ui="input"]:disabled {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+}
+
+/* ── Input Group ── */
+[data-ui="input-group"] {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+[data-ui="input-group"] > [data-part="prefix"],
+[data-ui="input-group"] > [data-part="suffix"] {
+  display: flex;
+  align-items: center;
+  padding-inline: var(--space-3);
+  color: var(--color-fg-muted);
+  font-size: var(--text-sm);
+  pointer-events: none;
+  position: absolute;
+}
+
+[data-ui="input-group"] > [data-part="prefix"] {
+  inset-inline-start: 0;
+}
+
+[data-ui="input-group"] > [data-part="suffix"] {
+  inset-inline-end: 0;
+}
+
+[data-ui="input-group"]:has(> [data-part="prefix"]) [data-ui="input"] {
+  padding-inline-start: var(--space-10, 2.5rem);
+}
+
+[data-ui="input-group"]:has(> [data-part="suffix"]) [data-ui="input"] {
+  padding-inline-end: var(--space-10, 2.5rem);
+}
+
+/* ── Width Variants ──
+   Mobile-first (task 0.8-08): a fixed-width input is full-bleed on a phone and
+   only takes its fixed cap from the canon `sm` tier up. The 1.x form said the
+   same thing backwards — a 250px base undone by `@media (max-width: 640px)` —
+   which put the narrow case behind an override and the wide case in the base. */
+[data-ui="input"][data-width="fixed"] {
+  max-width: 100%;
+  width: 100%;
+}
+
+@media (min-width: 40rem) {
+  [data-ui="input"][data-width="fixed"] {
+    max-width: 250px;
+  }
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="input"] {
+    transition: none;
+  }
+}

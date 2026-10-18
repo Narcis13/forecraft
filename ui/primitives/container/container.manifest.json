@@ -1,0 +1,94 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "container",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "layout",
+  "description": "A centred measure column: caps the line length at one of the shared measure tokens and centres what is left, with optional inline gutter padding. Not to be confused with the CSS `container-type` feature — a container establishes no containment context and queries nothing; the component that measures its own inline size is `switcher`",
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='container']",
+    "content_model": "block"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "measure": {
+      "values": ["narrow", "content", "wide", "prose", "full"],
+      "default": "content",
+      "attr": "data-measure",
+      "applied_to": "root",
+      "responsive": true
+    }
+  },
+
+  "props": {
+    "gutter": {
+      "type": "enum",
+      "values": ["0", "1", "2", "3", "4", "6", "8", "10", "12", "16"],
+      "default": "0",
+      "attr": "data-gutter",
+      "description": "Inline padding between the column and the edge of whatever holds it, over the spacing scale. Deliberately not responsive: a parent that already pads (a shell, a dashboard cell) wants the default of 0, and a tier ladder here would be a second way to say what the parent already says."
+    }
+  },
+
+  "states": {},
+
+  "a11y": {
+    "notes": "Layout-only primitive; no semantic role required. A container never reorders or hides content — it only bounds the column's inline size, so the reading order is the DOM order at every width. Put the landmark on the element inside (or use container as the wrapper for one) rather than on the container itself.",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "measure-narrow", "measure-content", "measure-wide", "measure-prose",
+    "space-0", "space-1", "space-2", "space-3", "space-4", "space-6",
+    "space-8", "space-10", "space-12", "space-16"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"container\" data-measure=\"{measure}\">{children}</div>",
+    "html_gutter": "<div data-ui=\"container\" data-measure=\"{measure}\" data-gutter=\"{gutter}\">{children}</div>",
+    "html_responsive": "<div data-ui=\"container\" data-measure=\"{measure}\" data-measure-lg=\"{measureLg}\">{children}</div>"
+  },
+
+  "safe_transforms": [
+    "change-measure",
+    "change-gutter",
+    "add-responsive-tier",
+    "add-children",
+    "remove-children"
+  ],
+
+  "unsafe_transforms": [
+    "remove-margin-inline-auto",
+    "replace-max-inline-size-with-max-width"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": [],
+    "notes": [
+      "Reach for container whenever markup is about to say `max-width` or `max-inline-size` by hand: the measure ladder is a token set, so a page that uses the primitive moves with the theme instead of pinning a number.",
+      "container vs surface: surface is a visual box (background, border, elevation) that happens to offer data-max; container is only the measure, with nothing drawn. Compose them — a container around a surface — when a card needs both.",
+      "container vs stack: container bounds the column's WIDTH, stack spaces what is inside it. They pair constantly: a container for the measure, a stack within it for the rhythm."
+    ]
+  },
+
+  "files": {
+    "html": "container.html",
+    "css": "container.css",
+    "manifest": "container.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "bare-container-is-a-centred-content-column",
+    "measure-resolves-per-value-from-the-shared-tokens",
+    "tier-values-override-the-base-from-their-floor-up",
+    "tier-precedence-survives-stylesheet-reordering",
+    "gutter-resolves-from-the-spacing-scale",
+    "uses-logical-properties-only"
+  ]
+}

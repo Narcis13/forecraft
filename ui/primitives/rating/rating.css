@@ -1,0 +1,72 @@
+/* @ui:component rating */
+/* @ui:tokens color-warning color-bg-muted text-sm text-2xl */
+
+/* ── Root ──
+   Five stars, drawn by one element. A star mask is repeated five times across
+   a box five ems wide, and behind the mask a two-stop gradient is filled up to
+   `value / 5` — so a half star is half a star's width of colour, with no half
+   glyph, no five children and nothing for a script to keep in step.
+
+   The size is the font size: a rating scales with the text it sits in. */
+[data-ui="rating"] {
+  --faqir-rating: var(--rating-value, 0);
+  --faqir-rating-fill: var(--rating-color, var(--color-warning));
+  --faqir-rating-track: var(--rating-track, var(--color-bg-muted));
+  --faqir-rating-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.6 14.5 8.7 21.1 9.2 16 13.5 17.6 19.9 12 16.4 6.4 19.9 8 13.5 2.9 9.2 9.5 8.7z' stroke='black' stroke-width='1.8' stroke-linejoin='round'/%3E%3C/svg%3E");
+  display: inline-block;
+  flex-shrink: 0;
+  inline-size: 5em;
+  block-size: 1em;
+  vertical-align: -0.125em;
+  background-image: linear-gradient(to right, var(--faqir-rating-fill) calc(var(--faqir-rating) * 20%), var(--faqir-rating-track) calc(var(--faqir-rating) * 20%));
+  -webkit-mask: var(--faqir-rating-star) 0 0 / 1em 1em repeat-x;
+  mask: var(--faqir-rating-star) 0 0 / 1em 1em repeat-x;
+  forced-color-adjust: none;
+}
+
+/* The stars fill from where the line starts. */
+[data-ui="rating"]:dir(rtl) {
+  background-image: linear-gradient(to left, var(--faqir-rating-fill) calc(var(--faqir-rating) * 20%), var(--faqir-rating-track) calc(var(--faqir-rating) * 20%));
+}
+
+/* ── Value ──
+   Half steps as an attribute, so a rating is plain markup; any other fraction
+   (an average of 4.3) goes through `--rating-value`. */
+[data-ui="rating"][data-value="0"]   { --faqir-rating: 0; }
+[data-ui="rating"][data-value="0.5"] { --faqir-rating: 0.5; }
+[data-ui="rating"][data-value="1"]   { --faqir-rating: 1; }
+[data-ui="rating"][data-value="1.5"] { --faqir-rating: 1.5; }
+[data-ui="rating"][data-value="2"]   { --faqir-rating: 2; }
+[data-ui="rating"][data-value="2.5"] { --faqir-rating: 2.5; }
+[data-ui="rating"][data-value="3"]   { --faqir-rating: 3; }
+[data-ui="rating"][data-value="3.5"] { --faqir-rating: 3.5; }
+[data-ui="rating"][data-value="4"]   { --faqir-rating: 4; }
+[data-ui="rating"][data-value="4.5"] { --faqir-rating: 4.5; }
+[data-ui="rating"][data-value="5"]   { --faqir-rating: 5; }
+
+/* ── Sizes ── */
+[data-ui="rating"][data-size="sm"] {
+  font-size: var(--text-sm);
+}
+
+[data-ui="rating"][data-size="lg"] {
+  font-size: var(--text-2xl);
+}
+
+/* ── Forced colours ──
+   The mask still draws the stars; the two fills become system colours so the
+   filled share stays distinguishable. */
+@media (forced-colors: active) {
+  [data-ui="rating"] {
+    --faqir-rating-fill: Highlight;
+    --faqir-rating-track: GrayText;
+  }
+}
+
+/* ── Print ── */
+@media print {
+  [data-ui="rating"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

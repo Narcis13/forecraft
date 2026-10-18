@@ -1,0 +1,199 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "auth-form",
+  "version": "2.0.0",
+  "kind": "pattern",
+  "category": "composite",
+  "description": "Authentication form with login, register, and social auth options",
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='auth-form']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "header": {
+      "selector": "[data-part='header']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Top area containing title and description"
+    },
+    "title": {
+      "selector": "[data-part='title']",
+      "required": true,
+      "tag_hint": "h2",
+      "description": "Form heading text"
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Subheading text below the title"
+    },
+    "form": {
+      "selector": "[data-part='form']",
+      "required": true,
+      "tag_hint": "form",
+      "description": "The form element wrapping all fields"
+    },
+    "email-field": {
+      "selector": "[data-part='email-field']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Email label and input group"
+    },
+    "password-field": {
+      "selector": "[data-part='password-field']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Password label and input group, hidden in forgot-password mode"
+    },
+    "name-field": {
+      "selector": "[data-part='name-field']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Full name label and input group, visible only in register mode"
+    },
+    "submit": {
+      "selector": "[data-part='submit']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Primary submit button"
+    },
+    "social": {
+      "selector": "[data-part='social']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Social authentication buttons group"
+    },
+    "separator": {
+      "selector": "[data-part='separator']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Visual divider between form and social auth, typically with 'OR' label"
+    },
+    "footer": {
+      "selector": "[data-part='footer']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Bottom area with alternate action links (e.g. switch to register)"
+    },
+    "error": {
+      "selector": "[data-part='error']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Error message area displayed above the form"
+    }
+  },
+
+  "variants": {
+    "mode": {
+      "values": ["login", "register", "forgot-password"],
+      "default": "login",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {
+    "default": { "attr": "data-state=\"default\"", "default": true },
+    "loading": { "attr": "data-state=\"loading\"" },
+    "error": { "attr": "data-state=\"error\"" },
+    "success": { "attr": "data-state=\"success\"" }
+  },
+
+  "a11y": {
+    "role": "form",
+    "required_attrs": [
+      "aria-label or aria-labelledby on the form element",
+      "label[for] matching each input id",
+      "aria-invalid=\"true\" on inputs in error state",
+      "aria-describedby pointing to error message when present",
+      "aria-busy=\"true\" on form when in loading state"
+    ],
+    "keyboard": {
+      "Tab": "move focus between form fields",
+      "Enter": "submit form when focused on input or submit button",
+      "Shift+Tab": "reverse focus order"
+    }
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted", "color-border", "color-ring", "color-primary",
+    "color-primary-hover", "color-destructive", "color-destructive-subtle", "radius-lg",
+    "radius-sm", "shadow-sm", "space-1", "space-2", "space-3", "space-4", "space-5", "space-6",
+    "space-8", "font-heading", "font-body", "heading-weight", "heading-tracking",
+    "heading-transform", "heading-caps", "heading-leading", "text-sm", "text-lg", "text-xl",
+    "text-2xl", "weight-medium", "weight-bold", "leading-tight", "leading-normal", "border-width",
+    "focus-ring-width", "focus-ring-style", "focus-ring-color", "focus-ring-offset",
+    "link-decoration", "card-radius", "card-shadow", "card-border"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"auth-form\" data-variant=\"login\" data-size=\"md\" data-state=\"default\">\n  <div data-ui=\"card\">\n    <div data-part=\"header\">\n      <h2 data-part=\"title\">{title}</h2>\n      <p data-part=\"description\">{description}</p>\n    </div>\n    <div data-part=\"error\" role=\"alert\" hidden>{error_message}</div>\n    <form data-part=\"form\" aria-label=\"{form_label}\">\n      <div data-part=\"name-field\">\n        <label data-ui=\"label\" for=\"{id}-name\">Full name</label>\n        <input data-ui=\"input\" type=\"text\" id=\"{id}-name\" autocomplete=\"name\">\n      </div>\n      <div data-part=\"email-field\">\n        <label data-ui=\"label\" for=\"{id}-email\">Email</label>\n        <input data-ui=\"input\" type=\"email\" id=\"{id}-email\" autocomplete=\"email\">\n      </div>\n      <div data-part=\"password-field\">\n        <label data-ui=\"label\" for=\"{id}-password\">Password</label>\n        <input data-ui=\"input\" type=\"password\" id=\"{id}-password\" autocomplete=\"current-password\">\n      </div>\n      <button data-ui=\"button\" data-variant=\"primary\" data-part=\"submit\" type=\"submit\">{submit_text}</button>\n    </form>\n    <div data-part=\"separator\">\n      <div data-ui=\"separator\" role=\"separator\"><span data-part=\"label\">OR</span></div>\n    </div>\n    <div data-part=\"social\">{social_buttons}</div>\n    <div data-part=\"footer\">{footer_content}</div>\n  </div>\n</div>"
+  },
+
+  "safe_transforms": [
+    "change-mode-variant",
+    "change-size-variant",
+    "add-social-buttons",
+    "remove-social-section",
+    "add-error-message",
+    "change-title-text",
+    "change-description-text",
+    "add-forgot-password-link",
+    "customize-submit-text",
+    "add-terms-checkbox"
+  ],
+
+  "unsafe_transforms": [
+    "remove-form-element",
+    "remove-labels-from-inputs",
+    "remove-aria-attributes",
+    "remove-email-field",
+    "change-form-role"
+  ],
+
+  "composition": {
+    "contains": ["card", "input", "button", "separator", "label"],
+    "used_in": []
+  },
+
+  "files": {
+    "html": "auth-form.html",
+    "css": "auth-form.css",
+    "manifest": "auth-form.manifest.json"
+  },
+
+  "tests": [
+    "renders-with-data-ui-auth-form",
+    "login-mode-shows-email-and-password",
+    "login-mode-hides-name-field",
+    "register-mode-shows-name-field",
+    "forgot-password-mode-hides-password-field",
+    "forgot-password-mode-hides-social-section",
+    "form-has-aria-label",
+    "all-inputs-have-matching-labels",
+    "error-state-shows-error-message",
+    "loading-state-disables-submit",
+    "submit-button-has-type-submit",
+    "social-buttons-are-type-button",
+    "sm-size-reduces-padding",
+    "lg-size-increases-padding"
+  ],
+
+  "changes": [
+    {
+      "version": "2.0.0",
+      "note": "The full-bleed treatment moves onto the breakpoint canon, mobile-first (task 0.8-09). The card is edge-to-edge, square and shadowless by default and becomes a card again at @media (min-width: 40rem), which moves the floor from an ad-hoc 480px to the canon sm tier (640px). MIGRATION: viewports from 480px to 639px now render the form full bleed where 1.x gave them a 400px card — deliberately, since FAQIR-NEXT §19 declines to create an 'xs' tier for a single declaration in a single pattern, and a 400px card floating in 600px of viewport reads as a dialog that failed to centre. The sm block restates card.css's border-radius, box-shadow and inline borders through card's own custom properties (--card-radius/--card-shadow/--card-border) because 'revert' would drop to the user-agent origin and discard the primitive's author rules. The dead 'flex-direction: column' on [data-part='social'] is removed: the base rule already declares it.",
+      "breaking": true
+    }
+  ]
+}

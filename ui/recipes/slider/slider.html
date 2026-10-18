@@ -1,0 +1,123 @@
+<!-- @ui:component slider -->
+<!-- @ui:kind recipe -->
+<!-- @ui:slots track range thumb output -->
+<!-- @ui:variants type=single|range size=sm|md|lg -->
+<!-- @ui:controller slider.js -->
+
+<!-- Single thumb (default) — 0–100, announces a percentage via data-value-suffix -->
+<div
+  data-ui="slider"
+  data-variant="single"
+  data-min="0"
+  data-max="100"
+  data-step="1"
+  data-value="40"
+  data-value-suffix="%"
+  style="--slider-start: 0%; --slider-end: 40%"
+>
+  <div data-part="track">
+    <div data-part="range"></div>
+    <div
+      data-part="thumb"
+      role="slider"
+      tabindex="0"
+      aria-label="Volume"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="40"
+      aria-valuetext="40%"
+      style="--pos: 40%"
+    ></div>
+  </div>
+  <output data-part="output">40%</output>
+</div>
+
+<!-- Range (two thumbs) — non-crossing lower/upper handles over a 0–1000 scale -->
+<div
+  data-ui="slider"
+  data-variant="range"
+  data-min="0"
+  data-max="1000"
+  data-step="10"
+  data-value="200,800"
+  style="--slider-start: 20%; --slider-end: 80%"
+>
+  <div data-part="track">
+    <div data-part="range"></div>
+    <div
+      data-part="thumb"
+      role="slider"
+      tabindex="0"
+      aria-label="Minimum price"
+      aria-valuemin="0"
+      aria-valuemax="800"
+      aria-valuenow="200"
+      style="--pos: 20%"
+    ></div>
+    <div
+      data-part="thumb"
+      role="slider"
+      tabindex="0"
+      aria-label="Maximum price"
+      aria-valuemin="200"
+      aria-valuemax="1000"
+      aria-valuenow="800"
+      style="--pos: 80%"
+    ></div>
+  </div>
+</div>
+
+<!-- Small size, stepped -->
+<div
+  data-ui="slider"
+  data-variant="single"
+  data-size="sm"
+  data-min="0"
+  data-max="10"
+  data-step="1"
+  data-value="3"
+  style="--slider-start: 0%; --slider-end: 30%"
+>
+  <div data-part="track">
+    <div data-part="range"></div>
+    <div
+      data-part="thumb"
+      role="slider"
+      tabindex="0"
+      aria-label="Rating"
+      aria-valuemin="0"
+      aria-valuemax="10"
+      aria-valuenow="3"
+      style="--pos: 30%"
+    ></div>
+  </div>
+  <output data-part="output">3</output>
+</div>
+
+<!-- Disabled -->
+<div
+  data-ui="slider"
+  data-variant="single"
+  data-disabled
+  data-min="0"
+  data-max="100"
+  data-step="5"
+  data-value="60"
+  style="--slider-start: 0%; --slider-end: 60%"
+>
+  <div data-part="track">
+    <div data-part="range"></div>
+    <div
+      data-part="thumb"
+      role="slider"
+      tabindex="-1"
+      aria-label="Brightness"
+      aria-disabled="true"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="60"
+      style="--pos: 60%"
+    ></div>
+  </div>
+  <output data-part="output">60</output>
+</div>

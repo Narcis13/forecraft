@@ -1,0 +1,176 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "testimonials",
+  "version": "1.0.0",
+  "kind": "pattern",
+  "category": "marketing",
+  "description": "A wall of customer quotes — heading, description and a real list of card quotes — laid out as an equal-row grid, as packed columns for quotes of different lengths, or as two marquee strips moving against each other, with an optional staggered entrance that reads the reveal tokens. Composition only: zero JavaScript, no controller, no reactive directives.",
+
+  "anatomy": {
+    "tag": "section",
+    "selector": "[data-ui='testimonials']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "heading": {
+      "selector": "[data-part='heading']",
+      "required": true,
+      "tag_hint": "h2",
+      "description": "The section heading. Give it an id and point the section's aria-labelledby at it so the landmark is named"
+    },
+    "description": {
+      "selector": "[data-part='description']",
+      "required": false,
+      "tag_hint": "p",
+      "description": "Supporting paragraph under the heading; capped at the prose measure for readability"
+    },
+    "items": {
+      "selector": "[data-part='items']",
+      "required": false,
+      "tag_hint": "ul",
+      "description": "The list of quotes — the grid and columns layouts lay this out; the marquee layout uses strips instead. A real <ul>, so assistive technology announces the count"
+    },
+    "item": {
+      "selector": "[data-part='item']",
+      "required": false,
+      "tag_hint": "li",
+      "description": "One entry of the list, wrapping exactly one nested data-ui='quote' in its card variant (with its own optional rating and avatar). The quote keeps its own data-variant/data-size and must NOT carry a data-part"
+    },
+    "strips": {
+      "selector": "[data-part='strips']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Marquee layout only: stacks two nested data-ui='marquee' strips, the second with data-direction='reverse' and data-speed='slow' so the pair reads as depth. Each marquee is written the marquee's way: two identical tracks, the second aria-hidden"
+    },
+    "slide": {
+      "selector": "[data-part='slide']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Marquee layout only: the pattern's own wrapper around each quote, inside a marquee track's <li>. It carries the card width (--testimonials-card-width) so neither the marquee's items nor the quote are restyled"
+    },
+    "footer": {
+      "selector": "[data-part='footer']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Closing row under the quotes — a nested data-ui='button' or data-ui='link' to the full stories. Nested elements keep their own data-variant and must NOT carry a data-part"
+    }
+  },
+
+  "variants": {
+    "layout": {
+      "values": ["grid", "columns", "marquee"],
+      "default": "grid",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "props": {
+    "animate": {
+      "type": "boolean",
+      "default": false,
+      "attr": "data-animate",
+      "description": "Play the reveal primitive's staggered entrance on the items: each one rises in one --motion-stagger after the sibling before it, scrubbed by scroll where view timelines are supported and played once on load elsewhere. Removed under reduced motion and in print. A reveal cannot wrap the list itself, which is why the stagger is an option of the pattern."
+    },
+    "--testimonials-gap": {
+      "type": "string",
+      "default": "var(--space-6)",
+      "description": "Space between quotes — the grid's gap, the columns' gutter and the rhythm between the two marquee strips (custom property). Pass a space token."
+    },
+    "--testimonials-card-width": {
+      "type": "string",
+      "default": "20rem",
+      "description": "Marquee layout only: the inline size of each card in a strip, set on the slide wrapper (custom property)."
+    }
+  },
+
+  "states": {
+    "default": { "attr": "", "default": true }
+  },
+
+  "a11y": {
+    "required_attrs": [
+      "aria-labelledby on the section pointing at the heading id",
+      "quotes inside a <ul data-part='items'> of <li data-part='item'> in the grid and columns layouts",
+      "role='group' and an aria-label on each nested marquee, and aria-hidden='true' on its second track"
+    ],
+    "notes": "The section is a named region; the quotes are a real list, so a screen reader announces the count before the first quote. Each quote is the quote primitive — figure, blockquote and figcaption — with its own rating (role='img' with an aria-label) and avatar. In the marquee layout the second track of each strip is aria-hidden so every quote is met once, and the strips pause on hover and on focus-within (WCAG 2.2.2); keep links out of the strips, since a link in the hidden track would be a focus stop a screen reader cannot see. The staggered entrance is removed under reduced motion and in print.",
+    "keyboard": {
+      "Tab": "moves through the footer's call-to-action in source order; the strips carry nothing focusable"
+    }
+  },
+
+  "tokens_used": [
+    "space-4", "space-12", "space-6", "space-8", "space-3", "space-10", "space-16", "font-body",
+    "font-heading", "color-fg", "color-bg", "color-fg-muted", "text-2xl", "text-lg", "text-3xl",
+    "heading-weight", "heading-tracking", "heading-transform", "heading-caps", "heading-leading",
+    "measure-prose", "leading-relaxed", "motion-reveal-duration", "motion-reveal-ease",
+    "motion-stagger", "motion-reveal-distance", "ease-linear"
+  ],
+
+  "templates": {
+    "html": "<section data-ui=\"testimonials\" data-variant=\"{layout}\" aria-labelledby=\"{id}-heading\">\n  <h2 data-part=\"heading\" id=\"{id}-heading\">{heading}</h2>\n  <p data-part=\"description\">{description}</p>\n  <ul data-part=\"items\">\n    <li data-part=\"item\">\n      <figure data-ui=\"quote\" data-variant=\"card\">\n        <blockquote data-part=\"text\">\n          <p>{quote}</p>\n        </blockquote>\n        <figcaption data-part=\"author\">\n          <span data-part=\"name\">{name}</span>\n          <span data-part=\"role\">{role}</span>\n        </figcaption>\n      </figure>\n    </li>\n  </ul>\n</section>",
+    "html_marquee": "<section data-ui=\"testimonials\" data-variant=\"marquee\" aria-labelledby=\"{id}-heading\">\n  <h2 data-part=\"heading\" id=\"{id}-heading\">{heading}</h2>\n  <div data-part=\"strips\">\n    <div data-ui=\"marquee\" data-fade role=\"group\" aria-label=\"{label}, first strip\">\n      <ul data-part=\"track\">\n        <li>\n          <div data-part=\"slide\">\n            <figure data-ui=\"quote\" data-variant=\"card\" data-size=\"sm\">\n              <blockquote data-part=\"text\">\n                <p>{quote}</p>\n              </blockquote>\n              <figcaption data-part=\"author\">\n                <span data-part=\"name\">{name}</span>\n                <span data-part=\"role\">{role}</span>\n              </figcaption>\n            </figure>\n          </div>\n        </li>\n      </ul>\n      <ul data-part=\"track\" aria-hidden=\"true\">\n        <li>\n          <div data-part=\"slide\">\n            <figure data-ui=\"quote\" data-variant=\"card\" data-size=\"sm\">\n              <blockquote data-part=\"text\">\n                <p>{quote}</p>\n              </blockquote>\n              <figcaption data-part=\"author\">\n                <span data-part=\"name\">{name}</span>\n                <span data-part=\"role\">{role}</span>\n              </figcaption>\n            </figure>\n          </div>\n        </li>\n      </ul>\n    </div>\n    <div data-ui=\"marquee\" data-fade data-direction=\"reverse\" data-speed=\"slow\" role=\"group\" aria-label=\"{label}, second strip\">\n      <ul data-part=\"track\">\n        <li>\n          <div data-part=\"slide\">\n            <figure data-ui=\"quote\" data-variant=\"card\" data-size=\"sm\">\n              <blockquote data-part=\"text\">\n                <p>{quote}</p>\n              </blockquote>\n              <figcaption data-part=\"author\">\n                <span data-part=\"name\">{name}</span>\n                <span data-part=\"role\">{role}</span>\n              </figcaption>\n            </figure>\n          </div>\n        </li>\n      </ul>\n      <ul data-part=\"track\" aria-hidden=\"true\">\n        <li>\n          <div data-part=\"slide\">\n            <figure data-ui=\"quote\" data-variant=\"card\" data-size=\"sm\">\n              <blockquote data-part=\"text\">\n                <p>{quote}</p>\n              </blockquote>\n              <figcaption data-part=\"author\">\n                <span data-part=\"name\">{name}</span>\n                <span data-part=\"role\">{role}</span>\n              </figcaption>\n            </figure>\n          </div>\n        </li>\n      </ul>\n    </div>\n  </div>\n</section>"
+  },
+
+  "safe_transforms": [
+    "change-layout-variant",
+    "toggle-animate",
+    "change-heading-text",
+    "add-description",
+    "remove-description",
+    "add-item-with-a-card-quote",
+    "remove-item",
+    "add-rating-to-a-quote",
+    "add-avatar-to-a-quote",
+    "add-footer-action",
+    "remove-footer",
+    "change-custom-property-gap-or-card-width"
+  ],
+
+  "unsafe_transforms": [
+    "remove-heading",
+    "remove-aria-labelledby",
+    "replace-the-items-list-with-divs",
+    "add-data-part-to-a-nested-quote",
+    "put-a-link-inside-a-marquee-strip",
+    "edit-one-marquee-track-without-the-other",
+    "remove-aria-hidden-from-a-second-track",
+    "add-custom-script"
+  ],
+
+  "composition": {
+    "contains": ["quote", "rating", "avatar", "marquee", "button"],
+    "used_in": ["landing-page"],
+    "notes": [
+      "Every quote is the quote primitive in its card variant, so it reads the card aliases and a theme that restyles cards restyles the wall. The item WRAPS the quote: a nested element must not carry both data-part and data-variant, because the pattern validates a part's data-variant against its own values (grid|columns|marquee).",
+      "The marquee layout is two marquee primitives stacked inside [data-part=\"strips\"], the second with data-direction=\"reverse\" and data-speed=\"slow\" — the marquee's own recipe for depth. The marquee owns the motion, the pause and the reduced-motion fallback; the pattern only stacks the strips and sizes each card through its own [data-part=\"slide\"] wrapper, so the marquee's items and the quote are never restyled.",
+      "data-animate is the reveal primitive's stagger, re-stated on the list's items. A reveal staggers its direct children and cannot wrap [data-part=\"items\"], so the entrance is an option of the pattern, reading the same --motion-reveal-* and --motion-stagger tokens and the same @supports (animation-timeline: view()) scroll trigger, with the same reduced-motion and print fallbacks.",
+      "The column count is not a knob: the grid and columns layouts both go 1 → 2 (md) → 3 (lg) on the canon floors, and --testimonials-gap sets the rhythm between quotes in all three layouts."
+    ]
+  },
+
+  "files": {
+    "html": "testimonials.html",
+    "css": "testimonials.css",
+    "manifest": "testimonials.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-section-with-data-ui-testimonials",
+    "heading-slot-is-required",
+    "section-is-labelled-by-its-heading",
+    "grid-is-the-default-layout",
+    "items-are-a-real-list-wrapping-card-quotes",
+    "grid-gains-two-columns-at-md-and-three-at-lg",
+    "columns-layout-packs-items-with-multi-column",
+    "marquee-layout-stacks-two-strips-moving-against-each-other",
+    "slide-sets-the-card-width-without-restyling-the-marquee",
+    "animate-staggers-the-items-with-the-reveal-tokens",
+    "animate-is-scrubbed-by-scroll-where-view-timelines-exist",
+    "reduced-motion-and-print-remove-the-entrance",
+    "ships-zero-javascript",
+    "reference-page-is-audit-clean"
+  ]
+}

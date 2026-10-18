@@ -1,0 +1,168 @@
+/* @ui:base prose — typography defaults for long-form content */
+
+[data-ui="prose"] {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--color-fg);
+  max-inline-size: var(--measure-prose);
+}
+
+[data-ui="prose"] h1 {
+  font-family: var(--font-heading);
+  font-size: var(--text-4xl);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  line-height: var(--heading-leading);
+  margin-block: var(--space-8) var(--space-4);
+}
+
+[data-ui="prose"] h2 {
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  line-height: var(--heading-leading);
+  margin-block: var(--space-8) var(--space-3);
+}
+
+[data-ui="prose"] h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  line-height: var(--leading-snug);
+  margin-block: var(--space-6) var(--space-3);
+}
+
+[data-ui="prose"] h4 {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
+  line-height: var(--leading-snug);
+  margin-block: var(--space-6) var(--space-2);
+}
+
+[data-ui="prose"] p {
+  margin-block: var(--space-4);
+}
+
+/* A bare anchor only. A registry component rendered as an anchor (a
+   `data-ui="button"` call to action, a `data-ui="link"`) styles itself; the
+   `:where()` keeps this rule at its original (0,1,1) weight. */
+[data-ui="prose"] a:where(:not([data-ui])) {
+  color: var(--color-primary);
+  text-decoration-line: var(--link-decoration);
+  text-underline-offset: var(--link-underline-offset);
+}
+
+[data-ui="prose"] a:where(:not([data-ui])):hover {
+  color: var(--color-primary-hover);
+}
+
+[data-ui="prose"] strong {
+  font-weight: var(--weight-semibold);
+}
+
+[data-ui="prose"] code {
+  font-family: var(--font-mono);
+  font-variant-ligatures: var(--mono-ligatures);
+  font-size: 0.875em;
+  background: var(--color-bg-muted);
+  padding: var(--space-0h) var(--space-1);
+  border-radius: var(--radius-sm);
+}
+
+[data-ui="prose"] pre {
+  font-family: var(--font-mono);
+  font-variant-ligatures: var(--mono-ligatures);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  background: var(--color-bg-muted);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+  margin-block: var(--space-6);
+}
+
+[data-ui="prose"] pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+[data-ui="prose"] blockquote {
+  border-inline-start: var(--border-width-lg) solid var(--color-border-strong);
+  padding-inline-start: var(--space-4);
+  color: var(--color-fg-muted);
+  margin-block: var(--space-4);
+}
+
+[data-ui="prose"] ul {
+  list-style: disc;
+  padding-inline-start: var(--space-6);
+  margin-block: var(--space-4);
+}
+
+[data-ui="prose"] ol {
+  list-style: decimal;
+  padding-inline-start: var(--space-6);
+  margin-block: var(--space-4);
+}
+
+[data-ui="prose"] li {
+  margin-block: var(--space-1);
+}
+
+/* The bullet. `currentColor` by default — the initial value — so a list looks
+   exactly as it did; a theme that wants accented markers sets --marker-color. */
+[data-ui="prose"] li::marker {
+  color: var(--marker-color);
+}
+
+[data-ui="prose"] hr {
+  border: none;
+  border-block-start: var(--border-width) solid var(--color-border);
+  margin-block: var(--space-8);
+}
+
+[data-ui="prose"] img {
+  border-radius: var(--radius-lg);
+  margin-block: var(--space-6);
+}
+
+[data-ui="prose"] table {
+  inline-size: 100%;
+  margin-block: var(--space-6);
+  font-size: var(--text-sm);
+}
+
+[data-ui="prose"] th {
+  font-weight: var(--weight-semibold);
+  text-align: start;
+  padding: var(--space-2) var(--space-3);
+  border-block-end: var(--border-width-strong) solid var(--color-border-strong);
+}
+
+[data-ui="prose"] td {
+  padding: var(--space-2) var(--space-3);
+  border-block-end: var(--border-width) solid var(--color-border);
+}
+
+/* First child no top margin, last child no bottom margin */
+[data-ui="prose"] > :first-child {
+  margin-block-start: 0;
+}
+
+[data-ui="prose"] > :last-child {
+  margin-block-end: 0;
+}

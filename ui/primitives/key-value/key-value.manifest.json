@@ -1,0 +1,120 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "key-value",
+  "version": "1.0.1",
+  "kind": "primitive",
+  "category": "data-display",
+  "description": "Labeled data pair for displaying key-value information",
+
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. The label and value rules were descendant selectors, so a progress bar in a <dd> took this list's label weight (and, in a sm list, its --text-xs size), and a list nested in a value inherited the outer list's size. They now match a direct child of the list, or a child of a plain <div> grouping one pair (dl > div > dt + dd, which HTML allows); the <div> hop is in :where(), so both shapes keep the old specificity.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='key-value']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "label": {
+      "selector": "[data-part='label']",
+      "required": true,
+      "tag_hint": "dt",
+      "description": "The label/key text"
+    },
+    "value": {
+      "selector": "[data-part='value']",
+      "required": true,
+      "tag_hint": "dd",
+      "description": "The value text"
+    }
+  },
+
+  "variants": {
+    "variant": {
+      "values": ["horizontal", "vertical", "inline"],
+      "default": "horizontal",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {
+    "cols": {
+      "type": "number",
+      "default": 1,
+      "description": "Number of columns for grid layout (data-cols attribute)"
+    }
+  },
+
+  "a11y": {
+    "required_attrs": ["Use dl/dt/dd semantics for proper screen reader support"],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-fg", "color-fg-muted", "space-1", "space-2", "space-3", "space-4", "text-xs", "text-sm",
+    "text-base", "font-body", "weight-medium", "kv-pair-gap", "kv-label-size", "kv-label-weight",
+    "kv-label-color", "kv-value-size", "kv-value-weight", "kv-value-color", "kv-gap", "kv-grid-gap",
+    "doc-font"
+  ],
+
+  "templates": {
+    "html": "<dl data-ui=\"key-value\" data-variant=\"{variant}\">\n  <dt data-part=\"label\">{label}</dt>\n  <dd data-part=\"value\">{value}</dd>\n</dl>",
+    "html_grid": "<dl data-ui=\"key-value\" data-variant=\"{variant}\" data-cols=\"{cols}\">\n  <dt data-part=\"label\">{label1}</dt>\n  <dd data-part=\"value\">{value1}</dd>\n  <dt data-part=\"label\">{label2}</dt>\n  <dd data-part=\"value\">{value2}</dd>\n</dl>"
+  },
+
+  "safe_transforms": [
+    "change-variant",
+    "change-size",
+    "change-cols",
+    "add-pair",
+    "remove-pair",
+    "change-label-text",
+    "change-value-text"
+  ],
+
+  "unsafe_transforms": [
+    "remove-label-slot",
+    "remove-value-slot",
+    "remove-dl-semantics"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["card", "document"]
+  },
+
+  "files": {
+    "html": "key-value.html",
+    "css": "key-value.css",
+    "manifest": "key-value.manifest.json"
+  },
+
+  "tests": [
+    "renders-with-dl-semantics",
+    "label-uses-dt-element",
+    "value-uses-dd-element",
+    "default-variant-is-horizontal",
+    "horizontal-shows-side-by-side",
+    "vertical-stacks-label-above-value",
+    "inline-shows-on-one-line",
+    "cols-2-creates-grid",
+    "cols-3-creates-grid",
+    "sm-size-reduces-spacing",
+    "lg-size-increases-spacing"
+  ]
+}

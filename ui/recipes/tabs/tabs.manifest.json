@@ -1,0 +1,185 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "tabs",
+  "version": "1.0.2",
+  "kind": "recipe",
+  "category": "navigation",
+  "description": "Accessible tabbed interface with keyboard navigation and panel switching",
+  "changes": [
+    {
+      "version": "1.0.2",
+      "note": "Nested components keep their own parts. The stylesheet reached the list, the triggers and the panels with descendant selectors, so a collapsible's summary in a panel was laid out as a tab and tabs nested in a pill panel took the pill's radius and padding. Every part rule is now a child chain (root > list > trigger, root > panel), which is the canonical markup and what the controller has required since 1.0.1. The list hop is in :where(), so no rule changes specificity and pattern overrides such as settings-page apply as before. No change for markup that follows the template.",
+      "breaking": false
+    },
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. The controller queried triggers and panels anywhere inside the root, so a collapsible's summary in a panel became a tab (End focused it) and nested tabs shifted the trigger-to-panel pairing. It now takes the list, the panels and the triggers as direct children only (list > trigger), which is what the canonical markup already does.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='tabs']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "list": {
+      "selector": "[data-part='list']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Container for tab triggers with role=tablist"
+    },
+    "trigger": {
+      "selector": "[data-part='trigger']",
+      "required": true,
+      "tag_hint": "button",
+      "description": "Individual tab trigger with role=tab"
+    },
+    "panel": {
+      "selector": "[data-part='panel']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "Tab content panel with role=tabpanel"
+    }
+  },
+  "variants": {
+    "style": {
+      "values": [
+        "underline",
+        "pill",
+        "enclosed"
+      ],
+      "default": "underline",
+      "attr": "data-variant",
+      "applied_to": "root"
+    },
+    "size": {
+      "values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+  "states": {
+    "default": {
+      "attr": "data-state=\"default\"",
+      "default": true
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "activate",
+        "params": "index"
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "activeTab": {
+      "type": "number",
+      "default": 0,
+      "description": "Index of the initially active tab"
+    }
+  },
+  "a11y": {
+    "role": "tablist",
+    "required_attrs": [
+      "role=\"tablist\" on list",
+      "role=\"tab\" on each trigger",
+      "role=\"tabpanel\" on each panel",
+      "aria-selected on active trigger",
+      "aria-controls on trigger pointing to panel id",
+      "aria-labelledby on panel pointing to trigger id"
+    ],
+    "keyboard": {
+      "ArrowLeft": "activate previous tab",
+      "ArrowRight": "activate next tab",
+      "Home": "activate first tab",
+      "End": "activate last tab"
+    }
+  },
+  "tokens_used": [
+    "color-bg",
+    "color-fg",
+    "color-fg-muted",
+    "color-border",
+    "color-primary",
+    "color-border-strong",
+    "color-bg-muted",
+    "space-1",
+    "space-2",
+    "space-3",
+    "space-4",
+    "space-6",
+    "radius-md",
+    "radius-lg",
+    "text-sm",
+    "text-base",
+    "text-xs",
+    "weight-medium",
+    "duration-fast",
+    "ease-default",
+    "font-ui",
+    "border-width",
+    "border-width-strong",
+    "focus-ring-width",
+    "focus-ring-style",
+    "focus-ring-color",
+    "focus-ring-offset",
+    "shadow-xs"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"tabs\" data-variant=\"{variant}\">\n  <div data-part=\"list\" role=\"tablist\">\n    <button data-part=\"trigger\" role=\"tab\" id=\"{id}-tab-1\" aria-controls=\"{id}-panel-1\" aria-selected=\"true\">{tab1}</button>\n    <button data-part=\"trigger\" role=\"tab\" id=\"{id}-tab-2\" aria-controls=\"{id}-panel-2\" aria-selected=\"false\" tabindex=\"-1\">{tab2}</button>\n  </div>\n  <div data-part=\"panel\" role=\"tabpanel\" id=\"{id}-panel-1\" aria-labelledby=\"{id}-tab-1\">{content1}</div>\n  <div data-part=\"panel\" role=\"tabpanel\" id=\"{id}-panel-2\" aria-labelledby=\"{id}-tab-2\" hidden>{content2}</div>\n</div>"
+  },
+  "safe_transforms": [
+    "add-tab",
+    "remove-tab",
+    "change-variant-style",
+    "change-size",
+    "restyle-tab-indicator",
+    "change-tab-content"
+  ],
+  "unsafe_transforms": [
+    "remove-tablist-role",
+    "remove-tab-role",
+    "remove-tabpanel-role",
+    "remove-aria-controls",
+    "remove-keyboard-navigation"
+  ],
+  "composition": {
+    "contains": [],
+    "used_in": [
+      "settings-page"
+    ]
+  },
+  "files": {
+    "html": "tabs.html",
+    "css": "tabs.css",
+    "js": "tabs.js",
+    "manifest": "tabs.manifest.json"
+  },
+  "tests": [
+    "first-tab-is-selected-by-default",
+    "clicking-tab-shows-its-panel",
+    "clicking-tab-hides-other-panels",
+    "active-trigger-has-aria-selected-true",
+    "inactive-triggers-have-aria-selected-false",
+    "arrow-right-activates-next-tab",
+    "arrow-left-activates-previous-tab",
+    "home-activates-first-tab",
+    "end-activates-last-tab",
+    "triggers-have-role-tab",
+    "panels-have-role-tabpanel",
+    "list-has-role-tablist",
+    "aria-controls-links-to-panel-id",
+    "aria-labelledby-links-to-trigger-id"
+  ]
+}

@@ -1,0 +1,165 @@
+/* @ui:base motion-presets — l-transition presets (Transitions 2.0 · 0.4-11 · §A4)
+ *
+ * The engine (faqir-core) drives l-show / l-if transitions through a single
+ * `data-motion` attribute — "enter" → "enter-active" on show, "leave" →
+ * "leave-active" on hide — instead of per-stage CSS classes. These rules give
+ * each named preset (`fade`, `slide-up`, `scale`) its from/to styles, sourced
+ * entirely from motion tokens (see tokens/motion.css). Nothing here hardcodes a
+ * duration or easing.
+ *
+ * Lifecycle contract:
+ *   data-motion="enter"         from-state, no transition (snaps into place)
+ *   data-motion="enter-active"  to-state (natural) + transition → animates in
+ *   data-motion="leave"         from-state (natural) + transition armed
+ *   data-motion="leave-active"  to-state (exit) → animates out
+ *
+ * Reduced motion is handled by the engine, which never stamps `data-motion`
+ * when `prefers-reduced-motion: reduce` — so no !important guard is needed here.
+ */
+
+/* ── fade ── */
+[l-transition="fade"][data-motion="enter"] {
+  opacity: 0;
+}
+[l-transition="fade"][data-motion="enter-active"] {
+  transition: opacity var(--motion-enter-duration) var(--motion-enter-ease);
+}
+[l-transition="fade"][data-motion="leave"],
+[l-transition="fade"][data-motion="leave-active"] {
+  transition: opacity var(--motion-leave-duration) var(--motion-leave-ease);
+}
+[l-transition="fade"][data-motion="leave-active"] {
+  opacity: 0;
+}
+
+/* ── slide-up ── */
+[l-transition="slide-up"][data-motion="enter"] {
+  opacity: 0;
+  transform: translateY(var(--motion-slide-distance));
+}
+[l-transition="slide-up"][data-motion="enter-active"] {
+  transition:
+    opacity var(--motion-enter-duration) var(--motion-enter-ease),
+    transform var(--motion-enter-duration) var(--motion-enter-ease);
+}
+[l-transition="slide-up"][data-motion="leave"],
+[l-transition="slide-up"][data-motion="leave-active"] {
+  transition:
+    opacity var(--motion-leave-duration) var(--motion-leave-ease),
+    transform var(--motion-leave-duration) var(--motion-leave-ease);
+}
+[l-transition="slide-up"][data-motion="leave-active"] {
+  opacity: 0;
+  transform: translateY(var(--motion-slide-distance));
+}
+
+/* ── scale ── */
+[l-transition="scale"][data-motion="enter"] {
+  opacity: 0;
+  transform: scale(var(--motion-scale-from));
+}
+[l-transition="scale"][data-motion="enter-active"] {
+  transition:
+    opacity var(--motion-enter-duration) var(--motion-enter-ease),
+    transform var(--motion-enter-duration) var(--motion-enter-ease);
+}
+[l-transition="scale"][data-motion="leave"],
+[l-transition="scale"][data-motion="leave-active"] {
+  transition:
+    opacity var(--motion-leave-duration) var(--motion-leave-ease),
+    transform var(--motion-leave-duration) var(--motion-leave-ease);
+}
+[l-transition="scale"][data-motion="leave-active"] {
+  opacity: 0;
+  transform: scale(var(--motion-scale-from));
+}
+
+/* ── The travelling presets ──
+   `slide-down`, `slide-start` and `slide-end` are `slide-up` from the other
+   three edges, and share its distance token. The two inline presets are
+   logical: `start` is the left edge in a left-to-right page and the right edge
+   in a right-to-left one, so a drawer-like panel enters from the side its
+   reading direction says it lives on. `--faqir-slide` carries the signed
+   offset, so each stage is written once for all three directions. */
+[l-transition="slide-down"] {
+  --faqir-slide: 0 calc(var(--motion-slide-distance) * -1);
+}
+[l-transition="slide-start"] {
+  --faqir-slide: calc(var(--motion-slide-distance) * -1) 0;
+}
+[l-transition="slide-end"],
+[l-transition="slide-start"]:dir(rtl) {
+  --faqir-slide: var(--motion-slide-distance) 0;
+}
+[l-transition="slide-end"]:dir(rtl) {
+  --faqir-slide: calc(var(--motion-slide-distance) * -1) 0;
+}
+
+:is([l-transition="slide-down"], [l-transition="slide-start"], [l-transition="slide-end"])[data-motion="enter"] {
+  opacity: 0;
+  translate: var(--faqir-slide);
+}
+:is([l-transition="slide-down"], [l-transition="slide-start"], [l-transition="slide-end"])[data-motion="enter-active"] {
+  transition:
+    opacity var(--motion-enter-duration) var(--motion-enter-ease),
+    translate var(--motion-enter-duration) var(--motion-enter-ease);
+}
+:is([l-transition="slide-down"], [l-transition="slide-start"], [l-transition="slide-end"])[data-motion="leave"],
+:is([l-transition="slide-down"], [l-transition="slide-start"], [l-transition="slide-end"])[data-motion="leave-active"] {
+  transition:
+    opacity var(--motion-leave-duration) var(--motion-leave-ease),
+    translate var(--motion-leave-duration) var(--motion-leave-ease);
+}
+:is([l-transition="slide-down"], [l-transition="slide-start"], [l-transition="slide-end"])[data-motion="leave-active"] {
+  opacity: 0;
+  translate: var(--faqir-slide);
+}
+
+/* ── blur ──
+   Arrives out of focus and sharpens; leaves the way it came. The radius is the
+   reveal family's, so a theme that softens its entrances softens this one too. */
+[l-transition="blur"][data-motion="enter"] {
+  opacity: 0;
+  filter: blur(var(--motion-reveal-blur));
+}
+[l-transition="blur"][data-motion="enter-active"] {
+  transition:
+    opacity var(--motion-enter-duration) var(--motion-enter-ease),
+    filter var(--motion-enter-duration) var(--motion-enter-ease);
+}
+[l-transition="blur"][data-motion="leave"],
+[l-transition="blur"][data-motion="leave-active"] {
+  transition:
+    opacity var(--motion-leave-duration) var(--motion-leave-ease),
+    filter var(--motion-leave-duration) var(--motion-leave-ease);
+}
+[l-transition="blur"][data-motion="leave-active"] {
+  opacity: 0;
+  filter: blur(var(--motion-reveal-blur));
+}
+
+/* ── flip ──
+   Hinges open on its top edge, like a card turned face up. `rotate` (not
+   `transform`) so an element that already carries a transform keeps it. */
+[l-transition="flip"] {
+  transform-origin: center top;
+}
+[l-transition="flip"][data-motion="enter"] {
+  opacity: 0;
+  rotate: x -70deg;
+}
+[l-transition="flip"][data-motion="enter-active"] {
+  transition:
+    opacity var(--motion-enter-duration) var(--motion-enter-ease),
+    rotate var(--motion-enter-duration) var(--motion-enter-ease);
+}
+[l-transition="flip"][data-motion="leave"],
+[l-transition="flip"][data-motion="leave-active"] {
+  transition:
+    opacity var(--motion-leave-duration) var(--motion-leave-ease),
+    rotate var(--motion-leave-duration) var(--motion-leave-ease);
+}
+[l-transition="flip"][data-motion="leave-active"] {
+  opacity: 0;
+  rotate: x -70deg;
+}

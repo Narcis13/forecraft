@@ -1,0 +1,230 @@
+/* @ui:component calendar */
+/* @ui:tokens color-bg color-fg color-fg-muted color-fg-subtle color-border color-primary color-primary-fg color-primary-subtle color-ring color-bg-muted radius-md radius-full space-0 space-1 space-2 text-xs text-sm text-base weight-medium duration-fast ease-default font-ui border-width focus-ring-width focus-ring-style focus-ring-color focus-ring-offset disabled-opacity */
+
+/* Nesting (1.1F-23): every part is reached by child combinators from the root,
+   the hops in :where() so no rule changes weight. Kept beyond the template: the
+   header is optional, so the month label and nav buttons are styled as its
+   children or the root's. Days are the cells the controller renders:
+   root > grid > tbody > tr > td > day. */
+
+/* ── Root ── */
+[data-ui="calendar"] {
+  display: inline-block;
+}
+
+/* ── Header ── */
+[data-ui="calendar"] > [data-part="header"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: var(--space-2, 0.5rem);
+  padding: 0 var(--space-1);
+}
+
+/* ── Month Label ── */
+[data-ui="calendar"] > :where([data-part="header"]) > [data-part="month-label"],
+[data-ui="calendar"] > [data-part="month-label"] {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-fg);
+  user-select: none;
+}
+
+/* ── Nav Buttons ── */
+[data-ui="calendar"] > :where([data-part="header"]) > [data-part="nav-prev"],
+[data-ui="calendar"] > [data-part="nav-prev"],
+[data-ui="calendar"] > :where([data-part="header"]) > [data-part="nav-next"],
+[data-ui="calendar"] > [data-part="nav-next"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="calendar"] > :where([data-part="header"]) > [data-part="nav-prev"]:hover,
+[data-ui="calendar"] > [data-part="nav-prev"]:hover,
+[data-ui="calendar"] > :where([data-part="header"]) > [data-part="nav-next"]:hover,
+[data-ui="calendar"] > [data-part="nav-next"]:hover {
+  background: var(--color-bg-muted, oklch(0.96 0.004 260));
+}
+
+[data-ui="calendar"] > :where([data-part="header"]) > [data-part="nav-prev"]:focus-visible,
+[data-ui="calendar"] > [data-part="nav-prev"]:focus-visible,
+[data-ui="calendar"] > :where([data-part="header"]) > [data-part="nav-next"]:focus-visible,
+[data-ui="calendar"] > [data-part="nav-next"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+[data-ui="calendar"] > :where([data-part="header"]) > [data-part="nav-prev"]:disabled,
+[data-ui="calendar"] > [data-part="nav-prev"]:disabled,
+[data-ui="calendar"] > :where([data-part="header"]) > [data-part="nav-next"]:disabled,
+[data-ui="calendar"] > [data-part="nav-next"]:disabled {
+  /* Dimmer than a disabled control — 0.4 at the 0.5 default — and it follows a
+     theme's `--disabled-opacity` like every other disabled dim (1.1A-27). */
+  opacity: calc(var(--disabled-opacity) * 0.8);
+  cursor: not-allowed;
+}
+
+/* ── Grid (Table) ── */
+[data-ui="calendar"] > [data-part="grid"] {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+[data-ui="calendar"] > [data-part="grid"] thead th {
+  width: 36px;
+  height: 28px;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: var(--weight-medium);
+  color: var(--color-fg-muted);
+  text-align: center;
+  user-select: none;
+}
+
+/* ── Grid cell ── */
+[data-ui="calendar"] > [data-part="grid"] td {
+  text-align: center;
+  padding: var(--space-0, 1px);
+}
+
+/* ── Day Button ── */
+[data-ui="calendar"] > :where([data-part="grid"]) > :where(tbody) > :where(tr) > :where(td) > [data-part="day"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-default),
+              color var(--duration-fast) var(--ease-default),
+              border-color var(--duration-fast) var(--ease-default);
+}
+
+[data-ui="calendar"] > :where([data-part="grid"]) > :where(tbody) > :where(tr) > :where(td) > [data-part="day"]:hover {
+  background: var(--color-bg-muted, oklch(0.96 0.004 260));
+}
+
+[data-ui="calendar"] > :where([data-part="grid"]) > :where(tbody) > :where(tr) > :where(td) > [data-part="day"]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ── Today ── */
+[data-ui="calendar"] > :where([data-part="grid"]) > :where(tbody) > :where(tr) > :where(td) > [data-part="day"][data-today="true"] {
+  border-color: var(--color-primary);
+  font-weight: var(--weight-medium);
+}
+
+/* ── Selected ── */
+[data-ui="calendar"] > :where([data-part="grid"]) > :where(tbody) > :where(tr) > :where(td) > [data-part="day"][aria-selected="true"] {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  border-color: var(--color-primary);
+}
+
+[data-ui="calendar"] > :where([data-part="grid"]) > :where(tbody) > :where(tr) > :where(td) > [data-part="day"][aria-selected="true"]:hover {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+/* ── Range selection ── */
+[data-ui="calendar"] > :where([data-part="grid"]) > :where(tbody) > :where(tr) > :where(td) > [data-part="day"][data-state="in-range"] {
+  background: var(--color-primary-subtle, oklch(0.93 0.03 264));
+  border-radius: var(--radius-md);
+}
+
+/* ── Other month days ── */
+[data-ui="calendar"] > :where([data-part="grid"]) > :where(tbody) > :where(tr) > :where(td) > [data-part="day"][data-outside="true"] {
+  color: var(--color-fg-subtle, oklch(0.7 0 0));
+}
+
+/* ── Disabled days (aria-disabled keeps them focusable; :disabled for hard-disabled) ── */
+[data-ui="calendar"] > :where([data-part="grid"]) > :where(tbody) > :where(tr) > :where(td) > [data-part="day"][aria-disabled="true"],
+[data-ui="calendar"] > :where([data-part="grid"]) > :where(tbody) > :where(tr) > :where(td) > [data-part="day"]:disabled {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+/* ── Size: Small ── */
+[data-ui="calendar"][data-size="sm"] > :where([data-part="grid"]) > :where(tbody) > :where(tr) > :where(td) > [data-part="day"] {
+  width: 28px;
+  height: 28px;
+  font-size: var(--text-xs, 0.75rem);
+}
+
+[data-ui="calendar"][data-size="sm"] > [data-part="grid"] thead th {
+  width: 28px;
+  height: 24px;
+  font-size: 0.625rem;
+}
+
+[data-ui="calendar"][data-size="sm"] > :where([data-part="header"]) > [data-part="nav-prev"],
+[data-ui="calendar"][data-size="sm"] > [data-part="nav-prev"],
+[data-ui="calendar"][data-size="sm"] > :where([data-part="header"]) > [data-part="nav-next"],
+[data-ui="calendar"][data-size="sm"] > [data-part="nav-next"] {
+  width: 24px;
+  height: 24px;
+  font-size: var(--text-xs, 0.75rem);
+}
+
+[data-ui="calendar"][data-size="sm"] > :where([data-part="header"]) > [data-part="month-label"],
+[data-ui="calendar"][data-size="sm"] > [data-part="month-label"] {
+  font-size: var(--text-xs, 0.75rem);
+}
+
+/* ── Size: Large ── */
+[data-ui="calendar"][data-size="lg"] > :where([data-part="grid"]) > :where(tbody) > :where(tr) > :where(td) > [data-part="day"] {
+  width: 44px;
+  height: 44px;
+  font-size: var(--text-base, 1rem);
+}
+
+[data-ui="calendar"][data-size="lg"] > [data-part="grid"] thead th {
+  width: 44px;
+  height: 32px;
+  font-size: var(--text-sm);
+}
+
+[data-ui="calendar"][data-size="lg"] > :where([data-part="header"]) > [data-part="nav-prev"],
+[data-ui="calendar"][data-size="lg"] > [data-part="nav-prev"],
+[data-ui="calendar"][data-size="lg"] > :where([data-part="header"]) > [data-part="nav-next"],
+[data-ui="calendar"][data-size="lg"] > [data-part="nav-next"] {
+  width: 36px;
+  height: 36px;
+  font-size: var(--text-base, 1rem);
+}
+
+[data-ui="calendar"][data-size="lg"] > :where([data-part="header"]) > [data-part="month-label"],
+[data-ui="calendar"][data-size="lg"] > [data-part="month-label"] {
+  font-size: var(--text-base, 1rem);
+}
+
+/* ── Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="calendar"] > :where([data-part="grid"]) > :where(tbody) > :where(tr) > :where(td) > [data-part="day"],
+  [data-ui="calendar"] > :where([data-part="header"]) > [data-part="nav-prev"],
+  [data-ui="calendar"] > [data-part="nav-prev"],
+  [data-ui="calendar"] > :where([data-part="header"]) > [data-part="nav-next"],
+  [data-ui="calendar"] > [data-part="nav-next"] {
+    transition: none;
+  }
+}

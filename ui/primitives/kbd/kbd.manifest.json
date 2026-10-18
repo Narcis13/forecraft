@@ -1,0 +1,74 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "kbd",
+  "version": "1.1.0",
+  "kind": "primitive",
+  "category": "typography",
+  "description": "Inline keyboard shortcut key indicator",
+
+  "changes": [
+    {
+      "version": "1.1.0",
+      "note": "The key label sets font-variant-ligatures: var(--mono-ligatures), a new typography token that defaults to none. Cascadia Code and JetBrains Mono, both named by --font-mono, ligate by default, so a hint such as -> or => was drawn as one joined glyph instead of the two keys it names. Set --mono-ligatures: normal to get a face's ligatures back.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "kbd",
+    "selector": "[data-ui='kbd']",
+    "content_model": "text"
+  },
+
+  "slots": {},
+
+  "variants": {},
+
+  "states": {},
+
+  "props": {
+    "key": { "type": "string", "default": "", "description": "Key label text" }
+  },
+
+  "a11y": {
+    "notes": "Uses semantic <kbd> element; no additional ARIA needed",
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-bg-subtle", "color-fg", "color-border", "radius-sm", "space-1h", "font-mono", "text-xs",
+    "border-width", "border-width-strong", "mono-ligatures"
+  ],
+
+  "templates": {
+    "html": "<kbd data-ui=\"kbd\">{key}</kbd>",
+    "html_combo": "<kbd data-ui=\"kbd\">{modifier}</kbd> + <kbd data-ui=\"kbd\">{key}</kbd>"
+  },
+
+  "safe_transforms": [
+    "change-text-content"
+  ],
+
+  "unsafe_transforms": [
+    "change-tag-from-kbd",
+    "remove-semantic-element"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["command-palette"]
+  },
+
+  "files": {
+    "html": "kbd.html",
+    "css": "kbd.css",
+    "manifest": "kbd.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-kbd-element",
+    "has-monospace-font",
+    "has-border-bottom-emphasis",
+    "displays-inline-flex"
+  ]
+}
