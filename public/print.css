@@ -368,3 +368,9 @@
   [data-report-view="canvas"] [data-designer-drop="after"] { box-shadow: 0 3px 0 0 oklch(0.52 0.18 255); }
   [data-report-view="canvas"] [data-report-block="section"]:has(> [data-report-block]:only-of-type) { min-block-size: 8mm; }
 }
+
+/* A phone shows the sheet edge to edge: the letterhead's two columns stack. */
+@media screen and (max-width: 40rem) {
+  [data-report-letterhead] { grid-template-columns: 1fr; }
+  [data-report-toolbar] [data-ui="text"][data-weight="semibold"] { font-size: var(--text-sm); }
+}

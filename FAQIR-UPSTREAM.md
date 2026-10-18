@@ -610,11 +610,15 @@ the case it would add to Faqir's own print matrix (`tests/visual/print/matrix.ts
 - **Seen:** in Chromium the `doc-header` is `position: fixed` (no `running()`), so it
   prints on every page, including page 1 above the letterhead.
 - **Where:** `registry/patterns/document/document.css`, `@media print` doc-header block.
-- **Here:** `[data-report-mask]`, an absolutely positioned strip of paper over the header
-  area on page 1 only (`public/print.css`).
-- **Suggested fix:** a `data-header="from-page-2"` option on the pattern that ships this
-  mask (Chromium) and `@page :first { @top-center { content: none } }` (paged engines).
-  Matrix case: the three-page reference shows no header text on page 1.
+- **Here:** first a strip of paper over the header on page 1 — which hid it but left its
+  text in the PDF (the print tests found it in page 1's text). Now the renderer writes the
+  running header as an `@page { @top-left { content: "…" } }` string with
+  `@page :first { @top-left { content: none } }`, and print.css hides the fixed fallback.
+- **Suggested fix:** in Chromium, render the header through margin-box strings (the pattern
+  can write them from `data-running-header` on the document via a tiny controller, or
+  document the per-document `@page` rule) with `:first` suppression as an option
+  (`data-header="from-page-2"`). Matrix case: page 1 of the three-page reference has no
+  header text in `pdftotext` output, page 2 has it.
 
 ### 40. Nothing paints in the page margins
 
@@ -707,10 +711,13 @@ the case it would add to Faqir's own print matrix (`tests/visual/print/matrix.ts
   moves it to the top of the next page.
 - **Where:** `registry/patterns/document/document.css` (doc-footer fixed block and
   `@bottom-right`).
-- **Here:** accepted: the counter prints right-aligned just under the footer rule's last line.
-- **Suggested fix:** carry the counter inside the footer as a `data-part="page-counter"`
-  that paged engines fill and Chromium fills from the margin box, or document the
-  composition. Matrix case: footer text and counter on one baseline.
+- **Here:** the footer's lines move into the margin as well: `@bottom-left` carries them
+  (`white-space: pre-wrap`, `\A` between lines) and `@bottom-right` the localised counter,
+  both top-aligned under one hairline, both moved onto the content edge with `margin-left`
+  (the left page margin is 0, #40). The DOM `doc-footer` is kept for the screen views.
+- **Suggested fix:** make this the pattern's Chromium path: footer text and counter as
+  sibling margin boxes with a shared rule, filled from `data-running-footer` (or, for
+  paged engines, `element()`). Matrix case: footer text and counter on one baseline.
 
 ### 48. Three of the five print themes differ only in their primary hue
 
