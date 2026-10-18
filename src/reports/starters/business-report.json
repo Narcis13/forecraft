@@ -345,6 +345,10 @@
         {
           "label": "Classification",
           "value": "{{ classification ?? \"—\" }}"
+        },
+        {
+          "label": "Reference",
+          "value": "{{ doc.number ?? label(\"draft\") }}"
         }
       ]
     },

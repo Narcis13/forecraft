@@ -224,6 +224,10 @@
             {
               "label": "Your ref.",
               "value": "{{ yours ?? \"—\" }}"
+            },
+            {
+              "label": "Letter",
+              "value": "{{ doc.number ?? label(\"draft\") }}"
             }
           ]
         }

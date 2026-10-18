@@ -75,15 +75,17 @@ const MARGINS = {
   wide: { top: 20, right: 22, bottom: 20, left: 25 },
 } as const;
 /** DIN 5008 Form B, for window letters: 25 mm left, 20 mm right. */
-const LETTER_MARGINS = { top: 10, right: 20, bottom: 16, left: 25 };
+const LETTER_MARGINS = { top: 15, right: 20, bottom: 16, left: 25 };
 
 export function geometry(a: Appearance, footerLines: number) {
   const m = a.letter.window || a.letter.foldMarks ? LETTER_MARGINS : MARGINS[a.margins];
   const paper = a.paper === "letter" ? { w: 215.9, h: 279.4, css: "letter" } : { w: 210, h: 297, css: "A4" };
   const [w, h] = a.orientation === "landscape" ? [paper.h, paper.w] : [paper.w, paper.h];
-  // The running footer grows with its lines (7.5 pt on 1.35 leading ≈ 3.6 mm a line).
-  const footer = footerLines ? 3 + footerLines * 3.6 : 0;
-  return { margins: m, paperCss: paper.css, width: w, height: h, footer: Math.round(footer * 10) / 10 };
+  // The running footer lives in the bottom margin, which grows with its lines
+  // (7.5 pt on 1.35 leading ≈ 3.6 mm a line, plus the rule and its gap).
+  const footer = Math.round((5 + Math.max(1, footerLines) * 3.6) * 10) / 10;
+  const margins = { ...m, bottom: Math.max(m.bottom, footer + 3) };
+  return { margins, paperCss: paper.css, width: w, height: h, footer };
 }
 
 /** A CSS string literal: quotes, backslashes, newlines and `<` escaped. */
@@ -95,10 +97,11 @@ const cssString = (s: string) => `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"
  * in Faqir), and the page counter in the document's language (the pattern's is
  * an English literal). Everything else is print.css. FAQIR-UPSTREAM.md #32, #33.
  */
-function documentCss(a: Appearance, labels: Labels, footerLines: number): string {
-  const g = geometry(a, footerLines);
+function documentCss(a: Appearance, labels: Labels, running: string, footer: string[]): string {
+  const g = geometry(a, footer.length);
   const m = g.margins;
-  const pairing = TYPE_PAIRINGS[a.type];
+  const pairing = TYPE_PAIRINGS[a.type] as { text: string; labels?: string };
+  const label = pairing.labels ?? pairing.text;
   const parts = labels.page.split(/(\{n\}|\{total\})/).filter(Boolean)
     .map((p) => (p === "{n}" ? "counter(page)" : p === "{total}" ? "counter(pages)" : cssString(p)));
   if (!/[^"]/.test(a.accent) || !/^#[0-9a-fA-F]{6}$/.test(a.accent)) throw new Error("accent must be validated before rendering");
@@ -108,13 +111,19 @@ function documentCss(a: Appearance, labels: Labels, footerLines: number): string
     `  --page-format: ${g.paperCss}; --page-orientation: ${a.orientation};`,
     `  --page-margin-top: ${m.top}mm; --page-margin-right: ${m.right}mm; --page-margin-bottom: ${m.bottom}mm; --page-margin-left: ${m.left}mm;`,
     `  --report-sheet-width: ${g.width}mm; --report-sheet-height: ${g.height}mm;`,
-    g.footer ? `  --doc-running-footer-height: ${g.footer}mm;` : "  --doc-running-footer-height: 0mm;",
     "}",
     // The left page margin is 0 and rebuilt as padding (print.css), so marks
-    // and the envelope window can sit at exact sheet coordinates.
+    // and the envelope window can sit at exact sheet coordinates; the margin
+    // boxes are moved back onto the content edge with margin-left.
+    // The running header and footer are margin-box strings, so page 1 drops
+    // the header (@page :first) and the footer shares its line with the page
+    // counter (FAQIR-UPSTREAM.md #39, #47).
     `@page { size: ${g.paperCss} ${a.orientation}; margin: ${m.top}mm ${m.right}mm ${m.bottom}mm 0;`,
-    `  @bottom-right { content: ${parts.join(" ")}; font-family: ${cssString(pairing.text)}; font-size: 7.5pt; color: #4d4d4d; vertical-align: top; font-variant-numeric: tabular-nums; }`,
+    `  @top-left { content: ${cssString(running)}; margin-left: ${m.left}mm; font-family: ${cssString(label)}; font-size: 6.75pt; letter-spacing: 0.12em; text-transform: uppercase; color: #595959; vertical-align: bottom; padding-bottom: 2.5mm; border-bottom: 0.5pt solid #b8b8b8; }`,
+    `  @bottom-left { content: ${cssString(footer.join("\n"))}; white-space: pre-wrap; margin-left: ${m.left}mm; font-family: ${cssString(pairing.text)}; font-size: 7.5pt; line-height: 1.35; color: #595959; vertical-align: top; padding-top: 2.5mm; border-top: 0.5pt solid #b8b8b8; }`,
+    `  @bottom-right { content: ${parts.join(" ")}; white-space: nowrap; font-family: ${cssString(pairing.text)}; font-size: 7.5pt; line-height: 1.35; color: #595959; vertical-align: top; padding-top: 2.5mm; padding-left: 6mm; border-top: 0.5pt solid #b8b8b8; font-variant-numeric: tabular-nums; }`,
     "}",
+    "@page :first { @top-left { content: none; border: 0; } }",
   ].join("\n");
 }
 
@@ -515,7 +524,7 @@ export function renderReport(input: RenderInput): Rendered {
     share: input.share ?? null,
   };
   let html = page("reports/document.faqir", { view });
-  const css = documentCss(appearance, labels, footer?.length ?? 0);
+  const css = documentCss(appearance, labels, running, footer ?? []);
   html = html.replace("</head>", `<style data-report-page>\n${css}\n</style>\n</head>`);
   const g = geometry(appearance, footer?.length ?? 0);
   const sheet = { width: g.width - g.margins.right, height: g.height - g.margins.top - g.margins.bottom };

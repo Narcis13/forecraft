@@ -253,10 +253,6 @@
 [data-keep="with-next"] { break-after: avoid; }
 [data-report-block="text"] p { hyphens: auto; }
 
-/* The first page shows the letterhead, not the running header: a strip of
-   paper over the fixed header, in flow nowhere (#39: Chromium has no running()). */
-[data-report-mask] { display: none; }
-
 /* ── Screen: the sheet on a desk, true scale; edge to edge on a phone ───── */
 
 @media screen {
@@ -264,7 +260,7 @@
   [data-report-view] body { background: transparent; min-block-size: 100vh; }
   [data-report-view] [data-ui="document"] { background-color: white; color: var(--color-fg); }
   [data-report-view] [data-part="doc-header"] { display: none; }
-  [data-report-mask], [data-report-fold] { display: none; }
+  [data-report-fold] { display: none; }
   [data-report-view] [data-ui="watermark"] { position: absolute; }
   [data-report-toolbar] { position: sticky; inset-block-start: 0; z-index: 5; padding: 2.5mm 4mm; background: oklch(0.94 0.004 85 / 0.92); backdrop-filter: blur(6px); border-block-end: 1px solid oklch(0.86 0 0); font-family: "IBM Plex Sans"; }
   [data-report-toolbar] > [data-ui="cluster"] { max-inline-size: calc(var(--report-sheet-width, 210mm) + 16mm); margin-inline: auto; }
@@ -290,18 +286,10 @@
   /* The left page margin is 0 (the renderer's @page), rebuilt here as padding:
      the window and fold marks then sit at exact sheet coordinates (#40). */
   [data-ui="document"] { padding-inline-start: var(--page-margin-left) !important; }
-  [data-ui="document"] > :is([data-part="doc-header"], [data-part="doc-footer"]) { inset-inline-start: var(--page-margin-left); }
-  [data-ui="document"] > [data-part="doc-footer"] { border-block-start-color: oklch(0.72 0 0); }
-
-  [data-report-mask] {
-    display: block;
-    position: absolute;
-    inset-block-start: 0;
-    inset-inline: var(--page-margin-left) 0;
-    block-size: calc(var(--doc-running-header-height) + var(--doc-running-gap));
-    background: white;
-    z-index: calc(var(--z-raised, 10) + 1);
-  }
+  /* On paper the running header and footer are the renderer's margin boxes
+     (#39, #47): the pattern's fixed fallback is not drawn and reserves nothing. */
+  [data-ui="document"] > :is([data-part="doc-header"], [data-part="doc-footer"]) { display: none !important; }
+  [data-ui="document"] { --doc-running-header-height: 0mm; --doc-running-footer-height: 0mm; --doc-running-gap: 0mm; }
 
   /* DIN 5008 fold marks (105 mm, 210 mm) and punch mark (148.5 mm), page 1. */
   [data-report-fold] {

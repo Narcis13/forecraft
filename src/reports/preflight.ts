@@ -136,19 +136,23 @@ export async function readPdf(pdf: Uint8Array, zones?: { top: number; bottom: nu
       await page.getOperatorList();
       const tc = await page.getTextContent();
       const fonts = new Set<string>();
-      const rows = new Map<number, { x: number; s: string }[]>();
-      for (const it of tc.items as { str: string; transform: number[]; fontName: string }[]) {
+      const rows = new Map<number, { x: number; w: number; s: string; size: number }[]>();
+      for (const it of tc.items as { str: string; transform: number[]; fontName: string; width: number }[]) {
         if (!("str" in it)) continue;
         try {
           const f = page.commonObjs.get(it.fontName) as { name?: string } | undefined;
           if (f?.name && it.str.trim()) fonts.add(f.name);
         } catch { /* a font pdf.js did not load: no glyphs drawn with it */ }
-        if (!it.str.trim()) continue;
+        if (!it.str) continue;
         const y = Math.round(it.transform[5]! * 2) / 2;
         const key = [...rows.keys()].find((k) => Math.abs(k - y) < 2) ?? y;
-        (rows.get(key) ?? rows.set(key, []).get(key)!).push({ x: it.transform[4]!, s: it.str });
+        (rows.get(key) ?? rows.set(key, []).get(key)!).push({ x: it.transform[4]!, w: it.width ?? 0, s: it.str, size: Math.hypot(it.transform[0]!, it.transform[1]!) || 10 });
       }
-      const lines = [...rows.entries()].sort((a, b) => b[0] - a[0]).map(([y, parts]) => ({ y, text: norm(parts.sort((a, b) => a.x - b.x).map((p) => p.s).join(" ")) }));
+      // Runs that touch are one word (a diacritic, or a letter-spaced capital, is often its
+      // own run); a gap wider than a fifth of an em is a word space.
+      const join = (parts: { x: number; w: number; s: string; size: number }[]) => parts.sort((a, b) => a.x - b.x)
+        .reduce((acc, p, i, all) => acc + (i && p.x - (all[i - 1]!.x + all[i - 1]!.w) > 0.6 * p.size && !acc.endsWith(" ") && !p.s.startsWith(" ") ? " " : "") + p.s, "");
+      const lines = [...rows.entries()].sort((a, b) => b[0] - a[0]).map(([y, parts]) => ({ y, text: norm(join(parts)) })).filter((l) => l.text);
       const body = zones ? lines.filter((l) => l.y < vp.height - zones.top && l.y > zones.bottom) : lines;
       pages.push({ width: vp.width, height: vp.height, lines, body, fonts: [...fonts] });
       fonts.forEach((f) => all.add(f));
@@ -197,12 +201,12 @@ export interface PreflightResult {
 export async function preflight(report: CompiledReport, rendered: Rendered, opts: { assets?: AssetLookup; images?: { dpi: number; max: number } } = {}): Promise<PreflightResult> {
   const printed = await printPdf(rendered.html, { assets: opts.assets, probe: PROBE, sheet: rendered.sheet });
   const probe = printed.layout as Probe;
-  const g = geometry(rendered.appearance, 0);
   const pt = (mm: number) => (mm * 72) / 25.4;
   // Header zone: the top margin plus the running header; footer zone: bottom margin plus footer.
   const footerLines = (rendered.html.match(/<footer data-part="doc-footer">[\s\S]*?<\/footer>/)?.[0].match(/<p>/g) ?? []).length;
-  const fg = geometry(rendered.appearance, footerLines);
-  const zones = { top: pt(g.margins.top + 9 + 1.5), bottom: pt(g.margins.bottom + fg.footer + 1) };
+  // The running header and footer live in the page margins (margin boxes): the body is between them.
+  const g = geometry(rendered.appearance, footerLines);
+  const zones = { top: pt(g.margins.top - 0.5), bottom: pt(g.margins.bottom - 0.5) };
   const read = await readPdf(printed.pdf, zones);
   const findings: Finding[] = [...rendered.findings];
   const add = (code: string, message: string, block: string | null, page?: number) =>

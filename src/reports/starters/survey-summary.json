@@ -718,6 +718,10 @@
         {
           "label": "Questions",
           "value": "{{ count(questions) }}"
+        },
+        {
+          "label": "{{ label(\"reference\") }}",
+          "value": "{{ doc.number ?? label(\"draft\") }}"
         }
       ]
     },

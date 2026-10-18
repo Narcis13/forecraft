@@ -25,9 +25,6 @@ html(lang=view.lang data-theme="light" data-report-view=view.mode)
         header(data-part="doc-header")
           span(data-ui="text" data-variant="eyebrow") {{ view.running.left }}
           span(data-ui="text" data-size="xs" data-variant="muted" data-tabular) {{ view.running.right }}
-        //- Page 1 carries the letterhead, not the running header: this paper
-        //- strip hides the fixed header there (Chromium has no running()).
-        div(data-report-mask aria-hidden="true")
         if view.foldMarks
           div(data-report-fold="105" aria-hidden="true")
           div(data-report-fold="148" aria-hidden="true")
