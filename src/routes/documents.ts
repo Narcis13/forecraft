@@ -62,7 +62,7 @@ function shareView(c: Context, doc: DocumentRow, labels: ReturnType<typeof label
     link: `${origin}/d/${doc.share_token}`,
     filename,
     badge: doc.status === "void" ? labels.void : doc.status === "draft" ? labels.draft : null,
-    badgeVariant: doc.status === "void" ? "destructive" : "outline",
+    badgeVariant: doc.status === "void" ? "destructive" : "secondary",
   };
 }
 

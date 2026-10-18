@@ -192,7 +192,21 @@ class Evaluator {
 
   md(block: Block, source: unknown, scope: View): View[] {
     const blocks = this.report.markdown.get(String(source)) ?? [];
-    const runs = (rs: Run[]) => tidyRuns(rs.map((r) => ({ ...r, text: this.text(block, r.text, scope), ...(r.href ? { href: this.text(block, r.href, scope) } : {}) })));
+    // A link whose data supplies a scheme the engine refuses becomes plain text and a finding, not a crash.
+    const safe = (href: string) => {
+      if (/^(https?:|mailto:|tel:)/i.test(href.replace(/[\s\x00-\x1f]/g, "")) || !/^[a-z][a-z0-9+.-]*:/i.test(href.replace(/[\s\x00-\x1f]/g, ""))) return href;
+      this.findings.push({ severity: "error", code: "expression-error", message: `A link resolved to ${JSON.stringify(href.slice(0, 40))}: links are http(s), mailto or tel.`, block: block.id });
+      return undefined;
+    };
+    const runs = (rs: Run[]) => tidyRuns(rs.map((r) => {
+      const run: Run = { ...r, text: this.text(block, r.text, scope) };
+      if (r.href) {
+        const h = safe(this.text(block, r.href, scope));
+        if (h) run.href = h;
+        else delete run.href;
+      }
+      return run;
+    }));
     const out: View[] = [];
     for (const m of blocks as MdBlock[]) {
       if ("items" in m) { out.push({ t: m.t, items: m.items.map(runs) }); continue; }

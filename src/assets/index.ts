@@ -29,8 +29,8 @@ export function sniff(bytes: Uint8Array): AssetType | null {
 export function svgProblems(text: string): string | null {
   if (/<script[\s>]/i.test(text)) return "an SVG with <script> is refused";
   if (/\son[a-z]+\s*=/i.test(text)) return "an SVG with event handlers is refused";
-  if (/<foreignObject[\s>]/i.test(text)) return "an SVG with <foreignObject> is refused";
-  if (/(?:xlink:)?href\s*=\s*["']\s*(?!#)/i.test(text)) return "an SVG that references another file or URL is refused (only #fragment references)";
+  if (/<foreignObject[\s>/]/i.test(text)) return "an SVG with <foreignObject> is refused";
+  if (/(?:xlink:)?href\s*=\s*(?:["']\s*)?(?!["'#\s])/i.test(text)) return "an SVG that references another file or URL is refused (only #fragment references)";
   if (/@import|url\(\s*["']?\s*(?!#)/i.test(text)) return "an SVG that loads CSS or images from elsewhere is refused";
   return null;
 }

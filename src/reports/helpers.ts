@@ -60,7 +60,8 @@ function field(item: unknown, key: unknown): unknown {
 function isoDate(v: unknown, name: string): Date {
   if (typeof v !== "string" || !/^\d{4}-\d{2}-\d{2}/.test(v)) throw new HelperError(`${name}() needs an ISO date such as "2026-10-19", got ${JSON.stringify(v)}`);
   const d = new Date(v.length === 10 ? `${v}T00:00:00Z` : v);
-  if (Number.isNaN(d.getTime())) throw new HelperError(`${name}() got an impossible date: ${v}`);
+  // V8 rolls 31 February into March: a date must read back as itself.
+  if (Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== v.slice(0, 10)) throw new HelperError(`${name}() got an impossible date: ${v}`);
   return d;
 }
 
@@ -95,6 +96,7 @@ export function epcPayload(name: unknown, iban: unknown, amount: unknown, refere
   if (!nm) throw new HelperError("epc() needs the beneficiary's name");
   if (!/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(ib)) throw new HelperError(`epc() needs an IBAN, got ${JSON.stringify(iban)}`);
   const amt = roundHalfAway(decimalText(amount, "epc"), 2);
+  if (Number(amt) > 999999999.99) throw new HelperError("epc() amounts stop at EUR 999999999.99 (EPC069-12)");
   const ref = clean(reference);
   const structured = /^RF\d{2}[A-Z0-9]{1,21}$/.test(ref.replace(/\s+/g, ""));
   return [

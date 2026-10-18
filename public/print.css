@@ -155,8 +155,8 @@
 [data-ui="document"] [data-ui="table"] :is([data-part="th"], [data-part="td"]):first-child { padding-inline-start: 0; }
 [data-ui="document"] [data-ui="table"] :is([data-part="th"], [data-part="td"]):last-child { padding-inline-end: 0; }
 [data-ui="document"] [data-ui="table"] [data-format] { white-space: nowrap; }
-[data-ui="document"] [data-ui="table"] [data-width="wide"] { inline-size: 46%; }
-[data-ui="document"] [data-ui="table"] [data-width="narrow"] { inline-size: 9%; }
+[data-ui="document"] [data-ui="table"] [data-report-width="wide"] { inline-size: 46%; }
+[data-ui="document"] [data-ui="table"] [data-report-width="narrow"] { inline-size: 9%; }
 [data-ui="document"] [data-ui="table"] caption { caption-side: top; text-align: start; font-size: var(--doc-legal-size); color: var(--doc-legal-color); padding-block-end: 1.5mm; }
 [data-report-table-footer] [data-part="td"] { border-block-end: 0; font-weight: var(--weight-semibold); }
 

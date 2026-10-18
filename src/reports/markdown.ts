@@ -46,7 +46,9 @@ export function compileMarkdown(source: string): MdResult {
         case "link": {
           const l = t as Tokens.Link;
           const href = restore(l.href);
-          if (!href.includes("{{") && !SAFE_URL.test(href)) errors.push({ code: "unsafe-url", detail: `Links are http(s), mailto or tel: ${JSON.stringify(href)}.` });
+          // A literal scheme before a hole is checked now; a hole that supplies the scheme is checked when it renders.
+          const literal = href.split("{{")[0]!;
+          if ((!href.includes("{{") || literal.includes(":")) && !SAFE_URL.test(literal.includes(":") ? literal : href)) errors.push({ code: "unsafe-url", detail: `Links are http(s), mailto or tel: ${JSON.stringify(href)}.` });
           inline(l.tokens, { ...flags, href }, out);
           break;
         }
@@ -101,7 +103,12 @@ export function compileMarkdown(source: string): MdResult {
         break;
       }
       case "blockquote": blocks.push({ t: "p", runs: inline((t as Tokens.Blockquote).tokens.flatMap((x) => (x as Tokens.Paragraph).tokens ?? [])) }); break;
-      case "code": blocks.push({ t: "p", runs: [{ text: restore((t as Tokens.Code).text).replace(/\n/g, " "), code: true }] }); break;
+      case "code": {
+        const text = restore((t as Tokens.Code).text).replace(/\n/g, " ");
+        texts.push(text);
+        blocks.push({ t: "p", runs: [{ text, code: true }] });
+        break;
+      }
       case "hr": break;
       case "html": errors.push({ code: "html-refused", detail: `HTML is not allowed in markdown: ${JSON.stringify(t.raw.trim().slice(0, 40))}.` }); break;
       case "table": errors.push({ code: "table-refused", detail: "Tables in markdown are not allowed: use a table block." }); break;

@@ -7,7 +7,7 @@ div(data-block=b.id data-report-block="table" data-keep=b.keep)
       thead(data-part="thead")
         tr(data-part="tr")
           each c in b.columns
-            th(data-part="th" scope="col" data-align=c.align data-format=c.format data-width=c.width) {{ c.label }}
+            th(data-part="th" scope="col" data-align=c.align data-format=c.format data-report-width=c.width) {{ c.label }}
       tbody(data-part="tbody")
         each r in b.rows
           tr(data-part="tr")

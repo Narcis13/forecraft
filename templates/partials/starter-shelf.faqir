@@ -8,8 +8,8 @@ div(data-ui="grid" data-cols="1" data-cols-sm="2" data-cols-lg="3" data-gap="4")
       div(data-part="body")
         div(data-ui="stack" data-gap="3")
           div(data-ui="cluster" data-gap="1")
-            span(data-ui="badge" data-variant="outline" data-size="sm") {{ s.paper }}
-            span(data-ui="badge" data-variant="outline" data-size="sm") {{ s.theme }}
+            span(data-ui="badge" data-variant="secondary" data-size="sm") {{ s.paper }}
+            span(data-ui="badge" data-variant="secondary" data-size="sm") {{ s.theme }}
             if s.needsForm
               span(data-ui="badge" data-variant="secondary" data-size="sm") {{ s.source == "summary" ? "Summarises a form" : "Confirms a form" }}
           if s.needsForm

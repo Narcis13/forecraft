@@ -229,20 +229,21 @@ block body
                   template(l-for="p in paths" l-key="p")
                     option(:value="p" l-text="p")
               p(data-part="description") Puts a {{ "{{ path }}" }} hole into the text field you were last in.
+            //- Labels are text here: the controls are made per block, so each names itself (aria-label).
             template(l-for="f in fields" l-key="f.key")
-              div(data-ui="field-group")
-                label(data-part="label" :for="'rf-' + f.key" l-text="f.label")
-                div(data-part="input")
+              div(data-ui="stack" data-gap="1" data-rd-field)
+                span(data-ui="text" data-size="sm" data-weight="medium" l-text="f.label")
+                div
                   template(l-if="f.kind === 'text' || f.kind === 'expr' || f.kind === 'asset'")
-                    input(data-ui="input" data-size="sm" type="text" :id="'rf-' + f.key" :value="f.value" :data-rd-key="f.key" @focus="remember($event)" @input="setField(f.key, $event.target.value)")
+                    input(data-ui="input" data-size="sm" type="text" :id="'rf-' + f.key" :aria-label="f.label" :value="f.value" :data-rd-key="f.key" @focus="remember($event)" @input="setField(f.key, $event.target.value)")
                   template(l-if="f.kind === 'md' || f.kind === 'lines' || f.kind === 'source'")
-                    textarea(data-ui="textarea" rows="5" :id="'rf-' + f.key" :value="f.value" :data-rd-key="f.key" @focus="remember($event)" @input="setField(f.key, $event.target.value)")
+                    textarea(data-ui="textarea" rows="5" :id="'rf-' + f.key" :aria-label="f.label" :value="f.value" :data-rd-key="f.key" @focus="remember($event)" @input="setField(f.key, $event.target.value)")
                   template(l-if="f.kind === 'enum'")
-                    select(data-ui="select" :id="'rf-' + f.key" @change="setField(f.key, $event.target.value)")
+                    select(data-ui="select" :id="'rf-' + f.key" :aria-label="f.label" @change="setField(f.key, $event.target.value)")
                       template(l-for="o in f.options" l-key="o")
                         option(:value="o" :selected="o === f.value" l-text="o || '—'")
                   template(l-if="f.kind === 'bool'")
-                    input(data-ui="switch" type="checkbox" role="switch" :id="'rf-' + f.key" :checked="f.value" @change="setField(f.key, $event.target.checked)")
+                    input(data-ui="switch" type="checkbox" role="switch" :id="'rf-' + f.key" :aria-label="f.label" :checked="f.value" @change="setField(f.key, $event.target.checked)")
                   template(l-if="f.kind === 'rows'")
                     div(data-ui="stack" data-gap="2")
                       template(l-for="row in f.rows" l-key="row.key")
@@ -264,7 +265,7 @@ block body
                         span(data-ui="icon" data-icon="plus" aria-hidden="true")
                         span(l-text="f.addLabel")
                 template(l-if="f.hint")
-                  p(data-part="description" l-text="f.hint")
+                  p(data-ui="text" data-size="xs" data-variant="muted" l-text="f.hint")
     div#toasts(data-ui="toast" data-variant="bottom-right" data-part="container" role="region" aria-label="Notifications")
 
 block scripts

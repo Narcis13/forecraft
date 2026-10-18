@@ -107,7 +107,7 @@ export function summarize(db: DB, formId: string, period: { since?: string; unti
   }
 
   for (const q of questions) {
-    if (q.options?.length && (q.kind === "choice" || q.kind === "multi" || q.kind === "boolean" || q.kind === "nps")) q.top = [...q.options].sort((a, b) => b.count - a.count)[0];
+    if (q.answered && q.options?.length && (q.kind === "choice" || q.kind === "multi" || q.kind === "boolean" || q.kind === "nps")) q.top = [...q.options].sort((a, b) => b.count - a.count)[0];
   }
   const seen = new Set<string>();
   const verbatims = questions.flatMap((q) => (q.samples ?? []).map((s) => ({ ...s, question: q.title }))).sort((a, b) => (a.at < b.at ? 1 : -1))
