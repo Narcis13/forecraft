@@ -1,7 +1,13 @@
 // Shared helpers for the end-to-end suite. Every test creates its own account,
 // so tests never depend on each other or on the order they run in.
 
-import { expect, type APIRequestContext, type Page } from "@playwright/test";
+import { expect, test as base, type APIRequestContext, type Page } from "@playwright/test";
+
+export { expect };
+
+// faqir-core boots from public/boot.js, after every deferred script (the
+// auto-start race is FAQIR-UPSTREAM.md #28; faqir-boot.spec.ts guards the fix).
+export const test = base;
 
 export const PASSWORD = "e2e-password-1";
 
@@ -90,12 +96,23 @@ export function watchSubmissions(page: Page): string[] {
   return seen;
 }
 
-/** Wait for the designer to finish loading its form and for the save badge to settle. */
-export async function waitForDesigner(page: Page) {
-  await expect(page.locator("[data-designer-field]").first()).toBeVisible();
-  await expect(page.getByText("All changes saved")).toBeVisible();
+/** Wait for the designer's save badge to settle on "All changes saved". */
+export async function waitSaved(page: Page) {
+  await expect(page.locator("[data-designer-bar]").getByText("All changes saved")).toBeVisible({ timeout: 10_000 });
 }
 
-export async function waitSaved(page: Page) {
-  await expect(page.locator('[data-designer-bar] [aria-live="polite"]').filter({ hasText: /changes saved|Unsaved|Saving|Not saved/ })).toHaveText("All changes saved", { timeout: 10_000 });
+/**
+ * Choose the 15th of the month the calendar opens on, in a faqir date-picker
+ * (its input is readonly and shows "October 15, 2026"); returns the ISO date.
+ */
+export async function pickDate(page: Page, name: string): Promise<string> {
+  const input = page.locator(`[name="${name}"]`);
+  await input.click();
+  const picker = page.locator('[data-ui="date-picker"]').filter({ has: input });
+  const day = picker.locator('button[data-part="day"]:not([data-outside])').nth(14);
+  const iso = await day.getAttribute("data-date");
+  await day.click();
+  await expect(picker.locator('[data-part="calendar"]')).toBeHidden();
+  expect(iso).toMatch(/^\d{4}-\d{2}-15$/);
+  return iso!;
 }

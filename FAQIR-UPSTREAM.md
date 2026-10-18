@@ -415,3 +415,64 @@ prioritised shortlist.
 - **Here:** `/for-agents` writes that list with `raw`; other copy was reworded.
 - **Suggested fix:** a "glue" marker (for example a piped line starting with `|<`)
   that joins to the previous node without whitespace, documented beside §12.1.
+
+### 27. A `ui:groups` fieldset card's `<legend>` notches the card border
+
+- **Seen:** `@faqir-ui/forms` renders each `ui:groups` group as
+  `<fieldset data-ui="card" data-variant="outlined"><legend data-part="title">…</legend>
+  <div data-part="body">…`. `card.css` styles a `div` card: on a fieldset the legend keeps
+  the browser's rendering, sitting on the top border with a gap cut into it, flush to
+  the edge while the body is inset by `--card-padding` (`/f/customer-pulse`,
+  `/f/senior-product-engineer`).
+- **Where:** `registry/primitives/card/card.css` (no `fieldset` / `legend` rules);
+  `packages/forms/src/index.js` `fieldsetCard`.
+- **Here:** `public/app.css` floats the legend full width with the card's part padding
+  and clears the body after it.
+- **Suggested fix:** in `card.css`, `fieldset[data-ui="card"]` resets `min-inline-size`
+  and `margin`, and `> legend[data-part="title"]` is floated (or `display: contents` on a
+  wrapper) and padded like `[data-part="header"]`; a visual test of a grouped form.
+
+---
+
+## Engine (`ui/core/faqir-core.js`)
+
+### 28. Auto-start can boot between two deferred scripts, and `l-rules` is then silently never bound
+
+- **Seen:** found by the e2e suite. A form page loads `faqir-core.js`, then
+  `faqir-validate.js`, `faqir-rules.js` and `form.js`, all `defer`. About 4 runs in 6,
+  a field a rule hides stayed visible and a rule-required field was not required — no
+  error, no warning. Delaying `faqir-rules.js` by 300 ms made it deterministic.
+- **Where:** `src/core-src/engine.js`, the "Auto-start logic" block (`ui/core/faqir-core.js`
+  ~line 11945): when the core runs with `readyState === "interactive"` — always, for a
+  `defer` script — it adds a `DOMContentLoaded` listener **and** `setTimeout(autoStart, 0)`.
+  The timer can run between two deferred scripts, so the engine boots before later plugins
+  and page `Faqir.data()` registrations exist, and a directive registered afterwards is
+  never applied to the already-bound tree.
+- **Why:** the timer exists for module imports (README: "boots one task after it is
+  imported, so registrations on the following lines are seen"); for a classic `defer`
+  script the `DOMContentLoaded` listener alone is correct.
+- **Here:** both layouts load the core with `data-manual`, and `public/boot.js`, the last
+  deferred script, calls `Faqir.start()`. `tests/e2e/faqir-boot.spec.ts` guards it.
+- **Suggested fix:** schedule the timer only for a module (no `currentScript`); for a
+  classic script rely on `DOMContentLoaded`. And make a directive registered after boot
+  (a late plugin) scan the bound tree once, or at least warn in the dev build. Test: a page
+  whose plugin script arrives 300 ms late still binds `l-rules`.
+
+## Recipes (continued)
+
+### 29. A date-picker's input holds display text, so `FormData` submits "October 15, 2026"
+
+- **Seen:** found by the e2e suite. A `format: "date"` field renders the `date-picker`
+  recipe; after picking a day the readonly input's `value` is "October 15, 2026" and the
+  ISO date is only in `input.dataset.value`. Anything that reads the form the standard way
+  (`new FormData(form)`, a native submit) sends the display text, which the same
+  definition's `format: "date"` then refuses on the server (422).
+- **Where:** `registry/recipes/date-picker/date-picker.js` (`input.dataset.value = dateStr`
+  beside a formatted `value`); `packages/forms/src/index.js` `renderDatePicker` gives the
+  readonly display input the field's `name`.
+- **Here:** `public/form.js` `pairs()` sends `dataset.value` for inputs inside a
+  `date-picker`. `tests/e2e/date-field.spec.ts` guards it.
+- **Suggested fix:** keep the display text in the visible input without a `name`, and put
+  the ISO value in a hidden `<input name>` the picker updates (the pattern native date
+  inputs follow), so `FormData` and native submits carry what the schema validates. Test:
+  `new FormData(form).get(name)` is ISO after a pick.

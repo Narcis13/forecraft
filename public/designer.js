@@ -518,7 +518,9 @@
             var all = Object.keys(d.schema.properties);
             var clean = function (list, word) {
               return list.map(function (s, i) {
-                var out = { title: s.title || word + " " + (i + 1), fields: s.fields };
+                // Default names follow the mode ("Section 2" becomes "Step 2"); real titles stay.
+                var named = s.title && !/^(Section|Step) \d+$/.test(s.title);
+                var out = { title: named ? s.title : word + " " + (i + 1), fields: s.fields };
                 if (s.description) out.description = s.description;
                 return out;
               });

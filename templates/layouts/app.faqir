@@ -67,6 +67,7 @@ html(lang="en")
             div(data-part="empty" hidden) Nothing matches.
     div#toasts(data-ui="toast" data-variant="bottom-right" data-part="container" role="region" aria-label="Notifications")
     block dialogs
-    script(src="/ui/core/faqir-core.js" defer)
+    script(src="/ui/core/faqir-core.js" defer data-manual)
     script(src="/app.js" defer)
     block scripts
+    script(src="/boot.js" defer)
