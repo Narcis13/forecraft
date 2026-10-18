@@ -25,7 +25,7 @@ export interface SubmissionView {
   created_at: string;
   form: { id: string; title: string };
   /** In form order: scalars as labelled values, repeatable groups as tables. */
-  groups: ({ label: string; items: { label: string; value: string; mono: boolean }[] } | { label: string; table: { head: string[]; rows: string[][] } })[];
+  groups: ({ label: string; items: { name: string; label: string; value: string; mono: boolean }[] } | { label: string; name: string; table: { head: string[]; rows: string[][] } })[];
 }
 
 export interface DocMeta {
@@ -88,11 +88,14 @@ export function geometry(a: Appearance, footerLines: number) {
   const footer = Math.round((5 + Math.max(1, footerLines) * 3.6) * 10) / 10;
   // The footer's last line keeps ~10 mm of paper below it: most lasers cannot print the outer 5 mm.
   const margins = { ...m, bottom: Math.max(m.bottom, footer + 9) };
-  return { margins, paperCss: paper.css, width: w, height: h, footer };
+  // From page 2 the running header sits in a top margin 4 mm deeper, so its rule
+  // falls where page 1's letterhead rule does and every page shares one top line.
+  return { margins, laterTop: margins.top + 4, paperCss: paper.css, width: w, height: h, footer };
 }
 
-/** A CSS string literal: quotes, backslashes, newlines and `<` escaped. */
-const cssString = (s: string) => `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\A ").replace(/</g, "\\3C ")}"`;
+/** A CSS string literal: backslashes and quotes escaped; `<` and every control
+ *  character as hex (\n, and also \r and \f, which a CSS parser reads as newlines). */
+const cssString = (s: string) => `"${s.replace(/[\\"<\u0000-\u001f\u007f]/g, (c) => (c === "\\" || c === '"' ? `\\${c}` : `\\${c.charCodeAt(0).toString(16).toUpperCase()} `))}"`;
 
 /**
  * What only this document knows, as one <style>: paper size and margins (an
@@ -107,7 +110,7 @@ function documentCss(a: Appearance, labels: Labels, running: string, footer: str
   const label = pairing.labels ?? pairing.text;
   const parts = labels.page.split(/(\{n\}|\{total\})/).filter(Boolean)
     .map((p) => (p === "{n}" ? "counter(page)" : p === "{total}" ? "counter(pages)" : cssString(p)));
-  if (!/[^"]/.test(a.accent) || !/^#[0-9a-fA-F]{6}$/.test(a.accent)) throw new Error("accent must be validated before rendering");
+  if (!/^#[0-9a-fA-F]{6}$/.test(a.accent)) throw new Error("accent must be validated before rendering");
   return [
     ":root {",
     `  --report-accent: ${a.accent};`,
@@ -121,12 +124,12 @@ function documentCss(a: Appearance, labels: Labels, running: string, footer: str
     // The running header and footer are margin-box strings, so page 1 drops
     // the header (@page :first) and the footer shares its line with the page
     // counter (FAQIR-UPSTREAM.md #39, #47).
-    `@page { size: ${g.paperCss} ${a.orientation}; margin: ${m.top}mm ${m.right}mm ${m.bottom}mm 0;`,
+    `@page { size: ${g.paperCss} ${a.orientation}; margin: ${g.laterTop}mm ${m.right}mm ${m.bottom}mm 0;`,
     `  @top-left { content: ${cssString(running)}; margin-left: ${m.left}mm; font-family: ${cssString(label)}; font-size: 6.75pt; letter-spacing: 0.12em; text-transform: uppercase; color: #595959; vertical-align: bottom; padding-bottom: 2.5mm; border-bottom: 0.5pt solid #b8b8b8; }`,
     `  @bottom-left { content: ${cssString(footer.join("\n"))}; white-space: pre-wrap; margin-left: ${m.left}mm; font-family: ${cssString(pairing.text)}; font-size: 7.5pt; line-height: 1.35; color: #595959; vertical-align: top; padding-top: 2.5mm; border-top: 0.5pt solid #b8b8b8; }`,
     `  @bottom-right { content: ${parts.join(" ")}; white-space: nowrap; font-family: ${cssString(pairing.text)}; font-size: 7.5pt; line-height: 1.35; color: #595959; vertical-align: top; padding-top: 2.5mm; padding-left: 6mm; border-top: 0.5pt solid #b8b8b8; font-variant-numeric: tabular-nums; }`,
     "}",
-    "@page :first { @top-left { content: none; border: 0; } }",
+    `@page :first { margin-top: ${m.top}mm; @top-left { content: none; border: 0; } }`,
   ].join("\n");
 }
 
@@ -144,12 +147,18 @@ class Evaluator {
   assetUrl: (id: string) => string;
   assetType: (id: string) => string | undefined = () => undefined;
   assetSize: (id: string) => { width: number; height: number } | undefined = () => undefined;
+  /** Set when the caller can look assets up: then an unknown one is an error, not a broken image. */
+  assetsKnown = false;
   constructor(report: CompiledReport, helpers: Helpers, labels: Labels, money: DocMoney | null, assetUrl: (id: string) => string) {
     this.report = report;
     this.helpers = helpers;
     this.labels = labels;
     this.money = money;
     this.assetUrl = assetUrl;
+  }
+
+  checkAsset(b: Block, id: string) {
+    if (this.assetsKnown && !this.assetType(id)) this.findings.push({ severity: "error", code: "missing-asset", message: `asset:${id} is not in this workspace: upload it (POST /assets) and use the id it returns.`, block: b.id });
   }
 
   private fail(block: Block, err: unknown, source: string): string {
@@ -251,6 +260,7 @@ class Evaluator {
       case "letterhead": {
         // The block's own logo, else the report's (appearance.logo).
         const ref = typeof b.logo === "string" ? b.logo : this.report.appearance.logo;
+        if (ref) this.checkAsset(b, ref.slice(6));
         const logo = ref ? { src: this.assetUrl(ref.slice(6)), alt: t(b.name), vector: this.assetType(ref.slice(6)) === "image/svg+xml", width: this.assetSize(ref.slice(6))?.width ?? false, height: this.assetSize(ref.slice(6))?.height ?? false } : null;
         return { name: t(b.name), logo, lines: ((b.lines as string[]) ?? []).map(t).filter(Boolean), details: this.pairs(b, b.details, scope) };
       }
@@ -330,7 +340,7 @@ class Evaluator {
         const value = t(b.value);
         return { value, caption: b.caption ? t(b.caption) : false, size: (b.size as string) ?? (b.block === "qr" ? "md" : "sm"), aria: `${b.block === "qr" ? "QR code" : "Barcode"}: ${b.caption ? t(b.caption) : value.split("\n")[0]}` };
       }
-      case "image": return { src: this.assetUrl(String(b.src).slice(6)), vector: this.assetType(String(b.src).slice(6)) === "image/svg+xml", width: this.assetSize(String(b.src).slice(6))?.width ?? false, height: this.assetSize(String(b.src).slice(6))?.height ?? false, alt: t(b.alt), caption: b.caption ? t(b.caption) : false, size: (b.size as string) ?? "full" };
+      case "image": this.checkAsset(b, String(b.src).slice(6)); return { src: this.assetUrl(String(b.src).slice(6)), vector: this.assetType(String(b.src).slice(6)) === "image/svg+xml", width: this.assetSize(String(b.src).slice(6))?.width ?? false, height: this.assetSize(String(b.src).slice(6))?.height ?? false, alt: t(b.alt), caption: b.caption ? t(b.caption) : false, size: (b.size as string) ?? "full" };
       case "stamp": return { text: t(b.text), tone: (b.tone as string) ?? "default" };
       case "separator": case "page-break": return {};
       case "answers": {
@@ -339,7 +349,13 @@ class Evaluator {
           this.findings.push({ severity: "error", code: "missing-data", message: "The answers block needs a submission: set source.kind to \"submission\" and issue the document from one.", block: b.id, path: "doc.submission" });
           return { title: b.title ? t(b.title) : false, groups: [] };
         }
-        return { title: b.title ? t(b.title) : false, groups: sub.groups };
+        // `omit` names fields another block already prints (the attendee's name and email, say).
+        const omit = new Set(((b.omit as string[] | undefined) ?? []).map((n) => t(n)));
+        const groups = sub.groups
+          .filter((g) => !("table" in g) || !omit.has(g.name))
+          .map((g) => ("items" in g ? { ...g, items: g.items.filter((i) => !omit.has(i.name)) } : g))
+          .filter((g) => !("items" in g) || g.items.length > 0);
+        return { title: b.title ? t(b.title) : false, groups };
       }
       case "faqir": {
         try {
@@ -515,7 +531,7 @@ export function renderReport(input: RenderInput): Rendered {
   const scope: View = { ...data, doc: docScope };
   const ev = new Evaluator(report, helpers, labels, money, (id) => `/assets/${id}`);
   ev.locale = locale;
-  if (input.assetType) ev.assetType = input.assetType;
+  if (input.assetType) { ev.assetType = input.assetType; ev.assetsKnown = true; }
   if (input.assetSize) ev.assetSize = input.assetSize;
   ev.currency = currency;
   const blocks = ev.blocks(def.layout, scope, 0, []);

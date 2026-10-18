@@ -5,13 +5,14 @@ import type { Context, Hono } from "hono";
 import type { DB } from "../db/index.ts";
 import { listForms } from "../forms/store.ts";
 import { page } from "../render/index.ts";
-import { labelsFor } from "../reports/labels.ts";
 import { BLOCKS, DEFAULT_APPEARANCE, DENSITIES, LOCALES, MARGINS, ORIENTATIONS, PAPERS, PRINT_THEMES, TYPE_PAIRINGS, type ReportDefinition } from "../reports/model.ts";
 import { renderDocument, versionThumbnail } from "../reports/service.ts";
 import { HELPER_DOCS } from "../reports/helpers.ts";
 import { listStarters } from "../reports/starters.ts";
 import { getDocument, getReport, listDocuments, listReportVersions, listReports, toReportResource, type DocStatus, type DocumentRow, type ReportRow } from "../reports/store.ts";
 import type { PageEnv } from "./pages.ts";
+import { guard } from "./reports-api.ts";
+import { DOCUMENT_CSP } from "./documents.ts";
 
 type Shell = (c: Context<PageEnv>, nav: string, heading: string, extra: Record<string, unknown>) => Record<string, unknown>;
 
@@ -122,7 +123,9 @@ export function reportPageRoutes(app: Hono<PageEnv>, db: DB, shell: Shell) {
     const row = getReport(db, ws(c), c.req.param("id"));
     if (!row || row.published_version === null) return c.notFound();
     const v = Number(c.req.query("v") ?? row.published_version);
-    const png = await versionThumbnail(db, row, Number.isInteger(v) ? v : row.published_version);
+    // A busy renderer answers 503 with Retry-After, like every other render.
+    const version = Number.isInteger(v) ? v : row.published_version;
+    const png = await guard(() => versionThumbnail(db, row, version));
     if (!png) return c.notFound();
     return c.body(new Uint8Array(png), 200, { "content-type": "image/png", "cache-control": "private, max-age=86400, immutable" });
   });
@@ -165,7 +168,7 @@ export function reportPageRoutes(app: Hono<PageEnv>, db: DB, shell: Shell) {
   app.get("/app/documents/:id/sheet", (c) => {
     const d = getDocument(db, ws(c), c.req.param("id"));
     if (!d) return c.notFound();
-    void labelsFor;
+    c.header("Content-Security-Policy", DOCUMENT_CSP);
     return c.html(renderDocument(db, d, "canvas").html);
   });
 

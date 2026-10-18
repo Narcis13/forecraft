@@ -733,6 +733,43 @@ the case it would add to Faqir's own print matrix (`tests/visual/print/matrix.ts
   numerals; ink: heavier rules). Matrix case: the five themes printing the invoice scaffold
   produce five pairwise-different page-1 PNGs.
 
+### 49. `quote` in a document: the mark sits above the text and the attribution outgrows it
+
+- **Seen:** inside the `document` pattern a `quote` draws its `open-quote` mark in the heading
+  font at `--text-3xl`, on a line of its own above the text, where it reads as a ditto mark;
+  there is no variant without it (`plain` is not one). The attribution's size comes from
+  `[data-ui="quote"] > [data-part="author"]` (`--text-sm`), which outranks a document's own
+  rules, so a verbatim's date printed larger than the verbatim.
+- **Where:** `registry/primitives/quote/quote.css` (`::before`, `[data-part="author"]`).
+- **Here:** print.css hides the mark, hangs real marks (`open-quote` / `close-quote` with
+  `quotes` per language) into the margin with a negative `text-indent`, and sets the
+  attribution at 7.75 pt.
+- **Suggested fix:** a `data-mark="hang|none"` prop, and a document-pattern rule that sets
+  quote text and attribution from `--doc-font-size` / `--doc-legal-size`. Matrix case: a
+  quote inside `document` whose attribution is smaller than its text.
+
+### 50. faqir-core needs `'unsafe-eval'`
+
+- **Seen:** directive expressions (`:style`, `l-data`, `@click`) compile with `new Function`,
+  so a page that runs faqir-core cannot have a strict `script-src`.
+- **Where:** `core/faqir-core.js` (`compileExpression`, `compileStatement`).
+- **Here:** the share view and the dashboard sheet send a CSP that loads nothing off-origin
+  but allows `'unsafe-eval'` (`DOCUMENT_CSP` in `src/routes/documents.ts`).
+- **Suggested fix:** a CSP build whose expression parser is an interpreter for the small
+  grammar directives use (member access, calls, literals, ternaries, arithmetic). Matrix
+  case: the progress, qr-code and dialog scaffolds under `script-src 'self'`.
+
+### 51. Codes draw their quiet zone inside their box
+
+- **Seen:** `qr-code` draws a 2-module quiet zone and `barcode` a 10-module one inside the
+  SVG, so the first dark module never sits on the box's edge: a code and its caption, or two
+  codes side by side, cannot share a left edge or a bottom line.
+- **Where:** `registry/recipes/qr-code/qr-code.js` (`matrixToSVG`), `registry/recipes/barcode/barcode.js`.
+- **Here:** nothing; the confirmation's codes are a few pixels off the grid.
+- **Suggested fix:** draw the modules flush and express the quiet zone as padding
+  (`--qr-quiet`, `--barcode-quiet` in modules), so layout can align the ink. Matrix case: a
+  qr-code and its caption whose left edges coincide.
+
 ---
 
 ## What worked unusually well (do not break)

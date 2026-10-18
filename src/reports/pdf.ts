@@ -86,7 +86,8 @@ async function slot<T>(fn: () => Promise<T>): Promise<T> {
 async function staticFile(path: string): Promise<{ body: Buffer; type: string } | null> {
   for (const [prefix, dir] of STATIC) {
     if (!path.startsWith(prefix)) continue;
-    const rel = decodeURIComponent(path.slice(prefix.length));
+    let rel: string;
+    try { rel = decodeURIComponent(path.slice(prefix.length)); } catch { return null; } // a malformed escape is a 404, not a stall
     const file = normalize(join(dir, rel));
     if (!file.startsWith(dir + sep)) return null;
     try {
@@ -109,7 +110,7 @@ async function context(pages: Record<string, string>, assets?: AssetLookup, shee
     viewport: sheet ? { width: Math.round(sheet.width * 96 / 25.4), height: Math.round(sheet.height * 96 / 25.4) } : { width: 1240, height: 1754 },
   });
   ctx.setDefaultTimeout(LIMITS.timeout);
-  await ctx.route("**/*", async (route: Route) => {
+  const serve = async (route: Route) => {
     const url = new URL(route.request().url());
     if (url.origin !== ORIGIN) return route.abort("blockedbyclient");
     if (url.pathname in pages) return route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: pages[url.pathname] });
@@ -120,7 +121,9 @@ async function context(pages: Record<string, string>, assets?: AssetLookup, shee
     }
     const file = await staticFile(url.pathname);
     return file ? route.fulfill({ status: 200, contentType: file.type, body: file.body }) : route.abort("blockedbyclient");
-  });
+  };
+  // Every request is answered: one that throws is aborted, never left to the timeout.
+  await ctx.route("**/*", (route: Route) => serve(route).catch(() => route.abort("failed").catch(() => undefined)));
   return ctx;
 }
 

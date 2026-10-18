@@ -19,13 +19,20 @@ export interface ChartSvg {
 const W = 640;
 const r1 = (n: number) => Math.round(n * 10) / 10;
 
-/** 0 … a "nice" maximum with 3–5 steps (1, 2, 2.5, 5 × 10ⁿ). */
+/** 0 … a "nice" maximum: of the steps 1, 2, 2.5, 5 × 10ⁿ that cover the data in three
+ *  to six, the one whose scale stops closest above the highest value (11 → 12, not 15);
+ *  on a tie, whole steps before 2.5 and fewer steps before more. */
 export function niceScale(max: number, min = 0): { top: number; bottom: number; step: number } {
-  const span = Math.max(max, 0) - Math.min(min, 0) || 1;
-  const raw = span / 4;
-  const mag = 10 ** Math.floor(Math.log10(raw));
-  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw)!;
-  return { top: Math.ceil(Math.max(max, 0) / step) * step || step, bottom: Math.floor(Math.min(min, 0) / step) * step, step };
+  const hi = Math.max(max, 0), lo = Math.min(min, 0);
+  const mag = 10 ** Math.floor(Math.log10((hi - lo || 1) / 6));
+  const options = [1, 2, 2.5, 5, 10, 20, 25, 50].map((m) => {
+    const step = m * mag;
+    const top = Math.ceil(hi / step) * step || (lo < 0 ? 0 : step), bottom = Math.floor(lo / step) * step;
+    return { top, bottom, step, steps: Math.round((top - bottom) / step), quarter: m === 2.5 || m === 25 };
+  }).filter((o) => o.steps >= 3 && o.steps <= 6)
+    .sort((a, b) => a.top - a.bottom - (b.top - b.bottom) || Number(a.quarter) - Number(b.quarter) || b.step - a.step);
+  const best = options[0] ?? { top: hi || 1, bottom: lo, step: (hi - lo) || 1 };
+  return { top: best.top, bottom: best.bottom, step: best.step };
 }
 
 export function layoutChart(
@@ -101,7 +108,8 @@ export function layoutChart(
       const v = s.values[i] ?? 0;
       const x = x0 + band * (i + 0.5) - groupW / 2 + j * colW;
       const a = sy(Math.max(0, v)), b = sy(Math.min(0, v));
-      out.rects.push({ x: r1(x + 1), y: r1(a), w: r1(colW - 2), h: r1(Math.max(b - a, 0.5)), series: String(j + 1) });
+      // A zero draws nothing: no stub on the axis.
+      if (v !== 0) out.rects.push({ x: r1(x + 1), y: r1(a), w: r1(colW - 2), h: r1(Math.max(b - a, 0.5)), series: String(j + 1) });
       if (labelled && (series.length <= 2 || n <= 6)) out.texts.push({ x: r1(x + colW / 2), y: r1(v >= 0 ? a - 4 : b + 11), text: fmt(v), anchor: "middle", role: "value" });
     }));
     if (legend) addLegend(out, series, 12);

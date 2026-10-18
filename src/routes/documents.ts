@@ -13,6 +13,11 @@ import { compiledVersion, docMeta } from "../reports/service.ts";
 import { renderReport } from "../reports/render.ts";
 import { guard, pdfResponse } from "./reports-api.ts";
 
+/** A rendered document runs data someone else wrote: it loads nothing from anywhere but
+ *  this origin. faqir-core evaluates its directives with `new Function` (FAQIR-UPSTREAM.md #50),
+ *  hence 'unsafe-eval'; the per-document <style> needs inline styles. */
+export const DOCUMENT_CSP = "default-src 'none'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'";
+
 export function documentRoutes(db: DB) {
   const app = new Hono<Env>();
 
@@ -20,11 +25,12 @@ export function documentRoutes(db: DB) {
     const r = take(`${bucket}:${ipHash(db, clientIp(c))}`, perMinute);
     if (!r.ok) {
       c.header("Retry-After", String(r.retryAfter));
-      throw new Problem(429, "rate-limited", "Too many requests", `Slow down: ${perMinute} documents per minute. Retry in ${r.retryAfter}s.`);
+      throw new Problem(429, "rate-limited", "Too many requests", `Slow down: ${perMinute} requests per minute. Retry in ${r.retryAfter}s.`);
     }
   };
 
   app.get("/assets/:id", (c) => {
+    limited(c, "asset", 240);
     const a = getAsset(db, c.req.param("id"));
     if (!a) return c.notFound();
     return c.body(new Uint8Array(a.bytes), 200, assetHeaders(a.type));
@@ -47,6 +53,7 @@ export function documentRoutes(db: DB) {
     limited(c, "share-view", 120);
     const labels = labelsFor(doc.locale);
     const rendered = renderDocument(db, doc, "share", shareView(c, doc, labels));
+    c.header("Content-Security-Policy", DOCUMENT_CSP);
     return c.html(rendered.html);
   });
 

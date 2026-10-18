@@ -242,9 +242,9 @@ export const BLOCKS: Record<string, BlockSpec> = {
   separator: { group: "structure", does: "A hairline rule.", props: {}, example: { id: "rule", block: "separator" } },
   "page-break": { group: "structure", does: "Start a new page.", props: {}, example: { id: "break", block: "page-break" } },
   answers: {
-    group: "data", does: "Every answer of the bound submission, in form order, with zero configuration.",
-    props: { title: text },
-    example: { id: "answers", block: "answers" },
+    group: "data", does: "Every answer of the bound submission, in form order, with zero configuration; omit lists field names another block already prints.",
+    props: { title: text, omit: list(text, 40) },
+    example: { id: "answers", block: "answers", omit: ["email"] },
   },
   footer: {
     group: "structure", does: "The running footer: legal lines, registration, bank details. The page counter is added for you.",

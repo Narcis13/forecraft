@@ -132,6 +132,32 @@ describe("reports API", () => {
     assert.equal(list.total, 1);
   });
 
+  test("the number filter is exact; a report with issued documents cannot be deleted", async () => {
+    const exact = await (await s.api(`/api/v1/documents?number=${encodeURIComponent(first!.number)}`)).json();
+    assert.equal(exact.total, 1);
+    const partial = await (await s.api(`/api/v1/documents?number=${encodeURIComponent(first!.number.slice(0, -1))}`)).json();
+    assert.equal(partial.total, 0);
+    const del = await s.api(`/api/v1/reports/${reportId}`, { method: "DELETE" });
+    assert.equal(del.status, 409);
+    assert.equal((await del.json()).type.endsWith("has-documents"), true);
+  });
+
+  test("the share view loads nothing from elsewhere", async () => {
+    const list = await (await s.api(`/api/v1/documents?report=${reportId}&status=issued`)).json();
+    const share = await fetch(s.url + new URL(list.items[0].share_url).pathname);
+    assert.equal(share.status, 200);
+    assert.match(share.headers.get("content-security-policy") ?? "", /default-src 'none'.*img-src 'self' data:/);
+  });
+
+  test("a logo from another workspace (or none) is a preflight error, not a broken image", async () => {
+    const fake = logo.replace(/.$/, (c) => (c === "a" ? "b" : "a"));
+    const res = await s.api("/api/v1/reports", { method: "POST", json: { starter: "invoice", title: "Ghost", appearance: { logo: fake } } });
+    assert.equal(res.status, 201, await res.clone().text());
+    const r = await res.json();
+    const p = await (await s.api(`/api/v1/reports/${r.id}/preview`, { method: "POST", json: { format: "html" } })).json();
+    assert.ok(p.findings.some((f: { code: string; severity: string }) => f.code === "missing-asset" && f.severity === "error"), JSON.stringify(p.findings));
+  });
+
   test("a submission prints with zero setup", async () => {
     const forms = await (await s.api("/api/v1/forms")).json();
     const subs = await (await s.api(`/api/v1/forms/${forms.items[0].id}/submissions`)).json();

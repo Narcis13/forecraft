@@ -31,14 +31,14 @@ const NEXT = [
   "Team roles with per-form permissions",
 ];
 const COMMENTS = [
-  "The preview tool catches my agent's mistakes before anyone sees them. That alone is worth it.",
+  "The preview tool catches my agent’s mistakes before anyone sees them. That alone is worth it.",
   "Exports are great, but I would love a scheduled weekly CSV to our shared drive.",
   "Our support agent now builds the intake forms itself; I only review them. Huge time saver.",
   "Wizard steps confused two of our older customers — a progress label would help.",
   "Please add file uploads. We still email PDFs around for the onboarding packet.",
   "The designer feels fast. Undo saved me twice this month.",
   "I want the confirmation emails to carry our own letterhead.",
-  "Rules are powerful but I needed the docs for the second one. Examples of 'require when' would help.",
+  "Rules are powerful but I needed the docs for the second one. Examples of ‘require when’ would help.",
   "Stable, quick, and the API errors tell me exactly which field is wrong.",
   "We moved three tools onto forecraft this quarter. Pricing for teams would make it four.",
 ];

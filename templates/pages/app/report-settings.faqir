@@ -62,6 +62,6 @@ block content
       div(data-part="header")
         h2(data-part="title") Delete this report
       div(data-part="body")
-        p(data-ui="text" data-variant="muted") The report, its versions and every document it issued are deleted.
+        p(data-ui="text" data-variant="muted") The report, its versions and its drafts are deleted. A report that has issued documents cannot be deleted: they are kept as issued.
       div(data-part="footer")
         button(type="button" data-ui="button" data-variant="destructive" @click="remove()") Delete report

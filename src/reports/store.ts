@@ -71,7 +71,10 @@ export function updateReport(db: DB, row: ReportRow, definition: unknown): Repor
   return next;
 }
 
+/** A report with issued or void documents keeps them: its numbered series is a record. */
 export function deleteReport(db: DB, id: string): void {
+  const kept = (db.prepare("SELECT COUNT(*) AS n FROM documents WHERE report_id = ? AND status != 'draft'").get(id) as { n: number }).n;
+  if (kept) throw new Problem(409, "has-documents", "Report has documents", `This report has ${kept} issued or void document${kept === 1 ? "" : "s"}, which are kept as issued. Only a report with drafts alone can be deleted.`);
   db.prepare("DELETE FROM reports WHERE id = ?").run(id);
 }
 
@@ -147,9 +150,14 @@ export function insertDraft(db: DB, d: NewDocument): DocumentRow {
  */
 export function issueDraft(db: DB, doc: DocumentRow, numbering: { pattern?: string; manual?: boolean }, manual: string | null, name: (number: string, issuedAt: string) => string): DocumentRow {
   return transaction(db, () => {
-    const fresh = db.prepare("SELECT status FROM documents WHERE id = ?").get(doc.id) as { status: DocStatus } | undefined;
+    const fresh = db.prepare("SELECT status, data, locale, currency, updated_at FROM documents WHERE id = ?").get(doc.id) as Pick<DocumentRow, "status" | "data" | "locale" | "currency" | "updated_at"> | undefined;
     if (!fresh) throw new Problem(404, "not-found", "Not found", "No document with that id.");
     if (fresh.status !== "draft") throw new Problem(409, "already-issued", "Already issued", "Only a draft can be issued; this document already has its number.");
+    // The draft that was preflighted is the one that gets the number: an edit
+    // that landed while preflight ran would otherwise be issued unchecked.
+    if (fresh.updated_at !== doc.updated_at || fresh.data !== doc.data || fresh.locale !== doc.locale || fresh.currency !== doc.currency) {
+      throw new Problem(409, "changed-during-issue", "Draft changed during issue", "The draft was edited while it was being checked. Issue it again: it will be checked as it is now.");
+    }
     const issuedAt = now();
     const number = nextNumber(db, doc.report_id, numbering, new Date(issuedAt), manual);
     const title = name(number, issuedAt);
@@ -211,7 +219,7 @@ export function listDocuments(db: DB, workspaceId: string, q: DocumentQuery = {}
   const args: (string | number)[] = [workspaceId];
   if (q.report) { where.push("report_id = ?"); args.push(q.report); }
   if (q.status) { where.push("status = ?"); args.push(q.status); }
-  if (q.number) { where.push("number LIKE ? ESCAPE '\\'"); args.push(`%${q.number.replace(/[\\%_]/g, (m) => `\\${m}`)}%`); }
+  if (q.number) { where.push("number = ?"); args.push(q.number); }
   if (q.q) { where.push("(title LIKE ? ESCAPE '\\' OR number LIKE ? ESCAPE '\\')"); const like = `%${q.q.replace(/[\\%_]/g, (m) => `\\${m}`)}%`; args.push(like, like); }
   if (q.since) { where.push("COALESCE(issued_at, created_at) >= ?"); args.push(q.since); }
   if (q.until) { where.push("COALESCE(issued_at, created_at) <= ?"); args.push(q.until); }

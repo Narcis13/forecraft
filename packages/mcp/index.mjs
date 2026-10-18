@@ -658,7 +658,7 @@ const TOOLS = [
     title: "List documents",
     description:
       "List documents, newest first: { items: [{ id, report_id, status, number, title, issued_at, pages, pdf_url, share_url, … }], total }. " +
-      "Filter by `report`, `status` (draft|issued|void), exact `number`, text `q`, `since` / `until` (ISO 8601); `limit` 1-1000 (default 50) and `offset` to page.",
+      "Filter by `report`, `status` (draft|issued|void), exact `number`, text `q`, `since` / `until` (ISO 8601); `limit` 1-500 (default 50) and `offset` to page.",
     inputSchema: {
       type: "object",
       properties: {
@@ -668,7 +668,7 @@ const TOOLS = [
         q: { type: "string", description: "Substring to look for in the documents." },
         since: { type: "string", description: "ISO 8601 timestamp: only documents at or after it." },
         until: { type: "string", description: "ISO 8601 timestamp: only documents at or before it." },
-        limit: { type: "integer", minimum: 1, maximum: 1000, description: "Page size, default 50." },
+        limit: { type: "integer", minimum: 1, maximum: 500, description: "Page size, default 50." },
         offset: { type: "integer", minimum: 0, description: "Items to skip, default 0." },
       },
       additionalProperties: false,

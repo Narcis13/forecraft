@@ -58,9 +58,12 @@ export function nextNumber(db: DatabaseSync, reportId: string, numbering: Number
   const pattern = numbering.pattern ?? "{seq}";
   const period = periodOf(pattern, date);
   const row = db.prepare("SELECT last FROM report_sequences WHERE report_id = ? AND period = ?").get(reportId, period) as { last: number } | undefined;
-  const seq = (row?.last ?? 0) + 1;
+  let seq = (row?.last ?? 0) + 1;
+  let number = formatNumber(pattern, seq, date);
+  // A number typed by hand under an earlier manual version may already exist: step past it.
+  while (db.prepare("SELECT 1 FROM documents WHERE report_id = ? AND number = ?").get(reportId, number)) number = formatNumber(pattern, ++seq, date);
   db.prepare(
     "INSERT INTO report_sequences (report_id, period, last) VALUES (?, ?, ?) ON CONFLICT (report_id, period) DO UPDATE SET last = excluded.last",
   ).run(reportId, period, seq);
-  return formatNumber(pattern, seq, date);
+  return number;
 }

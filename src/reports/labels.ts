@@ -17,7 +17,7 @@ const en = {
   bank: "Bank", iban: "IBAN", bic: "BIC", paymentTerms: "Payment terms", scanToPay: "Scan to pay",
   signature: "Signature", name: "Name", role: "Role", place: "Place",
   submitted: "Submitted", answers: "Answers", responses: "Responses", average: "Average", nps: "Net Promoter Score",
-  promoters: "Promoters", passives: "Passives", detractors: "Detractors", yes: "Yes", no: "No", none: "—",
+  promoters: "Promoters", passives: "Passives", detractors: "Detractors", yes: "Yes", no: "No", none: "—", unanswered: "Not answered",
   table: "Data table", of: "of",
 };
 export type LabelKey = keyof typeof en;
@@ -35,7 +35,7 @@ const ro: Labels = {
   bank: "Banca", iban: "IBAN", bic: "BIC", paymentTerms: "Termen de plată", scanToPay: "Scanați pentru plată",
   signature: "Semnătura", name: "Nume", role: "Funcția", place: "Locul",
   submitted: "Trimis", answers: "Răspunsuri", responses: "Răspunsuri", average: "Media", nps: "Net Promoter Score",
-  promoters: "Promotori", passives: "Pasivi", detractors: "Detractori", yes: "Da", no: "Nu", none: "—",
+  promoters: "Promotori", passives: "Pasivi", detractors: "Detractori", yes: "Da", no: "Nu", none: "—", unanswered: "Fără răspuns",
   table: "Tabel de date", of: "din",
 };
 
@@ -51,7 +51,7 @@ const de: Labels = {
   bank: "Bank", iban: "IBAN", bic: "BIC", paymentTerms: "Zahlungsbedingungen", scanToPay: "Zum Bezahlen scannen",
   signature: "Unterschrift", name: "Name", role: "Funktion", place: "Ort",
   submitted: "Eingegangen", answers: "Antworten", responses: "Antworten", average: "Durchschnitt", nps: "Net Promoter Score",
-  promoters: "Promotoren", passives: "Passive", detractors: "Kritiker", yes: "Ja", no: "Nein", none: "—",
+  promoters: "Promotoren", passives: "Passive", detractors: "Kritiker", yes: "Ja", no: "Nein", none: "—", unanswered: "Keine Angabe",
   table: "Datentabelle", of: "von",
 };
 
@@ -67,7 +67,7 @@ const fr: Labels = {
   bank: "Banque", iban: "IBAN", bic: "BIC", paymentTerms: "Conditions de paiement", scanToPay: "Scanner pour payer",
   signature: "Signature", name: "Nom", role: "Fonction", place: "Lieu",
   submitted: "Envoyé", answers: "Réponses", responses: "Réponses", average: "Moyenne", nps: "Net Promoter Score",
-  promoters: "Promoteurs", passives: "Passifs", detractors: "Détracteurs", yes: "Oui", no: "Non", none: "—",
+  promoters: "Promoteurs", passives: "Passifs", detractors: "Détracteurs", yes: "Oui", no: "Non", none: "—", unanswered: "Sans réponse",
   table: "Tableau de données", of: "sur",
 };
 

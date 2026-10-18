@@ -734,11 +734,6 @@
           "label": "NPS",
           "value": "{{ nps.score > 0 ? \"+\" : \"\" }}{{ nps.score }}",
           "change": "from {{ nps.answered }} answers"
-        },
-        {
-          "label": "{{ label(\"responses\") }}",
-          "value": "{{ number(responses.total) }}",
-          "change": "{{ period(period.since, period.until) }}"
         }
       ]
     },
@@ -783,7 +778,7 @@
               "value": "row.count"
             }
           ],
-          "title": "Responses by day, {{ period(period.since, period.until) }}",
+          "title": "Responses by day",
           "format": "number"
         }
       ]
@@ -811,11 +806,11 @@
             },
             {
               "label": "Most chosen",
-              "value": "{{ row.top.label ?? \"—\" }}"
+              "value": "{{ row.top.label ?? \"Written answers\" }}"
             },
             {
               "label": "Share",
-              "value": "{{ (row.top ?? false) ? percent(row.top.share) : \"—\" }}",
+              "value": "{{ (row.top ?? false) ? percent(row.top.share) : \"\" }}",
               "format": "percent"
             }
           ]
@@ -842,7 +837,7 @@
       "id": "footer",
       "block": "footer",
       "lines": [
-        "{{ form.title }} · {{ period(period.since, period.until) }} · {{ doc.number ?? label(\"draft\") }}"
+        "{{ form.title }} · {{ doc.number ?? label(\"draft\") }}"
       ]
     }
   ],

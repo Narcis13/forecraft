@@ -56,8 +56,9 @@ interface Frac { n: bigint; d: bigint }
 
 const DECIMAL = /^([+-]?)(\d+)(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/;
 
-/** A JSON number or numeric string as an exact fraction; `null` when it is neither. */
-export function parseDecimal(value: unknown): Frac | null {
+/** A JSON number or numeric string as an exact fraction; `null` when it is neither.
+ *  `bounded: false` is for text this module derived from a bounded value. */
+export function parseDecimal(value: unknown, bounded = true): Frac | null {
   let text: string;
   if (typeof value === "number") {
     if (!Number.isFinite(value)) return null;
@@ -68,6 +69,9 @@ export function parseDecimal(value: unknown): Frac | null {
   const m = DECIMAL.exec(text);
   if (!m) return null;
   const [, sign, int, frac = "", exp = "0"] = m;
+  // Bounded, so a hostile "1e-200000" costs nothing: 40 significant digits and an
+  // exponent within ±30 cover every amount, rate and quantity a document prints.
+  if (bounded && (int!.length + frac.length > 40 || Math.abs(Number(exp)) > 30)) return null;
   let n = BigInt(int! + frac);
   let scale = frac.length - Number(exp);
   if (sign === "-") n = -n;
@@ -110,8 +114,7 @@ export function fromMinor(minor: bigint, digits: number): string {
 /** A fraction as a plain decimal string, for rates and quantities ("19", "7.5", "0.333"). */
 function fracText(f: Frac): string {
   // Rates and quantities come from decimals, so d is a power of ten.
-  let digits = 0;
-  while (10n ** BigInt(digits) < f.d) digits++;
+  const digits = f.d.toString().length - 1;
   const scaled = f.n * (10n ** BigInt(digits) / f.d);
   return fromMinor(scaled, digits).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
 }

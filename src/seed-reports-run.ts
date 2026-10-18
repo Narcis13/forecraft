@@ -95,8 +95,8 @@ export async function seedReports(db: DB, workspaceId: string, opts: { quiet?: b
   // 2. The long invoice: ro-RO, RON, about 60 lines, three pages.
   const ro = deepReplace(loadStarter("invoice"), [
     ["VAT ID", "CUI"],
-    ["Delivered under the master services agreement of 4 March 2025.", "Conform contractului-cadru de servicii din 4 martie 2025."],
-    ["Payment", "Plata"], ["Please transfer", "Vă rugăm să transferați"], ["quoting", "cu mențiunea"],
+    ["Delivered under the master services agreement of 4\u00a0March\u00a02025.", "Conform contractului-cadru de servicii din 4\u00a0martie\u00a02025."],
+    ["Payment", "Plata"], ["Please transfer", "Vă rugăm să transferați"], ["quoting", "cu mențiunea"], ["to IBAN", "în contul"],
     ["Payable within 30 days, net. Late payments accrue statutory interest (§ 288 BGB). Questions about this invoice:", "Termen de plată: 30 de zile de la emitere. Întârzierile atrag penalități conform Legii nr. 72/2013. Întrebări despre această factură:"], ["EPC payment code · settled", "Cod de plată EPC · achitat"],
     [" by {{ date(due) }}", " până la {{ date(due) }}"],
   ]) as ReportDefinition;
@@ -131,13 +131,16 @@ export async function seedReports(db: DB, workspaceId: string, opts: { quiet?: b
   if (event) {
     const def = fromStarter(db, workspaceId, "confirmation", { form: event.id });
     def.schema.title = "Summit confirmation";
-    def.layout.unshift({ id: "organiser", block: "letterhead", name: "Agents & Interfaces Summit 2026", lines: ["Organised by Halden Studio · Rua da Boavista 84 · 1200-066 Lisbon"], details: [{ label: "Tickets", value: "tickets@summit.example" }] });
+    def.layout.unshift({ id: "organiser", block: "letterhead", name: "Halden Studio", lines: ["Rua da Boavista 84 · 1200-066 Lisbon · Portugal"], details: [{ label: "Tickets", value: "tickets@summit.example" }] });
     def.layout.splice(2, 0, {
       id: "attendee", block: "parties", parties: [
         { label: "Attendee", name: "{{ fullName ?? \"\" }}", lines: ["{{ company ?? \"\" }}", "{{ email ?? \"\" }}"] },
-        { label: "Ticket", name: "{{ ticket ?? \"—\" }}", lines: ["Agents & Interfaces Summit 2026", "LX Factory, Rua Rodrigues de Faria 103, Lisbon", "14–15 May 2026 · doors open 08:30"] },
+        { label: "Ticket", name: "{{ ticket ?? \"—\" }}", lines: ["LX Factory, Rua Rodrigues de Faria 103, Lisbon", "14–15 May 2026 · doors open 08:30"] },
       ],
     });
+    // The parties block already prints who and which ticket: the answers leave those out.
+    const answersBlock = def.layout.find((b: { id: string }) => b.id === "answers") as { omit?: string[] };
+    answersBlock.omit = ["fullName", "email", "company", "ticket"];
     const conf = make(def, "confirmation");
     db.prepare("UPDATE forms SET confirmation_report_id = ?, issue_on_submit = 1, thank_you_link = 1 WHERE id = ?").run(conf.id, event.id);
     const compiled = compileForm(JSON.parse(getVersion(db, event.id, event.published_version ?? 1)!.definition));

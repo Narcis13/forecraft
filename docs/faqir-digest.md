@@ -39,7 +39,9 @@ Close behind: #43 (`@page` rules global once bundled), #40 (nothing paints in pa
 margins: fold marks need a zero margin), #48 (three print themes differ only in hue),
 #37 (no italics in the catalogue), #3 / #4 (two submit shapes, wizard answers missing
 from `FormData`), #14 (`checkbox-group` unknown to the audit), #45 (progress width as a
-style attribute).
+style attribute), #50 (faqir-core needs `unsafe-eval`, so no strict CSP), #49 (a quote in a
+document: mark above, attribution larger than the text), #51 (codes keep their quiet zone
+inside the box).
 
 ## What worked unusually well (both phases)
 

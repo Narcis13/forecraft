@@ -20,7 +20,7 @@ export const HELPER_DOCS: HelperDoc[] = [
   { name: "datetime", signature: "datetime(iso)", does: "A date and time, UTC.", example: "{{ datetime(doc.submission.created_at) }}" },
   { name: "label", signature: "label(key)", does: "A built-in word in the document's language (invoice, subtotal, vat, total, amountDue, dueDate, …), or the report's override.", example: "{{ label(\"invoice\") }} → Factură" },
   { name: "iban", signature: "iban(value)", does: "An IBAN grouped by four, upper case.", example: "{{ iban(bank.iban) }} → DE89 3704 0044 0532 0130 00" },
-  { name: "sum", signature: "sum(array, key)", does: "The exact sum of one key over an array of objects.", example: "{{ number(sum(items, \"qty\")) }}" },
+  { name: "sum", signature: "sum(array, key)", does: "The sum of one key over an array of objects, added exactly and returned as a number (exact to 15 significant digits: document amounts come from doc.money).", example: "{{ number(sum(items, \"qty\")) }}" },
   { name: "count", signature: "count(array, key?)", does: "How many items; with a key, how many have a value there.", example: "{{ count(items) }}" },
   { name: "avg", signature: "avg(array, key)", does: "The mean of one key over the items that have it.", example: "{{ number(avg(scores, \"value\"), 1) }}" },
   { name: "round", signature: "round(value, digits?)", does: "Half away from zero, exactly.", example: "{{ round(2.345, 2) }} → 2.35" },
@@ -42,8 +42,7 @@ function decimalText(v: unknown, name: string): string {
   const f = parseDecimal(v);
   if (!f) throw new HelperError(`${name}() needs a number, got ${JSON.stringify(v)}`);
   // An exact decimal string Intl reads without float conversion.
-  let digits = 0;
-  while (10n ** BigInt(digits) < f.d) digits++;
+  const digits = f.d.toString().length - 1; // d is a power of ten
   const scaled = f.n * (10n ** BigInt(digits) / f.d);
   const neg = scaled < 0n;
   const s = (neg ? -scaled : scaled).toString().padStart(digits + 1, "0");
@@ -83,7 +82,7 @@ function exactSum(values: unknown[]): string {
 }
 
 function roundHalfAway(text: string, digits: number): string {
-  const f = parseDecimal(text)!;
+  const f = parseDecimal(text, false)!;
   const scale = 10n ** BigInt(digits);
   const n = f.n * scale;
   const neg = n < 0n;
@@ -102,12 +101,12 @@ export function epcPayload(name: unknown, iban: unknown, amount: unknown, refere
   if (!nm) throw new HelperError("epc() needs the beneficiary's name");
   if (!/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(ib)) throw new HelperError(`epc() needs an IBAN, got ${JSON.stringify(iban)}`);
   const amt = roundHalfAway(decimalText(amount, "epc"), 2);
-  if (Number(amt) > 999999999.99) throw new HelperError("epc() amounts stop at EUR 999999999.99 (EPC069-12)");
+  if (BigInt(amt.replace(".", "")) > 99999999999n) throw new HelperError("epc() amounts stop at EUR 999999999.99 (EPC069-12)");
   const ref = clean(reference);
   const structured = /^RF\d{2}[A-Z0-9]{1,21}$/.test(ref.replace(/\s+/g, ""));
   return [
     "BCD", "002", "1", "SCT", clean(bic ?? "").toUpperCase(), nm, ib,
-    Number(amt) > 0 ? `EUR${amt}` : "",
+    BigInt(amt.replace(".", "")) > 0n ? `EUR${amt}` : "",
     "", structured ? ref.replace(/\s+/g, "") : "", structured ? "" : ref.slice(0, 140),
   ].join("\n").replace(/\n+$/, "");
 }

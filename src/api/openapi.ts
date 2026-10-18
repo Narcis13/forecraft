@@ -330,7 +330,8 @@ export function openapi(baseUrl: string): Obj {
         },
         delete: {
           operationId: "deleteReport", tags: ["reports"], summary: "Delete a report",
-          responses: { "204": { description: "Deleted." }, "404": problemRef("NotFound"), ...AUTH_ERRORS },
+          description: "Deletes the report, its versions and its drafts. A report that has issued or void documents is kept: 409 `has-documents` (its numbered series is a record).",
+          responses: { "204": { description: "Deleted." }, "404": problemRef("NotFound"), "409": problemRef("Conflict"), ...AUTH_ERRORS },
         },
       },
       "/reports/{id}/publish": {
@@ -469,7 +470,7 @@ export function openapi(baseUrl: string): Obj {
           operationId: "voidDocument", tags: ["documents"], summary: "Void a document with a reason",
           description: "The document keeps its number (never reused) and its PDF prints VOID.",
           requestBody: jsonBody({ type: "object", properties: { reason: { type: "string", minLength: 3, maxLength: 500 } }, required: ["reason"], additionalProperties: false }),
-          responses: { "200": jsonResponse("The void document.", ref("Document")), "404": problemRef("NotFound"), "422": problemRef("Invalid"), ...AUTH_ERRORS },
+          responses: { "200": jsonResponse("The void document.", ref("Document")), "404": problemRef("NotFound"), "409": problemRef("Conflict"), "422": problemRef("Invalid"), ...AUTH_ERRORS },
         },
       },
       "/documents/{id}/share/rotate": {

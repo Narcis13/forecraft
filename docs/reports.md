@@ -154,6 +154,7 @@ media at the page's width, pagination checks read the PDF itself. Each finding i
 | Code | Severity | Checks |
 |---|---|---|
 | `missing-data` | error | A path the data does not have, with its block |
+| `missing-asset` | error | A logo or image whose asset id is not in this workspace |
 | `expression-error` | error | An expression that cannot be evaluated with this data |
 | `overflow` | error | Anything wider than the content box, including unbreakable strings |
 | `cell-overflow` | error | A table cell wider than its column |
@@ -177,11 +178,11 @@ All under `/api/v1`, with an API key or a session. Problems are RFC 9457.
 | `GET /vocabulary/reports` | Blocks (with examples), helpers, themes, pairings, locales, papers, preflight codes, the summary shape |
 | `GET /report-starters` | The starters |
 | `GET, POST /reports` | List; create from `{ starter, title?, appearance?, sample?, form? }` or a definition |
-| `GET, PATCH, DELETE /reports/:id` | The working copy |
+| `GET, PATCH, DELETE /reports/:id` | The working copy; DELETE is refused (409 `has-documents`) once a document was issued |
 | `POST /reports/:id/publish`, `GET /reports/:id/versions[/:v]` | Versions |
 | `POST /reports/:id/preview` | `{ definition?, data?, submission?, period?, format: png \| pdf \| html, pages?, dpi? }` → preflight and page images |
 | `POST /reports/:id/documents` | `{ data \| submission \| period, issue?, number?, locale?, currency? }` |
-| `GET /documents`, `GET, PATCH, DELETE /documents/:id` | Filter by `report`, `status`, `number`, `q`, `since`, `until`; drafts only change |
+| `GET /documents`, `GET, PATCH, DELETE /documents/:id` | Filter by `report`, `status`, exact `number`, `q`, `since`, `until`; drafts only change |
 | `GET /documents/:id/pdf` | The PDF, named after its number |
 | `POST /documents/:id/issue`, `/void`, `/share/rotate` | Issue a draft, void with a `reason`, revoke the share link |
 | `GET /submissions/:id/pdf` | Any submission, printed through the built-in submission record |
@@ -444,16 +445,20 @@ Subtotal, discount, tax per rate, total, paid and due — from doc.money when `i
 
 #### `answers`
 
-Every answer of the bound submission, in form order, with zero configuration.
+Every answer of the bound submission, in form order, with zero configuration; omit lists field names another block already prints.
 
 | Prop | Kind |
 |---|---|
 | `title` | template text |
+| `omit` | list of template text |
 
 ```jsonc
 {
   "id": "answers",
-  "block": "answers"
+  "block": "answers",
+  "omit": [
+    "email"
+  ]
 }
 ```
 

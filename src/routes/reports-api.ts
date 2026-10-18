@@ -10,13 +10,13 @@ import { getSubmission } from "../forms/store.ts";
 import { HELPER_DOCS } from "../reports/helpers.ts";
 import { LABEL_KEYS, LANGUAGES } from "../reports/labels.ts";
 import {
-  BLOCKS, compileReport, DEFAULT_APPEARANCE, DENSITIES, LOCALES, MARGINS, ORIENTATIONS, PAPERS, PRINT_THEMES, TYPE_PAIRINGS,
+  BLOCKS, compileReport, dataErrors, DEFAULT_APPEARANCE, DENSITIES, LOCALES, MARGINS, ORIENTATIONS, PAPERS, PRINT_THEMES, TYPE_PAIRINGS,
 } from "../reports/model.ts";
-import { closeBrowser, RenderBusy, RenderFailed } from "../reports/pdf.ts";
+import { RenderBusy, RenderFailed } from "../reports/pdf.ts";
 import { PREFLIGHT_CODES } from "../reports/preflight.ts";
 import { renderReport } from "../reports/render.ts";
 import {
-  assetLookup, checkOverrides, compiledVersion, createDocument, documentPdf, issueDocument, preview, submissionView,
+  checkOverrides, compiledVersion, createDocument, documentPdf, issueDocument, preview, submissionView,
 } from "../reports/service.ts";
 import { fromStarter, listStarters, recordDefinition } from "../reports/starters.ts";
 import {
@@ -26,7 +26,6 @@ import {
 import { SUMMARY_SCHEMA } from "../reports/summary.ts";
 import { printPdf } from "../reports/pdf.ts";
 
-void closeBrowser;
 
 export function reportRoutes(api: Hono<Env>, db: DB) {
   const renders = rateLimit(30, (c) => {
@@ -230,7 +229,6 @@ export function reportRoutes(api: Hono<Env>, db: DB) {
     if (body.data !== undefined) {
       if (typeof body.data !== "object" || body.data === null || Array.isArray(body.data)) throw invalid([{ pointer: "/data", detail: "An object." }]);
       data = body.data as Record<string, unknown>;
-      const { dataErrors } = await import("../reports/model.ts");
       const errs = dataErrors(report.rules, data);
       if (errs.length) throw new Problem(422, "invalid-data", "The data does not match the report's schema", errs.map((e) => `${e.pointer}: ${e.detail}`).join("; "), { errors: errs });
     }
@@ -312,7 +310,6 @@ export function reportRoutes(api: Hono<Env>, db: DB) {
     return c.json({ ...assetResource(meta), url: absoluteUrl(c, `/assets/${a.id}`) });
   });
 
-  void assetLookup;
 }
 
 export function pdfResponse(c: Context, out: { pdf: Uint8Array; filename: string; sha256: string | null; pages: number | null }, disposition = "attachment"): Response {

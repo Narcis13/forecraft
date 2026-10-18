@@ -25,11 +25,16 @@ export function sniff(bytes: Uint8Array): AssetType | null {
   return null;
 }
 
-/** An SVG must be a picture, not a program: no script, no event handler, no foreign object, no external reference. */
+/** An SVG must be a picture, not a program: no script, no event handler, no foreign object, no external reference.
+ *  A blocklist, so the second line of defence matters: SVGs are only ever shown through <img>
+ *  (which runs no script) and served with a sandboxing CSP; never inline one. */
 export function svgProblems(text: string): string | null {
-  if (/<script[\s>]/i.test(text)) return "an SVG with <script> is refused";
+  // Namespace prefixes count: <s:script xmlns:s="…svg"> is a script too.
+  if (/<(?:[\w.-]+:)?script[\s>/]/i.test(text)) return "an SVG with <script> is refused";
   if (/\son[a-z]+\s*=/i.test(text)) return "an SVG with event handlers is refused";
-  if (/<foreignObject[\s>/]/i.test(text)) return "an SVG with <foreignObject> is refused";
+  // Animation rewrites attributes after these checks: set/animate on a link or a handler is refused.
+  if (/<(?:[\w.-]+:)?(?:set|animate\w*)\b[^>]*attributeName\s*=\s*["']?\s*(?:xlink:)?(?:href|on)/i.test(text)) return "an SVG that animates a link or an event handler is refused";
+  if (/<(?:[\w.-]+:)?foreignObject[\s>/]/i.test(text)) return "an SVG with <foreignObject> is refused";
   if (/(?:xlink:)?href\s*=\s*(?:["']\s*)?(?!["'#\s])/i.test(text)) return "an SVG that references another file or URL is refused (only #fragment references)";
   if (/@import|url\(\s*["']?\s*(?!#)/i.test(text)) return "an SVG that loads CSS or images from elsewhere is refused";
   return null;

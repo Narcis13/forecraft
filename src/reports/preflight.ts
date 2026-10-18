@@ -13,6 +13,7 @@ export interface PreflightCode { code: string; severity: "error" | "warning"; ch
 
 export const PREFLIGHT_CODES: PreflightCode[] = [
   { code: "missing-data", severity: "error", checks: "A path the data does not have (named, with its block). Write `x ?? \"…\"` for an optional value." },
+  { code: "missing-asset", severity: "error", checks: "A logo or image whose asset id is not in this workspace (it would print as a broken image)." },
   { code: "expression-error", severity: "error", checks: "An expression that cannot be evaluated with this data (a type mismatch, a helper given nonsense)." },
   { code: "overflow", severity: "error", checks: "Anything wider than the page's content box, including unbreakable strings such as IBANs and URLs." },
   { code: "cell-overflow", severity: "error", checks: "A table cell whose content does not fit its column." },
@@ -124,7 +125,7 @@ export interface ReadPdf { pages: PdfPage[]; fonts: string[]; title: string | nu
 const norm = (s: string) => s.replace(/\s+/g, " ").trim();
 
 /** Text lines, fonts, metadata, outline and links of a PDF, by pdf.js. */
-export async function readPdf(pdf: Uint8Array, zones?: { top: number; bottom: number }): Promise<ReadPdf> {
+export async function readPdf(pdf: Uint8Array, zones?: { first: number; top: number; bottom: number }): Promise<ReadPdf> {
   const task = getDocument({ data: new Uint8Array(pdf), fontExtraProperties: true, verbosity: 0 });
   const doc = await task.promise;
   try {
@@ -154,7 +155,7 @@ export async function readPdf(pdf: Uint8Array, zones?: { top: number; bottom: nu
       const join = (parts: { x: number; w: number; s: string; size: number }[]) => parts.sort((a, b) => a.x - b.x)
         .reduce((acc, p, i, all) => acc + (i && p.x - (all[i - 1]!.x + all[i - 1]!.w) > 0.6 * p.size && !acc.endsWith(" ") && !p.s.startsWith(" ") ? " " : "") + p.s, "");
       const lines = [...rows.entries()].sort((a, b) => b[0] - a[0]).map(([y, parts]) => ({ y, text: norm(join(parts)) })).filter((l) => l.text);
-      const body = zones ? lines.filter((l) => l.y < vp.height - zones.top && l.y > zones.bottom) : lines;
+      const body = zones ? lines.filter((l) => l.y < vp.height - (n === 1 ? zones.first : zones.top) && l.y > zones.bottom) : lines;
       pages.push({ width: vp.width, height: vp.height, lines, body, fonts: [...fonts] });
       fonts.forEach((f) => all.add(f));
       links.push(((await page.getAnnotations()) as { url?: string }[]).map((a) => a.url).filter((u): u is string => Boolean(u)));
@@ -207,7 +208,7 @@ export async function preflight(report: CompiledReport, rendered: Rendered, opts
   const footerLines = (rendered.html.match(/<footer data-part="doc-footer">[\s\S]*?<\/footer>/)?.[0].match(/<p>/g) ?? []).length;
   // The running header and footer live in the page margins (margin boxes): the body is between them.
   const g = geometry(rendered.appearance, footerLines);
-  const zones = { top: pt(g.margins.top - 0.5), bottom: pt(g.margins.bottom - 0.5) };
+  const zones = { first: pt(g.margins.top - 0.5), top: pt(g.laterTop - 0.5), bottom: pt(g.margins.bottom - 0.5) };
   const read = await readPdf(printed.pdf, zones);
   const findings: Finding[] = [...rendered.findings];
   const add = (code: string, message: string, block: string | null, page?: number) =>
