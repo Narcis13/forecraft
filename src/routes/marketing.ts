@@ -17,7 +17,7 @@ const DOCS_DIR = join(import.meta.dirname, "../../docs");
 export const SKIN = "midnight";
 
 /** Docs in reading order; any other docs/*.md follows, alphabetically. */
-const DOC_ORDER = ["getting-started", "for-agents", "definitions", "rules", "api", "mcp"];
+const DOC_ORDER = ["getting-started", "for-agents", "definitions", "rules", "api", "mcp", "reports", "report-style"];
 /** Markdown in docs/ that is not a docs page (project notes). */
 const NOT_DOCS = new Set(["faqir-digest"]);
 const SLUG = /^[a-z0-9][a-z0-9-]*$/;

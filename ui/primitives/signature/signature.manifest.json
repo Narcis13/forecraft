@@ -1,0 +1,106 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "signature",
+  "version": "1.0.1",
+  "kind": "primitive",
+  "category": "data-display",
+  "description": "Signature line with label for printed document signing",
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the line and label with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Both are the root's children. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    }
+  ],
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='signature']",
+    "content_model": "slots"
+  },
+
+  "slots": {
+    "line": {
+      "selector": "[data-part='line']",
+      "required": true,
+      "tag_hint": "div",
+      "description": "The horizontal signing line"
+    },
+    "label": {
+      "selector": "[data-part='label']",
+      "required": true,
+      "tag_hint": "span",
+      "description": "Name or title below the signing line"
+    }
+  },
+
+  "variants": {
+    "size": {
+      "values": ["sm", "md", "lg"],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    },
+    "align": {
+      "values": ["left", "center", "right"],
+      "default": "left",
+      "attr": "data-align",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {},
+
+  "a11y": {
+    "required_attrs": ["role=\"img\" with aria-label describing the signature purpose"],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-fg-muted", "space-2", "space-12", "text-xs", "font-body", "weight-medium",
+    "border-width", "doc-font", "doc-signature-gap", "doc-signature-line-color",
+    "doc-signature-label-size", "doc-signature-label-color", "doc-signature-width"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"signature\" data-size=\"{size}\" role=\"img\" aria-label=\"Signature: {name}\">\n  <div data-part=\"line\"></div>\n  <span data-part=\"label\">{name}</span>\n</div>"
+  },
+
+  "safe_transforms": [
+    "change-size",
+    "change-align",
+    "change-label-text"
+  ],
+
+  "unsafe_transforms": [
+    "remove-line",
+    "remove-label",
+    "remove-role-attribute"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["document"]
+  },
+
+  "files": {
+    "html": "signature.html",
+    "css": "signature.css",
+    "manifest": "signature.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "line-slot-is-required",
+    "label-slot-is-required",
+    "sm-size-is-40-percent",
+    "md-size-is-60-percent",
+    "lg-size-is-80-percent",
+    "has-role-img",
+    "print-has-vertical-space",
+    "center-align-centers-block",
+    "right-align-right-aligns-block"
+  ]
+}

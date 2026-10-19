@@ -471,3 +471,125 @@ body {
 @media (min-width: 40rem) {
   [data-palette-button] { display: inline-flex; }
 }
+
+/* ── Reports: the shelf of real paper, the framed sheet ───────────────────── */
+
+/* A thumbnail is page 1 of the PDF itself, so it is shown as paper: the sheet's
+   own proportions, a hairline edge and a soft shadow on the page background. */
+[data-report-shelf] { align-items: start; }
+[data-report-spine] {
+  display: grid;
+  gap: var(--space-3);
+  color: inherit;
+  text-decoration: none;
+}
+[data-report-paper] {
+  margin: 0;
+  aspect-ratio: 210 / 297;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: white;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.06), 0 6px 18px oklch(0 0 0 / 0.07);
+  transition: transform var(--duration-fast) var(--ease-default), box-shadow var(--duration-fast) var(--ease-default);
+}
+[data-report-paper] img { inline-size: 100%; block-size: 100%; object-fit: cover; object-position: top; }
+[data-report-spine]:hover [data-report-paper],
+[data-report-spine]:focus-visible [data-report-paper] {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px oklch(0 0 0 / 0.08), 0 12px 28px oklch(0 0 0 / 0.10);
+}
+[data-report-unpublished] {
+  padding: var(--space-4);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+}
+[data-report-frame] iframe {
+  display: block;
+  inline-size: 100%;
+  block-size: min(88vh, 1180px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: oklch(0.94 0.004 85);
+}
+[data-report-link] {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: var(--text-xs);
+}
+[data-report-json] {
+  max-block-size: 24rem;
+  overflow: auto;
+  white-space: pre;
+}
+[data-ui="description-list"] code { overflow-wrap: anywhere; }
+
+/* ── Report designer: the page is the canvas ──────────────────────────────
+   The desk scrolls; the sheet is the server's own HTML in an iframe at the
+   paper's width, scaled by --canvas-zoom (fit, 100 %, 150 %). */
+[data-rd-desk] {
+  overflow: auto;
+  max-block-size: calc(100dvh - 9rem);
+  padding: var(--space-4) var(--space-2);
+  border-radius: var(--radius-lg);
+  background: oklch(0.90 0.004 85);
+}
+[data-rd-sheet] {
+  zoom: var(--canvas-zoom, 1);
+  inline-size: max-content;
+  margin-inline: auto;
+}
+[data-rd-sheet] iframe {
+  display: block;
+  border: 0;
+  background: transparent;
+}
+[data-rd-row] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)) auto;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+[data-rd-theme] {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  cursor: pointer;
+  text-align: start;
+}
+[data-rd-theme][aria-pressed="true"] {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--color-primary-subtle);
+}
+[data-rd-theme] img { inline-size: 100%; }
+[data-rd-strip] {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  gap: var(--space-4);
+}
+[data-rd-finding] {
+  inline-size: 100%;
+  justify-content: flex-start;
+  gap: var(--space-2);
+  white-space: normal;
+  text-align: start;
+  block-size: auto;
+  padding-block: var(--space-2);
+}
+[data-designer-props] [data-ui="field-group"] textarea { font-family: var(--font-mono); font-size: var(--text-xs); }
+
+/* Landing: the documents section shows a real printed page as paper. */
+[data-landing-documents] { padding-block: var(--space-16); }
+[data-landing-paper] img {
+  background: white;
+  border: 1px solid oklch(0.85 0 0);
+  box-shadow: 0 2px 6px oklch(0 0 0 / 0.12), 0 18px 40px oklch(0 0 0 / 0.18);
+  rotate: 1.2deg;
+}

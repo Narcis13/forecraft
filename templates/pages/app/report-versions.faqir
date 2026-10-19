@@ -1,0 +1,46 @@
+layout "layouts/app.faqir"
+
+block title
+  | Versions · {{ page.report.title }} — forecraft
+
+block header
+  h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.report.title }}
+  span(data-ui="badge" data-variant=page.report.statusVariant) {{ page.report.statusLabel }}
+
+block actions
+  include "partials/report-actions.faqir" (id=page.report.id draft=page.report.draft published=page.report.published)
+
+block content
+  div(data-ui="stack" data-gap="6")
+    include "partials/report-tabs.faqir" (tabs=page.tabs tab=page.tab)
+    p(data-ui="text" data-variant="muted") Documents are issued from a published version and always re-render from it. Publishing again never changes a document already issued.
+    if page.versions.length == 0
+      div(data-ui="card")
+        div(data-part="body")
+          div(data-ui="empty-state")
+            span(data-part="icon")
+              span(data-ui="icon" data-icon="git-branch" aria-hidden="true")
+            h2(data-part="title") Not published yet
+            p(data-part="description") Reach a clean preflight in the designer, then publish to issue documents.
+    else
+      div(data-ui="table" data-size="md")
+        table(data-part="table")
+          thead(data-part="thead")
+            tr(data-part="tr")
+              th(data-part="th" scope="col") Version
+              th(data-part="th" scope="col") Published
+              th(data-part="th" scope="col" data-align="end") Documents
+              th(data-part="th" scope="col" data-align="end")
+                span(data-ui="text" data-size="sm" data-variant="muted") Definition
+          tbody(data-part="tbody")
+            each v in page.versions
+              tr(data-part="tr")
+                td(data-part="td")
+                  div(data-ui="cluster" data-gap="2")
+                    | v{{ v.version }}
+                    if v.live
+                      span(data-ui="badge" data-variant="success" data-size="sm") Live
+                td(data-part="td") {{ datetime(v.published) }}
+                td(data-part="td" data-align="end") {{ v.documents }}
+                td(data-part="td" data-align="end")
+                  a(data-ui="button" data-variant="ghost" data-size="sm" href=v.href) JSON

@@ -1,0 +1,8 @@
+//- A heading and the blocks it groups (level 2).
+section(data-block=b.id data-report-block="section" data-keep=b.keep aria-labelledby="{{ b.id }}-h")
+  h3(id="{{ b.id }}-h")
+    if b.number ?? false
+      span(data-report-number) {{ b.number }}
+    | {{ b.title }}
+  each c in b.blocks
+    include "reports/dispatch-2.faqir" (b=c)

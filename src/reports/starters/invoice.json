@@ -1,0 +1,422 @@
+{
+  "schema": {
+    "type": "object",
+    "title": "Invoice",
+    "description": "A VAT invoice with line items, a tax breakdown per rate, a SEPA payment QR code and a PAID stamp once settled.",
+    "properties": {
+      "seller": {
+        "type": "object",
+        "title": "Seller",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Legal name"
+          },
+          "street": {
+            "type": "string",
+            "title": "Street"
+          },
+          "city": {
+            "type": "string",
+            "title": "Postcode and city"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "vat": {
+            "type": "string",
+            "title": "VAT ID"
+          },
+          "register": {
+            "type": "string",
+            "title": "Commercial register"
+          },
+          "email": {
+            "type": "string",
+            "title": "Billing email"
+          },
+          "phone": {
+            "type": "string",
+            "title": "Phone"
+          },
+          "bank": {
+            "type": "string",
+            "title": "Bank"
+          },
+          "iban": {
+            "type": "string",
+            "title": "IBAN"
+          },
+          "bic": {
+            "type": "string",
+            "title": "BIC"
+          }
+        },
+        "required": [
+          "name",
+          "street",
+          "city",
+          "iban"
+        ]
+      },
+      "customer": {
+        "type": "object",
+        "title": "Customer",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "attention": {
+            "type": "string",
+            "title": "Attention of"
+          },
+          "street": {
+            "type": "string",
+            "title": "Street"
+          },
+          "city": {
+            "type": "string",
+            "title": "Postcode and city"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "vat": {
+            "type": "string",
+            "title": "VAT ID"
+          }
+        },
+        "required": [
+          "name",
+          "street",
+          "city"
+        ]
+      },
+      "reference": {
+        "type": "string",
+        "title": "Your reference"
+      },
+      "period": {
+        "type": "string",
+        "title": "Service period"
+      },
+      "due": {
+        "type": "string",
+        "format": "date",
+        "title": "Due date"
+      },
+      "items": {
+        "type": "array",
+        "title": "Lines",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "title": "Description"
+            },
+            "detail": {
+              "type": "string",
+              "title": "Detail"
+            },
+            "qty": {
+              "type": "number",
+              "title": "Quantity"
+            },
+            "unit": {
+              "type": "string",
+              "title": "Unit"
+            },
+            "price": {
+              "type": "number",
+              "title": "Unit price (net)"
+            },
+            "vat": {
+              "type": "number",
+              "title": "VAT %"
+            }
+          },
+          "required": [
+            "description",
+            "qty",
+            "price",
+            "vat"
+          ]
+        }
+      },
+      "paid": {
+        "type": "number",
+        "title": "Amount paid"
+      },
+      "note": {
+        "type": "string",
+        "title": "Note"
+      }
+    },
+    "required": [
+      "seller",
+      "customer",
+      "due",
+      "items"
+    ]
+  },
+  "sample": {
+    "seller": {
+      "name": "Northfield Analytics GmbH",
+      "street": "Friedrichstraße 112",
+      "city": "10117 Berlin",
+      "country": "Germany",
+      "vat": "DE 318 442 907",
+      "register": "Amtsgericht Charlottenburg HRB 214 873 B",
+      "email": "billing@northfield.example",
+      "phone": "+49 30 5557 4120",
+      "bank": "Hanse Kontor Bank AG",
+      "iban": "DE89370400440532013000",
+      "bic": "COBADEFFXXX"
+    },
+    "customer": {
+      "name": "Atlas Retail Europe B.V.",
+      "street": "Keizersgracht 418",
+      "city": "1016 GC Amsterdam",
+      "country": "Netherlands",
+      "vat": "NL 8547 10 392 B01"
+    },
+    "reference": "PO 2026-1187",
+    "period": "1–30 September 2026",
+    "due": "2026-10-31",
+    "items": [
+      {
+        "description": "Retail demand forecasting — model retraining",
+        "detail": "Monthly retainer, September 2026",
+        "qty": 1,
+        "unit": "month",
+        "price": 6400,
+        "vat": 19
+      },
+      {
+        "description": "Analyst days on site, Amsterdam",
+        "detail": "8, 9, 22 and 23 September",
+        "qty": 4,
+        "unit": "days",
+        "price": 1150,
+        "vat": 19
+      },
+      {
+        "description": "Data pipeline hosting, EU region",
+        "qty": 1,
+        "unit": "month",
+        "price": 980.5,
+        "vat": 19
+      },
+      {
+        "description": "Workshop materials, printed",
+        "qty": 120,
+        "unit": "copies",
+        "price": 3.85,
+        "vat": 7
+      },
+      {
+        "description": "Travel, Berlin–Amsterdam return",
+        "qty": 2,
+        "unit": "trips",
+        "price": 214.6,
+        "vat": 0
+      }
+    ],
+    "paid": 0
+  },
+  "layout": [
+    {
+      "id": "letterhead",
+      "block": "letterhead",
+      "name": "{{ seller.name }}",
+      "lines": [
+        "{{ seller.street }}",
+        "{{ seller.city }} · {{ seller.country ?? \"\" }}"
+      ],
+      "details": [
+        {
+          "label": "VAT ID",
+          "value": "{{ seller.vat ?? \"—\" }}"
+        },
+        {
+          "label": "Email",
+          "value": "{{ seller.email ?? \"—\" }}"
+        },
+        {
+          "label": "Phone",
+          "value": "{{ seller.phone ?? \"—\" }}"
+        }
+      ]
+    },
+    {
+      "id": "title",
+      "block": "title",
+      "text": "{{ label(\"invoice\") }}",
+      "details": [
+        {
+          "label": "{{ label(\"number\") }}",
+          "value": "{{ doc.number ?? label(\"draft\") }}"
+        },
+        {
+          "label": "{{ label(\"issueDate\") }}",
+          "value": "{{ date(doc.issuedAt) }}"
+        },
+        {
+          "label": "{{ label(\"dueDate\") }}",
+          "value": "{{ date(due) }}"
+        },
+        {
+          "label": "{{ label(\"reference\") }}",
+          "value": "{{ reference ?? \"—\" }}"
+        }
+      ]
+    },
+    {
+      "id": "parties",
+      "block": "parties",
+      "parties": [
+        {
+          "label": "{{ label(\"billTo\") }}",
+          "name": "{{ customer.name }}",
+          "lines": [
+            "{{ customer.attention ?? \"\" }}",
+            "{{ customer.street }}",
+            "{{ customer.city }}",
+            "{{ customer.country ?? \"\" }}"
+          ],
+          "details": [
+            {
+              "label": "VAT ID",
+              "value": "{{ customer.vat ?? \"—\" }}"
+            }
+          ]
+        },
+        {
+          "label": "{{ label(\"period\") }}",
+          "name": "{{ period ?? \"—\" }}",
+          "lines": [
+            "Delivered under the master services agreement of 4 March 2025."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "block": "table",
+      "rows": "items",
+      "columns": [
+        {
+          "label": "{{ label(\"description\") }}",
+          "value": "{{ row.description }}",
+          "note": "{{ row.detail ?? \"\" }}",
+          "width": "wide"
+        },
+        {
+          "label": "{{ label(\"quantity\") }}",
+          "value": "{{ number(row.qty) }} {{ row.unit ?? \"\" }}",
+          "format": "number"
+        },
+        {
+          "label": "{{ label(\"unitPrice\") }} ({{ doc.currency }})",
+          "value": "{{ number(row.price, 2) }}",
+          "format": "number"
+        },
+        {
+          "label": "{{ label(\"vat\") }}",
+          "value": "{{ percent(row.vat) }}",
+          "format": "percent"
+        },
+        {
+          "label": "{{ label(\"amount\") }} ({{ doc.currency }})",
+          "value": "{{ number(line.net, 2) }}",
+          "format": "number"
+        }
+      ]
+    },
+    {
+      "id": "totals",
+      "block": "totals"
+    },
+    {
+      "id": "payment",
+      "block": "columns",
+      "columns": [
+        [
+          {
+            "id": "paid",
+            "block": "stamp",
+            "text": "{{ label(\"paidStamp\") }}",
+            "tone": "primary",
+            "when": "doc.money.due == \"0.00\" && doc.number != null"
+          },
+          {
+            "id": "pay-how",
+            "block": "callout",
+            "title": "Payment",
+            "markdown": "Please transfer **{{ money(doc.money.due) }}** by {{ date(due) }} to IBAN {{ iban(seller.iban) }}, quoting **{{ doc.number ?? label(\"draft\") }}**.",
+            "when": "doc.money.due != \"0.00\""
+          },
+          {
+            "id": "terms",
+            "block": "text",
+            "size": "fine",
+            "markdown": "Payable within 30 days, net. Late payments accrue statutory interest (§ 288 BGB). Questions about this invoice: [{{ seller.email ?? \"billing@example.com\" }}](mailto:{{ seller.email ?? \"billing@example.com\" }})",
+            "when": "doc.money.due != \"0.00\""
+          }
+        ],
+        [
+          {
+            "id": "pay-qr",
+            "block": "qr",
+            "size": "md",
+            "value": "{{ epc(seller.name, seller.iban, doc.money.due, doc.number ?? \"DRAFT\", seller.bic ?? \"\") }}",
+            "caption": "{{ doc.money.due != \"0.00\" ? label(\"scanToPay\") : \"EPC payment code · settled\" }}",
+            "when": "doc.currency == \"EUR\""
+          }
+        ]
+      ],
+      "keep": "together"
+    },
+    {
+      "id": "footer",
+      "block": "footer",
+      "lines": [
+        "{{ seller.name }} · {{ seller.street }} · {{ seller.city }} · {{ seller.register ?? \"\" }}",
+        "{{ seller.bank ?? \"\" }} · IBAN {{ iban(seller.iban) }} · BIC {{ seller.bic ?? \"—\" }}"
+      ]
+    }
+  ],
+  "appearance": {
+    "theme": "document",
+    "accent": "#1f3a8a",
+    "paper": "a4",
+    "orientation": "portrait",
+    "margins": "normal",
+    "type": "plex-sans",
+    "density": "comfortable",
+    "locale": "en-GB",
+    "currency": "EUR"
+  },
+  "money": {
+    "lines": "items",
+    "quantity": "qty",
+    "unitPrice": "price",
+    "taxRate": "vat",
+    "prices": "net",
+    "rounding": "line",
+    "paid": "paid"
+  },
+  "numbering": {
+    "pattern": "INV-{YYYY}-{seq:4}"
+  },
+  "documentTitle": "{{ customer.name }} · {{ money(doc.money.total) }}",
+  "runningHeader": "{{ label(\"invoice\") }} {{ doc.number ?? label(\"draft\") }} · {{ customer.name }}",
+  "source": {
+    "kind": "data"
+  }
+}

@@ -1,0 +1,87 @@
+layout "layouts/app.faqir"
+
+block title
+  | {{ page.doc.number ?? page.doc.title }} — forecraft
+
+block header
+  h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.doc.number ?? "Draft" }}
+  span(data-ui="badge" data-variant=page.doc.statusVariant) {{ page.doc.statusLabel }}
+
+block actions
+  div(data-ui="cluster" data-gap="2" l-data="documentActions" data-prop-doc-id=tojson(page.doc.id) data-prop-link=tojson(page.doc.shareUrl))
+    a(data-ui="button" data-variant="primary" data-size="sm" href="/api/v1/documents/{{ page.doc.id }}/pdf")
+      span(data-ui="icon" data-icon="download" aria-hidden="true")
+      | Download PDF
+    button(type="button" data-ui="button" data-variant="outline" data-size="sm" @click="print()")
+      span(data-ui="icon" data-icon="printer" aria-hidden="true")
+      | Print
+    button(type="button" data-ui="button" data-variant="outline" data-size="sm" @click="copyLink()")
+      span(data-ui="icon" data-icon="link" aria-hidden="true")
+      | Copy link
+    if page.doc.status == "draft"
+      button(type="button" data-ui="button" data-variant="outline" data-size="sm" @click="issue()")
+        span(data-ui="icon" data-icon="send" aria-hidden="true")
+        | Issue
+    if page.doc.status == "issued"
+      button(type="button" data-ui="button" data-variant="ghost" data-size="sm" @click="$ui('#void-document').open()")
+        span(data-ui="icon" data-icon="circle-x" aria-hidden="true")
+        | Void
+
+block content
+  div(data-ui="grid" data-cols="1" data-cols-lg="3" data-gap="6")
+    div(data-span="2" data-report-frame)
+      iframe#doc-sheet(src="/app/documents/{{ page.doc.id }}/sheet" title="{{ page.doc.title }}, as it prints" loading="eager")
+    div(data-ui="stack" data-gap="4")
+      div(data-ui="card")
+        div(data-part="header")
+          h2(data-part="title") {{ page.doc.title }}
+          p(data-part="description") {{ page.doc.report }} · version {{ page.doc.version }}
+        div(data-part="body")
+          dl(data-ui="description-list" data-size="sm")
+            dt(data-part="term") Status
+            dd(data-part="details") {{ page.doc.statusLabel }}
+            dt(data-part="term") Issued
+            dd(data-part="details") {{ page.doc.issued ? datetime(page.doc.issued) : "Not yet" }}
+            if page.doc.voidReason ?? false
+              dt(data-part="term") Voided
+              dd(data-part="details") {{ datetime(page.doc.voided) }} — {{ page.doc.voidReason }}
+            dt(data-part="term") Pages
+            dd(data-part="details") {{ page.doc.pages ?? "—" }}
+            dt(data-part="term") Locale
+            dd(data-part="details") {{ page.doc.locale }} · {{ page.doc.currency ?? "—" }}
+            if page.doc.sha ?? false
+              dt(data-part="term") PDF SHA-256
+              dd(data-part="details")
+                code {{ page.doc.sha }}
+      div(data-ui="card" l-data="documentActions" data-prop-doc-id=tojson(page.doc.id) data-prop-link=tojson(page.doc.shareUrl))
+        div(data-part="header")
+          h2(data-part="title") Share link
+          p(data-part="description") Anyone with the link sees the document and can download the PDF. It is not indexed.
+        div(data-part="body")
+          code(data-report-link) {{ page.doc.shareUrl }}
+        div(data-part="footer")
+          div(data-ui="cluster" data-gap="2")
+            a(data-ui="button" data-variant="outline" data-size="sm" href=page.doc.shareUrl target="_blank" rel="noopener") Open
+            button(type="button" data-ui="button" data-variant="ghost" data-size="sm" @click="rotate()") Rotate link
+      details(data-ui="collapsible")
+        summary(data-part="trigger") The data, as JSON
+        div(data-part="content")
+          pre(data-ui="text" data-variant="mono" data-size="xs" data-report-json) {{ page.doc.json }}
+
+block dialogs
+  div#void-document(data-ui="dialog" data-state="closed" l-data="documentActions" data-prop-doc-id=tojson(page.doc.id))
+    div(data-part="overlay" hidden)
+    div(data-part="panel" role="dialog" aria-modal="true" aria-labelledby="void-title" aria-describedby="void-desc" data-size="sm" data-variant="danger" hidden)
+      div(data-part="header")
+        h2#void-title(data-part="title") Void {{ page.doc.number ?? "this document" }}?
+        button(type="button" data-part="close" aria-label="Close dialog") ✕
+      div(data-part="body")
+        div(data-ui="stack" data-gap="4")
+          p#void-desc(data-part="description") It keeps its number, prints VOID from now on, and cannot be issued again. Say why: the reason is kept with it.
+          div(data-ui="field-group")
+            label(data-part="label" for="void-reason") Reason
+            div(data-part="input")
+              input#void-reason(data-ui="input" type="text" l-model="reason" placeholder="Issued to the wrong entity")
+      div(data-part="footer")
+        button(type="button" data-ui="button" data-variant="outline" @click="$ui('#void-document').close()") Keep it
+        button(type="button" data-ui="button" data-variant="destructive" @click="voidIt()") Void document

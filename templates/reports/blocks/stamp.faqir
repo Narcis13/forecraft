@@ -1,0 +1,3 @@
+//- PAID, COPY, VOID: Faqir's stamp, a few degrees off true, in the right ink.
+div(data-block=b.id data-report-block="stamp" data-keep=b.keep)
+  span(data-ui="stamp" data-variant=b.tone data-size="lg") {{ b.text }}

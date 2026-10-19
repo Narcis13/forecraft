@@ -1,0 +1,39 @@
+<!-- @ui:reference document-print -->
+<!-- Dedicated 3-page print fixture for task 0.6-07; intentionally not an
+     @ui:component page, so it does not duplicate the ordinary visual matrix. -->
+
+<article data-ui="document" data-variant="report" data-format="a4" aria-label="Quarterly Operations Report">
+  <header data-part="doc-header">
+    Faqir UI - Quarterly Operations Report - Reference DOC-2026-Q2
+  </header>
+
+  <div data-part="body">
+    <h1>Quarterly Operations Report</h1>
+
+    <section aria-labelledby="print-summary">
+      <h2 id="print-summary">1. Executive summary</h2>
+      <p>This first page establishes the document scope and reporting period.</p>
+      <p>The forced page boundary below makes the print contract deterministic.</p>
+    </section>
+
+    <div data-ui="page-break" role="separator" aria-label="Page break">page break</div>
+
+    <section aria-labelledby="print-analysis">
+      <h2 id="print-analysis">2. Analysis</h2>
+      <p>This second page verifies that the running header and footer repeat.</p>
+      <p>Its page-margin counter must report the second page.</p>
+    </section>
+
+    <div data-ui="page-break" role="separator" aria-label="Page break">page break</div>
+
+    <section aria-labelledby="print-conclusion">
+      <h2 id="print-conclusion">3. Conclusion</h2>
+      <p>This third page completes the minimum multi-page verification fixture.</p>
+      <p>Its page-margin counter must report the final page.</p>
+    </section>
+  </div>
+
+  <footer data-part="doc-footer">
+    Confidential - generated with Faqir UI
+  </footer>
+</article>

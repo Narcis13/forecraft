@@ -1,0 +1,8 @@
+//- The document's type, number and key dates.
+div(data-block=b.id data-report-block="title" data-keep=b.keep data-report-cover=b.cover)
+  div(data-ui="stack" data-gap="1")
+    if b.eyebrow ?? false
+      p(data-ui="text" data-variant="eyebrow") {{ b.eyebrow }}
+    h1 {{ b.text }}
+  if b.details.length > 0
+    include "reports/cells.faqir" (items=b.details cols=b.cols)

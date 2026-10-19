@@ -1,0 +1,76 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "page-break",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "category": "layout",
+  "description": "Print page break with visual indicator for screen editing",
+
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='page-break']",
+    "content_model": "empty"
+  },
+
+  "slots": {},
+
+  "variants": {
+    "variant": {
+      "values": ["after", "before"],
+      "default": "after",
+      "attr": "data-variant",
+      "applied_to": "root"
+    }
+  },
+
+  "states": {},
+
+  "props": {},
+
+  "a11y": {
+    "required_attrs": ["role=\"separator\" for screen readers", "aria-label describing page break"],
+    "keyboard": {}
+  },
+
+  "tokens_used": [
+    "color-border", "color-fg-muted", "space-4", "space-6", "text-xs", "font-body", "border-width",
+    "doc-section-gap", "doc-font", "page-break-screen-style", "page-break-screen-color",
+    "page-break-screen-label-size", "page-break-screen-label-color"
+  ],
+
+  "templates": {
+    "html": "<div data-ui=\"page-break\" role=\"separator\" aria-label=\"Page break\"></div>",
+    "html_before": "<div data-ui=\"page-break\" data-variant=\"before\" role=\"separator\" aria-label=\"Page break\"></div>"
+  },
+
+  "safe_transforms": [
+    "change-variant"
+  ],
+
+  "unsafe_transforms": [
+    "remove-role-attribute",
+    "remove-aria-label"
+  ],
+
+  "composition": {
+    "contains": [],
+    "used_in": ["document"]
+  },
+
+  "files": {
+    "html": "page-break.html",
+    "css": "page-break.css",
+    "manifest": "page-break.manifest.json"
+  },
+
+  "tests": [
+    "renders-as-div-element",
+    "has-role-separator",
+    "has-aria-label",
+    "screen-shows-dashed-line",
+    "screen-shows-label-text",
+    "print-forces-page-break-after",
+    "print-hides-visual-indicator",
+    "before-variant-uses-page-break-before"
+  ]
+}

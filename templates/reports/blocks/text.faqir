@@ -1,0 +1,2 @@
+div(data-block=b.id data-report-block="text" data-keep=b.keep data-report-size=b.size)
+  include "reports/md.faqir" (md=b.md)

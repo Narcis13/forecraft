@@ -68,6 +68,9 @@ block content
                   td(data-part="td") {{ answer(cell) }}
                 td(data-part="td") v{{ r.version }}
                 td(data-part="td" data-align="end")
+                  a(data-ui="button" data-variant="ghost" data-size="sm" href="/api/v1/submissions/{{ r.id }}/pdf" aria-label="This response as a PDF")
+                    span(data-ui="icon" data-icon="download" aria-hidden="true")
+                    | PDF
                   button(type="button" data-ui="button" data-variant="ghost" data-size="sm" value=r.id aria-label="Delete this response" @click="$dispatch('remove-sub', { id: $this.value }); $ui('#remove-submission').open()")
                     span(data-ui="icon" data-icon="trash-2" aria-hidden="true")
               tr(data-part="detail-row" hidden)

@@ -156,6 +156,33 @@ block body
                 code GET /forms/:id/submissions
                 |  or export them as CSV.
 
+    //- ── Documents: data in through forms, paper out ──
+    div(data-ui="container" data-measure="wide" data-gutter="4")
+      div(data-ui="reveal" data-trigger="scroll")
+        section(aria-labelledby="documents-heading" data-landing-documents)
+          div(data-ui="grid" data-cols="1" data-cols-md="2" data-gap="10")
+            div(data-ui="stack" data-gap="4")
+              div(data-ui="cluster")
+                span(data-ui="badge" data-variant="primary") New · Documents
+              h2#documents-heading(data-ui="text" data-size="3xl" data-weight="semibold") And the paper goes out
+              p(data-ui="text" data-size="lg" data-variant="muted") The agent that built the form can now issue the invoice, the confirmation, the board report. One JSON definition becomes an A4 or US Letter PDF that looks like it came from a good accountant: exact money, gapless numbers, a SEPA payment code, page numbers in the reader's language.
+              ul(data-ui="stack" data-gap="2")
+                li
+                  code POST /reports
+                  |  from a starter, with your company and one accent.
+                li
+                  code POST /reports/:id/preview
+                  |  returns the findings and the pages themselves.
+                li
+                  code POST /reports/:id/documents
+                  |  returns the number, the PDF and a link to share.
+              div(data-ui="cluster" data-gap="3")
+                a(data-ui="button" data-variant="primary" href="/docs/reports") How reports work
+                a(data-ui="button" data-variant="outline" href="/docs/for-agents#issue-your-first-invoice") Issue your first invoice
+            figure(data-ui="image" data-variant="responsive" data-size="full" data-landing-paper)
+              img(data-part="img" src="/images/marketing/document-invoice.png" alt="Page 1 of an invoice issued by forecraft: letterhead, line items, VAT per rate, the amount due and a SEPA payment code" width="794" height="1123" loading="lazy")
+              figcaption(data-part="caption") A real page: the seed invoice, printed by the renderer.
+
     //- ── What people (and agents) say — all fictional ──
     div(data-ui="container" data-measure="wide" data-gutter="4")
       section(data-ui="testimonials" data-variant="columns" data-animate aria-labelledby="quotes-heading")

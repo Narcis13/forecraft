@@ -41,7 +41,7 @@ export function renderFormPage(form: CompiledForm, opts: FormPageOptions): strin
       preview: opts.preview,
       action: opts.action,
       version: opts.version ?? null,
-      state: { status: "idle", message: "" },
+      state: { status: "idle", message: "", confirmation: "" },
     },
   });
 }

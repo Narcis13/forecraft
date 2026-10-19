@@ -1,0 +1,57 @@
+/* @ui:component qr-code */
+/* @ui:tokens color-fg-muted space-2 text-xs font-body doc-font doc-legal-size doc-legal-color */
+
+/* ── Base ── */
+[data-ui="qr-code"] {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ── SVG ── */
+[data-ui="qr-code"] > [data-part="svg"],
+[data-ui="qr-code"] svg {
+  display: block;
+}
+
+/* ── Caption ── */
+[data-ui="qr-code"] > [data-part="caption"] {
+  font-family: var(--doc-font, var(--font-body));
+  font-size: var(--doc-legal-size, var(--text-xs));
+  color: var(--doc-legal-color, var(--color-fg-muted));
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ── Size: SM (80px) ── */
+[data-ui="qr-code"][data-size="sm"] svg {
+  width: 80px;
+  height: 80px;
+}
+
+/* ── Size: MD (128px, default) ── */
+[data-ui="qr-code"][data-size="md"] svg,
+[data-ui="qr-code"]:not([data-size]) svg {
+  width: 128px;
+  height: 128px;
+}
+
+/* ── Size: LG (200px) ── */
+[data-ui="qr-code"][data-size="lg"] svg {
+  width: 200px;
+  height: 200px;
+}
+
+/* ── Print ── */
+@media print {
+  [data-ui="qr-code"] {
+    break-inside: avoid;
+  }
+
+  [data-ui="qr-code"] svg {
+    color-adjust: exact;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

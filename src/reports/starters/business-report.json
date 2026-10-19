@@ -1,0 +1,558 @@
+{
+  "schema": {
+    "type": "object",
+    "title": "Business report",
+    "description": "A quarterly board report on US Letter: a cover, numbered sections, KPI figures, a chart, tables and a PDF outline.",
+    "properties": {
+      "company": {
+        "type": "string",
+        "title": "Company"
+      },
+      "title": {
+        "type": "string",
+        "title": "Report title"
+      },
+      "period": {
+        "type": "string",
+        "title": "Period"
+      },
+      "prepared": {
+        "type": "string",
+        "format": "date",
+        "title": "Prepared on"
+      },
+      "preparedBy": {
+        "type": "string",
+        "title": "Prepared by"
+      },
+      "audience": {
+        "type": "string",
+        "title": "Prepared for"
+      },
+      "classification": {
+        "type": "string",
+        "title": "Classification"
+      },
+      "summary": {
+        "type": "string",
+        "title": "Executive summary"
+      },
+      "kpis": {
+        "type": "array",
+        "title": "Key figures",
+        "items": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            },
+            "change": {
+              "type": "string"
+            },
+            "trend": {
+              "type": "string",
+              "enum": [
+                "up",
+                "down",
+                "neutral"
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "value"
+          ]
+        }
+      },
+      "quarters": {
+        "type": "array",
+        "title": "Revenue by quarter",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "revenue": {
+              "type": "number"
+            },
+            "ebitda": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "name",
+            "revenue"
+          ]
+        }
+      },
+      "segments": {
+        "type": "array",
+        "title": "Segments",
+        "items": {
+          "type": "object",
+          "properties": {
+            "segment": {
+              "type": "string"
+            },
+            "revenue": {
+              "type": "number"
+            },
+            "growth": {
+              "type": "number"
+            },
+            "margin": {
+              "type": "number"
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "segment",
+            "revenue"
+          ]
+        }
+      },
+      "channels": {
+        "type": "array",
+        "title": "Revenue by channel",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "share": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "name",
+            "share"
+          ]
+        }
+      },
+      "operations": {
+        "type": "string",
+        "title": "Operations"
+      },
+      "risks": {
+        "type": "array",
+        "title": "Risks",
+        "items": {
+          "type": "object",
+          "properties": {
+            "risk": {
+              "type": "string"
+            },
+            "likelihood": {
+              "type": "string"
+            },
+            "impact": {
+              "type": "string"
+            },
+            "mitigation": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "risk"
+          ]
+        }
+      },
+      "outlook": {
+        "type": "string",
+        "title": "Outlook"
+      },
+      "decision": {
+        "type": "string",
+        "title": "Decision requested"
+      }
+    },
+    "required": [
+      "company",
+      "title",
+      "period"
+    ]
+  },
+  "sample": {
+    "company": "Tessellate Materials, Inc.",
+    "title": "Quarterly report to the Board",
+    "period": "Third quarter 2026",
+    "prepared": "2026-10-12",
+    "preparedBy": "Office of the CFO",
+    "audience": "Board of Directors",
+    "classification": "Confidential — Board use only",
+    "summary": "Revenue grew 14% year over year to $48.6 million, ahead of plan for the third consecutive quarter, driven by architectural glazing and the first full quarter of the Monterrey line. Adjusted EBITDA margin widened by 2.1 points to 19.4% as freight costs eased and the energy hedge took effect.\n\nCash conversion remains the one weak spot: inventory rose by 11 days ahead of the Q4 project season. We expect it to normalise by year end and propose no change to the capital plan.",
+    "kpis": [
+      {
+        "label": "Revenue",
+        "value": "$48.6M",
+        "change": "+14% year over year",
+        "trend": "up"
+      },
+      {
+        "label": "Adjusted EBITDA",
+        "value": "$9.4M",
+        "change": "19.4% margin, +2.1 pts",
+        "trend": "up"
+      },
+      {
+        "label": "Free cash flow",
+        "value": "$3.1M",
+        "change": "−$1.2M vs Q2",
+        "trend": "down"
+      },
+      {
+        "label": "Order backlog",
+        "value": "$112M",
+        "change": "6.8 months of revenue",
+        "trend": "neutral"
+      }
+    ],
+    "quarters": [
+      {
+        "name": "Q3 2025",
+        "revenue": 42.6,
+        "ebitda": 7.4
+      },
+      {
+        "name": "Q4 2025",
+        "revenue": 44.1,
+        "ebitda": 7.9
+      },
+      {
+        "name": "Q1 2026",
+        "revenue": 43.8,
+        "ebitda": 8
+      },
+      {
+        "name": "Q2 2026",
+        "revenue": 46.2,
+        "ebitda": 8.7
+      },
+      {
+        "name": "Q3 2026",
+        "revenue": 48.6,
+        "ebitda": 9.4
+      }
+    ],
+    "segments": [
+      {
+        "segment": "Architectural glazing",
+        "revenue": 21.4,
+        "growth": 19.2,
+        "margin": 22.8,
+        "note": "Two airport contracts delivered"
+      },
+      {
+        "segment": "Industrial composites",
+        "revenue": 14.9,
+        "growth": 8.1,
+        "margin": 17.5,
+        "note": "Monterrey line at 82% utilisation"
+      },
+      {
+        "segment": "Acoustic panels",
+        "revenue": 8.2,
+        "growth": 12.6,
+        "margin": 16.1
+      },
+      {
+        "segment": "Services and retrofit",
+        "revenue": 4.1,
+        "growth": 9.4,
+        "margin": 24.3,
+        "note": "Framework renewals with three councils"
+      }
+    ],
+    "channels": [
+      {
+        "name": "Direct to contractors",
+        "share": 46
+      },
+      {
+        "name": "Distributors",
+        "share": 31
+      },
+      {
+        "name": "Public frameworks",
+        "share": 15
+      },
+      {
+        "name": "Online and spares",
+        "share": 8
+      }
+    ],
+    "operations": "The Monterrey line reached 82% utilisation in September, against 74% planned, and scrap fell to 3.1% from 4.6% in Q2. Lost-time injuries: none for the second quarter running. The Reno warehouse consolidation is on schedule for completion in November and will release $0.6 million a year in rent.\n\nWe hired 38 people in the quarter, 21 of them on the Monterrey line; voluntary turnover was 2.4%.",
+    "risks": [
+      {
+        "risk": "Float glass supply",
+        "likelihood": "Medium",
+        "impact": "High",
+        "mitigation": "Second supplier qualified; 9 weeks of stock"
+      },
+      {
+        "risk": "Energy prices from 2027",
+        "likelihood": "Medium",
+        "impact": "Medium",
+        "mitigation": "62% of 2027 volume hedged"
+      },
+      {
+        "risk": "Project timing in Q4",
+        "likelihood": "High",
+        "impact": "Low",
+        "mitigation": "Backlog covers the plan 1.4 times"
+      },
+      {
+        "risk": "Key-person dependency in R&D",
+        "likelihood": "Low",
+        "impact": "High",
+        "mitigation": "Deputy appointed; retention plan agreed"
+      }
+    ],
+    "outlook": "We reaffirm full-year guidance of $186–190 million revenue and 18.5–19% adjusted EBITDA margin. The fourth quarter carries the usual project weighting; the backlog and the September run rate support the upper half of the range.",
+    "decision": "Approve the $4.2 million investment in a second tempering furnace at Monterrey, with commissioning in Q2 2027 and a payback of 3.1 years at the current order mix."
+  },
+  "layout": [
+    {
+      "id": "cover-title",
+      "block": "title",
+      "eyebrow": "{{ company }} · {{ period }}",
+      "text": "{{ title }}"
+    },
+    {
+      "id": "cover-facts",
+      "block": "facts",
+      "cols": "2",
+      "items": [
+        {
+          "label": "Prepared for",
+          "value": "{{ audience ?? \"—\" }}"
+        },
+        {
+          "label": "Prepared by",
+          "value": "{{ preparedBy ?? \"—\" }}"
+        },
+        {
+          "label": "Date",
+          "value": "{{ date(prepared ?? doc.issuedAt) }}"
+        },
+        {
+          "label": "Reference",
+          "value": "{{ doc.number ?? label(\"draft\") }}"
+        }
+      ]
+    },
+    {
+      "id": "cover-break",
+      "block": "page-break"
+    },
+    {
+      "id": "summary",
+      "block": "section",
+      "title": "Executive summary",
+      "numbered": true,
+      "blocks": [
+        {
+          "id": "summary-text",
+          "block": "text",
+          "markdown": "{{ summary }}"
+        },
+        {
+          "id": "kpis",
+          "block": "stats",
+          "items": [
+            {
+              "label": "{{ kpis[0].label }}",
+              "value": "{{ kpis[0].value }}",
+              "change": "{{ kpis[0].change ?? \"\" }}",
+              "trend": "up"
+            },
+            {
+              "label": "{{ kpis[1].label }}",
+              "value": "{{ kpis[1].value }}",
+              "change": "{{ kpis[1].change ?? \"\" }}",
+              "trend": "up"
+            },
+            {
+              "label": "{{ kpis[2].label }}",
+              "value": "{{ kpis[2].value }}",
+              "change": "{{ kpis[2].change ?? \"\" }}",
+              "trend": "down"
+            },
+            {
+              "label": "{{ kpis[3].label }}",
+              "value": "{{ kpis[3].value }}",
+              "change": "{{ kpis[3].change ?? \"\" }}",
+              "trend": "neutral"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "financials",
+      "block": "section",
+      "title": "Financial performance",
+      "numbered": true,
+      "blocks": [
+        {
+          "id": "revenue-chart",
+          "block": "chart",
+          "kind": "column",
+          "rows": "quarters",
+          "label": "{{ row.name }}",
+          "format": "number",
+          "series": [
+            {
+              "name": "Revenue",
+              "value": "row.revenue"
+            },
+            {
+              "name": "Adjusted EBITDA",
+              "value": "row.ebitda ?? 0"
+            }
+          ],
+          "title": "Revenue and adjusted EBITDA, $ million",
+          "caption": "Five quarters to 30 September 2026, unaudited."
+        },
+        {
+          "id": "segments",
+          "block": "table",
+          "rows": "segments",
+          "caption": "Revenue by segment, $ million, third quarter 2026",
+          "columns": [
+            {
+              "label": "Segment",
+              "value": "{{ row.segment }}",
+              "note": "{{ row.note ?? \"\" }}",
+              "width": "wide"
+            },
+            {
+              "label": "Revenue",
+              "value": "{{ number(row.revenue, 1) }}",
+              "format": "number"
+            },
+            {
+              "label": "Growth y/y",
+              "value": "{{ percent(row.growth ?? 0, 1) }}",
+              "format": "percent"
+            },
+            {
+              "label": "EBITDA margin",
+              "value": "{{ percent(row.margin ?? 0, 1) }}",
+              "format": "percent"
+            }
+          ],
+          "footer": [
+            {
+              "label": "Total",
+              "value": "{{ number(sum(segments, \"revenue\"), 1) }}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "operations",
+      "block": "section",
+      "title": "Operations and people",
+      "numbered": true,
+      "blocks": [
+        {
+          "id": "operations-text",
+          "block": "text",
+          "markdown": "{{ operations ?? \"\" }}"
+        },
+        {
+          "id": "channels",
+          "block": "bars",
+          "title": "Revenue by channel, share of total",
+          "rows": "channels",
+          "label": "{{ row.name }}",
+          "value": "row.share",
+          "display": "{{ percent(row.share) }}",
+          "max": "100"
+        }
+      ]
+    },
+    {
+      "id": "risks",
+      "block": "section",
+      "title": "Risks and outlook",
+      "numbered": true,
+      "blocks": [
+        {
+          "id": "risk-table",
+          "block": "table",
+          "rows": "risks",
+          "caption": "Principal risks",
+          "columns": [
+            {
+              "label": "Risk",
+              "value": "{{ row.risk }}"
+            },
+            {
+              "label": "Likelihood",
+              "value": "{{ row.likelihood ?? \"—\" }}",
+              "width": "narrow"
+            },
+            {
+              "label": "Impact",
+              "value": "{{ row.impact ?? \"—\" }}",
+              "width": "narrow"
+            },
+            {
+              "label": "Mitigation",
+              "value": "{{ row.mitigation ?? \"—\" }}",
+              "width": "wide"
+            }
+          ]
+        },
+        {
+          "id": "outlook",
+          "block": "text",
+          "markdown": "{{ outlook ?? \"\" }}"
+        },
+        {
+          "id": "decision",
+          "block": "callout",
+          "title": "Decision requested",
+          "markdown": "{{ decision ?? \"No decision is requested this quarter.\" }}",
+          "tone": "muted"
+        }
+      ]
+    },
+    {
+      "id": "footer",
+      "block": "footer",
+      "lines": [
+        "{{ company }} · {{ title }} · {{ period }} · {{ classification ?? \"\" }}"
+      ]
+    }
+  ],
+  "appearance": {
+    "theme": "editorial-document",
+    "accent": "#0f4c5c",
+    "paper": "letter",
+    "orientation": "portrait",
+    "margins": "wide",
+    "type": "editorial",
+    "density": "comfortable",
+    "locale": "en-US",
+    "currency": "USD"
+  },
+  "numbering": {
+    "pattern": "BR-{YYYY}-{seq:2}"
+  },
+  "documentTitle": "{{ company }} · {{ period }}",
+  "runningHeader": "{{ company }} · {{ title }} · {{ period }}",
+  "source": {
+    "kind": "data"
+  }
+}

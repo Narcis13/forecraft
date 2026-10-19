@@ -5,7 +5,7 @@ block title
 
 block body
   div(data-ui="backdrop" data-variant=page.scene data-intensity="subtle")
-    main#main(data-form-page=page.layout l-data=json(page.state) @fc-sent="status = 'sent'" @fc-failed="status = 'failed'; message = $event.detail")
+    main#main(data-form-page=page.layout l-data=json(page.state) @fc-sent="status = 'sent'; confirmation = $event.detail || ''" @fc-failed="status = 'failed'; message = $event.detail")
       if page.coverImage ?? false
         if page.layout == "split"
           figure(data-form-cover)
@@ -48,6 +48,10 @@ block body
                     span(data-ui="stamp" data-variant="success" data-size="lg") Received
                     h2 {{ page.thankYou.title }}
                     p(data-ui="text" data-variant="muted") {{ page.thankYou.message }}
+                    template(l-if="confirmation")
+                      a(data-ui="button" data-variant="primary" :href="confirmation" data-form-confirmation)
+                        span(data-ui="icon" data-icon="download" aria-hidden="true")
+                        | Download your confirmation (PDF)
           footer(data-form-foot)
             p(data-ui="text" data-size="sm" data-variant="muted")
               | Made with

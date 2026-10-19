@@ -127,3 +127,137 @@ One row per submission: `id,submitted_at,version`, then one column per field (`e
 - Read one answer: `GET /api/v1/submissions/:id`. Delete one: `DELETE` the same path.
 
 The whole API is in [the API reference](/docs/api); the same steps as MCP tools are in [the MCP docs](/docs/mcp).
+
+# Issue your first invoice
+
+The same key issues documents: upload a logo, start from the invoice starter with your
+company and accent, preview it (findings and the pages themselves), publish, issue from
+JSON, download the PDF, void it with a reason, and issue the next one with the next number.
+Same `curl`, `jq` and environment variables as above; `base64` decodes the page images.
+
+## 1. Upload a logo
+
+```bash
+cat > logo.svg <<'SVG'
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="#0f4c5c"/><path d="M11 29V11h18" fill="none" stroke="#fff" stroke-width="3"/></svg>
+SVG
+LOGO=$(curl -s -X POST "$FORECRAFT_URL/api/v1/assets?name=logo.svg" \
+  -H "Authorization: Bearer $FORECRAFT_API_KEY" \
+  -H "Content-Type: image/svg+xml" \
+  --data-binary @logo.svg | jq -r '.ref')
+echo "$LOGO"
+```
+
+An `asset:ast_…` reference. Assets are judged by their bytes (PNG, JPEG, WebP, SVG); a
+script with an image's name is a `415`, an SVG that runs or loads anything a `422`.
+
+## 2. List the starters
+
+```bash
+curl -s "$FORECRAFT_URL/api/v1/report-starters" \
+  -H "Authorization: Bearer $FORECRAFT_API_KEY" | jq -r '.items[] | "\(.id)\t\(.title)"'
+```
+
+`invoice`, `letter`, `business-report`, `confirmation`, `survey-summary`, `blank`.
+
+## 3. Create a report from the invoice starter
+
+Give it your company (the sample is what previews render) and one dark accent. The
+starter keeps its layout, money, numbering (`INV-{YYYY}-{seq:4}`) and house style.
+
+```bash
+REPORT=$(curl -s -X POST "$FORECRAFT_URL/api/v1/reports" \
+  -H "Authorization: Bearer $FORECRAFT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "$(jq -n --arg logo "$LOGO" '{
+    starter: "invoice",
+    title: "Invoice",
+    appearance: { accent: "#0f4c5c", logo: $logo },
+    sample: { seller: { name: "Quayside Logistics Ltd", street: "4 Harbour Row", city: "Leith EH6 6LX",
+                        country: "United Kingdom", vat: "GB 123 4567 89", email: "accounts@quayside.example",
+                        iban: "GB29NWBK60161331926819", bic: "NWBKGB2L", bank: "Example Bank plc" } }
+  }')" | jq -r '.id')
+echo "$REPORT"
+```
+
+## 4. Preview it: the findings and the pages
+
+```bash
+curl -s -X POST "$FORECRAFT_URL/api/v1/reports/$REPORT/preview" \
+  -H "Authorization: Bearer $FORECRAFT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "format": "png", "pages": 2 }' > preview.json
+jq '{ ok, pages, findings }' preview.json
+jq -r '.images[0].data' preview.json | base64 -d > page-1.png
+```
+
+`ok` is true when no finding is an error. Look at `page-1.png`: it is the PDF's own page 1.
+A finding names its block (`"block": "items"`) and what to do; fix the definition with
+`PATCH /api/v1/reports/$REPORT` (`{ "definition": … }`) and preview again. `"format": "pdf"`
+returns the PDF itself; `"format": "html"` the page before printing.
+
+## 5. Publish
+
+```bash
+curl -s -X POST "$FORECRAFT_URL/api/v1/reports/$REPORT/publish" \
+  -H "Authorization: Bearer $FORECRAFT_API_KEY" | jq '.version'
+```
+
+## 6. Issue a document from JSON
+
+```bash
+DATA='{
+  "seller": { "name": "Quayside Logistics Ltd", "street": "4 Harbour Row", "city": "Leith EH6 6LX",
+              "country": "United Kingdom", "vat": "GB 123 4567 89", "email": "accounts@quayside.example",
+              "iban": "GB29NWBK60161331926819", "bic": "NWBKGB2L", "bank": "Example Bank plc" },
+  "customer": { "name": "Lumen Studio Lda", "street": "Rua do Alecrim 47", "city": "1200-014 Lisboa", "country": "Portugal" },
+  "reference": "PO 7781",
+  "due": "2026-11-30",
+  "items": [
+    { "description": "Cold-chain freight, Leith to Lisbon", "qty": 3, "unit": "pallet", "price": 420, "vat": 20 },
+    { "description": "Customs brokerage", "qty": 1, "unit": "file", "price": 185.5, "vat": 20 }
+  ]
+}'
+DOC=$(curl -s -X POST "$FORECRAFT_URL/api/v1/reports/$REPORT/documents" \
+  -H "Authorization: Bearer $FORECRAFT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{ \"issue\": true, \"data\": $DATA }")
+echo "$DOC" | jq '{ number, status, pdf_url, share_url }'
+DOC_ID=$(echo "$DOC" | jq -r '.id')
+NUMBER=$(echo "$DOC" | jq -r '.number')
+```
+
+The data is checked against the report's schema (a `422` names each pointer) and the
+document is preflighted before it gets its number; an error is a `422 preflight-failed`
+with the findings. The number is assigned in the same transaction that issues it.
+
+## 7. Download the PDF
+
+```bash
+curl -s "$FORECRAFT_URL/api/v1/documents/$DOC_ID/pdf" \
+  -H "Authorization: Bearer $FORECRAFT_API_KEY" -o "$NUMBER.pdf"
+ls -l "$NUMBER.pdf"
+```
+
+Every download serves the same bytes (the `ETag` is their SHA-256). The `share_url` opens
+the document for anyone with the link, with a Download PDF button; `POST
+/api/v1/documents/$DOC_ID/share/rotate` revokes it.
+
+## 8. Void it, then issue the next one
+
+```bash
+curl -s -X POST "$FORECRAFT_URL/api/v1/documents/$DOC_ID/void" \
+  -H "Authorization: Bearer $FORECRAFT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "reason": "Issued to the wrong customer entity" }' | jq '{ number, status, void_reason }'
+curl -s -X POST "$FORECRAFT_URL/api/v1/reports/$REPORT/documents" \
+  -H "Authorization: Bearer $FORECRAFT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{ \"issue\": true, \"data\": $DATA }" | jq '{ number, status }'
+```
+
+The voided document keeps its number and prints `VOID`; the next issue takes the next
+number — the sequence has no gap. An issued document never changes (`PATCH` is a `409`).
+
+The definition, every block and the preflight codes are in [reports](/docs/reports); what
+to choose, and why, in [report style](/docs/report-style).

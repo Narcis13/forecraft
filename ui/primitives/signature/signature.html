@@ -1,0 +1,40 @@
+<!-- @ui:component signature -->
+<!-- @ui:kind primitive -->
+<!-- @ui:slots line label -->
+<!-- @ui:variants size=sm|md|lg align=left|center|right -->
+
+<!-- Default (sm, left) -->
+<div data-ui="signature" role="img" aria-label="Signature: Director General">
+  <div data-part="line"></div>
+  <span data-part="label">Director General</span>
+</div>
+
+<!-- Medium size -->
+<div data-ui="signature" data-size="md" role="img" aria-label="Signature: Ion Popescu">
+  <div data-part="line"></div>
+  <span data-part="label">Ion Popescu</span>
+</div>
+
+<!-- Large size, right aligned -->
+<div data-ui="signature" data-size="lg" data-align="right" role="img" aria-label="Signature: Client Representative">
+  <div data-part="line"></div>
+  <span data-part="label">Client Representative</span>
+</div>
+
+<!-- Center aligned -->
+<div data-ui="signature" data-size="md" data-align="center" role="img" aria-label="Signature: Authorized Signatory">
+  <div data-part="line"></div>
+  <span data-part="label">Authorized Signatory</span>
+</div>
+
+<!-- Two signatures side by side (common Romanian document pattern) -->
+<div style="display: flex; justify-content: space-between;">
+  <div data-ui="signature" role="img" aria-label="Signature: Furnizor">
+    <div data-part="line"></div>
+    <span data-part="label">Furnizor</span>
+  </div>
+  <div data-ui="signature" role="img" aria-label="Signature: Client">
+    <div data-part="line"></div>
+    <span data-part="label">Client</span>
+  </div>
+</div>

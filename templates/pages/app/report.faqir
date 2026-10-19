@@ -1,0 +1,64 @@
+layout "layouts/app.faqir"
+
+block title
+  | {{ page.report.title }} — forecraft
+
+block header
+  h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.report.title }}
+  span(data-ui="badge" data-variant=page.report.statusVariant) {{ page.report.statusLabel }}
+
+block actions
+  include "partials/report-actions.faqir" (id=page.report.id draft=page.report.draft published=page.report.published)
+
+block content
+  div(data-ui="stack" data-gap="6")
+    include "partials/report-tabs.faqir" (tabs=page.tabs tab=page.tab)
+    div(data-ui="grid" data-cols="1" data-cols-md="3" data-gap="6")
+      figure(data-ui="image" data-variant="contain" data-size="full" data-report-paper)
+        if page.report.thumbnail ?? false
+          img(data-part="img" src=page.report.thumbnail alt="Page 1 of {{ page.report.title }}, as published" width="397" height="561")
+        else
+          span(data-report-unpublished) Publish to see page 1 here
+      div(data-ui="stack" data-gap="4" data-span="2")
+        p(data-ui="text" data-variant="muted") {{ page.report.description }}
+        dl(data-ui="description-list" data-variant="horizontal" data-size="sm")
+          dt(data-part="term") Source
+          dd(data-part="details") {{ page.report.sourceLabel }}
+          dt(data-part="term") Numbering
+          dd(data-part="details")
+            code {{ page.report.numbering }}
+          dt(data-part="term") Paper
+          dd(data-part="details") {{ page.report.paper }}
+          dt(data-part="term") Print theme
+          dd(data-part="details") {{ page.report.theme }}
+          dt(data-part="term") Updated
+          dd(data-part="details") {{ datetime(page.report.updated) }}
+        div(data-ui="grid" data-cols="1" data-cols-sm="3" data-gap="4")
+          div(data-ui="stat" data-variant="card" aria-label="{{ page.counts.issued }} issued")
+            span(data-part="label") Issued
+            span(data-part="value") {{ page.counts.issued }}
+          div(data-ui="stat" data-variant="card" aria-label="{{ page.counts.draft }} drafts")
+            span(data-part="label") Drafts
+            span(data-part="value") {{ page.counts.draft }}
+          div(data-ui="stat" data-variant="card" aria-label="{{ page.counts.void }} void")
+            span(data-part="label") Void
+            span(data-part="value") {{ page.counts.void }}
+    section(aria-labelledby="docs-title")
+      div(data-ui="stack" data-gap="4")
+        h2#docs-title(data-ui="text" data-size="lg" data-weight="semibold") Documents
+        form(method="get" role="search" aria-label="Filter documents")
+          div(data-ui="cluster" data-gap="3")
+            div(data-ui="field-group")
+              label(data-part="label" for="doc-number") Number
+              div(data-part="input")
+                input#doc-number(data-ui="input" type="search" name="number" value=page.filters.number placeholder="INV-2026-…")
+            div(data-ui="field-group")
+              label(data-part="label" for="doc-status") Status
+              div(data-part="input")
+                select#doc-status(data-ui="select" name="status")
+                  each s in page.statuses
+                    option(value=s.value selected=s.selected) {{ s.label }}
+            button(type="submit" data-ui="button" data-variant="outline")
+              span(data-ui="icon" data-icon="funnel" aria-hidden="true")
+              | Filter
+        include "partials/documents-table.faqir" (documents=page.documents showReport=false)

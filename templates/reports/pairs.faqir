@@ -1,0 +1,11 @@
+//- Labelled values as one key-value list, flat dt/dd pairs (key-value's grid
+//- variants place a grouping <div> as one cell: FAQIR-UPSTREAM.md #41).
+//- `mono` sets a value in the mono face (IBANs, references).
+dl(data-ui="key-value" data-variant=variant)
+  each d in items
+    dt(data-part="label") {{ d.label }}
+    if d.mono
+      dd(data-part="value")
+        span(data-ui="text" data-variant="mono") {{ d.value }}
+    else
+      dd(data-part="value") {{ d.value }}

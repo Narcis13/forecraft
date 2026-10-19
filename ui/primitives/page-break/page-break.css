@@ -1,0 +1,60 @@
+/* @ui:component page-break */
+/* @ui:tokens color-border color-fg-muted space-4 space-6 text-xs font-body border-width doc-section-gap doc-font page-break-screen-style page-break-screen-color page-break-screen-label-size page-break-screen-label-color */
+
+/* ── Base (Screen) ── */
+[data-ui="page-break"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--doc-section-gap, var(--space-6)) 0;
+  user-select: none;
+}
+
+[data-ui="page-break"]::before,
+[data-ui="page-break"]::after {
+  content: "";
+  flex: 1;
+  border-top: var(--border-width) var(--page-break-screen-style) var(--page-break-screen-color);
+}
+
+/* ── Label (Screen) ── */
+[data-ui="page-break"] {
+  font-family: var(--doc-font, var(--font-body));
+  font-size: var(--page-break-screen-label-size);
+  color: var(--page-break-screen-label-color);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Use CSS ordering to put the first line before the text */
+[data-ui="page-break"]::before {
+  order: 1;
+}
+
+/* ── Print ── */
+@media print {
+  /* Default: page-break-after */
+  [data-ui="page-break"],
+  [data-ui="page-break"][data-variant="after"] {
+    visibility: hidden;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  [data-ui="page-break"]::before,
+  [data-ui="page-break"]::after {
+    display: none;
+  }
+
+  /* Variant: before */
+  [data-ui="page-break"][data-variant="before"] {
+    page-break-after: auto;
+    break-after: auto;
+    page-break-before: always;
+    break-before: page;
+  }
+}

@@ -1,0 +1,5 @@
+//- Code 128, drawn by Faqir's barcode controller before printing.
+div(data-block=b.id data-report-block="barcode" data-keep=b.keep)
+  div(data-ui="barcode" data-value=b.value data-size=b.size role="img" aria-label=b.aria)
+    if b.caption ?? false
+      span(data-part="caption") {{ b.caption }}

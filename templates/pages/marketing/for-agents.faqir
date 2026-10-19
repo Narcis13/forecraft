@@ -124,6 +124,42 @@ block body
           a(href="/docs/for-agents") the full curl sequence
           | — preview, publish, submit, list and export.
 
+        h2#issue-an-invoice 5. Issue your first invoice
+        p The same key issues documents that print like a good accountant's: start from a starter, preview, publish, issue.
+        ol
+          li
+            code GET /api/v1/report-starters
+            |  — invoice, letter, business report, confirmation, survey summary.
+          li
+            code POST /api/v1/reports
+            |  with
+            code { "starter": "invoice", "appearance": { "accent": "#0f4c5c" }, "sample": { "seller": … } }
+            | .
+          li
+            code POST /api/v1/reports/:id/preview
+            |  — read the findings, look at the page images.
+          li
+            code POST /api/v1/reports/:id/publish
+            | , then
+            code POST /api/v1/reports/:id/documents
+            |  with
+            code { "issue": true, "data": … }
+            |  — you get the number, the PDF and a share link.
+        p
+          | Every step as curl:
+          a(href="/docs/for-agents#issue-your-first-invoice") the invoice sequence
+          | . The definition and its blocks:
+          a(href="/docs/reports") reports
+          | ; what to choose:
+          a(href="/docs/report-style") report style
+          | . Over MCP:
+          code forecraft_create_report
+          | ,
+          code forecraft_preview_report
+          |  (it returns the pages as images),
+          code forecraft_issue_document
+          | .
+
         h2#rules-of-the-road Rules of the road
         ul
           raw

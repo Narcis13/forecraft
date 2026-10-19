@@ -13,6 +13,8 @@ import { auditHtml } from "../src/forms/page.ts";
 import { seedDemo } from "../src/seed.ts";
 import { createSession } from "../src/auth/index.ts";
 import { listForms } from "../src/forms/store.ts";
+import { seedReports } from "../src/seed-reports-run.ts";
+import { closeBrowser } from "../src/reports/pdf.ts";
 
 const dir = mkdtempSync(join(tmpdir(), "forecraft-audit-"));
 const db = openDb(join(dir, "audit.db"));
@@ -20,6 +22,7 @@ const app = createApp(db);
 const demo = await seedDemo(db, { quiet: true });
 const cookie = `fc_session=${createSession(db, demo.userId, demo.workspaceId)}`;
 const forms = listForms(db, demo.workspaceId);
+const seeded = await seedReports(db, demo.workspaceId, { quiet: true });
 
 const pages: { name: string; path: string; auth?: boolean }[] = [
   { name: "landing", path: "/" },
@@ -44,6 +47,21 @@ for (const f of forms) {
   pages.push({ name: `app-preview-${f.slug}`, path: `/app/forms/${f.id}/preview`, auth: true });
 }
 if (forms[0]) pages.push({ name: "designer", path: `/app/forms/${forms[0].id}/design`, auth: true });
+// Reports and documents: the shelf, each report's pages, the designer, the documents list and page, every share view.
+pages.push({ name: "app-reports", path: "/app/reports", auth: true });
+pages.push({ name: "app-documents", path: "/app/documents", auth: true });
+for (const r of db.prepare("SELECT id, starter FROM reports WHERE workspace_id = ?").all(demo.workspaceId) as { id: string; starter: string }[]) {
+  pages.push({ name: `app-report-${r.starter}-${r.id}`, path: `/app/reports/${r.id}`, auth: true });
+}
+const firstReport = db.prepare("SELECT id FROM reports WHERE workspace_id = ? ORDER BY created_at LIMIT 1").get(demo.workspaceId) as { id: string };
+pages.push({ name: "app-report-versions", path: `/app/reports/${firstReport.id}/versions`, auth: true });
+pages.push({ name: "app-report-settings", path: `/app/reports/${firstReport.id}/settings`, auth: true });
+pages.push({ name: "report-designer", path: `/app/reports/${firstReport.id}/design`, auth: true });
+for (const d of seeded) {
+  pages.push({ name: `app-document-${d.name}`, path: `/app/documents/${d.document.id}`, auth: true });
+  pages.push({ name: `share-${d.name}`, path: `/d/${d.document.share_token}` });
+  pages.push({ name: `sheet-${d.name}`, path: `/app/documents/${d.document.id}/sheet`, auth: true });
+}
 // A closed form, to audit the closed page.
 db.prepare("UPDATE forms SET status = 'closed' WHERE id = ?").run(forms.at(-1)!.id);
 pages.push({ name: "form-closed", path: `/f/${forms.at(-1)!.slug}` });
@@ -73,6 +91,7 @@ for (const p of pages) {
   for (const f of [...bad, ...warn]) console.log(`    ${f.severity} ${f.rule_id} line ${f.line}: ${f.message}`);
 }
 
+await closeBrowser();
 db.close();
 rmSync(dir, { recursive: true, force: true });
 console.log(`\n${pages.length} pages, ${errors} errors, ${warnings} warnings`);

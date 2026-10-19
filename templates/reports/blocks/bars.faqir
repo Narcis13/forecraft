@@ -1,0 +1,13 @@
+//- Labelled bars. The fill width is data, so it reaches the page through the
+//- l-data island and faqir-core's :style, never through a style attribute.
+div(data-block=b.id data-report-block="bars" data-keep=b.keep)
+  if b.title ?? false
+    p(data-ui="text" data-variant="eyebrow") {{ b.title }}
+  div(data-ui="stack" data-gap="2")
+    each r in b.rows
+      div(data-report-bar)
+        span {{ r.label }}
+        div(data-ui="progress" data-size="sm" role="progressbar" aria-label=r.label aria-valuenow=r.pct aria-valuemin="0" aria-valuemax="100" l-data=json(r.state))
+          div(data-part="track")
+            div(data-part="fill" :style="{ width: pct + '%' }")
+        span(data-report-figure) {{ r.display }}

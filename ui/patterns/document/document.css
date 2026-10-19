@@ -1,0 +1,277 @@
+/* @ui:component document */
+/* @ui:tokens color-bg color-fg color-fg-muted color-border space-2 space-4 space-6 space-8 space-12 shadow-lg radius-md font-body text-xs text-sm weight-semibold weight-bold leading-normal page-format page-orientation page-margin-top page-margin-right page-margin-bottom page-margin-left doc-running-header-height doc-running-footer-height doc-running-gap doc-print-border-color doc-heading-font doc-heading-weight doc-font doc-legal-size doc-legal-color doc-max-width doc-font-size doc-line-height doc-section-gap doc-component-gap doc-table-cell-pad-y doc-table-cell-pad-x doc-table-font-size doc-table-header-weight doc-table-header-fg doc-table-header-bg doc-table-border doc-table-num-font doc-table-footer-weight doc-table-footer-bg doc-table-stripe-bg doc-bg doc-fg z-raised border-width texture-page */
+
+/* ── Page Rules ── */
+@page {
+  size: var(--page-format) var(--page-orientation);
+  margin: var(--page-margin-top)
+          var(--page-margin-right)
+          var(--page-margin-bottom)
+          var(--page-margin-left);
+
+  /* Paged-media engines (Prince, WeasyPrint, Vivliostyle) consume the running
+     elements. Browser engines that do not support element() keep the fixed
+     fallback declared under @media print below. */
+  @top-center {
+    content: element(faqir-doc-header);
+  }
+
+  @bottom-center {
+    content: element(faqir-doc-footer);
+  }
+
+  /* Chromium 131+ and dedicated paged-media engines support page counters in
+     margin boxes. Browser-generated headers/footers should stay disabled. */
+  @bottom-right {
+    content: "Page " counter(page) " / " counter(pages);
+    font-family: var(--doc-font);
+    font-size: var(--doc-legal-size);
+    color: var(--doc-legal-color);
+  }
+}
+
+/* ── Base (Screen) ──
+   Mobile-first (task 0.8-09): a phone gives the page no room for a paper margin,
+   so the sheet fills the viewport and squares its corners here; the canon md
+   block at the foot restores the page-on-a-desk framing. `max-width` is not a
+   media query — it is the paper's own measure and applies at every width. */
+[data-ui="document"] {
+  max-width: var(--doc-max-width);
+  margin: var(--space-4) auto;
+  padding: var(--space-6) var(--space-4);
+  background-color: var(--color-bg, #fff);
+  background-image: var(--texture-page);
+  color: var(--color-fg);
+  font-family: var(--doc-font, var(--font-body));
+  font-size: var(--doc-font-size);
+  line-height: var(--doc-line-height);
+  /* The fallback here used to spell out two rgba() layers, which is a shadow
+     colour no theme could reach. --shadow-lg is always defined by the token
+     layer, and it now carries --shadow-color, so the fallback is gone rather
+     than re-tokenised. */
+  box-shadow: var(--shadow-lg);
+  border-radius: 0;
+  position: relative;
+}
+
+/* ── Format: Letter ── */
+[data-ui="document"][data-format="letter"] {
+  max-width: 8.5in;
+}
+
+/* ── Running header ──
+   header remains a non-breaking selector alias for pre-1.1.0 documents. */
+[data-ui="document"] > [data-part="doc-header"],
+[data-ui="document"] > [data-part="header"] {
+  margin-block-end: var(--doc-section-gap);
+  padding-block-end: var(--doc-component-gap);
+  border-block-end: var(--border-width) solid var(--color-border);
+}
+
+/* ── Body ── */
+[data-ui="document"] [data-part="body"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--doc-section-gap);
+}
+
+/* ── Headings ──
+   The document's own heading face and weight (1.1A-21): a print theme sets
+   --doc-heading-font / --doc-heading-weight to give its titles a voice apart
+   from the body copy (document-serif's Times titles over Georgia text). Both
+   default to the page's heading role in tokens/document.css, and each falls
+   back to what a heading rendered before the tokens had a reader. A heading
+   that carries its own data-weight keeps it — that is the author asking. */
+[data-ui="document"] :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--doc-heading-font, var(--font-body));
+  font-weight: var(--doc-heading-weight, var(--weight-bold));
+}
+
+/* ── Running footer ──
+   footer remains a non-breaking selector alias for pre-1.1.0 documents. */
+[data-ui="document"] > [data-part="doc-footer"],
+[data-ui="document"] > [data-part="footer"] {
+  margin-block-start: var(--doc-section-gap);
+  padding-block-start: var(--doc-component-gap);
+  border-block-start: var(--border-width) solid var(--color-border);
+  font-size: var(--doc-legal-size);
+  color: var(--doc-legal-color);
+}
+
+/* ── Variant: Invoice ── */
+[data-ui="document"][data-variant="invoice"] {
+  font-size: var(--doc-font-size);
+}
+
+[data-ui="document"][data-variant="invoice"] > [data-part="doc-header"],
+[data-ui="document"][data-variant="invoice"] > [data-part="header"] {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--doc-component-gap);
+}
+
+[data-ui="document"][data-variant="invoice"] [data-part="body"] {
+  gap: var(--doc-component-gap);
+}
+
+/* ── Variant: Form ── */
+[data-ui="document"][data-variant="form"] [data-part="body"] {
+  gap: var(--doc-component-gap);
+}
+
+[data-ui="document"][data-variant="form"] > [data-part="doc-header"],
+[data-ui="document"][data-variant="form"] > [data-part="header"] {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Variant: Report ── */
+[data-ui="document"][data-variant="report"] {
+  /* A report is serif-set by definition. It re-points the document's own font
+     ROLE rather than its `font-family`, so every doc primitive nested inside it
+     (key-value, callout, signature — all of which read --doc-font) follows the
+     report into serif instead of staying sans inside a serif page. `report` is
+     the author asking for serif; a theme that wants its own document face
+     declares --doc-font at :root, which this variant deliberately outranks. */
+  --doc-font: Georgia, 'Times New Roman', serif;
+  line-height: 1.6;
+}
+
+[data-ui="document"][data-variant="report"] > [data-part="doc-header"],
+[data-ui="document"][data-variant="report"] > [data-part="header"] {
+  text-align: center;
+}
+
+[data-ui="document"][data-variant="report"] [data-part="body"] {
+  gap: var(--doc-section-gap);
+}
+
+/* ── Document-context table overrides ──
+   Tables inside a document pattern use doc-table tokens
+   for compact, data-dense rendering. */
+[data-ui="document"] [data-ui="table"] [data-part="th"] {
+  padding: var(--doc-table-cell-pad-y) var(--doc-table-cell-pad-x);
+  font-size: var(--doc-table-font-size);
+  font-weight: var(--doc-table-header-weight);
+  color: var(--doc-table-header-fg);
+  background: var(--doc-table-header-bg);
+  border-bottom-color: var(--doc-table-border);
+}
+
+[data-ui="document"] [data-ui="table"] [data-part="td"] {
+  padding: var(--doc-table-cell-pad-y) var(--doc-table-cell-pad-x);
+  font-size: var(--doc-table-font-size);
+}
+
+[data-ui="document"] [data-ui="table"] [data-format="number"],
+[data-ui="document"] [data-ui="table"] [data-format="currency"],
+[data-ui="document"] [data-ui="table"] [data-format="percent"] {
+  font-variant-numeric: var(--doc-table-num-font);
+}
+
+[data-ui="document"] [data-ui="table"] [data-part="tfoot"] [data-part="td"] {
+  font-weight: var(--doc-table-footer-weight);
+  background: var(--doc-table-footer-bg);
+  border-top-color: var(--doc-table-border);
+}
+
+[data-ui="document"] [data-ui="table"][data-variant="striped"] [data-part="tbody"] [data-part="tr"]:nth-child(even) [data-part="td"] {
+  background: var(--doc-table-stripe-bg);
+}
+
+/* ── Document-context separator overrides ── */
+[data-ui="document"] [data-ui="separator"] {
+  border-top-color: var(--color-border);
+}
+
+/* ── Responsive ──
+   Canon tiers only, min-width only (FAQIR-NEXT §19). One step: from md up there
+   is room around the sheet, so it gets its margin, its printer's margins and its
+   rounded corners back.
+
+   Deliberately BEFORE the print block. A `min-width` query is true on paper too
+   — a Letter page box is 8.5in ≈ 816px, comfortably past the md floor — so if
+   this sat last it would hand a printed document a 2rem margin and a rounded
+   corner. The pre-canon `max-width: 768px` form never matched a page and could
+   sit anywhere; the mobile-first form has to be outranked by print. */
+@media (min-width: 48rem) {
+  [data-ui="document"] {
+    margin: var(--space-8) auto;
+    padding: var(--space-12) var(--space-8);
+    border-radius: var(--radius-md, 0.375rem);
+  }
+}
+
+/* ── Print ── */
+@media print {
+  [data-ui="document"] {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+    background: var(--doc-bg, white);
+    color: var(--doc-fg, black);
+  }
+
+  /* Browser fallback first; supporting paged-media engines override it with
+     running(). Unsupported declarations are discarded, leaving position:fixed
+     to repeat the same DOM element on every printed page. */
+  [data-ui="document"] > [data-part="doc-header"],
+  [data-ui="document"] > [data-part="header"] {
+    position: fixed;
+    position: running(faqir-doc-header);
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: var(--doc-running-header-height);
+    box-sizing: border-box;
+    z-index: var(--z-raised);
+    margin-block-end: 0;
+    padding-block-end: var(--doc-running-gap);
+    border-block-end: var(--border-width) solid var(--doc-print-border-color);
+    background: var(--doc-bg);
+    transform: translateZ(0);
+  }
+
+  [data-ui="document"] > [data-part="doc-footer"],
+  [data-ui="document"] > [data-part="footer"] {
+    position: fixed;
+    position: running(faqir-doc-footer);
+    inset-block-end: 0;
+    inset-inline: 0;
+    block-size: var(--doc-running-footer-height);
+    box-sizing: border-box;
+    z-index: var(--z-raised);
+    margin-block-start: 0;
+    padding-block-start: var(--doc-running-gap);
+    border-block-start: var(--border-width) solid var(--doc-print-border-color);
+    background: var(--doc-bg);
+    transform: translateZ(0);
+  }
+
+  /* Chromium keeps fixed elements out of flow. Clone the body decoration at
+     each page fragment so content never enters the repeated header/footer
+     areas. Engines with native running() support use their margin boxes. */
+  @supports not (position: running(faqir-doc-header)) {
+    [data-ui="document"] > [data-part="body"] {
+      padding-block-start: calc(var(--doc-running-header-height) + var(--doc-running-gap));
+      padding-block-end: calc(var(--doc-running-footer-height) + var(--doc-running-gap));
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+  }
+
+  /* Print border color for nested tables */
+  [data-ui="document"] [data-ui="table"] [data-part="th"] {
+    border-bottom-color: var(--doc-print-border-color);
+  }
+
+  [data-ui="document"] [data-ui="table"] [data-part="td"] {
+    border-bottom-color: var(--doc-print-border-color);
+  }
+}
+

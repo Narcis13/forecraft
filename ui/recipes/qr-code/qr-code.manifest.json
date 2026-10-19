@@ -1,0 +1,142 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "qr-code",
+  "version": "1.0.1",
+  "kind": "recipe",
+  "category": "data-display",
+  "description": "SVG QR code generator from text input with configurable size and error correction",
+  "changes": [
+    {
+      "version": "1.0.1",
+      "note": "Nested components keep their own parts. The stylesheet reached the svg and caption with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Both are the root's children. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='qr-code']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "svg": {
+      "selector": "[data-part='svg']",
+      "required": false,
+      "tag_hint": "svg",
+      "description": "Generated SVG QR code (created by controller)"
+    },
+    "caption": {
+      "selector": "[data-part='caption']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Optional text label below the QR code"
+    }
+  },
+  "variants": {
+    "size": {
+      "values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    },
+    "ecl": {
+      "values": [
+        "L",
+        "M",
+        "Q",
+        "H"
+      ],
+      "default": "M",
+      "attr": "data-ecl",
+      "applied_to": "root"
+    }
+  },
+  "states": {},
+  "api": {
+    "methods": [
+      {
+        "name": "render",
+        "params": ""
+      },
+      {
+        "name": "update",
+        "params": "newValue, newEcl"
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "value": {
+      "type": "string",
+      "default": "",
+      "description": "Text or URL to encode in the QR code (data-value attribute)"
+    },
+    "ecl": {
+      "type": "string",
+      "default": "M",
+      "description": "Error correction level: L (7%), M (15%), Q (25%), H (30%)"
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "aria-label describing the QR code content",
+      "role=\"img\" on the container"
+    ],
+    "keyboard": {}
+  },
+  "tokens_used": [
+    "color-fg-muted",
+    "space-2",
+    "text-xs",
+    "font-body",
+    "doc-font",
+    "doc-legal-size",
+    "doc-legal-color"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"qr-code\" data-value=\"{url}\" data-size=\"{size}\" data-ecl=\"{ecl}\" role=\"img\" aria-label=\"QR code: {url}\"></div>",
+    "html_with_caption": "<div data-ui=\"qr-code\" data-value=\"{url}\" data-size=\"{size}\" role=\"img\" aria-label=\"QR code: {url}\">\n  <span data-part=\"caption\">{caption}</span>\n</div>"
+  },
+  "safe_transforms": [
+    "change-value",
+    "change-size",
+    "change-ecl",
+    "add-caption",
+    "remove-caption"
+  ],
+  "unsafe_transforms": [
+    "remove-aria-label",
+    "remove-role"
+  ],
+  "composition": {
+    "contains": [],
+    "used_in": [
+      "document"
+    ]
+  },
+  "files": {
+    "html": "qr-code.html",
+    "css": "qr-code.css",
+    "js": "qr-code.js",
+    "manifest": "qr-code.manifest.json"
+  },
+  "tests": [
+    "renders-svg-from-data-value",
+    "default-size-is-128px",
+    "sm-size-is-80px",
+    "lg-size-is-200px",
+    "ecl-L-generates-valid-qr",
+    "ecl-H-generates-valid-qr",
+    "caption-slot-is-optional",
+    "has-role-img",
+    "has-aria-label",
+    "updates-on-data-value-change",
+    "print-renders-correctly"
+  ]
+}

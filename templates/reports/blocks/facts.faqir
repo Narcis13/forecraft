@@ -1,0 +1,7 @@
+//- References, dates and terms: a grid of labelled values, or (cols "1") a list
+//- with labels to the left, for bank details and the like.
+div(data-block=b.id data-report-block="facts" data-keep=b.keep)
+  if b.cols == "1"
+    include "reports/pairs.faqir" (items=b.items variant="horizontal")
+  else
+    include "reports/cells.faqir" (items=b.items cols=b.cols)

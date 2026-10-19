@@ -1,0 +1,140 @@
+{
+  "$schema": "../../../manifest.schema.json",
+  "name": "barcode",
+  "version": "1.1.0",
+  "kind": "recipe",
+  "category": "data-display",
+  "description": "Print-safe Code 128-B barcode generator for printable ASCII identifiers",
+  "changes": [
+    {
+      "version": "1.1.0",
+      "note": "The caption sets font-variant-ligatures: var(--mono-ligatures), a new typography token that defaults to none. The caption repeats the encoded value in --font-mono, whose Cascadia Code and JetBrains Mono ligate by default, so a value containing -> or != read differently from the characters the bars encode. Set --mono-ligatures: normal to get a face's ligatures back.",
+      "breaking": false
+    }
+  ],
+  "anatomy": {
+    "tag": "div",
+    "selector": "[data-ui='barcode']",
+    "content_model": "slots"
+  },
+  "slots": {
+    "svg": {
+      "selector": "[data-part='svg']",
+      "required": false,
+      "tag_hint": "svg",
+      "description": "Generated Code 128 SVG created by the controller"
+    },
+    "caption": {
+      "selector": "[data-part='caption']",
+      "required": false,
+      "tag_hint": "span",
+      "description": "Optional human-readable value below the bars"
+    }
+  },
+  "variants": {
+    "size": {
+      "values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "default": "md",
+      "attr": "data-size",
+      "applied_to": "root"
+    }
+  },
+  "states": {
+    "empty": {
+      "attr": "data-state=\"empty\""
+    },
+    "ready": {
+      "attr": "data-state=\"ready\""
+    },
+    "error": {
+      "attr": "data-state=\"error\""
+    }
+  },
+  "api": {
+    "methods": [
+      {
+        "name": "render",
+        "params": ""
+      },
+      {
+        "name": "update",
+        "params": "newValue"
+      },
+      {
+        "name": "destroy",
+        "params": ""
+      }
+    ]
+  },
+  "props": {
+    "value": {
+      "type": "string",
+      "default": "",
+      "description": "Printable ASCII text encoded with Code 128-B through data-value"
+    }
+  },
+  "a11y": {
+    "required_attrs": [
+      "role=\"img\" on the container",
+      "aria-label describing the encoded value"
+    ],
+    "keyboard": {}
+  },
+  "tokens_used": [
+    "color-fg-muted",
+    "doc-font",
+    "doc-legal-color",
+    "doc-legal-size",
+    "font-mono",
+    "font-body",
+    "leading-normal",
+    "space-2",
+    "space-12",
+    "space-16",
+    "space-20",
+    "mono-ligatures"
+  ],
+  "templates": {
+    "html": "<div data-ui=\"barcode\" data-value=\"{value}\" data-size=\"{size}\" role=\"img\" aria-label=\"Barcode: {value}\"></div>",
+    "html_with_caption": "<div data-ui=\"barcode\" data-value=\"{value}\" data-size=\"{size}\" role=\"img\" aria-label=\"Barcode: {value}\">\n  <span data-part=\"caption\">{value}</span>\n</div>"
+  },
+  "safe_transforms": [
+    "change-value",
+    "change-size",
+    "add-caption",
+    "remove-caption"
+  ],
+  "unsafe_transforms": [
+    "remove-aria-label",
+    "remove-role",
+    "encode-non-printable-or-non-ascii-input"
+  ],
+  "composition": {
+    "contains": [],
+    "used_in": [
+      "document"
+    ]
+  },
+  "files": {
+    "html": "barcode.html",
+    "css": "barcode.css",
+    "js": "barcode.js",
+    "manifest": "barcode.manifest.json"
+  },
+  "tests": [
+    "code128-checksum-known-vectors",
+    "code128-bar-pattern-known-vectors",
+    "renders-svg-with-quiet-zones",
+    "invalid-character-enters-error-state",
+    "empty-value-renders-nothing",
+    "updates-on-data-value-change",
+    "caption-slot-is-optional",
+    "print-preserves-bars",
+    "has-role-img",
+    "has-aria-label"
+  ]
+}

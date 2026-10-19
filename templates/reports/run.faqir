@@ -1,0 +1,16 @@
+//- One inline run of markdown. A link's URL passes the engine's allow-list.
+if r.br ?? false
+  br
+else if r.href ?? false
+  a(data-ui="link" href=r.href) {{ r.text }}
+else if r.code ?? false
+  code {{ r.text }}
+else if (r.b ?? false) && (r.i ?? false)
+  strong
+    em {{ r.text }}
+else if r.b ?? false
+  strong {{ r.text }}
+else if r.i ?? false
+  em {{ r.text }}
+else
+  | {{ r.text }}

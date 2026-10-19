@@ -1,0 +1,25 @@
+//- Starters as cards: start one with a click; a confirmation or a summary asks for its form first.
+div(data-ui="grid" data-cols="1" data-cols-sm="2" data-cols-lg="3" data-gap="4")
+  each s in starters
+    div(data-ui="card" l-data="newReport" data-prop-starter=tojson(s.id))
+      div(data-part="header")
+        h3(data-part="title") {{ s.title }}
+        p(data-part="description") {{ s.description }}
+      div(data-part="body")
+        div(data-ui="stack" data-gap="3")
+          div(data-ui="cluster" data-gap="1")
+            span(data-ui="badge" data-variant="secondary" data-size="sm") {{ s.paper }}
+            span(data-ui="badge" data-variant="secondary" data-size="sm") {{ s.theme }}
+            if s.needsForm
+              span(data-ui="badge" data-variant="secondary" data-size="sm") {{ s.source == "summary" ? "Summarises a form" : "Confirms a form" }}
+          if s.needsForm
+            div(data-ui="field-group")
+              label(data-part="label" for="starter-form-{{ s.id }}") Form
+              div(data-part="input")
+                select(data-ui="select" id="starter-form-{{ s.id }}" l-model="form")
+                  option(value="") Choose a form…
+                  each f in forms
+                    option(value=f.id) {{ f.title }}
+      div(data-part="footer")
+        button(type="button" data-ui="button" data-variant=s.id == "invoice" ? "primary" : "outline" data-size="sm" :disabled="busy" @click="create()")
+          | Start from {{ s.title == "Untitled report" ? "blank" : s.title }}

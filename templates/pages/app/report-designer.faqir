@@ -1,0 +1,298 @@
+layout "layouts/base.faqir"
+
+block title
+  | Design · {{ page.title }} — forecraft
+
+block body
+  div(data-designer l-data="reportDesigner" data-prop-report-id=tojson(page.reportId) data-prop-vocabulary=tojson(page.vocabulary) data-prop-forms=tojson(page.forms) l-init="init()" @keydown.window="keys($event)")
+    header(data-designer-bar)
+      div(data-ui="cluster" data-gap="3")
+        a(data-ui="button" data-variant="ghost" data-size="sm" href="/app/reports/{{ page.reportId }}" aria-label="Back to the report")
+          span(data-ui="icon" data-icon="arrow-left" aria-hidden="true")
+        label(for="rd-title" data-designer-sr) Report name
+        input#rd-title(data-ui="input" data-size="sm" type="text" :value="title" @input="setTitle($event.target.value)")
+        span(data-ui="badge" :data-variant="status === 'saved' ? 'success' : status === 'error' ? 'destructive' : 'secondary'" aria-live="polite" l-text="statusText")
+      div(data-ui="cluster" data-gap="2")
+        div(data-ui="toggle-group" data-variant="segmented" role="radiogroup" aria-label="Zoom")
+          label(data-part="item" data-state="off")
+            input(data-part="control" type="radio" name="rd-zoom" value="fit" :checked="zoom === 'fit'" @change="setZoom('fit')")
+            span(data-part="label") Fit
+          label(data-part="item" data-state="off")
+            input(data-part="control" type="radio" name="rd-zoom" value="1" :checked="zoom === '1'" @change="setZoom('1')")
+            span(data-part="label") 100 %
+          label(data-part="item" data-state="off")
+            input(data-part="control" type="radio" name="rd-zoom" value="1.5" :checked="zoom === '1.5'" @change="setZoom('1.5')")
+            span(data-part="label") 150 %
+        button(type="button" data-ui="button" data-variant="ghost" data-size="sm" :disabled="!canUndo()" @click="undo()" aria-label="Undo (Ctrl+Z)")
+          span(data-ui="icon" data-icon="arrow-left" aria-hidden="true")
+          | Undo
+        button(type="button" data-ui="button" data-variant="ghost" data-size="sm" :disabled="!canRedo()" @click="redo()" aria-label="Redo (Ctrl+Shift+Z)")
+          | Redo
+          span(data-ui="icon" data-icon="arrow-right" aria-hidden="true")
+        button(type="button" data-ui="button" data-variant="outline" data-size="sm" :disabled="busy" @click="testDocument()")
+          span(data-ui="icon" data-icon="file-text" aria-hidden="true")
+          | Issue a test document
+        button(type="button" data-ui="button" data-variant="primary" data-size="sm" :disabled="busy" @click="publish()")
+          span(data-ui="icon" data-icon="send" aria-hidden="true")
+          | Publish
+    p(data-designer-narrow)
+      span(data-ui="callout" data-variant="info" role="note")
+        span(data-part="content") The report designer needs a wider screen (at least 1024 pixels): the canvas is a true-scale page. On a phone, open the report's page in the dashboard — or ask your agent to edit it through the API.
+    main#main(data-designer-panes)
+      aside(data-designer-palette aria-label="Blocks")
+        div(data-ui="stack" data-gap="4")
+          div(data-ui="stack" data-gap="1")
+            h2(data-ui="text" data-variant="eyebrow") Add a block
+            p(data-ui="text" data-size="xs" data-variant="muted") Drag onto the page, or click to add after the selected block.
+          each g in page.groups
+            div(data-ui="stack" data-gap="0")
+              p(data-ui="text" data-size="xs" data-weight="semibold") {{ g.label }}
+              each blk in g.blocks
+                button(type="button" data-ui="button" data-variant="ghost" data-size="sm" draggable="true" title=blk.does data-rd-block=blk.name @dragstart="dragBlock($event)" @dragend="dragEnd()" @click="addFromPalette($event)") {{ blk.name }}
+      section(data-designer-center aria-label="Designer")
+        div#rd-tabs(data-ui="tabs" data-variant="underline")
+          div(data-part="list" role="tablist" aria-label="Designer views")
+            button#rt-layout(data-part="trigger" role="tab" aria-controls="rp-layout" aria-selected="true" @click="setTab('layout')") Layout
+            button#rt-data(data-part="trigger" role="tab" aria-controls="rp-data" aria-selected="false" tabindex="-1" @click="setTab('data')") Data
+            button#rt-look(data-part="trigger" role="tab" aria-controls="rp-look" aria-selected="false" tabindex="-1" @click="setTab('look')") Appearance
+            button#rt-json(data-part="trigger" role="tab" aria-controls="rp-json" aria-selected="false" tabindex="-1" @click="setTab('json')") JSON
+            button#rt-preflight(data-part="trigger" role="tab" aria-controls="rp-preflight" aria-selected="false" tabindex="-1" @click="setTab('preflight')")
+              | Preflight
+              span(data-ui="badge" data-size="sm" :data-variant="!preflightRan ? 'secondary' : errorCount() ? 'destructive' : 'success'" l-text="!preflightRan ? '…' : errorCount() ? errorCount() + ' to fix' : 'clean'")
+          div#rp-layout(data-part="panel" role="tabpanel" aria-labelledby="rt-layout")
+            template(l-if="problems.length")
+              div(data-ui="callout" data-variant="destructive" role="alert")
+                strong(data-part="title") The API refused this definition
+                div(data-part="content")
+                  ul
+                    template(l-for="p in problems" l-key="p")
+                      li(l-text="p")
+            div(data-rd-desk)
+              div(data-rd-sheet :style="{ '--canvas-zoom': zoomFactor }")
+                iframe#rd-canvas(title="The page, rendered by the server with the sample data" width="840" height="1200")
+          div#rp-data(data-part="panel" role="tabpanel" aria-labelledby="rt-data" hidden)
+            div(data-ui="grid" data-cols="1" data-cols-lg="2" data-gap="6")
+              div(data-ui="stack" data-gap="4")
+                h3(data-ui="text" data-weight="semibold") Fields
+                p(data-ui="text" data-size="sm" data-variant="muted") The data's shape (JSON Schema). Blocks bind to these paths with {{ "{{ path }}" }} holes; rows of a table bind to row.….
+                div(data-ui="table" data-size="sm")
+                  table(data-part="table")
+                    thead(data-part="thead")
+                      tr(data-part="tr")
+                        th(data-part="th" scope="col") Path
+                        th(data-part="th" scope="col") Type
+                        th(data-part="th" scope="col") Title
+                    tbody(data-part="tbody")
+                      template(l-for="f in schemaFields" l-key="f.path")
+                        tr(data-part="tr")
+                          td(data-part="td")
+                            code(l-text="f.path")
+                          td(data-part="td" l-text="f.type")
+                          td(data-part="td" l-text="f.title")
+                div(data-ui="cluster" data-gap="2")
+                  button(type="button" data-ui="button" data-variant="outline" data-size="sm" @click="inferSchema()")
+                    span(data-ui="icon" data-icon="database" aria-hidden="true")
+                    | Infer the schema from the sample
+                div(data-ui="field-group")
+                  label(data-part="label" for="rd-bind") Bind to a form
+                  div(data-part="input")
+                    select#rd-bind(data-ui="select" l-model="bindForm" @change="bindToForm()")
+                      option(value="") Choose a form…
+                      template(l-for="f in forms" l-key="f.id")
+                        option(:value="f.id" l-text="f.title")
+                  p(data-part="description") The schema becomes the form's, the sample its latest submission, and the source its submissions.
+                h3(data-ui="text" data-weight="semibold") Money
+                p(data-ui="text" data-size="sm" data-variant="muted") Which lines a totals block adds up, exactly, per tax rate.
+                div(data-ui="grid" data-cols="2" data-gap="3")
+                  div(data-ui="stack" data-gap="1")
+                    span(data-ui="text" data-size="sm" data-weight="medium") Lines
+                    select(data-ui="select" aria-label="Money: the lines" @change="setMoney('lines', $event.target.value)")
+                      option(value="") None
+                      template(l-for="a in moneyArrays" l-key="a")
+                        option(:value="a" :selected="money.lines === a" l-text="a")
+                  template(l-for="k in moneyKeys" l-key="k.key")
+                    div(data-ui="stack" data-gap="1")
+                      span(data-ui="text" data-size="sm" data-weight="medium" l-text="k.label")
+                      select(data-ui="select" :aria-label="'Money: ' + k.label" @change="setMoney(k.key, $event.target.value)")
+                        option(value="") —
+                        template(l-for="p in moneyItemProps" l-key="p")
+                          option(:value="p" :selected="money[k.key] === p" l-text="p")
+                  div(data-ui="stack" data-gap="1")
+                    span(data-ui="text" data-size="sm" data-weight="medium") Unit prices
+                    select(data-ui="select" aria-label="Money: unit prices" @change="setMoney('prices', $event.target.value)")
+                      option(value="net" :selected="money.prices !== 'gross'") Net (tax added)
+                      option(value="gross" :selected="money.prices === 'gross'") Gross (tax included)
+                  div(data-ui="stack" data-gap="1")
+                    span(data-ui="text" data-size="sm" data-weight="medium") Tax rounding
+                    select(data-ui="select" aria-label="Money: rounding" @change="setMoney('rounding', $event.target.value)")
+                      option(value="line" :selected="money.rounding !== 'total'") Per line
+                      option(value="total" :selected="money.rounding === 'total'") Per rate, once
+              div(data-ui="stack" data-gap="3")
+                h3(data-ui="text" data-weight="semibold") Sample data
+                p(data-ui="text" data-size="sm" data-variant="muted") What the canvas, previews and the shelf render. It must be valid against the schema.
+                label(for="rd-sample" data-designer-sr) Sample data as JSON
+                textarea#rd-sample(data-ui="textarea" data-designer-json rows="28" spellcheck="false" :value="sampleText" @input="setSample($event.target.value)")
+                template(l-if="sampleError")
+                  p(data-ui="text" data-size="sm" data-variant="primary" role="alert" l-text="sampleError")
+          div#rp-look(data-part="panel" role="tabpanel" aria-labelledby="rt-look" hidden)
+            div(data-ui="stack" data-gap="6")
+              div(data-ui="stack" data-gap="3")
+                h3(data-ui="text" data-weight="semibold") Print theme
+                div(data-ui="grid" data-cols="2" data-cols-lg="3" data-gap="4")
+                  template(l-for="t in vocabulary.themes" l-key="t")
+                    button(type="button" data-rd-theme :aria-pressed="look.theme === t ? 'true' : 'false'" @click="setLook('theme', t)")
+                      span(data-report-paper)
+                        template(l-if="themeThumbs[t]")
+                          img(:src="themeThumbs[t]" :alt="'Page 1 in ' + t")
+                      span(data-ui="text" data-size="sm" l-text="t")
+              div(data-ui="grid" data-cols="1" data-cols-lg="3" data-gap="4")
+                div(data-ui="field-group")
+                  label(data-part="label" for="rd-accent") Accent
+                  div(data-part="input")
+                    div(data-ui="cluster" data-gap="2")
+                      input#rd-accent(type="color" :value="look.accent" @input="setLook('accent', $event.target.value)" aria-describedby="rd-accent-hint")
+                      input(data-ui="input" data-size="sm" type="text" :value="look.accent" aria-label="Accent as hex" @change="setLook('accent', $event.target.value)")
+                  p#rd-accent-hint(data-part="description") One dark ink: the letterhead rule, eyebrows and the amount due.
+                div(data-ui="field-group")
+                  label(data-part="label" for="rd-type") Type pairing
+                  div(data-part="input")
+                    select#rd-type(data-ui="select" :value="look.type" @change="setLook('type', $event.target.value)")
+                      template(l-for="p in vocabulary.pairings" l-key="p.id")
+                        option(:value="p.id" :selected="look.type === p.id" l-text="p.label")
+                  p(data-part="description" l-text="pairingNote()")
+                div(data-ui="field-group")
+                  label(data-part="label" for="rd-paper") Paper
+                  div(data-part="input")
+                    select#rd-paper(data-ui="select" :value="look.paper" @change="setLook('paper', $event.target.value)")
+                      option(value="a4" :selected="look.paper === 'a4'") A4 (210 × 297 mm)
+                      option(value="letter" :selected="look.paper === 'letter'") US Letter (8.5 × 11 in)
+                div(data-ui="field-group")
+                  label(data-part="label" for="rd-orientation") Orientation
+                  div(data-part="input")
+                    select#rd-orientation(data-ui="select" :value="look.orientation" @change="setLook('orientation', $event.target.value)")
+                      option(value="portrait" :selected="look.orientation === 'portrait'") Portrait
+                      option(value="landscape" :selected="look.orientation === 'landscape'") Landscape
+                div(data-ui="field-group")
+                  label(data-part="label" for="rd-margins") Margins
+                  div(data-part="input")
+                    select#rd-margins(data-ui="select" :value="look.margins" @change="setLook('margins', $event.target.value)")
+                      option(value="narrow" :selected="look.margins === 'narrow'") Narrow
+                      option(value="normal" :selected="look.margins === 'normal'") Normal
+                      option(value="wide" :selected="look.margins === 'wide'") Wide
+                div(data-ui="field-group")
+                  label(data-part="label" for="rd-density") Density
+                  div(data-part="input")
+                    select#rd-density(data-ui="select" :value="look.density" @change="setLook('density', $event.target.value)")
+                      option(value="comfortable" :selected="look.density === 'comfortable'") Comfortable
+                      option(value="compact" :selected="look.density === 'compact'") Compact
+                div(data-ui="field-group")
+                  label(data-part="label" for="rd-locale") Locale
+                  div(data-part="input")
+                    select#rd-locale(data-ui="select" :value="look.locale" @change="setLook('locale', $event.target.value)")
+                      template(l-for="l in vocabulary.locales" l-key="l")
+                        option(:value="l" :selected="look.locale === l" l-text="l")
+                div(data-ui="field-group")
+                  label(data-part="label" for="rd-currency") Currency
+                  div(data-part="input")
+                    input#rd-currency(data-ui="input" type="text" maxlength="3" :value="look.currency" @change="setLook('currency', $event.target.value.toUpperCase())")
+                div(data-ui="field-group")
+                  label(data-part="label" for="rd-logo") Logo
+                  div(data-part="input")
+                    input#rd-logo(data-ui="input" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" @change="uploadLogo($event)" aria-describedby="rd-logo-hint")
+                  p#rd-logo-hint(data-part="description" l-text="look.logo ? 'Using ' + look.logo : 'PNG, JPEG, WebP or SVG; SVG stays vector.'")
+                div(data-ui="field-group")
+                  label(data-part="label" for="rd-window") Window envelope (DIN 5008 B)
+                  div(data-part="input")
+                    input#rd-window(data-ui="switch" type="checkbox" role="switch" :checked="look.window" @change="setLetter('window', $event.target.checked)")
+                div(data-ui="field-group")
+                  label(data-part="label" for="rd-folds") Fold and punch marks
+                  div(data-part="input")
+                    input#rd-folds(data-ui="switch" type="checkbox" role="switch" :checked="look.foldMarks" @change="setLetter('foldMarks', $event.target.checked)")
+          div#rp-json(data-part="panel" role="tabpanel" aria-labelledby="rt-json" hidden)
+            div(data-ui="stack" data-gap="3")
+              p(data-ui="text" data-size="sm" data-variant="muted") The exact definition the API stores and the renderer prints. Edits here are validated live and saved when they parse.
+              label(for="rd-json" data-designer-sr) The definition as JSON
+              textarea#rd-json(data-ui="textarea" data-designer-json rows="34" spellcheck="false" :value="jsonText" @input="setJson($event.target.value)")
+              template(l-if="jsonError")
+                p(data-ui="text" data-size="sm" role="alert" l-text="jsonError")
+          div#rp-preflight(data-part="panel" role="tabpanel" aria-labelledby="rt-preflight" hidden)
+            div(data-ui="stack" data-gap="4")
+              p(data-ui="text" data-size="sm" data-variant="muted" l-text="preflightText()")
+              ul(data-ui="stack" data-gap="2" role="list")
+                template(l-for="(f, fi) in findings" l-key="fi")
+                  li
+                    button(type="button" data-ui="button" data-variant="ghost" data-rd-finding @click="goToFinding(fi)")
+                      span(data-ui="badge" data-size="sm" :data-variant="f.severity === 'error' ? 'destructive' : 'warning'" l-text="f.code")
+                      span(l-text="f.message")
+              div(data-rd-strip)
+                template(l-for="(p, pi) in pages" l-key="pi")
+                  figure(data-report-paper)
+                    img(:src="p" :alt="'Page ' + (pi + 1) + ' of the PDF'")
+      aside(data-designer-props aria-label="Properties")
+        template(l-if="!selected")
+          div(data-ui="stack" data-gap="2")
+            h2(data-ui="text" data-variant="eyebrow") Properties
+            p(data-ui="text" data-size="sm" data-variant="muted") Select a block on the page to edit it. Alt + ↑ / ↓ moves it; Delete removes it.
+            template(l-if="footerId")
+              button(type="button" data-ui="button" data-variant="outline" data-size="sm" @click="select(footerId)") Edit the footer
+        template(l-if="selected")
+          div(data-ui="stack" data-gap="4")
+            div(data-ui="cluster" data-gap="2")
+              span(data-ui="badge" data-variant="primary" l-text="selectedType")
+              code(data-ui="text" data-size="xs" l-text="selected")
+              div(data-ui="cluster" data-gap="1" data-push)
+                button(type="button" data-ui="button" data-variant="ghost" data-size="sm" aria-label="Move up" @click="move(-1)")
+                  span(data-ui="icon" data-icon="arrow-up" aria-hidden="true")
+                button(type="button" data-ui="button" data-variant="ghost" data-size="sm" aria-label="Move down" @click="move(1)")
+                  span(data-ui="icon" data-icon="arrow-down" aria-hidden="true")
+                button(type="button" data-ui="button" data-variant="ghost" data-size="sm" aria-label="Delete block" @click="removeSelected()")
+                  span(data-ui="icon" data-icon="trash-2" aria-hidden="true")
+            div(data-ui="field-group")
+              label(data-part="label" for="rd-insert") Insert field
+              div(data-part="input")
+                select#rd-insert(data-ui="select" @change="insertField($event)")
+                  option(value="") Choose a path…
+                  template(l-for="p in paths" l-key="p")
+                    option(:value="p" l-text="p")
+              p(data-part="description") Puts a {{ "{{ path }}" }} hole into the text field you were last in.
+            //- Labels are text here: the controls are made per block, so each names itself (aria-label).
+            template(l-for="f in fields" l-key="f.key")
+              div(data-ui="stack" data-gap="1" data-rd-field)
+                span(data-ui="text" data-size="sm" data-weight="medium" l-text="f.label")
+                div
+                  template(l-if="f.kind === 'text' || f.kind === 'expr' || f.kind === 'asset'")
+                    input(data-ui="input" data-size="sm" type="text" :id="'rf-' + f.key" :aria-label="f.label" :value="f.value" :data-rd-key="f.key" @focus="remember($event)" @input="setField(f.key, $event.target.value)")
+                  template(l-if="f.kind === 'md' || f.kind === 'lines' || f.kind === 'source'")
+                    textarea(data-ui="textarea" rows="5" :id="'rf-' + f.key" :aria-label="f.label" :value="f.value" :data-rd-key="f.key" @focus="remember($event)" @input="setField(f.key, $event.target.value)")
+                  template(l-if="f.kind === 'enum'")
+                    select(data-ui="select" :id="'rf-' + f.key" :aria-label="f.label" @change="setField(f.key, $event.target.value)")
+                      template(l-for="o in f.options" l-key="o")
+                        option(:value="o" :selected="o === f.value" l-text="o || '—'")
+                  template(l-if="f.kind === 'bool'")
+                    input(data-ui="switch" type="checkbox" role="switch" :id="'rf-' + f.key" :aria-label="f.label" :checked="f.value" @change="setField(f.key, $event.target.checked)")
+                  template(l-if="f.kind === 'rows'")
+                    div(data-ui="stack" data-gap="2")
+                      template(l-for="row in f.rows" l-key="row.key")
+                        div(data-rd-row)
+                          template(l-for="cell in row.cells" l-key="cell.key")
+                            template(l-if="cell.kind === 'enum'")
+                              select(data-ui="select" data-size="sm" :aria-label="cell.label" @change="setField(cell.key, $event.target.value)")
+                                template(l-for="o in cell.options" l-key="o")
+                                  option(:value="o" :selected="o === cell.value" l-text="cell.label + ': ' + (o || '—')")
+                            template(l-if="cell.kind === 'bool'")
+                              label(data-ui="cluster" data-gap="1")
+                                input(type="checkbox" data-ui="checkbox" :checked="cell.value" @change="setField(cell.key, $event.target.checked)")
+                                span(data-ui="text" data-size="xs" l-text="cell.label")
+                            template(l-if="cell.kind === 'text' || cell.kind === 'expr' || cell.kind === 'lines'")
+                              input(data-ui="input" data-size="sm" type="text" :placeholder="cell.label" :aria-label="cell.label" :value="cell.value" :data-rd-key="cell.key" @focus="remember($event)" @input="setField(cell.key, $event.target.value)")
+                          button(type="button" data-ui="button" data-variant="ghost" data-size="sm" :aria-label="'Remove row ' + (row.index + 1)" @click="removeRow(f.key, row.index)")
+                            span(data-ui="icon" data-icon="trash-2" aria-hidden="true")
+                      button(type="button" data-ui="button" data-variant="outline" data-size="sm" @click="addRow(f.key)")
+                        span(data-ui="icon" data-icon="plus" aria-hidden="true")
+                        span(l-text="f.addLabel")
+                template(l-if="f.hint")
+                  p(data-ui="text" data-size="xs" data-variant="muted" l-text="f.hint")
+    div#toasts(data-ui="toast" data-variant="bottom-right" data-part="container" role="region" aria-label="Notifications")
+
+block scripts
+  script(src="/report-designer.js" defer)

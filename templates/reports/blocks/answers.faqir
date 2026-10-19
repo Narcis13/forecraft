@@ -1,0 +1,22 @@
+//- Every answer of the bound submission, in form order; repeatable groups as tables.
+div(data-block=b.id data-report-block="answers" data-keep=b.keep)
+  div(data-ui="stack" data-gap="4")
+    if b.title ?? false
+      h2 {{ b.title }}
+    each g in b.groups
+      if g.table ?? false
+        div(data-ui="stack" data-gap="2")
+          p(data-ui="text" data-variant="eyebrow") {{ g.label }}
+          div(data-ui="table" data-size="sm" data-print="compact")
+            table(data-part="table")
+              thead(data-part="thead")
+                tr(data-part="tr")
+                  each h in g.table.head
+                    th(data-part="th" scope="col") {{ h }}
+              tbody(data-part="tbody")
+                each r in g.table.rows
+                  tr(data-part="tr")
+                    each cell in r
+                      td(data-part="td") {{ cell }}
+      else
+        include "reports/pairs.faqir" (items=g.items variant="horizontal")

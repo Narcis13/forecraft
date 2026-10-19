@@ -1,0 +1,294 @@
+{
+  "schema": {
+    "type": "object",
+    "title": "Business letter",
+    "description": "A DIN 5008 window letter: the address in the envelope window, fold and punch marks, a reference line and signatures for two parties.",
+    "properties": {
+      "sender": {
+        "type": "object",
+        "title": "Sender",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Organisation"
+          },
+          "street": {
+            "type": "string",
+            "title": "Street"
+          },
+          "city": {
+            "type": "string",
+            "title": "Postcode and city"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "phone": {
+            "type": "string",
+            "title": "Phone"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "web": {
+            "type": "string",
+            "title": "Website"
+          },
+          "register": {
+            "type": "string",
+            "title": "Registration"
+          }
+        },
+        "required": [
+          "name",
+          "street",
+          "city"
+        ]
+      },
+      "recipient": {
+        "type": "object",
+        "title": "Recipient",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name or organisation"
+          },
+          "attention": {
+            "type": "string",
+            "title": "For the attention of"
+          },
+          "street": {
+            "type": "string",
+            "title": "Street"
+          },
+          "city": {
+            "type": "string",
+            "title": "Postcode and city"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          }
+        },
+        "required": [
+          "name",
+          "street",
+          "city"
+        ]
+      },
+      "date": {
+        "type": "string",
+        "format": "date",
+        "title": "Date"
+      },
+      "ours": {
+        "type": "string",
+        "title": "Our reference"
+      },
+      "yours": {
+        "type": "string",
+        "title": "Your reference"
+      },
+      "subject": {
+        "type": "string",
+        "title": "Subject"
+      },
+      "salutation": {
+        "type": "string",
+        "title": "Salutation"
+      },
+      "body": {
+        "type": "string",
+        "title": "Letter"
+      },
+      "closing": {
+        "type": "string",
+        "title": "Closing"
+      },
+      "signatories": {
+        "type": "array",
+        "title": "Signatories",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Name"
+            },
+            "role": {
+              "type": "string",
+              "title": "Role"
+            },
+            "company": {
+              "type": "string",
+              "title": "Organisation"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    },
+    "required": [
+      "sender",
+      "recipient",
+      "date",
+      "subject",
+      "body"
+    ]
+  },
+  "sample": {
+    "sender": {
+      "name": "Halden & Vos Advisory LLP",
+      "street": "14 Clerkenwell Close",
+      "city": "London EC1R 0AA",
+      "country": "United Kingdom",
+      "phone": "+44 20 7946 0321",
+      "email": "office@haldenvos.example",
+      "web": "haldenvos.example",
+      "register": "Registered in England and Wales, OC 412 907 · VAT GB 293 4471 06"
+    },
+    "recipient": {
+      "name": "Brightwater Housing Trust",
+      "attention": "Ms Imogen Clarke, Director of Estates",
+      "street": "Unit 3, Riverside Court",
+      "city": "Bristol BS1 6UN",
+      "country": "United Kingdom"
+    },
+    "date": "2026-10-14",
+    "yours": "BHT-EST-0931",
+    "subject": "Retrofit programme 2027–2029: our proposal and next steps",
+    "salutation": "Dear Ms Clarke,",
+    "body": "Thank you for the time you and your estates team gave us on 6 October, and for the walk round the Lawrence Hill blocks. It is rare to see a programme briefed so clearly, and we are grateful for it.\n\nAs agreed, we enclose our proposal for the first phase of the retrofit programme. In short, we recommend that the Trust surveys all 412 homes in the first two phases before committing to a measure package; sequences the works by block rather than by measure, so that each household lives with one eight-week window of disruption; and funds independent monitoring for three years from the outset, so that the performance gap is measured rather than estimated.\n\nThe fee for the survey and design stage is fixed at £148,500 excluding VAT, payable in three stages. Our full terms, and the evidence behind each recommendation, are set out in the enclosed report.\n\nWe would be glad to present the proposal to your board on 3 November, as you suggested. In the meantime, please do not hesitate to call either of us directly.",
+    "closing": "Yours sincerely,",
+    "signatories": [
+      {
+        "name": "Eleanor Vos",
+        "role": "Managing Partner",
+        "company": "Halden & Vos Advisory LLP"
+      },
+      {
+        "name": "Tomas Halden",
+        "role": "Partner, Building Physics",
+        "company": "Halden & Vos Advisory LLP"
+      }
+    ]
+  },
+  "layout": [
+    {
+      "id": "letterhead",
+      "block": "letterhead",
+      "name": "{{ sender.name }}",
+      "lines": [
+        "{{ sender.street }} · {{ sender.city }}"
+      ],
+      "details": [
+        {
+          "label": "Tel",
+          "value": "{{ sender.phone ?? \"—\" }}"
+        },
+        {
+          "label": "Email",
+          "value": "{{ sender.email ?? \"—\" }}"
+        },
+        {
+          "label": "Web",
+          "value": "{{ sender.web ?? \"—\" }}"
+        }
+      ]
+    },
+    {
+      "id": "address",
+      "block": "parties",
+      "parties": [
+        {
+          "name": "{{ recipient.name }}",
+          "lines": [
+            "{{ recipient.attention ?? \"\" }}",
+            "{{ recipient.street }}",
+            "{{ recipient.city }}",
+            "{{ recipient.country ?? \"\" }}"
+          ]
+        },
+        {
+          "name": "{{ date(date) }}",
+          "details": [
+            {
+              "label": "Our ref.",
+              "value": "{{ doc.number ?? ours ?? \"—\" }}"
+            },
+            {
+              "label": "Your ref.",
+              "value": "{{ yours ?? \"—\" }}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "subject",
+      "block": "text",
+      "markdown": "**{{ subject }}**"
+    },
+    {
+      "id": "letter",
+      "block": "text",
+      "markdown": "{{ salutation ?? \"Dear Sir or Madam,\" }}\n\n{{ body }}\n\n{{ closing ?? \"Yours sincerely,\" }}"
+    },
+    {
+      "id": "sign",
+      "block": "signature",
+      "keep": "together",
+      "signatures": [
+        {
+          "name": "{{ signatories[0].name ?? sender.name }}",
+          "role": "{{ signatories[0].role ?? \"\" }}"
+        },
+        {
+          "name": "{{ signatories[1].name ?? \"\" }}",
+          "role": "{{ signatories[1].role ?? \"\" }}"
+        }
+      ]
+    },
+    {
+      "id": "enclosure",
+      "block": "text",
+      "size": "small",
+      "markdown": "Enclosure: Retrofit programme 2027–2029, proposal for phase one (24 pages)."
+    },
+    {
+      "id": "footer",
+      "block": "footer",
+      "lines": [
+        "{{ sender.name }} · {{ sender.street }} · {{ sender.city }} · {{ sender.country ?? \"\" }}",
+        "{{ sender.register ?? \"\" }}"
+      ]
+    }
+  ],
+  "appearance": {
+    "theme": "document-serif",
+    "accent": "#5b2333",
+    "paper": "a4",
+    "orientation": "portrait",
+    "margins": "normal",
+    "type": "source-serif",
+    "density": "comfortable",
+    "locale": "en-GB",
+    "currency": "GBP",
+    "letter": {
+      "window": true,
+      "foldMarks": true
+    }
+  },
+  "numbering": {
+    "pattern": "HV-L-{YYYY}-{seq:3}"
+  },
+  "documentTitle": "{{ recipient.name }} · {{ subject }}",
+  "runningHeader": "{{ sender.name }} · {{ recipient.name }} · {{ date(date) }}",
+  "source": {
+    "kind": "data"
+  }
+}

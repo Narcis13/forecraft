@@ -1,0 +1,27 @@
+//- Compiled markdown (src/reports/markdown.ts): paragraphs, two heading levels,
+//- flat lists, inline runs. Never raw: every run is text the engine escapes.
+each m in md
+  if m.t == "p"
+    p
+      each r in m.runs
+        include "reports/run.faqir" (r=r)
+  else if m.t == "h3"
+    h3
+      each r in m.runs
+        include "reports/run.faqir" (r=r)
+  else if m.t == "h4"
+    h4
+      each r in m.runs
+        include "reports/run.faqir" (r=r)
+  else if m.t == "ul"
+    ul
+      each item in m.items
+        li
+          each r in item
+            include "reports/run.faqir" (r=r)
+  else
+    ol
+      each item in m.items
+        li
+          each r in item
+            include "reports/run.faqir" (r=r)

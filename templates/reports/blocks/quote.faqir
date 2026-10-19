@@ -1,0 +1,12 @@
+//- A verbatim or testimonial; with rows, one per row.
+div(data-block=b.id data-report-block="quote" data-keep=b.keep)
+  div(data-ui="stack" data-gap="4")
+    each q in b.quotes
+      figure(data-ui="quote" data-variant="plain" data-size="sm")
+        blockquote(data-part="text")
+          p {{ q.text }}
+        if q.name
+          figcaption(data-part="author")
+            span(data-part="name") {{ q.name }}
+            if q.role
+              span(data-part="role") {{ q.role }}

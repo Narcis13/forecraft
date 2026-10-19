@@ -1,0 +1,40 @@
+//- Documents: number, name, status, dates; each row opens its page.
+if documents.length == 0
+  div(data-ui="card")
+    div(data-part="body")
+      div(data-ui="empty-state")
+        span(data-part="icon")
+          span(data-ui="icon" data-icon="file-text" aria-hidden="true")
+        h2(data-part="title") No documents yet
+        p(data-part="description") Issue one from a published report here, or let your agent do it: one POST with the data returns the number, the PDF and a link to share.
+else
+  div(data-ui="table" data-size="md")
+    table(data-part="table")
+      thead(data-part="thead")
+        tr(data-part="tr")
+          th(data-part="th" scope="col" data-sortable aria-sort="none") Number
+          th(data-part="th" scope="col" data-sortable aria-sort="none") Document
+          if showReport
+            th(data-part="th" scope="col" data-hide-below="md") Report
+          th(data-part="th" scope="col") Status
+          th(data-part="th" scope="col" data-sortable aria-sort="none" data-hide-below="sm") Date
+          th(data-part="th" scope="col" data-align="end")
+            span(data-ui="text" data-size="sm" data-variant="muted") Actions
+      tbody(data-part="tbody")
+        each d in documents
+          tr(data-part="tr")
+            td(data-part="td")
+              a(data-ui="link" href="/app/documents/{{ d.id }}")
+                code {{ d.number ?? "Draft" }}
+            td(data-part="td") {{ d.title }}
+            if showReport
+              td(data-part="td") {{ d.report }}
+            td(data-part="td")
+              span(data-ui="badge" data-variant=d.statusVariant data-size="sm") {{ d.statusLabel }}
+            td(data-part="td" data-sort-value=d.date) {{ date(d.date) }}
+            td(data-part="td" data-align="end")
+              div(data-ui="cluster" data-gap="1")
+                a(data-ui="button" data-variant="ghost" data-size="sm" href="/api/v1/documents/{{ d.id }}/pdf" aria-label="Download {{ d.number ?? d.title }} as PDF")
+                  span(data-ui="icon" data-icon="download" aria-hidden="true")
+                  | PDF
+                a(data-ui="button" data-variant="ghost" data-size="sm" href="/app/documents/{{ d.id }}") Open

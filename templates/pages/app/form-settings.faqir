@@ -37,6 +37,33 @@ block content
               p#set-slug-hint(data-part="description") /f/ followed by this. Lowercase letters, digits and dashes. Old links stop working when you change it.
         div(data-part="footer")
           button(type="submit" data-ui="button" data-variant="primary") Save settings
+    form(aria-label="Documents" l-data="formDocuments" data-prop-form-id=tojson(page.settings.formId) data-prop-report-id=tojson(page.documents.reportId) data-prop-issue=tojson(page.documents.issue) data-prop-link=tojson(page.documents.link) @submit.prevent="save()")
+      div(data-ui="card")
+        div(data-part="header")
+          h2(data-part="title") Documents
+          p(data-part="description") A confirmation report prints a submission of this form: the answers, a check-in QR code and a barcode. Issued on submit, it is numbered at once and printed on its first download.
+        div(data-part="body")
+          div(data-ui="stack" data-gap="6")
+            div(data-ui="field-group")
+              label(data-part="label" for="doc-report") Confirmation report
+              div(data-part="input")
+                select#doc-report(data-ui="select" l-model="reportId" aria-describedby="doc-report-hint")
+                  option(value="") None
+                  each r in page.documents.reports
+                    option(value=r.id selected=r.selected) {{ r.title }}
+              p#doc-report-hint(data-part="description") {{ page.documents.reports.length == 0 ? "No report prints this form yet: create one from the Confirmation starter under Reports." : "Reports whose source is this form's submissions." }}
+            div(data-ui="field-group")
+              label(data-part="label" for="doc-issue") Issue on submit
+              div(data-part="input")
+                input#doc-issue(data-ui="switch" type="checkbox" role="switch" l-model="issue" aria-describedby="doc-issue-hint")
+              p#doc-issue-hint(data-part="description") Every new submission gets its numbered confirmation.
+            div(data-ui="field-group")
+              label(data-part="label" for="doc-link") Link on the thank-you state
+              div(data-part="input")
+                input#doc-link(data-ui="switch" type="checkbox" role="switch" l-model="link" aria-describedby="doc-link-hint")
+              p#doc-link-hint(data-part="description") Shows “Download your confirmation (PDF)” after submitting.
+        div(data-part="footer")
+          button(type="submit" data-ui="button" data-variant="primary") Save documents
     div(data-ui="card" data-variant="outlined")
       div(data-part="header")
         h2(data-part="title") Delete this form
