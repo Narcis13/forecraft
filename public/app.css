@@ -18,28 +18,8 @@ body > a[href="#main"]:first-child:focus-visible {
   transform: none;
 }
 
-/* ── Accent hues (FAQIR-UPSTREAM.md #9) ───────────────────────────────────────
-   The theme's primary is captured on <html>, then re-pointed on <body> to the
-   chosen hue at the theme's own lightness and chroma, so every theme keeps its
-   contrast. (A custom property cannot read its own old value on one element.) */
-[data-accent] {
-  --fc-theme-primary: var(--color-primary);
-}
-[data-accent] > body {
-  --color-primary: oklch(from var(--fc-theme-primary) l max(c, 0.12) var(--fc-hue));
-  --color-primary-hover: oklch(from var(--fc-theme-primary) calc(l - 0.05) max(c, 0.12) var(--fc-hue));
-  --color-primary-active: oklch(from var(--fc-theme-primary) calc(l - 0.09) max(c, 0.12) var(--fc-hue));
-  --color-primary-subtle: oklch(from var(--fc-theme-primary) 0.94 0.04 var(--fc-hue));
-  --color-ring: var(--color-primary);
-}
-[data-accent="indigo"] { --fc-hue: 268; }
-[data-accent="violet"] { --fc-hue: 300; }
-[data-accent="rose"] { --fc-hue: 12; }
-[data-accent="orange"] { --fc-hue: 48; }
-[data-accent="amber"] { --fc-hue: 75; }
-[data-accent="emerald"] { --fc-hue: 160; }
-[data-accent="teal"] { --fc-hue: 190; }
-[data-accent="sky"] { --fc-hue: 235; }
+/* Accents: Faqir 1.3.0 ships tokens/accent.css (`data-accent` + named hues).
+   FAQIR-UPSTREAM.md #9 is fixed upstream — no local hue table here. */
 
 /* ── Public form page ─────────────────────────────────────────────────────── */
 [data-form-page] {

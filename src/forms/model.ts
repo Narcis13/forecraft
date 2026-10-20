@@ -41,8 +41,8 @@ export const THEMES: string[] = readdirSync(join(import.meta.dirname, "../../ui/
   .map((f) => f.replace(/\.scoped\.css$/, ""))
   .sort();
 
-/** Accent hues `public/app.css` knows (`[data-accent]`); "theme" keeps the theme's own primary. */
-export const ACCENTS = ["theme", "indigo", "violet", "rose", "orange", "amber", "emerald", "teal", "sky"] as const;
+/** Accent hues Faqir's `tokens/accent.css` knows; "theme" keeps the theme's own primary. */
+export const ACCENTS = ["theme", "rose", "red", "orange", "blue", "indigo", "violet", "purple", "fuchsia", "pink"] as const;
 export const LAYOUTS = ["card", "split", "page"] as const;
 export const SCHEMES = ["auto", "light", "dark"] as const;
 

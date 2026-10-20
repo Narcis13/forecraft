@@ -1,25 +1,1312 @@
-/* Faqir UI Bundle — generated 2026-10-20T06:48:56.401Z */
+/* Faqir UI Bundle — generated 2026-10-20T07:44:08.855Z */
 /* 99 files */
 
 /* === tokens/index.css === */
-/* @ui:tokens index — aggregated token imports */
+/* Faqir Design Tokens — assembled for tokens_split: false (Faqir 1.3.0) */
 
-@import './palette.css';
-@import './spacing.css';
-@import './typography.css';
-@import './effects.css';
-@import './textures.css';
-@import './motion.css';
-@import './semantic.css';
-@import './aliases.css';
-@import './document.css';
-@import './doc-aliases.css';
-/* accent.css re-points the accent tokens under [data-accent]; it declares nothing
-   on :root but its captures, so it may sit anywhere after the tokens it reads. */
-@import './accent.css';
-/* density.css re-declares alias tokens under [data-density] — same specificity as
-   :root, so it must stay last. */
-@import './density.css';
+/* ── palette.css ── */
+/* @ui:tokens palette — raw oklch color values, never referenced by components directly */
+
+:root {
+  /* ── Indigo ── */
+  --palette-indigo-50:  oklch(0.96 0.04 264);
+  --palette-indigo-100: oklch(0.92 0.08 264);
+  --palette-indigo-200: oklch(0.85 0.12 264);
+  --palette-indigo-300: oklch(0.75 0.16 264);
+  --palette-indigo-400: oklch(0.68 0.20 264);   /* AA: --color-primary on --color-bg-muted was 4.44:1 in dark [W3-3] */
+  --palette-indigo-500: oklch(0.51 0.22 264);   /* AA: --color-primary on --color-bg-muted was 4.40:1 in light [W3-3] */
+  --palette-indigo-600: oklch(0.47 0.22 264);   /* keeps the hover step visible after the 500 nudge */
+  --palette-indigo-700: oklch(0.42 0.20 264);
+  --palette-indigo-800: oklch(0.35 0.18 264);
+  --palette-indigo-900: oklch(0.28 0.14 264);
+  --palette-indigo-950: oklch(0.20 0.10 264);
+
+  /* ── Red ── */
+  --palette-red-50:  oklch(0.96 0.04 25);
+  --palette-red-100: oklch(0.92 0.08 25);
+  --palette-red-200: oklch(0.85 0.12 25);
+  --palette-red-300: oklch(0.75 0.16 25);
+  --palette-red-400: oklch(0.65 0.20 25);
+  --palette-red-500: oklch(0.55 0.22 25);
+  --palette-red-600: oklch(0.50 0.22 25);
+  --palette-red-700: oklch(0.42 0.20 25);
+  --palette-red-800: oklch(0.35 0.18 25);
+  --palette-red-900: oklch(0.28 0.14 25);
+  --palette-red-950: oklch(0.20 0.10 25);
+
+  /* ── Green ── */
+  --palette-green-50:  oklch(0.96 0.04 155);
+  --palette-green-100: oklch(0.92 0.08 155);
+  --palette-green-200: oklch(0.85 0.12 155);
+  --palette-green-300: oklch(0.75 0.16 155);
+  --palette-green-400: oklch(0.65 0.18 155);
+  --palette-green-500: oklch(0.60 0.18 155);
+  --palette-green-600: oklch(0.55 0.18 155);
+  --palette-green-700: oklch(0.45 0.16 155);
+  --palette-green-800: oklch(0.38 0.14 155);
+  --palette-green-900: oklch(0.30 0.10 155);
+  --palette-green-950: oklch(0.22 0.08 155);
+
+  /* ── Amber ── */
+  --palette-amber-50:  oklch(0.96 0.04 85);
+  --palette-amber-100: oklch(0.92 0.08 85);
+  --palette-amber-200: oklch(0.88 0.12 85);
+  --palette-amber-300: oklch(0.82 0.14 80);
+  --palette-amber-400: oklch(0.78 0.15 78);
+  --palette-amber-500: oklch(0.75 0.15 75);
+  --palette-amber-600: oklch(0.66 0.14 55);
+  --palette-amber-700: oklch(0.55 0.12 50);
+  --palette-amber-800: oklch(0.45 0.10 50);
+  --palette-amber-900: oklch(0.38 0.08 50);
+  --palette-amber-950: oklch(0.28 0.06 50);
+
+  /* ── Gray (cool) ── */
+  --palette-gray-25:  oklch(0.995 0.001 260);
+  --palette-gray-50:  oklch(0.98 0.003 260);
+  --palette-gray-100: oklch(0.96 0.004 260);
+  --palette-gray-200: oklch(0.92 0.006 260);
+  --palette-gray-300: oklch(0.87 0.008 260);
+  --palette-gray-400: oklch(0.70 0.01 260);
+  --palette-gray-500: oklch(0.55 0.01 260);
+  --palette-gray-600: oklch(0.44 0.01 260);
+  --palette-gray-700: oklch(0.37 0.01 260);
+  --palette-gray-800: oklch(0.27 0.01 260);
+  --palette-gray-900: oklch(0.20 0.01 260);
+  --palette-gray-950: oklch(0.14 0.01 260);
+
+  /* ── Blue ── */
+  --palette-blue-50:  oklch(0.96 0.04 240);
+  --palette-blue-100: oklch(0.92 0.08 240);
+  --palette-blue-200: oklch(0.85 0.12 240);
+  --palette-blue-300: oklch(0.75 0.14 240);
+  --palette-blue-400: oklch(0.65 0.18 240);
+  --palette-blue-500: oklch(0.50 0.20 240);
+  --palette-blue-600: oklch(0.45 0.20 240);
+  --palette-blue-700: oklch(0.42 0.18 240);
+  --palette-blue-800: oklch(0.35 0.16 240);
+  --palette-blue-900: oklch(0.28 0.12 240);
+  --palette-blue-950: oklch(0.20 0.08 240);
+}
+
+/* ── spacing.css ── */
+/* @ui:tokens spacing — 4px base, harmonic scale */
+
+:root {
+  --space-0:   0;
+  --space-px:  1px;
+  --space-0h:  0.125rem;   /* 2px */
+  --space-1:   0.25rem;    /* 4px */
+  --space-1h:  0.375rem;   /* 6px */
+  --space-2:   0.5rem;     /* 8px */
+  --space-2h:  0.625rem;   /* 10px */
+  --space-3:   0.75rem;    /* 12px */
+  --space-3h:  0.875rem;   /* 14px */
+  --space-4:   1rem;       /* 16px */
+  --space-5:   1.25rem;    /* 20px */
+  --space-6:   1.5rem;     /* 24px */
+  --space-7:   1.75rem;    /* 28px */
+  --space-8:   2rem;       /* 32px */
+  --space-10:  2.5rem;     /* 40px */
+  --space-12:  3rem;       /* 48px */
+  --space-16:  4rem;       /* 64px */
+  --space-20:  5rem;       /* 80px */
+  --space-24:  6rem;       /* 96px */
+
+  /* ── Page rhythm (task 0.8-07) ──
+     Above --space-24 the scale stops being component padding and becomes
+     page-section rhythm: the vertical air between the hero and the feature
+     grid, the gap a landing page breathes at. Same 4px base, same harmonic
+     doubling, so a section gap is a scale member and not a magic number.
+     Composed through the --section-gap-* aliases in tokens/aliases.css. */
+  --space-32:  8rem;       /* 128px */
+  --space-40:  10rem;      /* 160px */
+  --space-48:  12rem;      /* 192px */
+  --space-64:  16rem;      /* 256px */
+}
+
+/* ── typography.css ── */
+/* @ui:tokens typography — font families, sizes, line-heights, weights */
+
+:root {
+  /* ── Font Families ── */
+  --font-sans:   system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:   ui-monospace, 'Cascadia Code', 'JetBrains Mono', monospace;
+  --font-serif:  'Georgia', 'Times New Roman', serif;
+
+  /* ── Font Roles (task 1.1A-01) ──
+     The three families above are the PALETTE; these three are the ROLES that
+     components actually read. A theme re-points a role once and every heading,
+     every paragraph and every control follows — "serif headings on a sans body"
+     is one declaration rather than sixty-four stylesheet edits. Components never
+     read --font-sans / --font-serif directly (gated by
+     tests/tokens/role-tokens.test.ts); --font-mono stays readable by name,
+     because "this is code" is a semantic choice, not a stylistic one. */
+  --font-heading: var(--font-sans);   /* h1–h6, hero headline, card/dialog titles, stat values, doc headings */
+  --font-body:    var(--font-sans);   /* prose, text, document body, descriptions */
+  --font-ui:      var(--font-sans);   /* controls: button, input, select, badge, chip, tabs, menus */
+
+  /* ── Code Face (task 1.1F-19) ──
+     Cascadia Code and JetBrains Mono both ligate by default, so `!=`, `=>` and
+     `->` in an id, a keyboard hint or a code sample were drawn as single glyphs
+     on any machine that has either face installed. Every rule that sets
+     `font-family: var(--font-mono)` reads this beside it as
+     `font-variant-ligatures` (gated by tests/tokens/role-tokens.test.ts).
+     `none` also turns contextual alternates off, which is how JetBrains Mono
+     ligates. Set it to `normal` to get a face's ligatures back. A theme that
+     points a ROLE at --font-mono (terminal does, for all three) is not covered:
+     its body text is set by the role, and keeps the face's defaults. Not named
+     --font-mono-ligatures, because a --font-* token is a family. */
+  --mono-ligatures: none;
+
+  /* ── Font Sizes ── */
+  --text-xs:     0.75rem;    /* 12px */
+  --text-sm:     0.875rem;   /* 14px */
+  --text-base:   1rem;       /* 16px */
+  --text-lg:     1.125rem;   /* 18px */
+  --text-xl:     1.25rem;    /* 20px */
+  --text-2xl:    1.5rem;     /* 24px */
+  --text-3xl:    1.875rem;   /* 30px */
+  --text-4xl:    2.25rem;    /* 36px */
+
+  /* ── Line Heights ── */
+  --leading-tight:   1.25;
+  --leading-snug:    1.375;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose:   1.75;
+
+  /* ── Font Weights ── */
+  --weight-normal:   400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* ── Heading Voice (task 1.1A-01) ──
+     What makes a heading sound like the theme rather than like the body text one
+     size up: how heavy it is, how tightly the letters sit, whether it shouts, and
+     how close its own lines run. The defaults reproduce today's primary heading
+     exactly, so a project that sets none of them renders unchanged. A heading
+     that deliberately steps DOWN from the primary voice (prose h2–h4, a semibold
+     step below h1) keeps its own weight and leading and takes family, tracking
+     and case from the voice — the step is the design, not a value to re-derive. */
+  --heading-weight:    var(--weight-bold);
+  --heading-tracking:  0em;           /* letter-spacing — carries a unit so it
+                                         composes inside calc() where a heading
+                                         already has its own optical tightening */
+  --heading-transform: none;          /* text-transform */
+  --heading-caps:      normal;        /* font-variant-caps — small caps are a
+                                         variant, not a transform (1.1A-25), so
+                                         they get a knob of their own that sits
+                                         beside --heading-transform */
+  --heading-leading:   var(--leading-tight);
+}
+
+/* ── effects.css ── */
+/* @ui:tokens effects — radii, shape, shadows, focus, z-index */
+
+:root {
+  /* ── Radii ── */
+  --radius-none: 0;
+  --radius-sm:   0.25rem;    /* 4px */
+  --radius-md:   0.375rem;   /* 6px */
+  --radius-lg:   0.5rem;     /* 8px */
+  --radius-xl:   0.75rem;    /* 12px */
+  --radius-2xl:  1rem;       /* 16px */
+  --radius-full: 9999px;
+
+  /* ── Shape ── */
+  /* The weight of an edge. A component names the ROLE (--border-width, or
+     --border-width-strong where the design leans on a thicker rule), never a
+     step, so a theme re-points every edge it ships with one declaration. */
+  --border-width-sm: 1px;
+  --border-width-md: 2px;
+  --border-width-lg: 3px;
+  --border-width:        var(--border-width-sm);   /* the default component border */
+  --border-width-strong: var(--border-width-md);   /* emphasis: keycap, thick rule, active tab */
+  /* Progressive: CSS Borders 4. A browser without the property ignores it; a
+     value it does not know resolves to `round`, which is today's rendering. */
+  --corner-shape: round;                           /* bevel | scoop | notch where supported */
+
+  /* ── Depth ── */
+  /* The colour every shadow is cast in, as BARE OKLCH channels (L C H, no
+     `oklch()` around them) so each step can still set its own alpha:
+     `oklch(var(--shadow-color) / 0.06)`. A theme tints its depth warm, or
+     removes it entirely, with one declaration instead of rewriting five
+     multi-layer values. `0 0 0` is black — today's rendering, exactly. */
+  --shadow-color: 0 0 0;
+
+  --shadow-xs:  0 1px 2px oklch(var(--shadow-color) / 0.04);
+  --shadow-sm:  0 1px 3px oklch(var(--shadow-color) / 0.06), 0 1px 2px oklch(var(--shadow-color) / 0.04);
+  --shadow-md:  0 4px 6px oklch(var(--shadow-color) / 0.05), 0 2px 4px oklch(var(--shadow-color) / 0.04);
+  --shadow-lg:  0 10px 15px oklch(var(--shadow-color) / 0.06), 0 4px 6px oklch(var(--shadow-color) / 0.04);
+  --shadow-xl:  0 20px 25px oklch(var(--shadow-color) / 0.08), 0 8px 10px oklch(var(--shadow-color) / 0.04);
+
+  /* What an elevated surface does to whatever shows through it. Every surface
+     that can float — card, surface[data-variant="overlay"] and the seven
+     floating recipes — declares `backdrop-filter: var(--surface-backdrop)`
+     inside the same `@supports` guard, so a frosted theme is a token rather
+     than a stylesheet that reaches into seven components by selector.
+     `none` is the initial value of the property: no-op until a theme speaks. */
+  --surface-backdrop: none;
+
+  /* ── Focus ── */
+  /* base/reset.css owns the default ring and reads only these. Every control
+     that draws its own ring reads them too, so a theme changes focus once. */
+  --focus-ring-width:  2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-style:  solid;
+  --focus-ring-color:  var(--color-ring);
+  --focus-shadow:      none;                       /* a glow theme puts a shadow behind the ring */
+
+  /* ── Z-Index ── */
+  --z-base:     0;
+  --z-raised:   1;
+  --z-dropdown: 50;
+  --z-sticky:   100;
+  --z-overlay:  200;
+  --z-modal:    300;
+  --z-toast:    400;
+  --z-max:      9999;
+}
+
+/* ── Scheme islands ── */
+/* The ring colour, restated where a scheme can change below the root: declared
+   on `:root` alone it resolves `--color-ring` once, from the page, and a nested
+   `data-theme="dark"` region would draw the light ring. See the same block in
+   tokens/aliases.css. `--focus-shadow` is deliberately NOT restated — it is a
+   depth value a theme owns, and restating it would replace the theme's glow
+   with `none` inside every island. */
+[data-theme],
+[data-skin] {
+  --focus-ring-color:  var(--color-ring);
+}
+
+/* ── textures.css ── */
+/* @ui:tokens textures — named surface materials (SVG data URIs) */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   The material palette.
+   ══════════════════════════════════════════════════════════════════════════
+   Six named textures, each a self-contained `url("data:image/svg+xml,…")` that
+   tiles. Nothing here is consumed directly: components read the two ROLE tokens
+   in `aliases.css` — `--texture-page` (body, document) and `--texture-surface`
+   (surface, card, hero) — both `none` by default, so the registry renders
+   exactly as it did before this file existed. A theme opts in with one
+   declaration:
+
+     --texture-page: var(--texture-grain);
+
+   This file is deliberately OUTSIDE the themeable surface (see
+   `NON_SURFACE_TOKEN_FILES` in `src/theme-manifest.ts`): a theme re-points the
+   two role tokens, it does not inherit six data URIs into its manifest.
+
+   On `currentColor`: the tint is written as `currentColor` so the markup states
+   its intent and a theme can re-point the whole token, but a data-URI SVG used
+   as `background-image` is its own document — `currentColor` there resolves to
+   that document's initial colour (black), not to the host element's `color`.
+   That IS the intended neutral for grain and paper, which are meant to darken a
+   surface slightly; the alpha in each texture, not the hue, is what carries the
+   effect. A theme wanting a different tint ships its own URI.
+
+   Every texture keeps its alpha low enough to survive on both schemes, and each
+   `<svg>` carries explicit `width`/`height` so the tile size is the token's,
+   not the browser's default 300×150.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Film grain — fractal noise masking a flat currentColor fill. The mask is
+     what makes this a tint rather than the turbulence's own rainbow. */
+  --texture-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Cmask id='m'%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/mask%3E%3Crect width='160' height='160' fill='currentColor' mask='url(%23m)' opacity='0.14'/%3E%3C/svg%3E");
+
+  /* Paper fibre — lower frequency, more octaves, softer than grain. */
+  --texture-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04 0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Cmask id='m'%3E%3Crect width='200' height='200' filter='url(%23p)'/%3E%3C/mask%3E%3Crect width='200' height='200' fill='currentColor' mask='url(%23m)' opacity='0.1'/%3E%3C/svg%3E");
+
+  /* Dot field — one dot per 16px cell. */
+  --texture-dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='2' cy='2' r='1' fill='currentColor' opacity='0.18'/%3E%3C/svg%3E");
+
+  /* Graph-paper grid — hairlines on a 24px cell. */
+  --texture-grid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M24 0H0v24' fill='none' stroke='currentColor' stroke-width='1' opacity='0.12'/%3E%3C/svg%3E");
+
+  /* Diagonal hatching — 45°, 8px pitch. */
+  --texture-stripes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M-2 2 2-2M0 8 8 0M6 10l4-4' stroke='currentColor' stroke-width='1' opacity='0.12'/%3E%3C/svg%3E");
+
+  /* Soft gradient mesh — three offset radial blooms, the only non-tiling
+     texture here (it is sized to cover, not to repeat). */
+  --texture-mesh: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='640'%3E%3CradialGradient id='a' cx='20%25' cy='20%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='currentColor' stop-opacity='0.18'/%3E%3Cstop offset='100%25' stop-color='currentColor' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='b' cx='80%25' cy='30%25' r='55%25'%3E%3Cstop offset='0%25' stop-color='currentColor' stop-opacity='0.14'/%3E%3Cstop offset='100%25' stop-color='currentColor' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='c' cx='50%25' cy='90%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='currentColor' stop-opacity='0.12'/%3E%3Cstop offset='100%25' stop-color='currentColor' stop-opacity='0'/%3E%3C/radialGradient%3E%3Crect width='640' height='640' fill='url(%23a)'/%3E%3Crect width='640' height='640' fill='url(%23b)'/%3E%3Crect width='640' height='640' fill='url(%23c)'/%3E%3C/svg%3E");
+}
+
+/* ── motion.css ── */
+/* @ui:tokens motion — easings, durations and motion personality */
+
+:root {
+  /* ── Easings ── */
+  --ease-default:  cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in:       cubic-bezier(0.4, 0, 1, 1);
+  --ease-out:      cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce:   cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Durations ── */
+  --duration-instant: 50ms;
+  --duration-fast:    100ms;
+  --duration-normal:  200ms;
+  --duration-slow:    300ms;
+  --duration-slower:  500ms;
+
+  /* ── l-transition presets (Transitions 2.0 · 0.4-11) ── */
+  /* Semantic aliases consumed by base/motion-presets.css so preset CSS never
+     hardcodes a duration or easing. Enter is slower/eased-out (arriving),
+     leave is faster/eased-in (departing). */
+  --motion-enter-duration: var(--duration-normal);
+  --motion-leave-duration: var(--duration-fast);
+  --motion-enter-ease:     var(--ease-out);
+  --motion-leave-ease:     var(--ease-in);
+
+  /* Preset geometry */
+  --motion-slide-distance: 0.5rem;  /* slide-up travel */
+  --motion-scale-from:     0.95;    /* scale start/end factor */
+
+  /* ── Personality (1.1A-05 · §5.2 `motion`) ── */
+  /* The easing PALETTE gained a spring. Like --ease-bounce it has no consumer
+     of its own: a theme that wants everything to overshoot re-points
+     --ease-default at it, exactly as a serif theme re-points --font-body.
+     The declaration here is the cubic-bezier APPROXIMATION, because a custom
+     property stores whatever tokens it is given — a browser without `linear()`
+     would accept the spring happily and then drop every `transition` that used
+     it, landing on the initial easing rather than on a fallback. The @supports
+     block below is what makes the upgrade conditional. The approximation is
+     the bounce curve, deliberately: an overshoot-and-settle cubic-bezier is the
+     closest a browser without `linear()` can come to a spring. */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* How far an interactive surface rises under the pointer. A `translate`
+     VALUE, not a length: `none` is the initial value of that property, so the
+     default registry computes exactly what it computed before this token
+     existed, and a theme states the lift as `0 -1px`. `translate` rather than
+     `transform` so a component's own transform is never clobbered. */
+  --motion-hover-lift: none;
+
+  /* ── Choreography (reveal, marquee, backdrop, glow, highlight) ── */
+  /* Two more easings for the palette. `--ease-linear` is constant speed, by
+     name: a loop that eases stutters once per lap, and a scroll-scrubbed
+     timeline must not ease at all (the scrollbar is the easing). It is a token
+     rather than the keyword so that "no component spells an easing of its own"
+     stays a rule without exceptions for every new loop. `--ease-emphasized` is
+     the long decelerating arrival — fast out of the gate, a slow settle — that
+     makes an entrance read as placed rather than slid. */
+  --ease-linear:      linear;
+  --ease-emphasized:  cubic-bezier(0.2, 0, 0, 1);
+
+  /* One step past `slower`, for entrances that cross real distance. */
+  --duration-slowest: 700ms;
+
+  /* How content arrives. Every entrance in the registry — the `reveal`
+     primitive, the `l-transition` presets that travel — reads these, so a theme
+     states its entrance once: a brisk theme shortens the distance and the
+     duration, a theatrical one lengthens both and raises the stagger. */
+  --motion-reveal-duration: var(--duration-slowest);
+  --motion-reveal-ease:     var(--ease-emphasized);
+  --motion-reveal-distance: 1.5rem;   /* travel of rise / fall / slide */
+  --motion-reveal-scale:    0.94;     /* start factor of zoom */
+  --motion-reveal-blur:     0.5rem;   /* start radius of blur */
+  --motion-stagger:         70ms;     /* delay between siblings in a staggered group */
+
+  /* Things that move without being asked: a marquee's lap, a backdrop's drift,
+     a glow's orbit, a gradient's pan. One duration to slow or hurry them all
+     (each component scales it for its own loop), and one play state to freeze
+     them: `--motion-ambient-play: paused` on `:root` — or on any subtree — stops
+     every ambient loop there without touching a transition. */
+  --motion-ambient-duration: 24s;
+  --motion-ambient-play:     running;
+}
+
+/* The real spring, where `linear()` is understood (Chrome 113+, Safari 17.2+,
+   Firefox 112+). Declared second so it wins; guarded so it is never declared at
+   all where it would be meaningless. */
+@supports (animation-timing-function: linear(0, 1)) {
+  :root {
+    --ease-spring: linear(0, 0.3 6%, 0.7 13%, 0.95 20%, 1.03 27%, 1 40%, 1);
+  }
+}
+
+/* ── semantic.css ── */
+/* @ui:tokens semantic — purpose-based tokens, referenced by components */
+
+:root {
+  /* ── Surfaces ── */
+  --color-bg:              var(--palette-gray-25);
+  --color-bg-subtle:       var(--palette-gray-100);
+  --color-bg-muted:        var(--palette-gray-200);
+  /* Canonical elevation ramp. Adjacent fills and each fill/border pair are
+     held to OKLab ΔE >= 0.03 by the generated theme gate. */
+  --color-surface-1:        var(--color-bg-subtle);
+  --color-surface-2:        var(--color-bg-muted);
+  --color-surface-1-border: var(--color-border);
+  --color-surface-2-border: var(--color-border-strong);
+  --color-fg:              var(--palette-gray-950);
+  --color-fg-muted:        var(--palette-gray-500);
+  --color-fg-subtle:       var(--palette-gray-400);
+
+  /* ── Interactive: Primary ── */
+  --color-primary:         var(--palette-indigo-500);
+  --color-primary-hover:   var(--palette-indigo-600);
+  --color-primary-active:  var(--palette-indigo-700);
+  --color-primary-fg:      white;
+  --color-primary-subtle:  var(--palette-indigo-50);
+
+  /* ── Interactive: Secondary ── */
+  --color-secondary:       var(--palette-gray-100);
+  --color-secondary-hover: var(--palette-gray-200);
+  --color-secondary-fg:    var(--palette-gray-900);
+
+  /* ── Interactive: Destructive ── */
+  --color-destructive:        var(--palette-red-500);
+  --color-destructive-hover:  var(--palette-red-600);
+  --color-destructive-fg:     white;
+  --color-destructive-subtle: var(--palette-red-50);
+
+  /* ── Feedback ── */
+  --color-success:         var(--palette-green-500);
+  --color-success-subtle:  var(--palette-green-50);
+  --color-warning:         var(--palette-amber-500);
+  --color-warning-subtle:  var(--palette-amber-50);
+  --color-info:            var(--palette-blue-500);
+  --color-info-subtle:     var(--palette-blue-50);
+
+  /* ── Borders ── */
+  --color-border:          var(--palette-gray-200);
+  --color-border-strong:   var(--palette-gray-300);
+  --color-ring:            oklch(0.55 0.22 264);
+}
+
+/* ── aliases.css ── */
+/* @ui:tokens aliases — per-component overrides mapping to semantic tokens */
+
+:root {
+  /* ── Controls ── */
+  /* The shared interactive-control height ramp. Every control that must line up
+     in a row (button, input, select, …) sizes from these, so density mode has a
+     single ramp to remap — see tokens/density.css. */
+  --control-height-sm: 32px;
+  --control-height-md: 40px;
+  --control-height-lg: 48px;
+
+  /* ── Measure ── */
+  /* The one ladder of reading-column widths (task 0.8-06). Every centred column
+     in the framework resolves to one of these: the `container` primitive's
+     data-measure, surface's data-max, and the form-page / wizard columns that
+     used to hardcode 32rem apiece. Deliberately NOT named sm|md|lg|xl — those
+     names belong to the breakpoint canon (src/utils/breakpoints.ts), and a
+     ladder that reuses them invites `data-max="lg"` to be read as "at the lg
+     tier" when it means "1152px wide". Measure names describe the CONTENT the
+     column is cut for, not the viewport it sits in. */
+  --measure-narrow:  32rem;  /* a single form column, a login card */
+  --measure-content: 48rem;  /* an article body, a settings panel */
+  --measure-wide:    72rem;  /* a page shell — the widest thing still centred */
+  --measure-prose:   65ch;   /* optimal line length, sized in characters, so it
+                                tracks the reader's font rather than the layout */
+
+  /* ── Rhythm (task 0.8-07) ── */
+  /* The vertical air between page sections and the horizontal inset of the page
+     itself. Both are composed from the spacing scale rather than declared as new
+     numbers, so density remaps them for free (a var() in an alias re-substitutes
+     in whatever scope re-declares --space-*; see tokens/density.css). Named by
+     ROLE, not by size — a page picks `--section-gap-lg` because the sections
+     should feel far apart, not because it wants 8rem. */
+  --section-gap-sm:  var(--space-12);  /* 3rem  — dense pages, docs, dashboards */
+  --section-gap-md:  var(--space-20);  /* 5rem  — the default marketing rhythm */
+  --section-gap-lg:  var(--space-32);  /* 8rem  — spacious, one idea per screen */
+  --content-gutter:  var(--space-6);   /* 1.5rem — page padding-inline */
+
+  /* ── Material ── */
+  /* The two textures a theme actually points at. Components never name a
+     texture from `tokens/textures.css` directly — they read one of these, so a
+     theme re-points two tokens rather than every surface in the registry.
+     `--texture-page` dresses the page itself (body, document);
+     `--texture-surface` dresses the things that sit ON it (surface, card,
+     hero). Both `none`: the initial value of `background-image`, so the
+     default registry renders exactly as it did before they existed. */
+  --texture-page:    none;
+  --texture-surface: none;
+
+  /* ── Decoration (1.1A-05 · §5.2 `decoration`) ── */
+  /* The marks a theme draws that are not edges, fills or type: how a link is
+     underlined, how a divider is dashed, what selected text looks like, what
+     colour a list bullet is. Every default is the value the registry already
+     rendered, so this section is a set of handles, not a restyle.
+     `--marker-color` is `currentColor` — the initial value of `::marker`'s
+     colour — rather than the accent, so a list only changes when a theme says
+     it should. */
+  --link-decoration:       underline;
+  --link-underline-offset: 0.2em;
+  --link-thickness:        1px;
+  --divider-style:         solid;
+  /* The divider's own width, following the edge by default (1.1A-26). A theme
+     that asks for a `double` divider raises it to at least 3px: a double rule
+     only splits into two lines from 3px, and the family's 1px hairline would
+     paint it as one. */
+  --divider-width:         var(--border-width);
+  /* The zebra, so a theme dials the stripe without restating the four selectors
+     the table's striped variant needs (stamped and nth-child, each with a hover
+     twin). Deliberately NOT `--table-stripe`: `--table-level`,
+     `--table-thead-h` and `--table-pin-offset` are stamped and MEASURED per
+     element by the table controller, so claiming the `--table-*` namespace for
+     a theme token would put runtime state on the themeable surface. */
+  --stripe-bg:             var(--color-bg-subtle);
+  --selection-bg:          var(--color-primary-subtle);
+  --selection-fg:          var(--color-fg);
+  --marker-color:          currentColor;
+  /* How far a disabled control is dimmed. Seventeen rules across the primitives
+     and recipes each spelled `opacity: 0.5`, which left a theme with an opinion
+     about disabled legibility no way to state it except by out-specifying every
+     one of them — which is exactly what `themes/contrast.css` did, with a
+     blanket `:root [data-ui]:disabled` rule, until 1.1A-15 turned it into this
+     one declaration. `0.5` is the value those seventeen rules already held. */
+  --disabled-opacity:      0.5;
+
+  /* ── Button ── */
+  --button-radius:     var(--radius-md);
+  --button-height-sm:  var(--control-height-sm);
+  --button-height-md:  var(--control-height-md);
+  --button-height-lg:  var(--control-height-lg);
+  --button-font:       var(--font-ui);
+  --button-weight:     var(--weight-medium);
+  --button-text-transform: none;
+
+  /* ── Card ── */
+  --card-radius:       var(--radius-lg);
+  --card-shadow:       var(--shadow-sm);
+  --card-border:       var(--color-surface-1-border);
+  --card-border-width: var(--border-width);
+  --card-bg:           var(--color-surface-1);
+  --card-padding:      var(--space-6);
+  /* The two reaches a card makes beyond its resting state. `--card-hover-shadow`
+     is the step it climbs to under the pointer when its data-hover says
+     `raise`; `--card-media-ratio` cuts the picture across its top. Neither is
+     read until the markup asks, so a card without them renders as it always
+     has. */
+  --card-hover-shadow: var(--shadow-lg);
+  --card-media-ratio:  16 / 9;
+
+  /* ── Input ── */
+  /* The text-control silhouette. `--input-border-width` (1.1A-02) is the edge;
+     `--input-fill` is what the control paints, and `input`, `textarea` and
+     `select` all read it, so one declaration fills every text control.
+     `--input-fill` defaults to `--input-bg`, so a project that sets `--input-bg`
+     on `:root` — the 1.0 way to fill every input — still gets it. Set BELOW the
+     root, `--input-bg` no longer reaches the control: `--input-fill` has already
+     resolved it on `:root`, which is where a theme flips the fill, and a
+     per-element `--input-bg` winning over that would need the component to tell
+     "set here" from "inherited", which CSS cannot. To fill one input, or every
+     input in a region, set `--input-fill` there instead. `--input-bg-filled` is
+     the value a "filled" theme points `--input-fill` at — named here so the
+     silhouette is a token a theme flips rather than a colour it has to pick. */
+  --input-radius:       var(--radius-md);
+  --input-height:       var(--control-height-md);
+  --input-border:       var(--color-border);
+  --input-border-width: var(--border-width);
+  --input-bg:           var(--color-bg);
+  --input-bg-filled:    var(--color-bg-subtle);
+  --input-fill:         var(--input-bg);
+  --input-font:         var(--font-ui);
+
+  /* ── Checkbox / Switch ── */
+  /* The two control shapes that do not follow `--radius-md`: a checkbox is a
+     small square with a small radius, a switch is a pill. Both were literal
+     `var(--radius-*)` reads in the components; named here, a theme squares its
+     switches without touching the radius ladder every other surface uses.
+
+     The geometry beside them is not decoration — it is the rest of the
+     namespace. Naming ONE token `--checkbox-radius` makes `--checkbox-*` a
+     token family, and the registry audit then (rightly) reads every other
+     `--checkbox-…`/`--switch-…` the components carried as a token wearing a
+     fallback as a disguise. They were always the default geometry; these are
+     the values the fallbacks already held, said once. */
+  --checkbox-size:      18px;
+  --checkbox-radius:    var(--radius-sm);
+  --switch-width:       44px;
+  --switch-height:      24px;
+  --switch-thumb:       18px;
+  --switch-travel:      20px;
+  --switch-radius:      var(--radius-full);
+  --switch-bg:          var(--color-bg-muted);
+  --switch-thumb-shadow: var(--shadow-xs);
+
+  /* ── Floating panels ── */
+  /* What a panel that floats above the page is filled with: the dialog and
+     sheet panels, the drawer, the popover content (and its arrow), the dropdown
+     menu and the toast. They all painted `var(--color-bg)` directly, which left
+     a theme no way to make a floating surface differ from the page — the frost
+     half of that pairing is `--surface-backdrop` (1.1A-04), and a blur behind an
+     opaque fill renders nothing, so the fill has to be a token too. `card` has
+     had `--card-bg` since 1.0; this is the same handle for the things that have
+     no surface of their own. [1.1A-14] */
+  --panel-bg:          var(--color-bg);
+
+  /* ── Dialog ── */
+  --dialog-radius:     var(--radius-xl);
+  --dialog-shadow:     var(--shadow-xl);
+  --dialog-overlay-bg: oklch(0 0 0 / 0.5);
+
+  /* ── Badge ── */
+  --badge-radius:      var(--radius-full);
+  --badge-font:        var(--font-ui);
+
+  /* ── Avatar ── */
+  --avatar-radius:     var(--radius-full);
+  --avatar-size-sm:    32px;
+  --avatar-size-md:    40px;
+  --avatar-size-lg:    56px;
+}
+
+/* ── Scheme islands ── */
+/* The colour aliases above, restated wherever a scheme can change below the
+   root. A custom property resolves its var() on the element that DECLARES it,
+   so `--panel-bg: var(--color-bg)` on `:root` is computed once, from the page's
+   colours, and a nested `<div data-theme="dark">` inherits that light value
+   even though its own `--color-bg` is dark — a white dialog on a dark island.
+   Components that read `var(--color-bg)` directly never had the problem; the
+   aliases 1.1 routed them through did. Restating the declaration on
+   `[data-theme]` and `[data-skin]` makes it resolve again there.
+
+   Only colours are restated. Geometry does not change with the scheme, and
+   shadows are the depth axis every theme owns on `:root`: restating either here
+   would replace a theme's own value with the default inside every island. A
+   theme that overrides one of THESE on `:root` and wants it honoured in an
+   island says so on the same selectors.
+
+   The values must match the `:root` declarations above exactly;
+   `tests/tokens/scheme-islands.test.ts` fails if they drift. */
+[data-theme],
+[data-skin] {
+  --stripe-bg:         var(--color-bg-subtle);
+  --selection-bg:      var(--color-primary-subtle);
+  --selection-fg:      var(--color-fg);
+  --card-border:       var(--color-surface-1-border);
+  --card-bg:           var(--color-surface-1);
+  --input-border:      var(--color-border);
+  --input-bg:          var(--color-bg);
+  --input-bg-filled:   var(--color-bg-subtle);
+  --input-fill:        var(--input-bg);
+  --switch-bg:         var(--color-bg-muted);
+  --panel-bg:          var(--color-bg);
+}
+
+/* ── document.css ── */
+/* @ui:tokens document — structural tokens for document/print rendering */
+/* These tokens control page geometry, document typography, table density,
+   and print-specific behavior. They are consumed by document-oriented
+   primitives (page-break, key-value, signature, callout, field-group)
+   and the document pattern. Themes override these for visual customization. */
+
+:root {
+  /* ── Page Geometry ──
+     Used by the `document` pattern and @page CSS rules.
+     --page-format and --page-orientation are consumed as literal values
+     in @page faqir-document { size: var(--page-format) var(--page-orientation) },
+     the named page every document prints on unless it pins its paper with
+     data-format + data-orientation. Page boxes inherit from the root only, so
+     these are read at :root: they set the paper of every unpinned document.
+     Margins are used in every faqir-document* page and the pattern's padding. */
+  --page-format:            A4;
+  --page-orientation:       portrait;
+  --page-margin:            15mm;
+  --page-margin-top:        var(--page-margin);
+  --page-margin-bottom:     var(--page-margin);
+  --page-margin-left:       var(--page-margin);
+  --page-margin-right:      var(--page-margin);
+
+  /* Running header/footer geometry. The heights fit inside the default page
+     margins and are shared by running-element engines and the fixed fallback. */
+  --doc-running-header-height: 10mm;
+  --doc-running-footer-height: 8mm;
+  --doc-running-gap:        var(--space-2);
+
+  /* Running strings for the page-margin boxes. A page box is not an element:
+     it inherits from the root alone, so these are read where the root declares
+     them — set them on `:root` (or `<html style>`) for the file being printed.
+     `none` draws nothing. `\A` breaks a line. */
+  --doc-running-header:     none;
+  --doc-running-footer:     none;
+
+  /* The page counter, `Page 3 / 7`, as label + counter + separator + total +
+     suffix — in English unless a document's `lang` is one of the languages
+     restated at the foot of this file; restate them on `:root` for any
+     other. */
+  --doc-page-label:         "Page ";
+  --doc-page-separator:     " / ";
+  --doc-page-suffix:        "";
+
+  /* ── Business letter (DIN 5008) ──
+     Read by the document pattern's `letter` variant, which prints on A4
+     portrait. Form B is the default; `data-form="a"` restates the three that
+     differ (window 27mm, folds 87mm / 192mm). The marks are drawn in the
+     left page margin, measured from the top edge of the sheet; the punch mark
+     sits midway between the top and bottom page margins, which is 148.5mm
+     because the letter page keeps both at --page-margin-top. */
+  --doc-letter-margin-left:  25mm;
+  --doc-letter-margin-right: 20mm;
+  --doc-fold-mark-1:        105mm;
+  --doc-fold-mark-2:        210mm;
+  --doc-mark-inset:         4mm;                       /* from the sheet's left edge */
+  --doc-mark-length:        5mm;
+  --doc-punch-mark-length:  8mm;
+  --doc-mark-width:         0.25mm;
+  --doc-mark-color:         var(--doc-print-border-color);
+  --doc-window-top:         45mm;                      /* the address field, from the top edge */
+  --doc-window-left:        20mm;                      /* …and from the left edge */
+  --doc-window-width:       85mm;
+  --doc-window-height:      45mm;
+  --doc-window-padding:     5mm;                       /* the address text's indent inside it */
+
+  /* ── Document Typography ──
+     Separate from the base typography tokens because documents have
+     different optimal sizes than screen UIs. 14px body + 12px legal
+     is standard for A4 business documents. */
+  --doc-font:               var(--font-body);
+  --doc-font-size:          var(--text-sm);           /* 14px — optimal for A4 */
+  --doc-line-height:        var(--leading-normal);     /* 1.5 */
+  --doc-heading-font:       var(--font-heading);
+  --doc-heading-weight:     var(--weight-bold);
+  /* The face the `report` variant sets in — the project's serif role, so an
+     installed serif reaches a report too. */
+  --doc-serif:              var(--font-serif);
+  --doc-heading-size:       var(--text-xl);            /* 20px for doc titles */
+  --doc-subheading-size:    var(--text-lg);            /* 18px for section titles */
+  --doc-legal-size:         var(--text-xs);            /* 12px for fine print / legal text */
+  --doc-legal-color:        var(--color-fg-muted);
+
+  /* ── Document Spacing ──
+     Controls the vertical rhythm of rendered documents.
+     Section gap is the space between major document sections (header, body sections, footer).
+     Component gap is the space between items within a section.
+     Label gap is the tight spacing between a label and its associated value. */
+  --doc-section-gap:        var(--space-8);            /* 32px between sections */
+  --doc-component-gap:      var(--space-4);            /* 16px between components */
+  --doc-label-gap:          var(--space-1);            /* 4px label to value */
+
+  /* ── Document Table Tokens ──
+     Specialized table styling for data-dense document tables (invoices, reports).
+     These are separate from the table recipe's screen tokens because document
+     tables need tighter padding, tabular number alignment, and print-safe colors. */
+  --doc-table-header-bg:    var(--color-bg-subtle);
+  --doc-table-header-fg:    var(--color-fg);
+  --doc-table-header-weight: var(--weight-semibold);
+  --doc-table-border:       var(--color-border-strong);
+  --doc-table-cell-pad-y:   var(--space-2);            /* 8px vertical */
+  --doc-table-cell-pad-x:   var(--space-3);            /* 12px horizontal */
+  --doc-table-font-size:    var(--text-xs);             /* 12px — compact for data density */
+  --doc-table-num-font:     tabular-nums;               /* aligned decimal columns */
+  --doc-table-footer-bg:    var(--color-bg-muted);
+  --doc-table-footer-weight: var(--weight-bold);
+  --doc-table-stripe-bg:    var(--color-bg-subtle);
+  /* The table's voice, which is how one print theme sounds unlike another
+     (forecraft #48). Multipliers, so each is applied where the table draws
+     and follows whatever edge, size or inset that element already has; the
+     defaults draw exactly what a document table drew before. Rule scale
+     weighs the row rules (× --border-width), rule-strong scale the rule under
+     the head and over the totals (× --border-width-strong), num scale sets
+     number, currency and percent cells (× --doc-table-font-size), and flush
+     takes a row's first and last cell inset away: 1 sets the rules flush
+     with the text column. */
+  --doc-rule-scale:         1;
+  --doc-rule-strong-scale:  1;
+  --doc-table-num-scale:    1;
+  --doc-table-flush:        0;
+
+  /* ── Signature Tokens ──
+     Physical signature area dimensions for printed documents.
+     The gap above the line must be large enough for a handwritten signature (~40px). */
+  --doc-signature-width:    60%;
+  --doc-signature-gap:      var(--space-10);           /* 40px above the signing line */
+  --doc-signature-line-color: var(--color-border-strong);
+  --doc-signature-label-size: var(--text-xs);
+  --doc-signature-label-color: var(--color-fg-muted);
+
+  /* ── Print Control ──
+     Overrides applied inside @media print to ensure clean PDF output.
+     --doc-max-width limits the content width on screen to simulate A4 proportions.
+     --doc-bg/--doc-fg force B&W for reliable printing regardless of theme. */
+  --doc-max-width:          210mm;                     /* A4 width for screen preview */
+  /* The one accent a print theme draws in. Every print theme states it and
+     points --color-primary at it, so `:root { --doc-accent: #0b5 }` re-inks a
+     document without generating a theme. Elsewhere it is simply the primary. */
+  --doc-accent:             var(--color-primary);
+  --doc-bg:                 white;                     /* always white for print */
+  --doc-fg:                 oklch(0.10 0 0);           /* near-black for print */
+  --doc-print-border-color: oklch(0.60 0 0);           /* medium gray borders in print */
+}
+
+/* ── Scheme islands ── */
+/* `--doc-legal-color` is the one document colour screen components read (the
+   key-value label and the image caption), so it is restated where a scheme can
+   change below the root — see the same block in tokens/aliases.css. The rest
+   of this file is print ink, which does not follow the scheme. */
+[data-theme],
+[data-skin] {
+  --doc-legal-color:        var(--color-fg-muted);
+}
+
+/* ── Restated from a document's attributes ──
+   A page box inherits from the root and nothing else, so what a document
+   says about its pages — its language, a letter's DIN form — has to reach
+   the root. :has() carries it there; :where() keeps each rule at :root's
+   weight, so it outranks the defaults above only by coming after them, and
+   a theme or a project's own `:root { … }`, loaded later, still overrides.
+   Print-only: nothing on screen reads these. */
+@media print {
+  /* The page counter in the document's language. */
+  :root:where(:has([data-ui="document"]:lang(de))) {
+    --doc-page-label:     "Seite ";
+    --doc-page-separator: " von ";
+  }
+
+  :root:where(:has([data-ui="document"]:lang(es))) {
+    --doc-page-label:     "Página ";
+    --doc-page-separator: " de ";
+  }
+
+  :root:where(:has([data-ui="document"]:lang(fr))) {
+    --doc-page-label:     "Page ";
+    --doc-page-separator: " sur ";
+  }
+
+  :root:where(:has([data-ui="document"]:lang(it))) {
+    --doc-page-label:     "Pagina ";
+    --doc-page-separator: " di ";
+  }
+
+  :root:where(:has([data-ui="document"]:lang(nl))) {
+    --doc-page-label:     "Pagina ";
+    --doc-page-separator: " van ";
+  }
+
+  :root:where(:has([data-ui="document"]:lang(pt))) {
+    --doc-page-label:     "Página ";
+    --doc-page-separator: " de ";
+  }
+
+  :root:where(:has([data-ui="document"]:lang(ro))) {
+    --doc-page-label:     "Pagina ";
+    --doc-page-separator: " din ";
+  }
+
+  /* DIN 5008 Form A: the address window at 27mm, the folds at 87 / 192mm. */
+  :root:where(:has([data-ui="document"][data-variant="letter"][data-form="a"])) {
+    --doc-window-top:     27mm;
+    --doc-fold-mark-1:    87mm;
+    --doc-fold-mark-2:    192mm;
+  }
+}
+
+/* ── doc-aliases.css ── */
+/* @ui:tokens doc-aliases — component-level document tokens */
+/* Maps document-layer tokens to specific primitive/recipe attribute selectors.
+   These aliases are consumed by: key-value, callout, field-group, image,
+   page-break, signature, and the document pattern. */
+
+:root {
+  /* ── Key-Value ── */
+  --kv-label-color:         var(--doc-legal-color);
+  --kv-label-weight:        var(--weight-medium);
+  --kv-label-size:          var(--doc-legal-size);
+  --kv-value-color:         var(--color-fg);
+  --kv-value-size:          var(--doc-font-size);
+  --kv-value-weight:        var(--weight-normal);
+  --kv-gap:                 var(--doc-label-gap);
+  --kv-pair-gap:            var(--space-3);            /* between key-value pairs */
+  --kv-grid-gap:            var(--space-4);            /* between columns in grid mode */
+
+  /* ── Callout ── */
+  --callout-radius:         var(--radius-md);
+  --callout-padding-y:      var(--space-3);
+  --callout-padding-x:      var(--space-4);
+  --callout-border-width:   1px;
+  --callout-border-left-width: 3px;                    /* thick left accent border */
+  --callout-bg:             var(--color-bg-subtle);
+  --callout-fg:             var(--color-fg);
+  --callout-font-size:      var(--doc-font-size);
+  --callout-icon-size:      var(--text-lg);
+
+  /* ── Image ── */
+  --image-radius:           var(--radius-md);
+  --image-border:           var(--color-border);
+  --image-border-width:     0;                         /* no border by default */
+  --image-caption-size:     var(--doc-legal-size);
+  --image-caption-color:    var(--doc-legal-color);
+
+  /* ── Field Group ── */
+  --field-gap:              var(--space-1h);            /* 6px between parts */
+  --field-label-size:       var(--doc-font-size);
+  --field-label-weight:     var(--weight-medium);
+  --field-label-color:      var(--color-fg);
+  --field-description-size: var(--doc-legal-size);
+  --field-description-color: var(--color-fg-muted);
+  --field-error-size:       var(--doc-legal-size);
+  --field-error-color:      var(--color-destructive);
+  --field-validating-color: var(--color-fg-muted);     /* async validation in flight */
+  /* The role `--disabled-opacity` sets for every control, nudged 10% lighter:
+     0.55 at the 0.5 default, which is the value this alias always held, and it
+     follows a theme that states the role (1.1A-27). */
+  --field-disabled-opacity: calc(var(--disabled-opacity) * 1.1);
+  --field-required-color:   var(--color-destructive);
+  --field-required-marker:  ' *';                      /* appended to required labels */
+
+  /* ── Page Break ── */
+  --page-break-screen-color: var(--color-border);      /* dashed line on screen */
+  --page-break-screen-style: dashed;
+  --page-break-screen-label-color: var(--color-fg-muted);
+  --page-break-screen-label-size: var(--text-xs);
+
+  /* ── Stat / Metric ── */
+  --stat-value-size:        var(--text-2xl);
+  --stat-value-weight:      var(--weight-bold);
+  --stat-value-num-font:    tabular-nums;
+  --stat-label-size:        var(--doc-legal-size);
+  --stat-label-color:       var(--color-fg-muted);
+  --stat-change-positive:   var(--color-success);
+  --stat-change-negative:   var(--color-destructive);
+}
+
+/* ── Scheme islands ── */
+/* The colour aliases above, restated where a scheme can change below the root —
+   a custom property resolves its var() on the element that declares it, so a
+   `:root`-only alias would carry the page's light value into a nested
+   `data-theme="dark"` region. See the same block in tokens/aliases.css; the
+   values must match the `:root` declarations above exactly. */
+[data-theme],
+[data-skin] {
+  --kv-label-color:         var(--doc-legal-color);
+  --kv-value-color:         var(--color-fg);
+  --callout-bg:             var(--color-bg-subtle);
+  --callout-fg:             var(--color-fg);
+  --image-border:           var(--color-border);
+  --image-caption-color:    var(--doc-legal-color);
+  --field-label-color:      var(--color-fg);
+  --field-description-color: var(--color-fg-muted);
+  --field-error-color:      var(--color-destructive);
+  --field-validating-color: var(--color-fg-muted);
+  --field-required-color:   var(--color-destructive);
+  --page-break-screen-color: var(--color-border);
+  --page-break-screen-label-color: var(--color-fg-muted);
+  --stat-label-color:       var(--color-fg-muted);
+  --stat-change-positive:   var(--color-success);
+  --stat-change-negative:   var(--color-destructive);
+}
+
+/* ── accent.css ── */
+/* @ui:tokens accent — [data-accent] subtree modifier (see SPEC-1.0.md §4; forecraft #9)
+
+   Put `data-accent="<hue>"` on ANY element and its subtree draws its accent in
+   that hue, in whatever theme is active. Five tokens are re-pointed — the five
+   `faqir-tweak`'s accent dial writes:
+
+     --color-primary  --color-primary-hover  --color-primary-active
+     --color-primary-subtle  --color-ring
+
+   each with relative colour syntax over the theme's OWN value of that token:
+   `oklch(from <theme value> l c <hue>)`. Lightness and chroma stay the theme's,
+   so a muted theme stays muted, a pale dark-mode accent stays pale, a
+   monochrome theme (chroma 0) stays monochrome, and only the hue moves.
+   `--color-primary-fg` is deliberately NOT re-pointed: the label keeps the ink
+   its theme chose, which is why the named hues are measured rather than picked.
+
+     <html data-accent="violet">              … the whole page …
+     <section data-accent="pink">             … one region …
+     <div data-accent="custom" style="--accent-hue: 200"> … any other hue …
+
+   ── The vocabulary ──
+   Closed: the nine named hues below, plus `custom`. Each named hue is held by
+   `tests/tokens/forecraft-accent.test.ts` (via `checkAccentContrast` in
+   src/audit/contrast-tokens.ts) to clear every pair the `contrast-tokens` gate
+   checks — primary text on the muted and subtle plates, the primary label on
+   the primary fill, the focus ring on every surface — in every shipped theme,
+   light and dark. Hues that failed in any theme × scheme were dropped; the
+   numbers are in that test. At equal OKLCH lightness two hues still differ in
+   WCAG luminance, so a theme tuned to clear AA by a hair in its own hue does
+   not clear it in most others — the four themes that did (neumorph, memphis,
+   aurora, paper) were darkened just enough to admit rose to orange and blue to
+   indigo. Amber, yellow and the green-to-sky arc stay out (docs/accent.md).
+
+   `custom` names no hue: the author states `--accent-hue` (a number of degrees,
+   or an angle) beside it. Nothing measures a custom hue against the theme — that
+   contrast is the author's to check. A `data-accent` whose hue resolves to
+   nothing (a `custom` without `--accent-hue`, or a value outside the
+   vocabulary) keeps the hue it would otherwise have had — the theme's, or an
+   enclosing accent's, since `--accent-hue` inherits: the channel falls back
+   to `h`, the origin's own hue.
+
+   ── Why the theme's values are captured first ──
+   A custom property cannot read its own value: `--color-primary:
+   oklch(from var(--color-primary) …)` is a cycle, and a cycle makes the token
+   invalid. So the theme's five values are first captured into `--accent-base-*`
+   on the elements a theme declares them on — `:root`, and every `[data-theme]` /
+   `[data-skin]` island — and the re-pointing reads the capture. Where
+   `data-accent` sits on one of those same elements (`<html data-accent>`, the
+   common case), it re-points the element's CHILDREN instead, so the capture and
+   the re-point never meet on one element — and an island is never re-pointed
+   itself, for the same reason. An island nested inside an accent region
+   re-captures its own theme's values and its children are re-pointed again,
+   which is how a block-form theme's `[data-theme="dark"]` island keeps the
+   accent. The cost: on a capture element the accent starts one level down, so
+   the element's OWN border or fill keeps the theme's accent.
+
+   ── Print ──
+   `--doc-accent` (tokens/document.css), the one ink a print theme draws in,
+   follows the accent by default: it is captured and re-hued like the five, so a
+   print theme's own darker `@media print` ink keeps its lightness and takes the
+   accent's hue.
+
+   ── Fallback ──
+   Everything that re-points is inside `@supports` for relative colour syntax
+   over a `light-dark()` origin (every one-block theme's tokens are
+   `light-dark()` calls). A browser without it ignores the block and renders
+   the theme's own accent: the attribute degrades to a no-op, never to a page
+   with no primary colour.
+
+   `data-accent` is NOT a sixth protocol attribute: no manifest, controller or
+   component knows about it. It only re-declares tokens. */
+
+/* ── The named hues (OKLCH degrees) ── */
+[data-accent="rose"]    { --accent-hue: 16; }
+[data-accent="red"]     { --accent-hue: 25; }
+[data-accent="orange"]  { --accent-hue: 48; }
+[data-accent="blue"]    { --accent-hue: 260; }
+[data-accent="indigo"]  { --accent-hue: 277; }
+[data-accent="violet"]  { --accent-hue: 293; }
+[data-accent="purple"]  { --accent-hue: 304; }
+[data-accent="fuchsia"] { --accent-hue: 322; }
+[data-accent="pink"]    { --accent-hue: 354; }
+
+@supports (color: oklch(from light-dark(red, red) l c h)) {
+  /* ── Capture: the theme's values, where the theme declares them ── */
+  :root,
+  [data-theme],
+  [data-skin] {
+    --accent-base-primary:        var(--color-primary);
+    --accent-base-primary-hover:  var(--color-primary-hover);
+    --accent-base-primary-active: var(--color-primary-active);
+    --accent-base-primary-subtle: var(--color-primary-subtle);
+    --accent-base-ring:           var(--color-ring);
+    --accent-base-doc:            var(--doc-accent);
+  }
+
+  /* ── Re-point: the theme's lightness and chroma, the accent's hue ── */
+  [data-accent]:not(:root, [data-theme], [data-skin]),
+  :is(:root, [data-theme], [data-skin])[data-accent] > :not([data-theme], [data-skin]),
+  [data-accent] :is([data-theme], [data-skin]) > :not([data-theme], [data-skin]) {
+    --color-primary:        oklch(from var(--accent-base-primary) l c var(--accent-hue, h));
+    --color-primary-hover:  oklch(from var(--accent-base-primary-hover) l c var(--accent-hue, h));
+    --color-primary-active: oklch(from var(--accent-base-primary-active) l c var(--accent-hue, h));
+    --color-primary-subtle: oklch(from var(--accent-base-primary-subtle) l c var(--accent-hue, h));
+    --color-ring:           oklch(from var(--accent-base-ring) l c var(--accent-hue, h));
+    --doc-accent:           oklch(from var(--accent-base-doc) l c var(--accent-hue, h));
+    /* Declared on :root, the focus ring resolved the theme's ring there. */
+    --focus-ring-color:     var(--color-ring);
+  }
+}
+
+/* ── density.css ── */
+/* @ui:tokens density — [data-density] subtree modifier (task 0.7-11, FAQIR-NEXT §B6;
+   `spacious` added 1.1A-09, SPEC-1.0.md §4)
+
+   Put `data-density="compact"` on ANY container and its whole subtree renders
+   tighter: spacing steps shrink by --density-scale and interactive controls drop
+   to a shorter height ramp. `data-density="comfortable"` restores the base scale,
+   so density can be reset on an inner subtree. `data-density="spacious"` is the
+   third point on the ladder, above comfortable: spacing grows and the control
+   ramp grows with it, gentler than the spacing multiplier for the same reason
+   compact's ramp shrinks gentler — a usable hit target has a ceiling as well as
+   a floor.
+
+     <section data-density="compact">   … dense form / table / toolbar …   </section>
+     <section data-density="spacious">  … roomy landing hero, kiosk UI …   </section>
+
+   This is 100% CSS. `data-density` is NOT a sixth protocol attribute: no
+   component contract, manifest, controller or audit rule knows about it — CSS
+   never selects a component *through* it, it only re-declares tokens. Components
+   stay written against `var(--space-*)` / `var(--control-height-*)` and inherit
+   whatever the nearest density scope resolved them to.
+
+   ── Why every token is re-declared instead of just setting a multiplier ──
+   A `var()` inside a custom property is substituted on the element that DECLARES
+   the property, not where it is used. `--space-4: calc(1rem * var(--density-scale))`
+   declared in :root would therefore freeze at the :root value of --density-scale
+   and a nested override would do nothing. Each density block re-declares the
+   tokens itself, so substitution happens on the density element and descendants
+   inherit the already-resolved value. That is also what makes nesting honest.
+
+   ── Scope of the remap ──
+   • --space-1 … --space-64  × --density-scale (the page-rhythm steps 32/40/48/64
+     added in 0.8-07 scale with the rest: a compact page tightens the air between
+     its sections exactly as it tightens the padding inside them).
+     --space-0 and --space-px are invariant: 0 stays 0 and a 1px hairline is a
+     hairline at any density.
+   • --control-height-{sm,md,lg} → an explicit shorter ramp, NOT the spacing
+     multiplier: 40px × 0.75 = 30px is below a usable hit target. Dense UIs tighten
+     padding faster than they shrink controls.
+   • Every :root alias in tokens/aliases.css and tokens/doc-aliases.css whose value
+     references one of the above is re-declared verbatim here (same value text), so
+     it re-substitutes against this scope. A drift test enforces that list.
+   • tokens/document.css (--doc-*, --page-*) is deliberately NOT remapped: paged
+     media geometry — page margins, running-header gaps, signature space — is a
+     print concern that themes own, not a screen density mode.
+
+   ── Cascade ──
+   `[data-density]` and `:root` have identical specificity (0,1,0), so this file
+   must load AFTER aliases.css/doc-aliases.css — it is last in tokens/index.css.
+   A theme stylesheet loads after the tokens layer; no shipped theme overrides
+   --space-* or the control ramp, and in practice `data-density` sits on a
+   container rather than <html>, where a theme's :root block cannot reach it. */
+
+[data-density="compact"] {
+  --density-scale: 0.75;
+
+  /* ── Spacing scale (× --density-scale) ── */
+  --space-0h:  calc(0.125rem * var(--density-scale));
+  --space-1:   calc(0.25rem  * var(--density-scale));
+  --space-1h:  calc(0.375rem * var(--density-scale));
+  --space-2:   calc(0.5rem   * var(--density-scale));
+  --space-2h:  calc(0.625rem * var(--density-scale));
+  --space-3:   calc(0.75rem  * var(--density-scale));
+  --space-3h:  calc(0.875rem * var(--density-scale));
+  --space-4:   calc(1rem     * var(--density-scale));
+  --space-5:   calc(1.25rem  * var(--density-scale));
+  --space-6:   calc(1.5rem   * var(--density-scale));
+  --space-7:   calc(1.75rem  * var(--density-scale));
+  --space-8:   calc(2rem     * var(--density-scale));
+  --space-10:  calc(2.5rem   * var(--density-scale));
+  --space-12:  calc(3rem     * var(--density-scale));
+  --space-16:  calc(4rem     * var(--density-scale));
+  --space-20:  calc(5rem     * var(--density-scale));
+  --space-24:  calc(6rem     * var(--density-scale));
+  --space-32:  calc(8rem     * var(--density-scale));
+  --space-40:  calc(10rem    * var(--density-scale));
+  --space-48:  calc(12rem    * var(--density-scale));
+  --space-64:  calc(16rem    * var(--density-scale));
+
+  /* ── Control height ramp ── */
+  --control-height-sm: 28px;
+  --control-height-md: 32px;
+  --control-height-lg: 40px;
+
+  /* ── Aliases re-substituted in this scope (values identical to the base) ── */
+  --button-height-sm:  var(--control-height-sm);
+  --button-height-md:  var(--control-height-md);
+  --button-height-lg:  var(--control-height-lg);
+  --input-height:      var(--control-height-md);
+  --card-padding:      var(--space-6);
+  --kv-pair-gap:       var(--space-3);
+  --kv-grid-gap:       var(--space-4);
+  --callout-padding-y: var(--space-3);
+  --callout-padding-x: var(--space-4);
+  --field-gap:         var(--space-1h);
+  --section-gap-sm:    var(--space-12);
+  --section-gap-md:    var(--space-20);
+  --section-gap-lg:    var(--space-32);
+  --content-gutter:    var(--space-6);
+}
+
+/* The default density, declared explicitly so an inner subtree can reset out of
+   a compact ancestor. Values are the base scale verbatim (drift-tested). */
+[data-density="comfortable"] {
+  --density-scale: 1;
+
+  /* ── Spacing scale ── */
+  --space-0h:  0.125rem;
+  --space-1:   0.25rem;
+  --space-1h:  0.375rem;
+  --space-2:   0.5rem;
+  --space-2h:  0.625rem;
+  --space-3:   0.75rem;
+  --space-3h:  0.875rem;
+  --space-4:   1rem;
+  --space-5:   1.25rem;
+  --space-6:   1.5rem;
+  --space-7:   1.75rem;
+  --space-8:   2rem;
+  --space-10:  2.5rem;
+  --space-12:  3rem;
+  --space-16:  4rem;
+  --space-20:  5rem;
+  --space-24:  6rem;
+  --space-32:  8rem;
+  --space-40:  10rem;
+  --space-48:  12rem;
+  --space-64:  16rem;
+
+  /* ── Control height ramp ── */
+  --control-height-sm: 32px;
+  --control-height-md: 40px;
+  --control-height-lg: 48px;
+
+  /* ── Aliases re-substituted in this scope (values identical to the base) ── */
+  --button-height-sm:  var(--control-height-sm);
+  --button-height-md:  var(--control-height-md);
+  --button-height-lg:  var(--control-height-lg);
+  --input-height:      var(--control-height-md);
+  --card-padding:      var(--space-6);
+  --kv-pair-gap:       var(--space-3);
+  --kv-grid-gap:       var(--space-4);
+  --callout-padding-y: var(--space-3);
+  --callout-padding-x: var(--space-4);
+  --field-gap:         var(--space-1h);
+  --section-gap-sm:    var(--space-12);
+  --section-gap-md:    var(--space-20);
+  --section-gap-lg:    var(--space-32);
+  --content-gutter:    var(--space-6);
+}
+
+/* The third density: roomier than the base scale, for a landing hero or a kiosk
+   UI meant to be read at arm's length. Control heights grow slower than the
+   spacing multiplier — the same asymmetry compact's ramp has, mirrored. */
+[data-density="spacious"] {
+  --density-scale: 1.25;
+
+  /* ── Spacing scale (× --density-scale) ── */
+  --space-0h:  calc(0.125rem * var(--density-scale));
+  --space-1:   calc(0.25rem  * var(--density-scale));
+  --space-1h:  calc(0.375rem * var(--density-scale));
+  --space-2:   calc(0.5rem   * var(--density-scale));
+  --space-2h:  calc(0.625rem * var(--density-scale));
+  --space-3:   calc(0.75rem  * var(--density-scale));
+  --space-3h:  calc(0.875rem * var(--density-scale));
+  --space-4:   calc(1rem     * var(--density-scale));
+  --space-5:   calc(1.25rem  * var(--density-scale));
+  --space-6:   calc(1.5rem   * var(--density-scale));
+  --space-7:   calc(1.75rem  * var(--density-scale));
+  --space-8:   calc(2rem     * var(--density-scale));
+  --space-10:  calc(2.5rem   * var(--density-scale));
+  --space-12:  calc(3rem     * var(--density-scale));
+  --space-16:  calc(4rem     * var(--density-scale));
+  --space-20:  calc(5rem     * var(--density-scale));
+  --space-24:  calc(6rem     * var(--density-scale));
+  --space-32:  calc(8rem     * var(--density-scale));
+  --space-40:  calc(10rem    * var(--density-scale));
+  --space-48:  calc(12rem    * var(--density-scale));
+  --space-64:  calc(16rem    * var(--density-scale));
+
+  /* ── Control height ramp ── */
+  --control-height-sm: 36px;
+  --control-height-md: 44px;
+  --control-height-lg: 52px;
+
+  /* ── Aliases re-substituted in this scope (values identical to the base) ── */
+  --button-height-sm:  var(--control-height-sm);
+  --button-height-md:  var(--control-height-md);
+  --button-height-lg:  var(--control-height-lg);
+  --input-height:      var(--control-height-md);
+  --card-padding:      var(--space-6);
+  --kv-pair-gap:       var(--space-3);
+  --kv-grid-gap:       var(--space-4);
+  --callout-padding-y: var(--space-3);
+  --callout-padding-x: var(--space-4);
+  --field-gap:         var(--space-1h);
+  --section-gap-sm:    var(--space-12);
+  --section-gap-md:    var(--space-20);
+  --section-gap-lg:    var(--space-32);
+  --content-gutter:    var(--space-6);
+}
 
 
 /* === tokens/theme.css === */

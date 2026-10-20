@@ -326,8 +326,8 @@ export const SEED_FORMS: { slug: string; definition: FormDefinition; answers: Re
         costCentre: { width: "half" },
         departOn: { width: "half" },
         returnOn: { width: "half" },
-        currency: { width: "third" },
-        advance: { width: "third" },
+        currency: { width: "half" },
+        advance: { width: "half" },
         tripPurpose: { widget: "textarea", rows: 3, placeholder: "Client workshop in Lisbon; product discovery with three customers." },
         lines: {
           addLabel: "Add a line",
@@ -357,7 +357,7 @@ export const SEED_FORMS: { slug: string; definition: FormDefinition; answers: Re
         ],
       },
       appearance: {
-        theme: "paper", accent: "sky", layout: "page",
+        theme: "paper", accent: "blue", layout: "page",
         cover: { image: "", eyebrow: "Finance · Expense claims" },
         submitLabel: "Submit claim",
         thankYou: { title: "Claim received", message: "Finance will review it within three working days. You will get an email when it is approved or needs a receipt." },

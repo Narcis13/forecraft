@@ -18,9 +18,10 @@ prioritised shortlist.
 
 **Fixed in 1.3.0 (workarounds removed):** #1 `rulesFor`, #2 single-page submit button,
 #3 `faqir:valid-submit`, #4 wizard answers via `Faqir.rules.data` / event detail,
-#5 `opts.heading` / `labelledBy`, #6 field `width` (`data-span`), #14 `checkbox-group`,
-#16 form `opts.gap`, #17 `scale` widget + horizontal orientation, #29 date-picker ISO
-value in a hidden named input.
+#5 `opts.heading` / `labelledBy`, #6 field `width` (`data-span`), #9 runtime
+`data-accent` (tokens/accent.css), #14 `checkbox-group`, #16 form `opts.gap`,
+#17 `scale` widget + horizontal orientation, #29 date-picker ISO value in a hidden
+named input.
 
 ---
 
