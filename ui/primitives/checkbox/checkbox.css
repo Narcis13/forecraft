@@ -1,5 +1,25 @@
 /* @ui:component checkbox */
-/* @ui:tokens color-bg color-primary color-primary-fg color-border color-border-strong color-ring space-2 duration-fast ease-default border-width focus-ring-width focus-ring-offset focus-ring-style focus-ring-color focus-shadow checkbox-radius checkbox-size disabled-opacity */
+/* @ui:tokens color-bg color-primary color-primary-fg color-border color-border-strong color-ring space-2 space-4 duration-fast ease-default border-width focus-ring-width focus-ring-offset focus-ring-style focus-ring-color focus-shadow checkbox-radius checkbox-size disabled-opacity */
+
+/* -- Checkbox group --
+   The wrapper for checkboxes that answer one question: a fieldset with its
+   legend, or a role="group" element labelled by its field's label (what
+   @faqir-ui/forms renders). The same shape as radio-group: a column, or a
+   wrapping row with data-orientation="horizontal". */
+[data-ui="checkbox-group"] {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+[data-ui="checkbox-group"][data-orientation="horizontal"] {
+  flex-direction: row;
+  flex-wrap: wrap;
+  column-gap: var(--space-4);
+}
 
 /* -- Label wrapper -- */
 [data-ui="checkbox-label"] {

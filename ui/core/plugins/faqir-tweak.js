@@ -5,9 +5,10 @@
  *
  *   <aside l-tweak aria-label="Theme studio"></aside>
  *
- * Mounts a panel of dials into the element: scheme and density, the accent's
- * hue and chroma, the radius, spacing, type and motion scales, the heading
- * voice, easing personality, hover lift, edge weight, depth and material.
+ * Mounts a panel of dials into the element: scheme and density, a named
+ * accent (`data-accent`), the accent's hue and chroma, the radius, spacing,
+ * type and motion scales, the heading voice, easing personality, hover lift,
+ * edge weight, depth and material.
  * Every dial writes design tokens onto `<html>` as inline custom properties —
  * nothing is recompiled, every component on the page follows at once — and
  * `Faqir.tweak.css()` hands back the overrides as a `:root` block to paste
@@ -36,14 +37,14 @@
   var TEXTURES = ["none", "grain", "paper", "dots", "grid", "stripes", "mesh"];
 
   var DEFAULTS = {
-    scheme: "", density: "", hue: 0, chroma: 1, radius: 1, space: 1, type: 1, speed: 1,
+    scheme: "", density: "", accent: "", hue: 0, chroma: 1, radius: 1, space: 1, type: 1, speed: 1,
     weight: "", tracking: "", headingFont: "", bodyFont: "", easing: "",
     lift: "", ambient: "", border: "", depth: "", page: "", surface: "",
   };
 
   var base = null; // token → computed value, read once before the first write
-  var attrs = null; // the page's own data-theme / data-density
-  var wrote = { "data-theme": null, "data-density": null }; // what the studio last set
+  var attrs = null; // the page's own data-theme / data-density / data-accent
+  var wrote = { "data-theme": null, "data-density": null, "data-accent": null }; // what the studio last set
   var state = null;
   var applied = [];
   var panels = [];
@@ -125,6 +126,7 @@
     applied.forEach(function (t) { root.style.setProperty(t, out[t]); });
     setAttr("data-theme", state.scheme);
     setAttr("data-density", state.density);
+    setAttr("data-accent", state.accent);
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
     panels.forEach(function (sync) { sync(); });
     return state;
@@ -137,6 +139,7 @@
     var head = [];
     if (state && state.scheme) head.push('data-theme="' + state.scheme + '"');
     if (state && state.density) head.push('data-density="' + state.density + '"');
+    if (state && state.accent) head.push('data-accent="' + state.accent + '"');
     return (head.length ? "/* <html " + head.join(" ") + "> */\n" : "") + ":root {\n" + lines.join("\n") + "\n}\n";
   }
 
@@ -236,6 +239,8 @@
         row("Density", select("density", defaultOr([["compact", "Compact"], ["comfortable", "Comfortable"], ["spacious", "Spacious"]]))),
       ]),
       section("Accent", true, [
+        // The named hues of tokens/accent.css — the ones measured clean in every theme.
+        row("Named accent", select("accent", defaultOr([["rose", "Rose"], ["red", "Red"], ["orange", "Orange"], ["blue", "Blue"], ["indigo", "Indigo"], ["violet", "Violet"], ["purple", "Purple"], ["fuchsia", "Fuchsia"], ["pink", "Pink"]]))),
         row("Hue shift", range("hue", -180, 180, 5, function (v) { return v + "°"; })),
         row("Chroma", range("chroma", 0, 2, 0.05, times)),
       ]),

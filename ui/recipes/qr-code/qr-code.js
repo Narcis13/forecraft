@@ -2,9 +2,9 @@
 // @ui:provides render update destroy
 
 /**
- * Minimal QR Code encoder (byte mode, versions 1–10).
- * Produces a boolean matrix suitable for SVG rendering.
- * Covers most practical use-cases (URLs, short text up to ~170 chars at ECL-M).
+ * Minimal QR Code encoder (byte mode, versions 1–40, ISO/IEC 18004).
+ * Produces a boolean matrix suitable for SVG rendering: up to 2953 bytes at
+ * ECL-L, 2331 at M, 1663 at Q and 1273 at H.
  */
 
 // ── GF(256) arithmetic for Reed-Solomon ──
@@ -57,34 +57,48 @@ function rsEncode(data, ecLen) {
 
 const ECL_MAP = { L: 0, M: 1, Q: 2, H: 3 };
 
-// ISO/IEC 18004 Table 9, flattened as [(version - 1) * 4 + ecl]: EC codewords
+// ISO/IEC 18004 Table 9 for versions 1–40, flattened as [(version - 1) * 4 +
+// ecl] (L, M, Q, H) and packed one value per character, value + 40: EC codewords
 // per block, and the block count. Data codewords are what is left of the
-// version's total once the EC blocks are taken out.
-const EC_PER_BLOCK = [
-  7, 10, 13, 17, 10, 16, 22, 28, 15, 26, 18, 22, 20, 18, 26, 16, 26, 24, 18, 22,
-  18, 16, 24, 28, 20, 18, 18, 26, 24, 22, 22, 26, 30, 22, 20, 24, 18, 26, 24, 28,
-];
-const BLOCKS = [
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 2, 4, 1, 2, 4, 4,
-  2, 4, 4, 4, 2, 4, 6, 5, 2, 4, 6, 6, 2, 5, 8, 8, 4, 5, 8, 8,
-];
-const TOTAL_CODEWORDS = [26, 44, 70, 100, 134, 172, 196, 242, 292, 346];
+// version's total once the EC blocks are taken out (tests/recipes/
+// forecraft-qr-code.test.ts checks all 160 against the Table 7 capacities).
+const EC_PER_BLOCK = "/25928>D7B:><:B8B@:>:8@D<::B@>>BF><@:B@D<FD@@>BDB>@>F@<@>@F@@D@FDDDDFBDDDBBBDBFDDBDFDDF@FDFFFDFFBDFFDDDFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFF";
+const BLOCKS = "))))))))))**)**,)*,,*,,,*,.-*,..*-00,-00,-03,023,148,188.24:.298.38;.5:=/6=A08<A09?A19?J1:AF2<CH4=EK4?JM4AJP5BKR6DNU7EPX8GS[9IU^:KXa;M[d;N]g<P`j=Scn>Ufr@WiuAYly";
+
+// Codewords in a version: the modules left once the function patterns
+// (finders, timing, alignment, format and version info) are taken out, / 8.
+function totalCodewords(v) {
+  let m = (16 * v + 128) * v + 64;
+  if (v > 1) {
+    const n = ((v / 7) | 0) + 2;
+    m -= (25 * n - 10) * n - 55;
+    if (v > 6) m -= 36;
+  }
+  return m >> 3;
+}
 
 function versionInfo(version, eclIdx) {
   const i = (version - 1) * 4 + eclIdx;
-  const ec = EC_PER_BLOCK[i];
-  const b = BLOCKS[i];
-  return { dc: TOTAL_CODEWORDS[version - 1] - ec * b, ec, b };
+  const ec = EC_PER_BLOCK.charCodeAt(i) - 40;
+  const b = BLOCKS.charCodeAt(i) - 40;
+  return { dc: totalCodewords(version) - ec * b, ec, b };
 }
 
-// Alignment centres: none for v1, two up to v6, three from v7 (evenly spaced).
+// Alignment centres (ISO/IEC 18004 Annex E): none for v1; otherwise 6, then
+// floor(v / 7) + 1 more stepped back evenly from 4v + 10 (7 modules from the far
+// edge), the step rounded to an even number.
 function alignmentPositions(v) {
-  return v < 2 ? [] : v < 7 ? [6, 4 * v + 10] : [6, 2 * v + 8, 4 * v + 10];
+  if (v < 2) return [];
+  const n = ((v / 7) | 0) + 2;
+  const step = (((v * 8 + n * 3 + 5) / (n * 4 - 4)) | 0) * 2;
+  const out = [6];
+  for (let i = 0, p = v * 4 + 10; i < n - 1; i++, p -= step) out.splice(1, 0, p);
+  return out;
 }
 
 function selectVersion(dataLen, ecl) {
   const eclIdx = ECL_MAP[ecl] ?? 1;
-  for (let v = 1; v <= 10; v++) {
+  for (let v = 1; v <= 40; v++) {
     const info = versionInfo(v, eclIdx);
     // + 4-bit mode and 8-bit (v1–9) or 16-bit (v10) character count, rounded up.
     if (dataLen + (v < 10 ? 2 : 3) <= info.dc) return v;
@@ -226,28 +240,18 @@ function placeFormatInfo(matrix, ecl, maskId) {
 
 // ── Penalty scoring (simplified) ──
 
+// Rule 1: a run of five same-colour modules in a row or a column scores 3, and
+// each module beyond five 1 more. Row a and column a are walked together.
 function penalty(matrix) {
   const s = matrix.length;
   let score = 0;
-  // Rule 1: runs of same color
-  for (let r = 0; r < s; r++) {
-    let count = 1;
-    for (let c = 1; c < s; c++) {
-      if (matrix[r][c] === matrix[r][c - 1]) {
-        count++;
-        if (count === 5) score += 3;
-        else if (count > 5) score++;
-      } else count = 1;
-    }
-  }
-  for (let c = 0; c < s; c++) {
-    let count = 1;
-    for (let r = 1; r < s; r++) {
-      if (matrix[r][c] === matrix[r - 1][c]) {
-        count++;
-        if (count === 5) score += 3;
-        else if (count > 5) score++;
-      } else count = 1;
+  for (let a = 0; a < s; a++) {
+    let row = 1;
+    let col = 1;
+    for (let b = 1; b < s; b++) {
+      row = matrix[a][b] === matrix[a][b - 1] ? row + 1 : 1;
+      col = matrix[b][a] === matrix[b - 1][a] ? col + 1 : 1;
+      score += (row === 5 ? 3 : row > 5) + (col === 5 ? 3 : col > 5);
     }
   }
   return score;
@@ -258,7 +262,9 @@ function penalty(matrix) {
 function encodeQR(text, ecl = "M") {
   const data = new TextEncoder().encode(text);
   const version = selectVersion(data.length, ecl);
-  if (version < 0) throw new Error("Data too long for QR versions 1–10");
+  if (version < 0) {
+    throw new Error(`data too long for QR version 40 at ECL ${ecl}`);
+  }
 
   const eclIdx = ECL_MAP[ecl] ?? 1;
   const info = versionInfo(version, eclIdx);
@@ -375,29 +381,33 @@ function encodeQR(text, ecl = "M") {
 
 // ── SVG renderer ──
 
+// The modules are drawn flush: the viewBox is the symbol itself, so the ink
+// meets the SVG's content box. The quiet zone is CSS padding on the SVG,
+// --qr-quiet modules wide (4 by default, as ISO/IEC 18004 asks), worked out
+// from the module count the SVG carries as --qr-modules. Layout can align the
+// ink edge, or set --qr-quiet: 0 where the page already leaves the space.
 function matrixToSVG(matrix) {
   const size = matrix.length;
-  const quiet = 2; // quiet zone modules
-  const total = size + quiet * 2;
 
   let paths = "";
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
       if (matrix[r][c]) {
-        paths += `M${c + quiet},${r + quiet}h1v1h-1z`;
+        paths += `M${c},${r}h1v1h-1z`;
       }
     }
   }
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", `0 0 ${total} ${total}`);
+  svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
   svg.setAttribute("shape-rendering", "crispEdges");
   svg.setAttribute("data-part", "svg");
+  svg.style.setProperty("--qr-modules", String(size));
 
   // Background
   const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-  bg.setAttribute("width", total);
-  bg.setAttribute("height", total);
+  bg.setAttribute("width", size);
+  bg.setAttribute("height", size);
   bg.setAttribute("fill", "var(--color-bg, #fff)");
   svg.appendChild(bg);
 
@@ -423,7 +433,10 @@ export function createQRCode(root) {
     const old = root.querySelector("[data-part='svg']");
     if (old) old.remove();
 
-    if (!value) return;
+    if (!value) {
+      root.dataset.state = "empty";
+      return;
+    }
 
     try {
       const matrix = encodeQR(value, ecl);
@@ -435,7 +448,13 @@ export function createQRCode(root) {
       } else {
         root.appendChild(svg);
       }
+      root.dataset.state = "ready";
     } catch (e) {
+      // An empty box is no answer: say so in the markup, and to the page.
+      root.dataset.state = "error";
+      root.dispatchEvent(
+        new CustomEvent("faqir:error", { bubbles: true, detail: { message: e.message, value, ecl } }),
+      );
       console.warn(`[qr-code] Failed to encode: ${e.message}`);
     }
   }
@@ -461,6 +480,7 @@ export function createQRCode(root) {
     observer.disconnect();
     const svg = root.querySelector("[data-part='svg']");
     if (svg) svg.remove();
+    if (["empty", "ready", "error"].includes(root.dataset.state)) delete root.dataset.state;
     delete root._faqirQR;
   }
 

@@ -32,6 +32,45 @@
   transition: width var(--duration-normal) var(--ease-default);
 }
 
+/* ── Value without inline style ──
+   data-value="0".."100" on the root sets the fill, so a server template can
+   render a progress bar with no style attribute (a template engine rightly
+   refuses data in one). Every engine draws whole 5 % steps; where typed attr()
+   is supported (the @supports block) any number is drawn exactly. clamp()
+   keeps an out-of-range value inside the track, and a value the parse refuses
+   draws an empty bar, never a full one. An inline style="width: …" on the fill
+   still wins, so the original form keeps working. */
+[data-ui="progress"][data-value] > :where([data-part="track"]) > [data-part="fill"] {
+  width: clamp(0%, var(--faqir-progress, 0%), 100%);
+}
+
+[data-ui="progress"][data-value="5"] { --faqir-progress: 5%; }
+[data-ui="progress"][data-value="10"] { --faqir-progress: 10%; }
+[data-ui="progress"][data-value="15"] { --faqir-progress: 15%; }
+[data-ui="progress"][data-value="20"] { --faqir-progress: 20%; }
+[data-ui="progress"][data-value="25"] { --faqir-progress: 25%; }
+[data-ui="progress"][data-value="30"] { --faqir-progress: 30%; }
+[data-ui="progress"][data-value="35"] { --faqir-progress: 35%; }
+[data-ui="progress"][data-value="40"] { --faqir-progress: 40%; }
+[data-ui="progress"][data-value="45"] { --faqir-progress: 45%; }
+[data-ui="progress"][data-value="50"] { --faqir-progress: 50%; }
+[data-ui="progress"][data-value="55"] { --faqir-progress: 55%; }
+[data-ui="progress"][data-value="60"] { --faqir-progress: 60%; }
+[data-ui="progress"][data-value="65"] { --faqir-progress: 65%; }
+[data-ui="progress"][data-value="70"] { --faqir-progress: 70%; }
+[data-ui="progress"][data-value="75"] { --faqir-progress: 75%; }
+[data-ui="progress"][data-value="80"] { --faqir-progress: 80%; }
+[data-ui="progress"][data-value="85"] { --faqir-progress: 85%; }
+[data-ui="progress"][data-value="90"] { --faqir-progress: 90%; }
+[data-ui="progress"][data-value="95"] { --faqir-progress: 95%; }
+[data-ui="progress"][data-value="100"] { --faqir-progress: 100%; }
+
+@supports (width: attr(data-value %, 0%)) {
+  [data-ui="progress"][data-value] {
+    --faqir-progress: attr(data-value %, 0%);
+  }
+}
+
 /* ── Variants ── */
 [data-ui="progress"][data-variant="success"] > :where([data-part="track"]) > [data-part="fill"] {
   background: var(--color-success);

@@ -1,5 +1,5 @@
 /* @ui:component wizard */
-/* @ui:tokens color-fg color-success-subtle measure-narrow radius-lg space-3 space-4 space-6 font-body text-sm text-2xl weight-semibold leading-tight leading-normal */
+/* @ui:tokens color-fg color-success-subtle measure-narrow radius-lg space-3 space-4 space-6 font-body font-heading text-sm text-2xl leading-tight leading-normal heading-weight heading-tracking */
 /* wizard — multi-step form pattern.
    Layout only: the stepper, card panels, field-groups and buttons carry their
    own look from their primitives. This sheet stacks the pieces, lays out the
@@ -17,8 +17,10 @@
 
 [data-ui="wizard"] [data-part="heading"] {
   margin: 0;
+  font-family: var(--font-heading);
   font-size: var(--text-2xl);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
   line-height: var(--leading-tight);
   color: var(--color-fg);
 }

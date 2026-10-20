@@ -1,12 +1,17 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "field-group",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "kind": "primitive",
   "category": "forms",
   "description": "Form field wrapper combining label, control, and help/error text with a tight density-aware inner step; the surrounding default rhythm owns the looser step between fields. Includes the normalized §7.1 validation contract (invalid | validating | disabled).",
 
   "changes": [
+    {
+      "version": "2.2.0",
+      "note": "data-span sets a field's share of a row: full, half or third. From the md tier up, the element holding the fields (a form, a card body, a wizard step's body) becomes a six-track grid as soon as one of its field-groups carries data-span; half spans three tracks, third two, and everything else in that container the full row. The rows keep the field rhythm (--flow-space) as their gap, and the rhythm's margin between those siblings is dropped. Below md every field stays full width. The grid rules are weightless, so a container that sets its own display (stack, grid) is not changed. A field-group without data-span, and a container holding none, render as before.",
+      "breaking": false
+    },
     {
       "version": "2.1.1",
       "note": "Nested components keep their own parts. The stylesheet reached its label, input, description and error with descendant selectors, so a radio-group or checkbox-group in the input slot (the shape @faqir-ui/forms renders) had every option's <span data-part=\"label\"> styled as the field's label — its size, weight and colour, red when the field was invalid, and a required marker after each option under the legacy data-required — and a date-picker's input took the input slot's flex layout. Label, input, description and error are the root's children; required is the label's. Options now look as a radio-group or checkbox-group does anywhere else, so on the form-page pattern and on @faqir-ui/forms pages their text is the page's body size and weight, no longer the field label's. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
@@ -87,7 +92,13 @@
   },
 
   "props": {
-    "required": { "type": "boolean", "default": false, "description": "Shows asterisk after label (data-required attribute)" }
+    "required": { "type": "boolean", "default": false, "description": "Shows asterisk after label (data-required attribute)" },
+    "span": {
+      "type": "enum",
+      "values": ["full", "half", "third"],
+      "attr": "data-span",
+      "description": "The field's share of a row from the md tier up: half and third sit beside their neighbours on a six-track grid the fields' container takes on as soon as one of its field-groups carries data-span; full (and every other child of that container) takes the whole row. Below md every field is full width. Works in a flow-root container or a card body; a stack or grid parent keeps its own layout. @faqir-ui/forms writes it from a field's ui:width."
+    }
   },
 
   "a11y": {
@@ -106,7 +117,7 @@
     "field-required-color", "field-required-marker", "field-description-size",
     "field-description-color", "field-error-size", "field-error-color", "space-1", "space-2",
     "space-3", "space-4", "text-xs", "text-sm", "font-body", "weight-medium", "border-width",
-    "doc-font"
+    "doc-font", "section-gap-sm"
   ],
 
   "templates": {
@@ -162,6 +173,8 @@
     "required-shows-asterisk-after-label",
     "label-has-for-attribute",
     "horizontal-layout-side-by-side",
+    "span-shares-the-row-from-md",
+    "span-is-full-width-on-a-phone",
     "sm-size-reduces-spacing"
   ]
 }

@@ -236,12 +236,28 @@ export function pageRoutes(db: DB) {
     const version = c.req.query("version") ?? "";
     const { items, total } = listSubmissions(db, row.id, { q: q || undefined, version: version ? Number(version) : undefined, limit: 200 });
     const columns = compiled.fields.slice(0, 4);
+    const schemaProps = compiled.definition.schema.properties as Record<string, { title?: string; type?: string; items?: { properties?: Record<string, { title?: string }> } }>;
     const rows = items.map((s) => ({
       id: s.id,
       created: s.created_at,
       version: s.version,
       cells: columns.map((col) => s.data[col.name] ?? null),
-      answers: compiled.fields.filter((f) => s.data[f.name] !== undefined).map((f) => ({ label: f.title, value: s.data[f.name] })),
+      answers: compiled.fields.filter((f) => s.data[f.name] !== undefined).map((f) => {
+        const value = s.data[f.name];
+        const prop = schemaProps[f.name];
+        const rowProps = prop?.items?.properties;
+        if (Array.isArray(value) && rowProps && value.every((x) => x && typeof x === "object")) {
+          const heads = Object.keys(rowProps);
+          return {
+            label: f.title,
+            table: {
+              head: heads.map((h) => rowProps[h]?.title ?? h),
+              rows: value.map((row) => heads.map((h) => (row as Record<string, unknown>)[h] ?? "")),
+            },
+          };
+        }
+        return { label: f.title, value };
+      }),
     }));
     const exportQuery = (q ? `&q=${encodeURIComponent(q)}` : "") + (version ? `&version=${encodeURIComponent(version)}` : "");
     return c.html(page("pages/app/form-submissions.faqir", {

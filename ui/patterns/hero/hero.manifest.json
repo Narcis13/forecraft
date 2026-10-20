@@ -1,7 +1,7 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "hero",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "kind": "pattern",
   "category": "marketing",
   "description": "Landing-page hero section composing badge + heading + description + call-to-action buttons, with an optional media column. Composition only: zero JavaScript, no controller, no reactive directives — the three layout variants (centred, split, and a full-bleed cover with display type over a backdrop) are pure CSS grid, and data-animate plays a staggered CSS entrance.",
@@ -67,7 +67,7 @@
   },
 
   "props": {
-    "--hero-bg": {"type":"string","default":"var(--color-bg)","description":"Background of the section (custom property). Set it to transparent when the hero sits inside a data-ui=\"backdrop\"."},
+    "--hero-bg": {"type":"string","default":"var(--color-bg)","description":"Background of the section (custom property). Transparent with no attribute when the hero sits inside a data-ui=\"backdrop\" (a zero-specificity rule in hero.css), so the scene shows; set it on the hero to override."},
     "animate": {
       "type": "boolean",
       "default": false,
@@ -76,8 +76,8 @@
     },
     "--hero-display-size": {
       "type": "string",
-      "default": "clamp(min(var(--text-4xl), 11vw), calc(var(--text-sm) + 7vw), calc(var(--text-4xl) * 3.5))",
-      "description": "Font size of the cover layout's headline (custom property, cover only). Fluid by default between the type scale's largest step and three and a half times it; pass a clamp() or a size token to fix it."
+      "default": "per layout — center: var(--text-3xl), var(--text-4xl) from the sm floor; split: var(--text-3xl); cover: clamp(min(var(--text-4xl), 11vw), calc(var(--text-sm) + 7vw), calc(var(--text-4xl) * 3.5))",
+      "description": "Font size of the headline in every layout (custom property). Unset, each layout keeps its own size: the centred hero steps from --text-3xl to --text-4xl at the sm floor, the split hero stays at --text-3xl in its half-width column, and the cover is fluid between the type scale's largest step and three and a half times it. Pass a clamp() or a size token to set it — a display-size split headline, say."
     },
     "--hero-scrim": {
       "type": "string",
@@ -145,7 +145,7 @@
     "notes": [
       "Nested primitives inside a slot keep their own five-attribute contract. A nested element must not carry both data-part and data-variant: the pattern validates a part's data-variant against the *pattern's* variant values (center|split|cover), so a button's data-variant=\"primary\" on a part would be a false mismatch. Put buttons inside [data-part=\"actions\"] instead.",
       "The centered layout is what `faqir scaffold landing-page` emits; the block between the <!-- @ui:scaffold landing-page --> markers in hero.html is copied into the generated page verbatim.",
-      "Inside a backdrop — <div data-ui=\"backdrop\"><section data-ui=\"hero\" style=\"--hero-bg: transparent\">…</section></div> — the section goes transparent so the light shows. Wrap a few headline words in <span data-ui=\"highlight\"> for the accent gradient.",
+      "Inside a backdrop — <div data-ui=\"backdrop\"><section data-ui=\"hero\">…</section></div> — the section goes transparent on its own (--hero-bg defaults to transparent there) so the light shows. Wrap a few headline words in <span data-ui=\"highlight\"> for the accent gradient.",
       "The cover layout is the full-bleed opener: at least 88svh tall (88vh where svh is unknown), the words anchored to the bottom-start corner, and a fluid display headline (--hero-display-size) on the theme's heading role with tight leading, balanced lines and long words allowed to break, so it holds at 360px. Its media slot moves BEHIND the words — wrap the picture in a plain <div data-part=\"media\"> and give the nested image data-variant=\"cover\" data-size=\"full\" — under a scrim of the section colour (--hero-scrim). Without media it is a tall, typographic hero; inside a data-ui=\"backdrop\" with --hero-bg: transparent the light shows through it.",
       "data-animate is the reveal primitive's stagger, re-stated on the hero's own parts: a reveal staggers its direct children and the copy may sit on the section or inside [data-part=\"content\"], so the entrance is an option of the pattern, reading the same --motion-reveal-* and --motion-stagger tokens, with the same reduced-motion and print fallbacks as bento and testimonials. It plays on load rather than on scroll — a hero is above the fold."
     ]
@@ -175,6 +175,11 @@
   ],
 
   "changes": [
+    {
+      "version": "1.4.0",
+      "note": "--hero-display-size sizes the headline in every layout, not only the cover: a split or centred hero can take display type. Unset, nothing moves (centre --text-3xl then --text-4xl from sm, split --text-3xl, cover fluid). A hero inside a data-ui=\"backdrop\" is transparent with no attribute: a zero-specificity rule sets --hero-bg: transparent there, so the backdrop shows instead of being covered by the page colour; a --hero-bg set on the hero still wins.",
+      "breaking": false
+    },
     {
       "version": "1.3.0",
       "note": "A cover layout value and a data-animate prop. cover is a full-bleed, near-full-viewport hero (min-block-size 88svh, 88vh fallback) with the words anchored to the bottom-start corner, a fluid clamp() display headline on the theme's heading role (--hero-display-size), and the media slot as a backdrop behind the words under a section-coloured scrim (--hero-scrim). Its inline gutter grows so the words start on the --measure-wide line the sections below sit on, and the display size eases down on a phone so a long uppercase word does not split. data-animate staggers eyebrow → headline → description → actions → note → media in on load with the --motion-reveal-* and --motion-stagger tokens (a cover's media settles first); reduced motion and print show everything at rest. Existing markup is unchanged.",

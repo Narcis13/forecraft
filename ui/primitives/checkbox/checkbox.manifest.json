@@ -1,12 +1,17 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "checkbox",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "kind": "primitive",
   "category": "forms",
   "description": "Custom styled checkbox with checked, indeterminate, disabled states and size variants; compose sibling items in a cluster with data-gap=4 while a single labeled checkbox may stand alone",
 
   "changes": [
+    {
+      "version": "1.2.0",
+      "note": "checkbox-group is a declared, styled wrapper, mirroring radio-group: a fieldset (or a role=\"group\" element labelled by its field) holding the checkbox-labels that answer one question, laid out as a column with a space-2 step, or with data-orientation=\"horizontal\" as a wrapping row a space-4 step apart. @faqir-ui/forms has always emitted data-ui=\"checkbox-group\" for an enum array; it was styled by nothing, and faqir audit reported it as unknown-component.",
+      "breaking": false
+    },
     {
       "version": "1.1.0",
       "note": "Canonical checkbox rows now use cluster data-gap='4', keeping the inter-control step wider than each label's internal space-2 step; a single labeled checkbox remains valid without a cluster.",
@@ -48,7 +53,14 @@
   "props": {
     "checked": { "type": "boolean", "default": false, "description": "Whether the checkbox is checked" },
     "disabled": { "type": "boolean", "default": false, "description": "Whether the checkbox is disabled" },
-    "label": { "type": "string", "default": "", "description": "Checkbox label text" }
+    "label": { "type": "string", "default": "", "description": "Checkbox label text" },
+    "orientation": {
+      "type": "enum",
+      "values": ["vertical", "horizontal"],
+      "default": "vertical",
+      "attr": "data-orientation",
+      "description": "Written on the checkbox-group wrapper, never the checkbox: horizontal lays the group's direct checkbox-label children out in a wrapping row a space-4 step apart. For a fieldset + cluster the cluster already owns the row."
+    }
   },
 
   "a11y": {
@@ -60,19 +72,20 @@
       "Tab": "focus checkbox",
       "Space": "toggle checked state"
     },
-    "notes": "A single labeled checkbox may stand alone. When two or more checkbox items share an inline row, wrap the complete label items in cluster data-gap=\"4\"; checkbox-label keeps the label-to-box gap at space-2, so visual proximity agrees with the label association."
+    "notes": "A single labeled checkbox may stand alone. When two or more checkbox items share an inline row, wrap the complete label items in cluster data-gap=\"4\"; checkbox-label keeps the label-to-box gap at space-2, so visual proximity agrees with the label association. Checkboxes answering one question go in a checkbox-group: a fieldset with a legend, or a role=\"group\" element with aria-labelledby."
   },
 
   "tokens_used": [
     "color-bg", "color-primary", "color-primary-fg", "color-border", "color-border-strong",
-    "color-ring", "space-2", "duration-fast", "ease-default", "border-width", "focus-ring-width",
-    "focus-ring-offset", "focus-ring-style", "focus-ring-color", "focus-shadow", "checkbox-radius",
-    "checkbox-size", "disabled-opacity"
+    "color-ring", "space-2", "space-4", "duration-fast", "ease-default", "border-width",
+    "focus-ring-width", "focus-ring-offset", "focus-ring-style", "focus-ring-color", "focus-shadow",
+    "checkbox-radius", "checkbox-size", "disabled-opacity"
   ],
 
   "templates": {
     "html": "<div data-ui=\"cluster\" data-gap=\"4\">\n  <label data-ui=\"checkbox-label\" for=\"{id1}\"><input data-ui=\"checkbox\" id=\"{id1}\" type=\"checkbox\"><span data-part=\"label\">{label1}</span></label>\n  <label data-ui=\"checkbox-label\" for=\"{id2}\"><input data-ui=\"checkbox\" id=\"{id2}\" type=\"checkbox\"><span data-part=\"label\">{label2}</span></label>\n</div>",
-    "html_single": "<label data-ui=\"checkbox-label\" for=\"{id}\">\n  <input data-ui=\"checkbox\" id=\"{id}\" type=\"checkbox\">\n  <span data-part=\"label\">{label}</span>\n</label>"
+    "html_single": "<label data-ui=\"checkbox-label\" for=\"{id}\">\n  <input data-ui=\"checkbox\" id=\"{id}\" type=\"checkbox\">\n  <span data-part=\"label\">{label}</span>\n</label>",
+    "html_group": "<fieldset data-ui=\"checkbox-group\">\n  <legend data-ui=\"label\">{legend}</legend>\n  <div data-ui=\"cluster\" data-gap=\"4\">\n    <label data-ui=\"checkbox-label\" for=\"{id1}\"><input data-ui=\"checkbox\" id=\"{id1}\" type=\"checkbox\" name=\"{name}\" value=\"{value1}\"><span data-part=\"label\">{label1}</span></label>\n    <label data-ui=\"checkbox-label\" for=\"{id2}\"><input data-ui=\"checkbox\" id=\"{id2}\" type=\"checkbox\" name=\"{name}\" value=\"{value2}\"><span data-part=\"label\">{label2}</span></label>\n  </div>\n</fieldset>"
   },
 
   "safe_transforms": [
@@ -109,6 +122,8 @@
     "wrapped-in-label-for-accessibility",
     "native-appearance-is-none",
     "control-rows-use-cluster-gap-4",
-    "single-labeled-control-may-stand-alone"
+    "single-labeled-control-may-stand-alone",
+    "checkbox-group-is-a-declared-wrapper",
+    "horizontal-group-wraps-options-in-a-row"
   ]
 }

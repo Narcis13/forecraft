@@ -1,11 +1,16 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "barcode",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "kind": "recipe",
   "category": "data-display",
   "description": "Print-safe Code 128-B barcode generator for printable ASCII identifiers",
   "changes": [
+    {
+      "version": "1.2.0",
+      "note": "The bars are drawn flush and the quiet zone is padding. The SVG drew a ten-module quiet zone inside its viewBox, so the first bar never sat on the box's edge and a barcode could not share a left edge with its caption or a column. The viewBox is now the symbol (the first bar at x = 0), and the quiet zone is inline padding on the SVG, --barcode-quiet modules (default 10, what Code 128 needs), painted in --color-bg — the same look by default. Set --barcode-quiet: 0 where the page already leaves the space. An unencodable value now also dispatches a bubbling faqir:error { message, value } beside data-state=\"error\".",
+      "breaking": false
+    },
     {
       "version": "1.1.0",
       "note": "The caption sets font-variant-ligatures: var(--mono-ligatures), a new typography token that defaults to none. The caption repeats the encoded value in --font-mono, whose Cascadia Code and JetBrains Mono ligate by default, so a value containing -> or != read differently from the characters the bars encode. Set --mono-ligatures: normal to get a face's ligatures back.",
@@ -22,7 +27,7 @@
       "selector": "[data-part='svg']",
       "required": false,
       "tag_hint": "svg",
-      "description": "Generated Code 128 SVG created by the controller"
+      "description": "Generated Code 128 SVG created by the controller. Drawn flush (the viewBox is the symbol, one unit per module, 50 tall); the quiet zone is its inline padding"
     },
     "caption": {
       "selector": "[data-part='caption']",
@@ -75,6 +80,18 @@
       "type": "string",
       "default": "",
       "description": "Printable ASCII text encoded with Code 128-B through data-value"
+    },
+    "--barcode-quiet": {
+      "type": "number",
+      "default": 10,
+      "description": "Quiet zone in modules each side (custom property), drawn as the SVG's inline padding. Code 128 needs 10; set 0 where the page already leaves the space, or to align the first bar with a caption or column edge"
+    }
+  },
+  "events": {
+    "faqir:error": {
+      "detail": "{ message: string, value: string }",
+      "bubbles": true,
+      "description": "Fires on the root when the value cannot be encoded (a character outside printable ASCII). The root has data-state=\"error\" and no SVG."
     }
   },
   "a11y": {
@@ -86,6 +103,7 @@
   },
   "tokens_used": [
     "color-fg-muted",
+    "color-bg",
     "doc-font",
     "doc-legal-color",
     "doc-legal-size",

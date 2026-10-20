@@ -1,11 +1,16 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "command-palette",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "kind": "recipe",
   "category": "navigation",
   "description": "Cmd+K style modal command interface with search and keyboard navigation",
   "changes": [
+    {
+      "version": "1.4.0",
+      "note": "Items can carry a target. data-value is a declared prop on an item, passed as detail.value in command-select (null when absent), so an application can dispatch on an id instead of a label. An item can also be an <a href>: choosing it from the keyboard (Enter) or by click follows the link. The order is command-select first, then a registerCommand action, then the palette closes, then the link is followed — and command-select is now cancelable: preventDefault() cancels only the navigation (the palette still closes), and detail.href carries the link's resolved URL for a router that navigates itself. A link item without a tabindex is taken out of the Tab order (tabindex=\"-1\") when the palette opens, so the search field stays its one tab stop; write tabindex=\"-1\" in the markup to have it so before the controller runs. An item that is not a link behaves exactly as before.",
+      "breaking": false
+    },
     {
       "version": "1.3.1",
       "note": "Nested components keep their own parts. The stylesheet reached the overlay, panel, search, list, groups and items with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Parts are root > overlay and panel; panel > search-wrapper > search, or panel > search when there is no wrapper; panel > list > group > group-label and item, or list > item when there are no groups; item > item-label and kbd; and empty in the list or the panel. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
@@ -72,7 +77,7 @@
       "selector": "[data-part='item']",
       "required": true,
       "tag_hint": "div",
-      "description": "Individual command item with role=option. A child of a group, or of the list when there are no groups"
+      "description": "Individual command item with role=option. A child of a group, or of the list when there are no groups. Carry data-value to name the command (it arrives as detail.value in command-select); make it an <a href> to have the palette follow the link when the item is chosen"
     },
     "empty": {
       "selector": "[data-part='empty']",
@@ -170,6 +175,12 @@
       "default": "Type a command...",
       "description": "Search input placeholder"
     },
+    "value": {
+      "type": "string",
+      "default": "",
+      "attr": "data-value",
+      "description": "On an item: the command's identifier, passed as detail.value in the command-select event (null when the item has none). Use it instead of matching on the label text, which is translated and may change"
+    },
     "noShortcut": {
       "type": "boolean",
       "default": false,
@@ -196,11 +207,19 @@
       "Escape": "close command palette",
       "ArrowDown": "highlight next item",
       "ArrowUp": "highlight previous item",
-      "Enter": "activate selected item",
+      "Enter": "activate selected item (an <a href> item is then followed, unless command-select was prevented)",
       "Home": "highlight first item",
       "End": "highlight last item"
     },
     "notes": "A search field kept in the page joins the page's undo history, so Cmd/Ctrl+Z after closing the palette can undo the search text instead of the user's last edit. Render the palette with l-if if that matters."
+  },
+  "events": {
+    "command-select": {
+      "detail": "{ item: Element, label: string, value: string | null, href: string | null }",
+      "cancelable": true,
+      "bubbles": true,
+      "description": "Fires when an item is chosen by Enter or click, before any registerCommand action runs and before the palette closes. value is the item's data-value; href is the resolved URL of an <a href> item. preventDefault() stops only the link from being followed: the palette closes either way, so a client-side router can handle href itself."
+    }
   },
   "tokens_used": [
     "color-bg",

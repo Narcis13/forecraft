@@ -1,5 +1,5 @@
 /* @ui:component stats-dashboard */
-/* @ui:tokens color-bg color-fg color-fg-muted color-border space-1 space-2 space-3 space-4 space-6 space-8 space-12 space-px font-heading font-body heading-tracking heading-transform heading-caps heading-leading text-sm text-base text-lg text-3xl weight-semibold weight-bold leading-tight leading-normal leading-relaxed */
+/* @ui:tokens color-bg color-fg color-fg-muted color-border space-1 space-2 space-3 space-4 space-6 space-8 space-12 space-px font-heading font-body heading-tracking heading-transform heading-caps heading-leading heading-weight text-sm text-base text-lg text-3xl weight-semibold weight-bold leading-tight leading-normal leading-relaxed */
 
 /* ── Root ──
    A reporting page: title block, KPI row, then the panel region. The KPI row
@@ -20,8 +20,10 @@
 /* ── Title block ── */
 [data-ui="stats-dashboard"] [data-part="heading"] {
   margin: 0;
+  font-family: var(--font-heading);
   font-size: var(--text-3xl);
-  font-weight: var(--weight-bold);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
   line-height: var(--leading-tight);
   text-wrap: balance;
 }

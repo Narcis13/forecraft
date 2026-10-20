@@ -96,12 +96,12 @@
 
   "tokens_used": [
     "color-fg", "color-success-subtle", "measure-narrow", "radius-lg", "space-3", "space-4",
-    "space-6", "font-body", "text-sm", "text-2xl", "weight-semibold", "leading-tight",
-    "leading-normal"
+    "space-6", "font-body", "font-heading", "text-sm", "text-2xl", "leading-tight",
+    "leading-normal", "heading-weight", "heading-tracking"
   ],
 
   "templates": {
-    "html": "<form data-ui=\"wizard\" data-state=\"active\" aria-label=\"{label}\" l-data=\"{ step: 0 }\" l-validate=\"step &lt; {last} ? (step = step + 1) : ($el.dataset.state = 'submitted', $el.dispatchEvent(new CustomEvent('faqir:wizard-complete', { bubbles: true })))\">\n  <div data-ui=\"stepper\" data-part=\"steps\" role=\"navigation\" aria-label=\"Progress\">\n    <div data-part=\"step\" :data-state=\"step > {i} ? 'completed' : (step === {i} ? 'active' : null)\"><span data-part=\"indicator\">1</span><span data-part=\"label\">{step_label}</span></div>\n  </div>\n  <section data-ui=\"card\" data-variant=\"outlined\" data-part=\"panel\" :hidden=\"step !== {i}\">{fields}</section>\n  <div data-part=\"actions\">\n    <button type=\"button\" data-ui=\"button\" data-variant=\"outline\" data-part=\"back\" :disabled=\"step === 0\" @click=\"step = step - 1\">Back</button>\n    <button type=\"submit\" data-ui=\"button\" data-variant=\"primary\" data-part=\"next\" :hidden=\"step === {last}\">Next</button>\n    <button type=\"submit\" data-ui=\"button\" data-variant=\"primary\" data-part=\"submit\" :hidden=\"step !== {last}\">Submit</button>\n  </div>\n</form>"
+    "html": "<form data-ui=\"wizard\" data-state=\"active\" aria-label=\"{label}\" l-data=\"{ step: 0 }\" l-validate=\"step &lt; {last} ? (step = step + 1) : ($el.dataset.state = 'submitted', $el.dispatchEvent(new CustomEvent('faqir:wizard-complete', { bubbles: true })))\">\n  <div data-ui=\"stepper\" data-part=\"steps\" role=\"navigation\" aria-label=\"Progress\">\n    <div data-part=\"step\" :data-state=\"step > {i} ? 'completed' : (step === {i} ? 'active' : null)\"><span data-part=\"indicator\">1</span><span data-part=\"label\">{step_label}</span></div>\n  </div>\n  <section data-ui=\"card\" data-variant=\"outlined\" data-part=\"panel\" :hidden=\"step !== {i}\"><div data-part=\"body\">{fields}</div></section>\n  <div data-part=\"actions\">\n    <button type=\"button\" data-ui=\"button\" data-variant=\"outline\" data-part=\"back\" :disabled=\"step === 0\" @click=\"step = step - 1\">Back</button>\n    <button type=\"submit\" data-ui=\"button\" data-variant=\"primary\" data-part=\"next\" :hidden=\"step === {last}\">Next</button>\n    <button type=\"submit\" data-ui=\"button\" data-variant=\"primary\" data-part=\"submit\" :hidden=\"step !== {last}\">Submit</button>\n  </div>\n</form>"
   },
 
   "safe_transforms": [

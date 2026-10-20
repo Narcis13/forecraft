@@ -1,21 +1,26 @@
 # Faqir upstream notes
 
-Bugs, rough edges and missing capabilities found in Faqir UI 1.2.5 (`faqir-ui-cli`,
-`@faqir-ui/forms`, `@faqir-ui/rules`, `@faqir-ui/template`, all 1.2.5) while building
+Bugs, rough edges and missing capabilities found in Faqir UI while building
 **forecraft**, a form platform whose first user is an agent: an API and an MCP server
 that create, render and validate forms, a drag-and-drop designer, and public forms
-rendered by `@faqir-ui/forms`. Faqir is used as released; it is never forked.
+rendered by `@faqir-ui/forms`. Forecraft is currently on **Faqir UI 1.3.0**. Faqir is
+used as released; it is never forked.
 
-Each entry says what we saw (**Seen**), where it lives in the 1.2.5 source under
-`C:\newme\faqir-ui` (**Where**), why it happens when we found out (**Why**), what
-forecraft does about it today (**Here**: a scoped workaround, a local patch under
-`ui/` marked `/* forecraft patch: see FAQIR-UPSTREAM.md #n */`, or nothing), and a
-**Suggested fix** as a change to the upstream repository, with the test that would
-guard it.
+Each entry says what we saw (**Seen**), where it lived in the Faqir source
+(**Where**), why it happens when we found out (**Why**), what forecraft does about it
+today (**Here**: a scoped workaround, a local patch under `ui/` marked
+`/* forecraft patch: see FAQIR-UPSTREAM.md #n */`, or nothing), and a **Suggested fix**
+as a change to the upstream repository, with the test that would guard it.
 
 When an entry is fixed upstream and `faqir upgrade` brings it in, remove the
 workaround named under **Here**, and strike the entry. `docs/faqir-digest.md` is the
 prioritised shortlist.
+
+**Fixed in 1.3.0 (workarounds removed):** #1 `rulesFor`, #2 single-page submit button,
+#3 `faqir:valid-submit`, #4 wizard answers via `Faqir.rules.data` / event detail,
+#5 `opts.heading` / `labelledBy`, #6 field `width` (`data-span`), #14 `checkbox-group`,
+#16 form `opts.gap`, #17 `scale` widget + horizontal orientation, #29 date-picker ISO
+value in a hidden named input.
 
 ---
 

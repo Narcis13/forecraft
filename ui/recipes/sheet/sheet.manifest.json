@@ -187,7 +187,7 @@
     "weight-semibold"
   ],
   "templates": {
-    "html": "<div data-ui=\"sheet\" data-state=\"closed\" id=\"{id}\">\n  <button data-part=\"trigger\">{trigger_text}</button>\n  <div data-part=\"overlay\" hidden></div>\n  <div data-part=\"panel\" data-variant=\"{side}\" data-size=\"{size}\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"{id}-title\" hidden>\n    <div data-part=\"header\">\n      <h2 id=\"{id}-title\" data-part=\"title\">{title}</h2>\n      <button data-part=\"close\" aria-label=\"Close sheet\">✕</button>\n    </div>\n    <div data-part=\"body\">{body}</div>\n  </div>\n</div>"
+    "html": "<div data-ui=\"sheet\" data-state=\"closed\" id=\"{id}\">\n  <button data-part=\"trigger\" data-ui=\"button\" data-variant=\"primary\">{trigger_text}</button>\n  <div data-part=\"overlay\" hidden></div>\n  <div data-part=\"panel\" data-variant=\"{side}\" data-size=\"{size}\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"{id}-title\" hidden>\n    <div data-part=\"header\">\n      <h2 id=\"{id}-title\" data-part=\"title\">{title}</h2>\n      <button data-part=\"close\" aria-label=\"Close sheet\">✕</button>\n    </div>\n    <div data-part=\"body\">{body}</div>\n  </div>\n</div>"
   },
   "safe_transforms": [
     "change-variant-side",

@@ -43,10 +43,14 @@
   position: absolute;
 }
 
-/* ── Text ── */
+/* ── Text ──
+   --quote-text-size / --quote-author-size are the two knobs a context sets
+   to size a quotation for its own scale — the document pattern points them
+   at its body and legal sizes. A size variant still wins: it is the author
+   asking. */
 [data-ui="quote"] > [data-part="text"] {
   margin: 0;
-  font-size: var(--text-lg);
+  font-size: var(--quote-text-size, var(--text-lg));
   line-height: var(--leading-relaxed);
   text-wrap: pretty;
 }
@@ -70,7 +74,7 @@
   justify-content: start;
   align-items: center;
   column-gap: var(--space-3);
-  font-size: var(--text-sm);
+  font-size: var(--quote-author-size, var(--text-sm));
   line-height: var(--leading-snug);
 }
 
@@ -87,6 +91,40 @@
 
 [data-ui="quote"] > :where([data-part="author"]) > [data-part="role"] {
   color: var(--color-fg-muted);
+}
+
+/* ── Mark: hang / none ──
+   `hang` takes the mark off its own line and hangs it beside the first line
+   of the text, at the text's size — the way a quotation is set in running
+   copy, where a mark above the text reads as a ditto. The text and the
+   attribution step in by one gutter and the mark is set flush against the
+   text inside it, so it never leaves the figure's box (a page clips what
+   leaves its area). `none` draws no mark at all. After the text and author
+   rules on purpose: the gutter has to outweigh their `margin: 0`. */
+[data-ui="quote"]:is([data-mark="hang"], [data-mark="none"])::before {
+  content: none;
+}
+
+[data-ui="quote"][data-mark="none"]::after {
+  content: none;
+}
+
+[data-ui="quote"][data-mark="hang"] > * {
+  margin-inline-start: var(--space-6);
+}
+
+[data-ui="quote"][data-mark="hang"] > [data-part="text"] {
+  position: relative;
+}
+
+[data-ui="quote"][data-mark="hang"] > [data-part="text"]::before {
+  content: open-quote;
+  content: open-quote / "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 100%;
+  padding-inline-end: 0.15em;
+  color: color-mix(in oklch, var(--faqir-quote-ink) 70%, transparent);
 }
 
 /* ── Variant: card ──

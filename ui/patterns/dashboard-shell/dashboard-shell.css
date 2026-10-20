@@ -362,6 +362,12 @@
   [data-ui="dashboard-shell"][data-variant="right"] > [data-part="sidebar"][data-state="expanded"] {
     transform: none;
   }
+
+  /* The toggle opens the phone drawer. From here up the sidebar is docked and
+     the drawer does not exist, so a toggle left on screen would do nothing. */
+  [data-ui="dashboard-shell"] > :where([data-part="header"]) > [data-part="sidebar-toggle"] {
+    display: none;
+  }
 }
 
 /* ── Reduced Motion ── */

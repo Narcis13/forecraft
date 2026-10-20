@@ -1,11 +1,16 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "toggle-group",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "kind": "recipe",
   "category": "forms",
   "description": "Single- or multi-select group of toggle buttons over native radio/checkbox controls, with roving-tabindex keyboard navigation and native l-model binding. A segmented style turns a single-select group into one track with a sliding thumb — the monthly/yearly switch of a pricing page — in pure CSS.",
   "changes": [
+    {
+      "version": "1.2.1",
+      "note": "The group follows a reactive :checked binding. Radios carrying :checked=\"mode === 'wizard'\" were checked correctly but every item kept data-state=\"off\" and the roving tab stop stayed on the first item: the binding writes the checked attribute first, and on a control the user has not touched that write flips the property by itself, so the engine's property write after it changed nothing and sent no faqir:model. The controller now also watches its controls' checked attribute (a MutationObserver, disconnected by destroy()) and re-syncs without emitting faqir:change. A plain script write of the property (input.checked = x) is still not observed — use setValue(); the pressed look is keyed on :checked as well, so it never misdraws.",
+      "breaking": false
+    },
     {
       "version": "1.2.0",
       "note": "A data-variant style group: default (the existing look, unchanged, and what a group without the attribute renders) and segmented — one filled track on the theme's button radius, equal-width items and a single raised thumb (the root's ::before) that slides under the checked item; the checked label is also semibold, so the choice is never told by the thumb fill alone. It is pure CSS over the native radios: :has() counts the items (up to six) and finds the checked one, so it works before and without the controller, and the keyboard model is untouched. Single mode only; a segmented multi group keeps the default look, an engine without :has() keeps the default per-item fill, and forced colours paint the checked item in the system selection colours. The default checked rule was also split in two so an engine without :has() still honours data-state=\"on\".",

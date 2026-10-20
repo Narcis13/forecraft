@@ -106,13 +106,13 @@ export async function waitSaved(page: Page) {
 }
 
 /**
- * Choose the 15th of the month the calendar opens on, in a faqir date-picker
- * (its input is readonly and shows "October 15, 2026"); returns the ISO date.
+ * Choose the 15th of the month the calendar opens on, in a faqir date-picker.
+ * The visible input (`data-part="input"`) is unnamed display text; the named
+ * control is the hidden `data-part="value"` holding the ISO date.
  */
 export async function pickDate(page: Page, name: string): Promise<string> {
-  const input = page.locator(`[name="${name}"]`);
-  await input.click();
-  const picker = page.locator('[data-ui="date-picker"]').filter({ has: input });
+  const picker = page.locator('[data-ui="date-picker"]').filter({ has: page.locator(`[name="${name}"]`) });
+  await picker.locator('[data-part="input"]').click();
   const day = picker.locator('button[data-part="day"]:not([data-outside])').nth(14);
   const iso = await day.getAttribute("data-date");
   await day.click();

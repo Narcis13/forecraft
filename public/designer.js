@@ -24,9 +24,34 @@
     { id: "choice", label: "Single choice", icon: "circle-check", schema: { type: "string", title: "Pick one", enum: ["Option A", "Option B", "Option C"] }, ui: { widget: "radio" } },
     { id: "dropdown", label: "Dropdown", icon: "chevron-down", schema: { type: "string", title: "Choose", enum: ["First", "Second", "Third", "Fourth", "Fifth"] }, ui: { widget: "select" } },
     { id: "multi", label: "Checkboxes", icon: "check-check", schema: { type: "array", title: "Pick any", items: { type: "string", enum: ["One", "Two", "Three"] }, uniqueItems: true }, ui: { widget: "checkbox-group" } },
-    { id: "scale", label: "Scale 1–5", icon: "star", schema: { type: "string", title: "How would you rate it?", enum: ["1", "2", "3", "4", "5"] }, ui: { widget: "radio" } },
+    { id: "scale", label: "Scale 1–5", icon: "star", schema: { type: "string", title: "How would you rate it?", enum: ["1", "2", "3", "4", "5"] }, ui: { widget: "scale", minLabel: "Poor", maxLabel: "Excellent" } },
     { id: "yesno", label: "Checkbox", icon: "check", schema: { type: "boolean", title: "I agree" } },
     { id: "switch", label: "Switch", icon: "sliders-horizontal", schema: { type: "boolean", title: "Turn it on" }, ui: { widget: "switch" } },
+    {
+      id: "repeat",
+      label: "Repeatable rows",
+      icon: "table",
+      schema: {
+        type: "array",
+        title: "Line items",
+        minItems: 1,
+        maxItems: 20,
+        items: {
+          type: "object",
+          properties: {
+            label: { type: "string", title: "Label" },
+            qty: { type: "integer", title: "Qty", minimum: 1, maximum: 9999 },
+            amount: { type: "number", title: "Amount", minimum: 0 },
+          },
+          required: ["label", "qty"],
+        },
+      },
+      ui: {
+        addLabel: "Add a row",
+        removeLabel: "Remove row",
+        items: { label: { width: "half" }, qty: { width: "third" }, amount: { width: "third" } },
+      },
+    },
   ];
   var KIND = {};
   KINDS.forEach(function (k) { KIND[k.id] = k; });
@@ -41,7 +66,7 @@
     if (schema.type === "array") return schema.items && schema.items.type === "object" ? "repeat" : "multi";
     if (schema.type === "object") return "object";
     if (schema.enum) {
-      if (schema.enum.join(",") === "1,2,3,4,5") return "scale";
+      if (widget === "scale" || schema.enum.join(",") === "1,2,3,4,5") return "scale";
       if (widget === "select" || (!widget && schema.enum.length > 4)) return "dropdown";
       return "choice";
     }
@@ -307,11 +332,13 @@
             title: s.title || "",
             description: s.description || "",
             placeholder: ui.placeholder || ui["ui:placeholder"] || "",
+            width: ui.width || ui["ui:width"] || "full",
             required: (this.def.schema.required || []).indexOf(this.selected) >= 0,
             options: options ? options.join("\n") : "",
             hasOptions: !!options,
             isText: s.type === "string" && !options && !s.format,
             isNumber: s.type === "number" || s.type === "integer",
+            isScalar: s.type !== "array" && s.type !== "object",
             hasPlaceholder: s.type !== "boolean" && !options && s.type !== "array",
             minLength: s.minLength === undefined ? "" : s.minLength,
             maxLength: s.maxLength === undefined ? "" : s.maxLength,
@@ -496,6 +523,11 @@
               d.ui = d.ui || {};
               d.ui[name] = d.ui[name] || {};
               if (value) d.ui[name].placeholder = value; else delete d.ui[name].placeholder;
+              if (!Object.keys(d.ui[name]).length) delete d.ui[name];
+            } else if (prop === "width") {
+              d.ui = d.ui || {};
+              d.ui[name] = d.ui[name] || {};
+              if (value && value !== "full") d.ui[name].width = value; else delete d.ui[name].width;
               if (!Object.keys(d.ui[name]).length) delete d.ui[name];
             } else if (prop === "required") {
               var req = (d.schema.required || []).filter(function (n) { return n !== name; });

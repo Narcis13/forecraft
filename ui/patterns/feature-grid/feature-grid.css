@@ -1,5 +1,5 @@
 /* @ui:component feature-grid */
-/* @ui:tokens color-bg color-fg color-fg-muted color-primary color-primary-subtle space-2 space-3 space-4 space-6 space-8 space-10 space-12 space-16 font-body text-base text-lg text-xl text-3xl weight-semibold weight-bold leading-tight leading-normal leading-relaxed radius-md */
+/* @ui:tokens color-bg color-fg color-fg-muted color-primary color-primary-subtle space-2 space-3 space-4 space-6 space-8 space-10 space-12 space-16 font-body font-heading text-base text-lg text-xl text-3xl weight-bold leading-tight leading-normal leading-relaxed radius-md heading-weight heading-tracking heading-transform heading-caps */
 
 /* ── Root ──
    Mobile-first (task 0.8-09): everything outside the two `@media` blocks at the
@@ -14,11 +14,18 @@
   background: var(--color-bg);
 }
 
-/* ── Section heading ── */
+/* ── Section heading ──
+   The heading voice, like bento, faq, pricing and the hero: family, weight,
+   tracking, case and caps come from the theme type axis, so a one-weight
+   display face is never asked for a bold it does not have. */
 [data-ui="feature-grid"] [data-part="heading"] {
   margin: 0;
+  font-family: var(--font-heading);
   font-size: var(--text-xl);
-  font-weight: var(--weight-bold);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  font-variant-caps: var(--heading-caps);
   line-height: var(--leading-tight);
   text-wrap: balance;
 }
@@ -74,8 +81,10 @@
 
 [data-ui="feature-grid"] [data-part="item-title"] {
   margin: 0;
+  font-family: var(--font-heading);
   font-size: var(--text-lg);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
   line-height: var(--leading-tight);
 }
 

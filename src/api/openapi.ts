@@ -44,7 +44,7 @@ export function openapi(baseUrl: string): Obj {
         "forecraft is a form platform whose first user is an AI agent. A form is ONE JSON document, the *definition*: `{ schema, ui?, rules?, appearance? }`.",
         "Typical flow: `POST /forms` (draft) -> `POST /forms/{id}/preview` (HTML + audit) -> `POST /forms/{id}/publish` -> people submit through the public page or `POST /f/{slug}/submissions` -> `GET /forms/{id}/submissions`.",
         "Authenticate with `Authorization: Bearer fc_live_…` (create a key in the dashboard or with `POST /keys`). Errors are RFC 9457 `application/problem+json`; a rejected definition or submission carries `errors[]` with a JSON pointer for each fault.",
-        "`schema` is a strict JSON Schema subset (`@faqir-ui/forms`); `ui` is a Faqir UI schema (`widget`, `placeholder`, `rows`, `enumLabels`, `ui:groups`, `ui:wizard`); `rules` is `@faqir-ui/rules` input. `GET /vocabulary` lists the valid appearance values.",
+        "`schema` is a strict JSON Schema subset (`@faqir-ui/forms`); `ui` is a Faqir UI schema (`widget`, `placeholder`, `rows`, `enumLabels`, `width`, `orientation`, `minLabel`/`maxLabel`, `ui:groups`, `ui:wizard`); `rules` is `@faqir-ui/rules` input. `GET /vocabulary` lists the valid appearance values.",
         "Reports and documents: a *report* is ONE JSON definition (`{ schema, sample, layout, appearance, … }`; blocks and curated appearance are listed by `GET /vocabulary/reports`) rendered to an A4 or Letter PDF. Flow: `GET /report-starters` -> `POST /reports` (from a starter) -> `POST /reports/{id}/preview` (preflight findings and page images) -> `POST /reports/{id}/publish` -> `POST /reports/{id}/documents` with `issue: true` (a gapless number, a PDF, a share link) -> `POST /documents/{id}/void` if it must be cancelled. Rendering has its own rate limit (30/min per key) and can answer 503 `renderer-busy` with `Retry-After`.",
         "An MCP server for the same API ships in `packages/mcp` (see /docs/mcp).",
       ].join("\n\n"),
@@ -638,7 +638,7 @@ export function openapi(baseUrl: string): Obj {
             },
             ui: {
               type: "object",
-              description: "Faqir UI schema. Per-field keys: widget (textarea, radio, select, switch, checkbox-group, multi-select, …), placeholder, rows, enumLabels, addLabel, removeLabel. Root keys: ui:groups [{title, description?, fields}] or ui:wizard {label, steps[{title, description?, fields, when?}]}.",
+              description: "Faqir UI schema. Per-field keys: widget (textarea, radio, select, switch, checkbox-group, multi-select, scale, ...), placeholder, rows, enumLabels, width (full|half|third), orientation, minLabel/maxLabel (scale), addLabel, removeLabel, items (repeatable row UI). Root keys: ui:groups [{title, description?, fields}] or ui:wizard {label, steps[{title, description?, fields, when?}]}).",
               additionalProperties: true,
             },
             rules: {

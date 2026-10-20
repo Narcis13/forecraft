@@ -120,3 +120,19 @@
 :where(body, main, article, section, aside, header, footer, form, fieldset, dialog, blockquote, figure, [data-ui="container"], [data-ui="surface"])[data-gap="10"] { --flow-space: var(--space-10); }
 :where(body, main, article, section, aside, header, footer, form, fieldset, dialog, blockquote, figure, [data-ui="container"], [data-ui="surface"])[data-gap="12"] { --flow-space: var(--space-12); }
 :where(body, main, article, section, aside, header, footer, form, fieldset, dialog, blockquote, figure, [data-ui="container"], [data-ui="surface"])[data-gap="16"] { --flow-space: var(--space-16); }
+
+/* ── chrome before the content (forecraft #22) ──
+ * A site header is page chrome, not a section of the content, and a skip link
+ * is out of the flow: neither opens a rhythm gap. Without this, `body` (a flow
+ * root) put --flow-space between a `site-header` and the `main` after it — a
+ * band of page colour under a sticky bar, above a full-bleed hero backdrop.
+ * The element right after either one starts flush; the same participant set
+ * as the rule above, and the same zero weight, so any authored margin wins. */
+:where([data-ui="site-header"], [data-ui="skip-link"])
+  + :where(
+    [data-ui],
+    body, main, article, section, aside, header, footer,
+    form, fieldset, dialog, blockquote, figure
+  ) {
+  margin-block-start: 0;
+}

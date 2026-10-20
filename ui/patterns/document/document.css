@@ -1,19 +1,133 @@
 /* @ui:component document */
-/* @ui:tokens color-bg color-fg color-fg-muted color-border space-2 space-4 space-6 space-8 space-12 shadow-lg radius-md font-body text-xs text-sm weight-semibold weight-bold leading-normal page-format page-orientation page-margin-top page-margin-right page-margin-bottom page-margin-left doc-running-header-height doc-running-footer-height doc-running-gap doc-print-border-color doc-heading-font doc-heading-weight doc-font doc-legal-size doc-legal-color doc-max-width doc-font-size doc-line-height doc-section-gap doc-component-gap doc-table-cell-pad-y doc-table-cell-pad-x doc-table-font-size doc-table-header-weight doc-table-header-fg doc-table-header-bg doc-table-border doc-table-num-font doc-table-footer-weight doc-table-footer-bg doc-table-stripe-bg doc-bg doc-fg z-raised border-width texture-page */
+/* @ui:tokens color-bg color-fg color-fg-muted color-border space-2 space-4 space-6 space-8 space-12 shadow-lg radius-md font-body text-xs text-sm weight-semibold weight-bold leading-normal page-format page-orientation page-margin-top page-margin-right page-margin-bottom page-margin-left doc-running-header-height doc-running-footer-height doc-running-gap doc-print-border-color doc-heading-font doc-heading-weight doc-font doc-legal-size doc-legal-color doc-max-width doc-font-size doc-line-height doc-section-gap doc-component-gap doc-table-cell-pad-y doc-table-cell-pad-x doc-table-font-size doc-table-header-weight doc-table-header-fg doc-table-header-bg doc-table-border doc-table-num-font doc-table-footer-weight doc-table-footer-bg doc-table-stripe-bg doc-bg doc-fg doc-letter-margin-right doc-letter-margin-left doc-fold-mark-1 doc-mark-length doc-mark-inset doc-mark-width doc-mark-color doc-punch-mark-length doc-fold-mark-2 doc-running-header doc-running-footer doc-serif doc-page-label doc-page-separator doc-page-suffix doc-window-top doc-window-height doc-window-width doc-window-padding doc-window-left doc-rule-scale doc-rule-strong-scale doc-table-flush doc-table-num-scale z-raised border-width border-width-strong texture-page */
 
-/* ── Page Rules ── */
-@page {
+/* ── Page Rules ──
+   Named pages. An unnamed `@page` is global once this sheet is bundled: every
+   printed page of the app took the document's paper, margins and counter.
+   A document now asks for its own page by name (`page:` below), so a file
+   with no document prints on the browser's defaults. (A file that does print
+   a document hands its <body> the same page — see the print block — so an
+   empty element before the document cannot force a blank first page.)
+
+   `faqir-document` is the token-driven page — paper and margins from
+   tokens/document.css, read at :root because a page box inherits from the
+   root alone. A document that states BOTH data-format and data-orientation
+   pins its paper with a literal named page instead, which is what lets one
+   file print an A4 and a Letter document side by side. Page selector lists
+   (`@page a, b`) are not parsed by Chromium, so each page is spelled out. */
+@page faqir-document {
   size: var(--page-format) var(--page-orientation);
   margin: var(--page-margin-top)
           var(--page-margin-right)
           var(--page-margin-bottom)
           var(--page-margin-left);
+}
+
+@page faqir-document-a4-portrait {
+  size: A4 portrait;
+  margin: var(--page-margin-top) var(--page-margin-right) var(--page-margin-bottom) var(--page-margin-left);
+}
+
+@page faqir-document-a4-landscape {
+  size: A4 landscape;
+  margin: var(--page-margin-top) var(--page-margin-right) var(--page-margin-bottom) var(--page-margin-left);
+}
+
+@page faqir-document-letter-portrait {
+  size: letter portrait;
+  margin: var(--page-margin-top) var(--page-margin-right) var(--page-margin-bottom) var(--page-margin-left);
+}
+
+@page faqir-document-letter-landscape {
+  size: letter landscape;
+  margin: var(--page-margin-top) var(--page-margin-right) var(--page-margin-bottom) var(--page-margin-left);
+}
+
+/* The `letter` variant: a DIN 5008 business letter on A4 portrait. The fold
+   and punch marks are page-margin boxes, because nothing in the document can
+   paint outside the page area. The top box ends at the first fold, the bottom
+   box begins at the second, and the middle box — which a page centres between
+   the top and bottom margins — is a zero-height rule at 148.5mm, which is why
+   this page keeps both margins at --page-margin-top. */
+@page faqir-document-letter {
+  size: A4 portrait;
+  margin: var(--page-margin-top)
+          var(--doc-letter-margin-right)
+          var(--page-margin-top)
+          var(--doc-letter-margin-left);
+
+  @left-top {
+    content: "";
+    box-sizing: border-box;
+    block-size: calc(var(--doc-fold-mark-1) - var(--page-margin-top));
+    inline-size: var(--doc-mark-length);
+    margin-inline-start: var(--doc-mark-inset);
+    margin-inline-end: auto;
+    border-block-end: var(--doc-mark-width) solid var(--doc-mark-color);
+  }
+
+  @left-middle {
+    content: "";
+    box-sizing: border-box;
+    block-size: 0;
+    inline-size: var(--doc-punch-mark-length);
+    margin-inline-start: var(--doc-mark-inset);
+    margin-inline-end: auto;
+    border-block-start: var(--doc-mark-width) solid var(--doc-mark-color);
+  }
+
+  @left-bottom {
+    content: "";
+    box-sizing: border-box;
+    block-size: calc(297mm - var(--page-margin-top) - var(--doc-fold-mark-2));
+    inline-size: var(--doc-mark-length);
+    margin-inline-start: var(--doc-mark-inset);
+    margin-inline-end: auto;
+    border-block-start: var(--doc-mark-width) solid var(--doc-mark-color);
+  }
+}
+
+/* Margin boxes. They live on the unnamed page so that every faqir-document*
+   page shares them; each one's content is a custom property that is `none`
+   until a document asks for it (the counter is switched on, in @media print
+   below, only in a file that contains a document). Margin boxes read the
+   ROOT's custom properties — a page box is not an element and has no other
+   ancestor — which is also why `attr()` cannot reach a document's attributes
+   from here, and why the running strings are root tokens. */
+@page {
+  /* The running header as a string (`--doc-running-header`): the Chromium
+     path, since Chromium has no running elements. */
+  @top-left {
+    content: var(--doc-running-header);
+    white-space: pre-wrap;
+    vertical-align: var(--faqir-doc-running-header-align, middle);
+    padding-block-end: var(--faqir-doc-running-gap, 0);
+    border-block-end: var(--faqir-doc-running-rule, none);
+    font-family: var(--doc-font);
+    font-size: var(--doc-legal-size);
+    color: var(--doc-legal-color);
+  }
 
   /* Paged-media engines (Prince, WeasyPrint, Vivliostyle) consume the running
      elements. Browser engines that do not support element() keep the fixed
      fallback declared under @media print below. */
   @top-center {
     content: element(faqir-doc-header);
+  }
+
+  /* The running footer as a string (`--doc-running-footer`). With
+     data-running="margin" it and the counter are top-aligned under one
+     shared hairline, so the footer's first line and the counter share a
+     baseline. */
+  @bottom-left {
+    content: var(--doc-running-footer);
+    white-space: pre-wrap;
+    vertical-align: var(--faqir-doc-running-footer-align, middle);
+    padding-block-start: var(--faqir-doc-running-gap, 0);
+    border-block-start: var(--faqir-doc-running-rule, none);
+    font-family: var(--doc-font);
+    font-size: var(--doc-legal-size);
+    color: var(--doc-legal-color);
   }
 
   @bottom-center {
@@ -23,11 +137,47 @@
   /* Chromium 131+ and dedicated paged-media engines support page counters in
      margin boxes. Browser-generated headers/footers should stay disabled. */
   @bottom-right {
-    content: "Page " counter(page) " / " counter(pages);
+    content: var(--faqir-doc-page-counter, none);
+    vertical-align: var(--faqir-doc-running-footer-align, middle);
+    padding-block-start: var(--faqir-doc-running-gap, 0);
+    border-block-start: var(--faqir-doc-running-rule, none);
     font-family: var(--doc-font);
     font-size: var(--doc-legal-size);
     color: var(--doc-legal-color);
   }
+}
+
+/* The first printed page: `data-header="from-page-2"` (and every letter, whose
+   first page carries the letterhead) leaves the running header off it. */
+@page :first {
+  @top-left {
+    content: var(--faqir-doc-running-header-first, var(--doc-running-header));
+  }
+}
+
+/* ── Which page a document prints on ── */
+[data-ui="document"] {
+  page: faqir-document;
+}
+
+[data-ui="document"]:where([data-format="a4"][data-orientation="portrait"]) {
+  page: faqir-document-a4-portrait;
+}
+
+[data-ui="document"]:where([data-format="a4"][data-orientation="landscape"]) {
+  page: faqir-document-a4-landscape;
+}
+
+[data-ui="document"]:where([data-format="letter"][data-orientation="portrait"]) {
+  page: faqir-document-letter-portrait;
+}
+
+[data-ui="document"]:where([data-format="letter"][data-orientation="landscape"]) {
+  page: faqir-document-letter-landscape;
+}
+
+[data-ui="document"]:where([data-variant="letter"]) {
+  page: faqir-document-letter;
 }
 
 /* ── Base (Screen) ──
@@ -52,6 +202,12 @@
   box-shadow: var(--shadow-lg);
   border-radius: 0;
   position: relative;
+  /* A quotation inside a document is set in the document's own sizes: the
+     verbatim at body size, its attribution at the legal size — never the
+     screen ramp's --text-lg over --text-sm. `quote` reads these two knobs, so
+     this needs no selector into the quote at all. */
+  --quote-text-size: var(--doc-font-size);
+  --quote-author-size: var(--doc-legal-size);
 }
 
 /* ── Format: Letter ── */
@@ -78,8 +234,9 @@
 /* ── Headings ──
    The document's own heading face and weight (1.1A-21): a print theme sets
    --doc-heading-font / --doc-heading-weight to give its titles a voice apart
-   from the body copy (document-serif's Times titles over Georgia text). Both
-   default to the page's heading role in tokens/document.css, and each falls
+   from the body copy. Both default to the page's role families in
+   tokens/document.css — and the print themes keep them there, so a face the
+   project installed reaches the paper (forecraft #38) — and each falls
    back to what a heading rendered before the tokens had a reader. A heading
    that carries its own data-weight keeps it — that is the author asking. */
 [data-ui="document"] :is(h1, h2, h3, h4, h5, h6) {
@@ -136,8 +293,11 @@
      (key-value, callout, signature — all of which read --doc-font) follows the
      report into serif instead of staying sans inside a serif page. `report` is
      the author asking for serif; a theme that wants its own document face
-     declares --doc-font at :root, which this variant deliberately outranks. */
-  --doc-font: Georgia, 'Times New Roman', serif;
+     declares --doc-font at :root, which this variant deliberately outranks.
+     The face is a token, --doc-serif, which follows the project's serif role
+     (--font-serif) — so an installed serif sets the report, and the system
+     faces are only that role's fallbacks. */
+  --doc-font: var(--doc-serif);
   line-height: 1.6;
 }
 
@@ -148,6 +308,14 @@
 
 [data-ui="document"][data-variant="report"] [data-part="body"] {
   gap: var(--doc-section-gap);
+}
+
+/* ── Variant: Letter (DIN 5008) ──
+   On screen the address is a block between letterhead and body; the print
+   block below puts it in the envelope window and draws the fold marks. */
+[data-ui="document"][data-variant="letter"] > [data-part="address"] {
+  margin-block-end: var(--doc-section-gap);
+  font-style: normal;
 }
 
 /* ── Document-context table overrides ──
@@ -165,6 +333,23 @@
 [data-ui="document"] [data-ui="table"] [data-part="td"] {
   padding: var(--doc-table-cell-pad-y) var(--doc-table-cell-pad-x);
   font-size: var(--doc-table-font-size);
+  border-bottom-width: calc(var(--border-width) * var(--doc-rule-scale));
+}
+
+/* The rule under the head. Not in a `bordered` table, whose grid draws every
+   cell edge at one weight. */
+[data-ui="document"] [data-ui="table"]:not([data-variant="bordered"]) [data-part="th"] {
+  border-bottom-width: calc(var(--border-width-strong) * var(--doc-rule-strong-scale));
+}
+
+/* A row's outer cells: a print theme that sets the rules flush with the text
+   column takes this inset away (forecraft #48). */
+[data-ui="document"] [data-ui="table"] :is([data-part="th"], [data-part="td"]):first-child {
+  padding-inline-start: calc(var(--doc-table-cell-pad-x) * (1 - var(--doc-table-flush)));
+}
+
+[data-ui="document"] [data-ui="table"] :is([data-part="th"], [data-part="td"]):last-child {
+  padding-inline-end: calc(var(--doc-table-cell-pad-x) * (1 - var(--doc-table-flush)));
 }
 
 [data-ui="document"] [data-ui="table"] [data-format="number"],
@@ -173,10 +358,15 @@
   font-variant-numeric: var(--doc-table-num-font);
 }
 
+[data-ui="document"] [data-ui="table"] [data-part="td"]:is([data-format="number"], [data-format="currency"], [data-format="percent"]) {
+  font-size: calc(var(--doc-table-font-size) * var(--doc-table-num-scale));
+}
+
 [data-ui="document"] [data-ui="table"] [data-part="tfoot"] [data-part="td"] {
   font-weight: var(--doc-table-footer-weight);
   background: var(--doc-table-footer-bg);
   border-top-color: var(--doc-table-border);
+  border-top-width: calc(var(--border-width-strong) * var(--doc-rule-strong-scale));
 }
 
 [data-ui="document"] [data-ui="table"][data-variant="striped"] [data-part="tbody"] [data-part="tr"]:nth-child(even) [data-part="td"] {
@@ -208,6 +398,37 @@
 
 /* ── Print ── */
 @media print {
+  /* A change of page name is a forced break, and Chromium honours it even at
+     the very top of the flow: an empty element before a document — a toast
+     region, a skip-link host — printed a blank first page. So the <body> of a
+     file that prints a document takes the document's page as well, and nothing
+     in it changes page name except where two documents ask for different paper
+     (the last rule that matches names the body's page). Without a document the
+     body is unnamed, and prints on the browser's defaults. */
+  html:where(:has([data-ui="document"])) > body {
+    page: faqir-document;
+  }
+
+  html:where(:has([data-ui="document"]:where([data-format="a4"][data-orientation="portrait"]))) > body {
+    page: faqir-document-a4-portrait;
+  }
+
+  html:where(:has([data-ui="document"]:where([data-format="a4"][data-orientation="landscape"]))) > body {
+    page: faqir-document-a4-landscape;
+  }
+
+  html:where(:has([data-ui="document"]:where([data-format="letter"][data-orientation="portrait"]))) > body {
+    page: faqir-document-letter-portrait;
+  }
+
+  html:where(:has([data-ui="document"]:where([data-format="letter"][data-orientation="landscape"]))) > body {
+    page: faqir-document-letter-landscape;
+  }
+
+  html:where(:has([data-ui="document"]:where([data-variant="letter"]))) > body {
+    page: faqir-document-letter;
+  }
+
   [data-ui="document"] {
     max-width: none;
     margin: 0;
@@ -263,6 +484,74 @@
       -webkit-box-decoration-break: clone;
       box-decoration-break: clone;
     }
+
+    /* A part drawn in the page margin (or, for a letter, in flow on page 1)
+       needs no room kept for it on every page. */
+    [data-ui="document"]:is([data-running="margin"], [data-header="from-page-2"], [data-variant="letter"]) > [data-part="body"] {
+      padding-block-start: 0;
+    }
+
+    [data-ui="document"][data-running="margin"] > [data-part="body"] {
+      padding-block-end: 0;
+    }
+  }
+
+  /* ── Running strings in the page margin ──
+     data-running="margin" prints the running header and footer from the
+     --doc-running-header / --doc-running-footer strings in the page-margin
+     boxes, with the counter on the footer's line; data-header="from-page-2"
+     does the same for the header alone and leaves it off the first page. The
+     DOM parts stay for the screen. (A letter keeps its doc-header: it is the
+     letterhead, printed in flow on the first page.) */
+  [data-ui="document"][data-running="margin"] > :is([data-part="doc-header"], [data-part="header"], [data-part="doc-footer"], [data-part="footer"]),
+  [data-ui="document"][data-header="from-page-2"]:not([data-variant="letter"]) > :is([data-part="doc-header"], [data-part="header"]) {
+    display: none;
+  }
+
+  /* The margin boxes read the root, so a document's attributes reach them
+     through :has() on <html>. Not `:root`: a component sheet may load before
+     or after a theme, so it declares no token at the root — these set private
+     --faqir-* knobs the margin boxes read, and the tokens a document's
+     attributes restate (its language's counter words, a Form A letter's
+     geometry) are restated in tokens/document.css. :where() keeps every one
+     at a type selector's weight. */
+  html:where(:has([data-ui="document"])) {
+    --faqir-doc-page-counter: var(--doc-page-label) counter(page) var(--doc-page-separator) counter(pages) var(--doc-page-suffix);
+  }
+
+  html:where(:has([data-ui="document"][data-running="margin"])) {
+    --faqir-doc-running-header-align: bottom;
+    --faqir-doc-running-footer-align: top;
+    --faqir-doc-running-gap: var(--doc-running-gap);
+    --faqir-doc-running-rule: var(--border-width) solid var(--doc-print-border-color);
+  }
+
+  html:where(:has([data-ui="document"]:is([data-header="from-page-2"], [data-variant="letter"]))) {
+    --faqir-doc-running-header-first: none;
+  }
+
+  /* ── Variant: Letter (DIN 5008) ──
+     Page 1 is three bands measured from the top of the sheet: the letterhead
+     (the doc-header, in flow and not repeated) down to the address window,
+     the address in the window, then the body. Form A (data-form="a") moves
+     the window and the folds up: tokens/document.css restates the three. */
+  [data-ui="document"][data-variant="letter"] > :is([data-part="doc-header"], [data-part="header"]) {
+    position: static;
+    box-sizing: border-box;
+    block-size: calc(var(--doc-window-top) - var(--page-margin-top));
+    margin-block-end: 0;
+    padding-block-end: 0;
+    border-block-end: 0;
+    overflow: hidden;
+  }
+
+  [data-ui="document"][data-variant="letter"] > [data-part="address"] {
+    box-sizing: border-box;
+    block-size: var(--doc-window-height);
+    inline-size: calc(var(--doc-window-width) - var(--doc-window-padding));
+    margin-block: 0;
+    margin-inline-start: calc(var(--doc-window-left) + var(--doc-window-padding) - var(--doc-letter-margin-left));
+    overflow: hidden;
   }
 
   /* Print border color for nested tables */

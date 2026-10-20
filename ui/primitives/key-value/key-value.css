@@ -121,6 +121,22 @@
   text-align: end;
 }
 
+/* ── Grouped pairs in the grid and inline layouts ──
+   `dl > div > dt + dd` is valid HTML and the manifest allows it, but in a grid
+   or a flex row the <div> is ONE item: three grouped pairs in the horizontal
+   grid laid out as label+value cells of the div's own block, and a data-cols
+   grid put two whole pairs in each row. `display: contents` takes the plain
+   grouping <div> out of the box tree, so its label and value are the grid's
+   (or the row's) items exactly as ungrouped ones are. A <div> has no role to
+   lose, so nothing changes for assistive technology. The vertical variant
+   stacks a block <div> correctly and keeps the group's box. */
+[data-ui="key-value"][data-variant="horizontal"] > :where(div:not([data-ui])),
+[data-ui="key-value"]:not([data-variant]) > :where(div:not([data-ui])),
+[data-ui="key-value"][data-variant="inline"] > :where(div:not([data-ui])),
+[data-ui="key-value"][data-cols] > :where(div:not([data-ui])) {
+  display: contents;
+}
+
 /* ── Size: Small ── */
 [data-ui="key-value"][data-size="sm"] {
   gap: var(--space-1) var(--space-2);

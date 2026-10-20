@@ -1,9 +1,15 @@
 /* @ui:component nav */
 /* @ui:tokens color-fg color-fg-muted color-primary color-primary-subtle color-bg-subtle color-bg color-border text-sm weight-medium radius-md space-0h space-1 space-2 space-3 space-4 shadow-sm duration-fast ease-default border-width border-width-strong */
 
-/* ── Base ── */
+/* ── Base ──
+   A row that wraps: six links in a horizontal, underline or pill nav are wider
+   than a phone, and a row that cannot wrap pushed the whole page into sideways
+   scroll. Wrapping (not a scroller) keeps every link on screen and its focus
+   ring unclipped; a row that fits is unchanged. The vertical variant is a
+   column, where wrapping never applies. */
 [data-ui="nav"] {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-1);
 }

@@ -672,6 +672,13 @@
     position: static;
   }
 
+  /* The thead above repeats on every printed page, and so does a
+     table-footer-group. data-print-footer="last" prints the footer once, after
+     the last row: an invoice's total on its last page only. */
+  [data-ui="table"][data-print-footer="last"] > :where([data-part="table"]) > [data-part="tfoot"] {
+    display: table-row-group;
+  }
+
   [data-ui="table"] > :where([data-part="table"]) > :where(thead, tbody, tfoot) > [data-part="tr"] {
     break-inside: avoid;
   }

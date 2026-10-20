@@ -128,33 +128,6 @@ body > a[href="#main"]:first-child:focus-visible {
   gap: var(--space-8);
 }
 
-/* ── Inside a generated form (FAQIR-UPSTREAM.md #16, #17) ─────────────────────
-   @faqir-ui/forms renders group and wizard-step bodies as a card body, which is
-   not a flow root, so their field-groups touch. Give them the form's rhythm. */
-[data-form-page] form [data-ui="card"] > [data-part="body"] {
-  display: grid;
-  gap: var(--space-6);
-}
-/* A long run of short options (a 0–10 scale) reads as a scale, not a list:
-   radio-group has no horizontal orientation, and renderForm no scale widget. */
-[data-form-page] [data-ui="radio-group"]:has(> [data-ui="radio-label"]:nth-child(7)) {
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-[data-form-page] [data-ui="radio-group"]:has(> [data-ui="radio-label"]:nth-child(7)) > [data-ui="radio-label"] {
-  min-inline-size: var(--control-height-md);
-  justify-content: center;
-  padding: var(--space-2) var(--space-3);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg);
-}
-[data-form-page] [data-ui="radio-group"]:has(> [data-ui="radio-label"]:nth-child(7)) > [data-ui="radio-label"]:has(:checked) {
-  border-color: var(--color-primary);
-  background: var(--color-primary-subtle);
-}
-
 /* ── Designer ─────────────────────────────────────────────────────────────────
    A three-pane tool: palette, canvas, properties. Wide screens only; a phone
    gets a note instead (the panes need ~1024px). The pane widths (15rem, 22rem),

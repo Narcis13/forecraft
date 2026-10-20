@@ -1,5 +1,5 @@
 /* @ui:component field-group */
-/* @ui:tokens color-fg color-fg-muted color-destructive color-success field-validating-color field-disabled-opacity field-label-size field-label-weight field-label-color field-required-color field-required-marker field-description-size field-description-color field-error-size field-error-color space-1 space-2 space-3 space-4 text-xs text-sm font-body weight-medium border-width doc-font */
+/* @ui:tokens color-fg color-fg-muted color-destructive color-success field-validating-color field-disabled-opacity field-label-size field-label-weight field-label-color field-required-color field-required-marker field-description-size field-description-color field-error-size field-error-color space-1 space-2 space-3 space-4 text-xs text-sm font-body weight-medium border-width doc-font section-gap-sm */
 
 /* ── Base / spacing ownership ──
    A field-group owns only its tight, density-aware intra-field step: label →
@@ -147,6 +147,39 @@
 
 [data-ui="field-group"][data-size="lg"] > [data-part="label"] {
   font-size: var(--text-sm);
+}
+
+/* ── Width: data-span ──
+   A field's share of a row (full, half or third) from the md tier up; on a
+   phone every field is full width. The fields' container (the form, a card
+   body, a wizard step's body) becomes a six-track grid only when one of its
+   field-groups carries data-span, so a form that never sets a width keeps its
+   flow layout. Rows stay the field rhythm apart (--flow-space, which the
+   form's data-gap sets), and the rhythm's margin between siblings comes off:
+   the grid's gap is that step now, and a margin on the second field of a row
+   would push it below its neighbour. Weightless (:where), so a container that
+   lays itself out (a stack, a grid) keeps its own rules. */
+@media (min-width: 48rem) {
+  :where(:has(> [data-ui="field-group"][data-span])) {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    column-gap: var(--space-4);
+    row-gap: var(--flow-space, var(--section-gap-sm));
+    align-items: start;
+  }
+
+  :where(:has(> [data-ui="field-group"][data-span])) > :where(*) {
+    grid-column: 1 / -1;
+    margin-block-start: 0;
+  }
+
+  :where(:has(> [data-ui="field-group"][data-span])) > [data-ui="field-group"][data-span="half"] {
+    grid-column: span 3;
+  }
+
+  :where(:has(> [data-ui="field-group"][data-span])) > [data-ui="field-group"][data-span="third"] {
+    grid-column: span 2;
+  }
 }
 
 /* ── Print ── */

@@ -1,11 +1,16 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "date-picker",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "kind": "recipe",
   "category": "forms",
   "description": "Date input with calendar dropdown for date selection — the month grid is the nested `calendar` recipe",
   "changes": [
+    {
+      "version": "2.1.0",
+      "note": "A value part for forms. [data-part=\"value\"] is an optional <input type=\"hidden\"> directly inside the root that carries the field's name: the controller keeps the ISO date (2026-10-15) in it on every pick, setValue() and clear, and fires input and change on it so l-model, faqir-validate and faqir-rules see the answer. The visible [data-part=\"input\"] keeps the display text (\"October 15, 2026\") and loses its name, so FormData and a native submit send the ISO date instead of the display text. A value rendered into the hidden input is the picker's selection at start-up, and a form reset restores it. A new clear() method empties the calendar, the visible input and the value part (setValue still ignores anything that is not a date). Markup without the value part behaves exactly as before.",
+      "breaking": false
+    },
     {
       "version": "2.0.1",
       "note": "Nested components keep their own parts. The stylesheet reached the trigger, input, icon and calendar with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Parts are root > trigger > input and icon, and root > calendar. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
@@ -23,6 +28,12 @@
     "content_model": "slots"
   },
   "slots": {
+    "value": {
+      "selector": "[data-part='value']",
+      "required": false,
+      "tag_hint": "input",
+      "description": "Inside a form: an <input type=\"hidden\"> directly inside the root, carrying the field's name. The controller keeps the ISO date (YYYY-MM-DD) in it and fires input/change on it whenever the value changes, so it is what FormData, a native submit, l-model and the rules read. The visible input then carries no name."
+    },
     "trigger": {
       "selector": "[data-part='trigger']",
       "required": true,
@@ -33,7 +44,7 @@
       "selector": "[data-part='input']",
       "required": true,
       "tag_hint": "input",
-      "description": "Text input displaying the selected date"
+      "description": "Text input displaying the selected date as a person reads it (\"October 15, 2026\"). Inside a form it carries the label's id, required and the description wiring but no name — the value part is what submits"
     },
     "icon": {
       "selector": "[data-part='icon']",
@@ -88,6 +99,10 @@
         "params": "dateStr"
       },
       {
+        "name": "clear",
+        "params": ""
+      },
+      {
         "name": "navigate",
         "params": "month, year"
       },
@@ -105,7 +120,7 @@
     "value": {
       "type": "string",
       "default": "",
-      "description": "Selected date value"
+      "description": "Selected date, ISO YYYY-MM-DD: the value part's value (and the visible input's data-value)"
     },
     "placeholder": {
       "type": "string",
@@ -167,7 +182,8 @@
     "focus-ring-offset"
   ],
   "templates": {
-    "html": "<div data-ui=\"date-picker\" data-state=\"closed\" data-size=\"{size}\">\n  <div data-part=\"trigger\">\n    <input data-part=\"input\" type=\"text\" placeholder=\"Select a date\" readonly aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-label=\"Choose date\">\n    <span data-part=\"icon\" aria-hidden=\"true\">&#x1F4C5;</span>\n  </div>\n  <div data-part=\"calendar\" role=\"dialog\" aria-label=\"Date picker\" hidden>\n    <div data-ui=\"calendar\" data-size=\"{size}\">\n      <div data-part=\"header\">\n        <button data-part=\"nav-prev\" type=\"button\" aria-label=\"Previous month\">&lsaquo;</button>\n        <span data-part=\"month-label\"></span>\n        <button data-part=\"nav-next\" type=\"button\" aria-label=\"Next month\">&rsaquo;</button>\n      </div>\n      <table data-part=\"grid\" role=\"grid\" aria-label=\"Calendar\">\n        <thead><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr></thead>\n        <tbody data-part=\"grid-body\"></tbody>\n      </table>\n    </div>\n  </div>\n</div>"
+    "html": "<div data-ui=\"date-picker\" data-state=\"closed\" data-size=\"{size}\">\n  <div data-part=\"trigger\">\n    <input data-part=\"input\" type=\"text\" placeholder=\"Select a date\" readonly aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-label=\"Choose date\">\n    <span data-part=\"icon\" aria-hidden=\"true\">&#x1F4C5;</span>\n  </div>\n  <div data-part=\"calendar\" role=\"dialog\" aria-label=\"Date picker\" hidden>\n    <div data-ui=\"calendar\" data-size=\"{size}\">\n      <div data-part=\"header\">\n        <button data-part=\"nav-prev\" type=\"button\" aria-label=\"Previous month\">&lsaquo;</button>\n        <span data-part=\"month-label\"></span>\n        <button data-part=\"nav-next\" type=\"button\" aria-label=\"Next month\">&rsaquo;</button>\n      </div>\n      <table data-part=\"grid\" role=\"grid\" aria-label=\"Calendar\">\n        <thead><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr></thead>\n        <tbody data-part=\"grid-body\"></tbody>\n      </table>\n    </div>\n  </div>\n</div>",
+    "html_form": "<div data-ui=\"date-picker\" data-state=\"closed\" data-size=\"{size}\">\n  <input data-part=\"value\" type=\"hidden\" name=\"{name}\">\n  <div data-part=\"trigger\">\n    <input data-part=\"input\" type=\"text\" placeholder=\"Select a date\" readonly aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-label=\"Choose date\">\n    <span data-part=\"icon\" aria-hidden=\"true\">&#x1F4C5;</span>\n  </div>\n  <div data-part=\"calendar\" role=\"dialog\" aria-label=\"Date picker\" hidden>\n    <div data-ui=\"calendar\" data-size=\"{size}\">\n      <div data-part=\"header\">\n        <button data-part=\"nav-prev\" type=\"button\" aria-label=\"Previous month\">&lsaquo;</button>\n        <span data-part=\"month-label\"></span>\n        <button data-part=\"nav-next\" type=\"button\" aria-label=\"Next month\">&rsaquo;</button>\n      </div>\n      <table data-part=\"grid\" role=\"grid\" aria-label=\"Calendar\">\n        <thead><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr></thead>\n        <tbody data-part=\"grid-body\"></tbody>\n      </table>\n    </div>\n  </div>\n</div>"
   },
   "safe_transforms": [
     "change-size",
@@ -216,6 +232,11 @@
     "arrow-keys-navigate-days",
     "generates-correct-calendar-grid",
     "delegates-grid-to-calendar-recipe",
-    "legacy-flat-markup-still-works"
+    "legacy-flat-markup-still-works",
+    "value-part-submits-iso-date",
+    "value-part-fires-input-and-change",
+    "clear-empties-the-value-part",
+    "server-rendered-value-is-the-initial-selection",
+    "form-reset-restores-initial-value"
   ]
 }

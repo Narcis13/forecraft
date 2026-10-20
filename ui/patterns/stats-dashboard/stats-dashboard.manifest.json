@@ -1,7 +1,7 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "stats-dashboard",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "kind": "pattern",
   "category": "composite",
   "description": "Reporting page composing a KPI row (the grid primitive filled with stats) and card panels, one of which holds the table recipe with its formatting contract — data-format columns, data-value cells and a live-aggregating tfoot. Composition only: this pattern ships no JavaScript of its own; loading faqir-core.js (which bundles table.js) makes the table sortable and its totals live.",
@@ -78,10 +78,11 @@
   },
 
   "tokens_used": [
-    "color-bg", "color-fg", "color-fg-muted", "color-border",
-    "space-1", "space-2", "space-3", "space-4", "space-6", "space-8", "space-12", "space-px",
-    "font-heading", "font-body", "heading-tracking", "heading-transform", "heading-caps", "heading-leading", "text-sm", "text-base", "text-lg", "text-3xl",
-    "weight-semibold", "weight-bold", "leading-tight", "leading-normal", "leading-relaxed"
+    "color-bg", "color-fg", "color-fg-muted", "color-border", "space-1", "space-2", "space-3",
+    "space-4", "space-6", "space-8", "space-12", "space-px", "font-heading", "font-body",
+    "heading-tracking", "heading-transform", "heading-caps", "heading-leading", "heading-weight",
+    "text-sm", "text-base", "text-lg", "text-3xl", "weight-semibold", "weight-bold",
+    "leading-tight", "leading-normal", "leading-relaxed"
   ],
 
   "templates": {
@@ -173,6 +174,11 @@
   ],
 
   "changes": [
+    {
+      "version": "1.1.1",
+      "note": "The dashboard heading reads --font-heading at --heading-weight with the heading tracking, like every other pattern heading, instead of the body face at a fixed bold.",
+      "breaking": false
+    },
     {
       "version": "1.1.0",
       "note": "The responsive ladder moves onto the breakpoint canon, mobile-first (task 0.8-09). The sheet's max-width media blocks became min-width floors on canon tiers (sm 40rem/640px, md 48rem/768px, lg 64rem/1024px), so every unconditional rule is now the PHONE case and a tier block only ever widens it. The panel region stacks until lg; the KPI row's own ladder was already grid.css's. The floors keep their values, so the only behavioural shift is at exactly a floor: 1024px now gets the wide layout rather than the narrow one.",

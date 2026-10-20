@@ -7,16 +7,28 @@
    sheet only sets the page's reading measure and vertical rhythm — the plain
    generated form has no data-ui root, so it is scoped to the bare l-data form
    that the generator produces (the wizard form carries data-ui and is excluded).
-   Attribute + token selectors only; logical properties throughout. */
+   Attribute + token selectors only; logical properties throughout.
+
+   One step between everything in the form: the heading, the description, every
+   field and card, the buttons. It is the form's data-gap (the generator writes
+   data-gap="4"), read as --flow-space, which a card body inside the form keeps
+   too, so a grouped form and a wizard step space their fields exactly as a flat
+   form does. The form is a grid (one column) and the gap is its row gap; the
+   rhythm's margin on its children comes off, since the gap already is that
+   step. A field-group with data-span turns the columns into six from the md
+   tier (field-group.css). */
 
 :where(form[l-data]:not([data-ui])) {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
+  display: grid;
+  row-gap: var(--flow-space, var(--space-5));
   max-inline-size: var(--measure-narrow);
   margin-inline: auto;
   padding-block: var(--space-8);
   font-family: var(--font-body);
+}
+
+:where(form[l-data]:not([data-ui])) > :where(*) {
+  margin-block-start: 0;
 }
 
 :where(form[l-data]:not([data-ui]) > h1) {

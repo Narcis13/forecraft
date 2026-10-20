@@ -78,7 +78,21 @@ block content
                   dl(data-ui="description-list")
                     each a in r.answers
                       dt(data-part="term") {{ a.label }}
-                      dd(data-part="details") {{ answer(a.value) }}
+                      dd(data-part="details")
+                        if a.table ?? false
+                          div(data-ui="table" data-size="sm")
+                            table(data-part="table")
+                              thead(data-part="thead")
+                                tr(data-part="tr")
+                                  each h in a.table.head
+                                    th(data-part="th" scope="col") {{ h }}
+                              tbody(data-part="tbody")
+                                each row in a.table.rows
+                                  tr(data-part="tr")
+                                    each cell in row
+                                      td(data-part="td") {{ answer(cell) }}
+                        else
+                          | {{ answer(a.value) }}
                     dt(data-part="term") Response id
                     dd(data-part="details")
                       code {{ r.id }}

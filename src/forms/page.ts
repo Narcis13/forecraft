@@ -74,7 +74,7 @@ const MAX_AUDITS = 2;
 let running = 0;
 const waiting: (() => void)[] = [];
 
-/** `faqir audit --stdin --json` over one page (the CLI is the only audit 1.2.5 ships; FAQIR-UPSTREAM.md #7). */
+/** `faqir audit --stdin --json` over one page (CLI-only audit; FAQIR-UPSTREAM.md #7). */
 export async function auditHtml(html: string): Promise<AuditResult> {
   if (running >= MAX_AUDITS) await new Promise<void>((go) => waiting.push(go));
   running++;

@@ -135,6 +135,8 @@
   border-radius: var(--radius-md, 0.375rem);
   color: var(--color-fg);
   font-size: var(--text-sm);
+  /* An item may be an <a href>: it reads as a command, not as a link. */
+  text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
   transition: background var(--duration-fast) var(--ease-out);

@@ -15,10 +15,18 @@
   padding-inline: var(--space-4);
   font-family: var(--font-body);
   color: var(--color-fg);
-  /* The page colour unless the author says otherwise: a hero wrapped in a
-     backdrop sets `--hero-bg: transparent` so the light behind it shows. */
+  /* The page colour unless the author says otherwise; inside a backdrop the
+     rule below makes it transparent so the light behind it shows. */
   background-color: var(--hero-bg, var(--color-bg));
   background-image: var(--texture-surface);
+}
+
+/* A hero inside a backdrop lets the backdrop show: an opaque --color-bg fill
+   covered the scene the page wrapped it in. Zero specificity, so any
+   `--hero-bg` the author sets on the hero itself (a rule or inline) still
+   wins. */
+:where([data-ui="backdrop"] [data-ui="hero"]) {
+  --hero-bg: transparent;
 }
 
 /* ── Eyebrow ── */
@@ -31,7 +39,7 @@
 [data-ui="hero"] [data-part="headline"] {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: var(--text-3xl);
+  font-size: var(--hero-display-size, var(--text-3xl));
   font-weight: var(--heading-weight);
   letter-spacing: var(--heading-tracking);
   text-transform: var(--heading-transform);
@@ -108,8 +116,10 @@
   justify-items: start;
 }
 
+/* --hero-display-size sizes the headline in every layout; unset, the split
+   layout keeps --text-3xl at every width (its column is half the row). */
 [data-ui="hero"][data-variant="split"] [data-part="headline"] {
-  font-size: var(--text-3xl);
+  font-size: var(--hero-display-size, var(--text-3xl));
 }
 
 /* ── Layout: cover ──
@@ -278,7 +288,7 @@
   }
 
   [data-ui="hero"] [data-part="headline"] {
-    font-size: var(--text-4xl);
+    font-size: var(--hero-display-size, var(--text-4xl));
   }
 
   [data-ui="hero"] [data-part="description"] {

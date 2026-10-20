@@ -26,8 +26,13 @@
  * Every user mutation funnels through a native `change` event on the affected
  * input, so the engine's `l-model` listener and this controller stay in lockstep.
  * Store-driven `l-model` writes arrive as the engine's `faqir:model` event (and
- * a form `reset`); both re-sync state without a `faqir:change`. A plain script
- * write (`input.checked = x`) is silent and is not observed — use `setValue()`.
+ * a form `reset`); both re-sync state without a `faqir:change`. A `:checked`
+ * binding is followed too: it writes the `checked` attribute, which a
+ * MutationObserver sees (on an untouched control that attribute write flips the
+ * property by itself, so no `faqir:model` follows it). A plain script write of
+ * the property (`input.checked = x`) is silent and is not observed — use
+ * `setValue()`. The CSS keys the pressed look on `:checked` as well, so a
+ * stale `data-state` never misdraws the group.
  */
 export function createToggleGroup(root) {
   // Prevent double-init.
@@ -194,6 +199,14 @@ export function createToggleGroup(root) {
   const form = root.closest("form");
   const onReset = () => setTimeout(syncState, 0);
 
+  // A `:checked` binding writes the ATTRIBUTE before the property, and on a
+  // control the user has not touched that attribute write flips the property
+  // too — so the property write after it changes nothing and announces nothing.
+  // Watch the attribute itself. syncState writes only tabindex and data-state,
+  // which this filter ignores, so it cannot feed back into itself.
+  const observer = new MutationObserver(syncState);
+  observer.observe(root, { subtree: true, attributeFilter: ["checked"] });
+
   root.addEventListener("change", onChange);
   root.addEventListener("faqir:model", syncState);
   root.addEventListener("keydown", onKeyDown);
@@ -201,6 +214,7 @@ export function createToggleGroup(root) {
   syncState();
 
   function destroy() {
+    observer.disconnect();
     root.removeEventListener("change", onChange);
     root.removeEventListener("faqir:model", syncState);
     root.removeEventListener("keydown", onKeyDown);

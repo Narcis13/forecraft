@@ -1,8 +1,13 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "quote",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "changes": [
+    {
+      "version": "1.1.0",
+      "note": "Added the mark variant (data-mark=\"above|hang|none\"): hang sets the opening mark beside the first line at the text's size instead of on a line of its own, none drops it. Added the --quote-text-size and --quote-author-size knobs, which the document pattern sets to its body and legal sizes so a quotation's attribution can no longer outgrow the document text. Defaults are unchanged.",
+      "breaking": false
+    },
     {
       "version": "1.0.1",
       "note": "Fix: every quote after the first on a page drew the nested mark (‘ instead of “), because open-quote raised the quote depth and nothing lowered it. An absolutely positioned no-close-quote on ::after lowers it without adding a grid row.",
@@ -70,6 +75,12 @@
       "default": "start",
       "attr": "data-align",
       "applied_to": "root"
+    },
+    "mark": {
+      "values": ["above", "hang", "none"],
+      "default": "above",
+      "attr": "data-mark",
+      "applied_to": "root"
     }
   },
 
@@ -78,6 +89,16 @@
       "type": "string",
       "default": "var(--color-primary)",
       "description": "Colour of the opening mark and of the pull variant's rule (custom property). Pass a colour token."
+    },
+    "--quote-text-size": {
+      "type": "string",
+      "default": "var(--text-lg)",
+      "description": "Font size of the quotation (custom property). Inside a document pattern it is --doc-font-size. A data-size variant overrides it."
+    },
+    "--quote-author-size": {
+      "type": "string",
+      "default": "var(--text-sm)",
+      "description": "Font size of the attribution (custom property). Inside a document pattern it is --doc-legal-size, so the attribution stays smaller than the quotation."
     }
   },
 
@@ -113,6 +134,7 @@
     "change-style",
     "change-size",
     "change-align",
+    "change-mark",
     "add-author",
     "remove-author",
     "add-avatar-in-media",
@@ -154,6 +176,9 @@
     "card-variant-reads-the-card-aliases",
     "pull-variant-uses-the-heading-voice-and-an-accent-rule",
     "center-alignment-keeps-the-author-block-readable",
+    "hang-mark-sits-beside-the-first-line-inside-the-figure",
+    "none-mark-draws-no-mark",
+    "inside-a-document-text-and-attribution-take-the-document-sizes",
     "does-not-break-across-printed-pages"
   ]
 }

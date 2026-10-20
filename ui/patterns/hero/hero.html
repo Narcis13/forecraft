@@ -80,10 +80,11 @@
 </section>
 
 <!-- Cover without media, inside a backdrop: a tall typographic hero whose
-     light comes from the wrapper. --hero-bg: transparent lets it show, and
-     the scrim (drawn in the section colour) goes transparent with it. -->
+     light comes from the wrapper. Inside a backdrop --hero-bg is transparent
+     with no attribute, so it shows, and the scrim (drawn in the section
+     colour) goes transparent with it. -->
 <div data-ui="backdrop" data-variant="spotlight">
-  <section data-ui="hero" data-variant="cover" data-animate aria-labelledby="hero-cover-backdrop-headline" style="--hero-bg: transparent">
+  <section data-ui="hero" data-variant="cover" data-animate aria-labelledby="hero-cover-backdrop-headline">
     <div data-part="content">
       <span data-ui="badge" data-part="eyebrow">Launch week</span>
       <h2 data-part="headline" id="hero-cover-backdrop-headline">Everything ships on <span data-ui="highlight">Friday</span></h2>
