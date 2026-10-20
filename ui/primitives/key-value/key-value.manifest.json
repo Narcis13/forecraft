@@ -1,12 +1,17 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "key-value",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "kind": "primitive",
   "category": "data-display",
   "description": "Labeled data pair for displaying key-value information",
 
   "changes": [
+    {
+      "version": "1.0.2",
+      "note": "Grouped pairs (dl > div > dt + dd) lay out like ungrouped ones in the horizontal, inline and data-cols layouts: the plain grouping <div> is display: contents there, so its label and value are the grid's cells instead of the div being one cell (three grouped pairs no longer pack two to a row). The vertical variant keeps the group's box. Ungrouped markup is unchanged.",
+      "breaking": false
+    },
     {
       "version": "1.0.1",
       "note": "Nested components keep their own parts. The label and value rules were descendant selectors, so a progress bar in a <dd> took this list's label weight (and, in a sm list, its --text-xs size), and a list nested in a value inherited the outer list's size. They now match a direct child of the list, or a child of a plain <div> grouping one pair (dl > div > dt + dd, which HTML allows); the <div> hop is in :where(), so both shapes keep the old specificity.",

@@ -158,6 +158,80 @@
   border-block-end: var(--border-width) solid var(--color-border);
 }
 
+/* Wide tables — a table is as wide as its widest row, and on a phone that row
+   pushed the whole page into sideways scroll. Wrap the table and the wrapper
+   scrolls instead:
+
+     <div role="region" tabindex="0" aria-label="Plan comparison">
+       <table>…</table>
+     </div>
+
+   or a <figure> with a <figcaption> (point aria-labelledby at the caption).
+   The wrapper is plain HTML — prose takes no parts — and any <div> or
+   <figure> whose child is a <table> qualifies, which is the shape a markdown
+   renderer emits once it wraps tables. `tabindex="0"` with a role and a name
+   makes the scroller reachable and announced from the keyboard, and the
+   default ring from reset.css shows its focus; the table inside drops its
+   own block margin so the wrapper carries it. A bare table is unchanged. */
+[data-ui="prose"] :where(div, figure):has(> table) {
+  max-inline-size: 100%;
+  overflow-x: auto;
+  margin-block: var(--space-6);
+  margin-inline: 0;
+}
+
+[data-ui="prose"] :where(div, figure):has(> table) > table {
+  margin-block: 0;
+}
+
+/* Definition lists — "each setting and what it does". A term reads as a label
+   and its definitions sit indented under it, one group spaced from the next. */
+[data-ui="prose"] dl {
+  margin-block: var(--space-4);
+}
+
+[data-ui="prose"] dt {
+  font-weight: var(--weight-semibold);
+  margin-block-start: var(--space-3);
+}
+
+[data-ui="prose"] dt:first-child {
+  margin-block-start: 0;
+}
+
+[data-ui="prose"] dd {
+  margin-inline-start: var(--space-6);
+  margin-block-start: var(--space-1);
+}
+
+/* Figures — an image or a code sample with its caption. The figure carries the
+   spacing, so an image inside it does not add its own. */
+[data-ui="prose"] figure {
+  margin-block: var(--space-6);
+  margin-inline: 0;
+}
+
+[data-ui="prose"] figure > img,
+[data-ui="prose"] figure > pre {
+  margin-block: 0;
+}
+
+[data-ui="prose"] figcaption {
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+  margin-block-start: var(--space-2);
+}
+
+/* Disclosures. The summary is the control, so it reads as one. */
+[data-ui="prose"] details {
+  margin-block: var(--space-4);
+}
+
+[data-ui="prose"] summary {
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+
 /* First child no top margin, last child no bottom margin */
 [data-ui="prose"] > :first-child {
   margin-block-start: 0;

@@ -1,5 +1,5 @@
 /* @ui:component card */
-/* @ui:tokens color-surface-1 color-surface-2 color-surface-1-border color-surface-2-border color-fg color-fg-muted color-bg-muted color-primary radius-lg shadow-sm space-1 space-2 space-4 space-6 font-heading text-sm text-lg weight-semibold leading-tight border-width corner-shape card-border-width card-border card-radius card-bg card-shadow card-padding card-media-ratio card-hover-shadow surface-backdrop texture-surface motion-hover-lift duration-fast duration-slower duration-normal ease-default ease-emphasized ease-out */
+/* @ui:tokens color-surface-1 color-surface-2 color-surface-1-border color-surface-2-border color-fg color-fg-muted color-bg-muted color-primary radius-lg shadow-sm space-1 space-2 space-4 space-6 font-heading text-sm text-lg weight-semibold leading-tight border-width corner-shape card-border-width card-border card-radius card-bg card-shadow card-padding card-media-ratio card-hover-shadow surface-backdrop texture-surface motion-hover-lift duration-fast duration-slower duration-normal ease-default ease-emphasized ease-out section-gap-sm */
 
 /* ── Base ── */
 [data-ui="card"] {
@@ -87,6 +87,38 @@
 [data-ui="card"] > [data-part="body"] {
   padding: var(--card-padding, var(--space-6));
   flex: 1;
+}
+
+/* ── A fieldset card ──
+   @faqir-ui/forms renders a group as <fieldset data-ui="card"> with a
+   <legend data-part="title">. A fieldset brings the browser's margin, padding
+   and min-content width, and its first legend sits ON the top border, cutting
+   a notch into it. Reset, the box is the card's own; floated, the legend is no
+   longer the fieldset's rendered legend but the card's first row, full width
+   and inset like a title written straight into the card (above). */
+fieldset[data-ui="card"] {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+}
+
+fieldset[data-ui="card"] > legend[data-part="title"] {
+  float: inline-start;
+  inline-size: 100%;
+}
+
+fieldset[data-ui="card"] > legend[data-part="title"] ~ * {
+  clear: both;
+}
+
+/* ── Inside a form: the body keeps the form's field rhythm ──
+   A card body is not a flow root (base/rhythm.css), so the fields of a
+   ui:groups fieldset or a wizard step touched while the form's own fields
+   stood --flow-space apart. Inside a form, a body's field-groups and nested
+   cards take the same step: the form's data-gap, inherited as --flow-space.
+   Weightless and scoped to forms, so a card anywhere else is untouched. */
+:where(form [data-ui="card"] > [data-part="body"] > :is([data-ui="field-group"], [data-ui="card"]) + :is([data-ui="field-group"], [data-ui="card"])) {
+  margin-block-start: var(--flow-space, var(--section-gap-sm));
 }
 
 [data-ui="card"] > [data-part="footer"] {

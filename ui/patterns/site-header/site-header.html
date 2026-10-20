@@ -2,7 +2,7 @@
 <!-- @ui:kind pattern -->
 <!-- @ui:slots brand nav actions menu toggle panel -->
 <!-- @ui:variants style=plain|floating|glass -->
-<!-- @ui:composition nav link button -->
+<!-- @ui:composition nav link button skip-link -->
 <!--
   Site header — composition only, zero JavaScript.
     · The root is a real <header> at the top of the page, so it is the banner
@@ -22,10 +22,15 @@
       scroll timeline, no listener — and falls back to the plain sticky bar.
     · Nested button and link primitives inside [data-part="actions"] keep their
       own data-variant/data-size and carry no data-part of their own.
+    · The skip link is the bar's first child, so it is the page's first tab
+      stop: hidden until it is focused, then pinned over the bar's start
+      corner. It points at the main element (id="main"). One per page, so only
+      the first header below carries it.
 -->
 
 <!-- Plain, sticky -->
 <header data-ui="site-header" data-variant="plain" data-sticky>
+  <a data-ui="skip-link" href="#main">Skip to content</a>
   <a data-part="brand" href="#home">Acme</a>
   <div data-part="nav">
     <nav data-ui="nav" aria-label="Main">

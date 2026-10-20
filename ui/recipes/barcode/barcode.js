@@ -7,7 +7,10 @@
  * Code set B covers printable ASCII (U+0020–U+007E), which keeps the public
  * contract predictable while supporting document identifiers, URLs, and
  * ordinary business text. The generated symbol includes a modulo-103 check
- * character, the stop pattern, and ten-module quiet zones on both sides.
+ * character and the stop pattern. The bars are drawn flush (the viewBox is the
+ * symbol, one unit per module, BAR_HEIGHT units tall); the quiet zone the
+ * symbology needs — ten modules each side — is CSS padding on the SVG,
+ * --barcode-quiet modules wide, so layout can align the first bar.
  */
 
 const CODE128_PATTERNS = Object.freeze([
@@ -33,7 +36,7 @@ const CODE128_PATTERNS = Object.freeze([
 
 const START_B = 104;
 const STOP = 106;
-const QUIET_ZONE = 10;
+// barcode.css divides by this to turn the padding into modules: keep them equal.
 const BAR_HEIGHT = 50;
 
 function encodeCode128B(value) {
@@ -63,10 +66,9 @@ function encodeCode128B(value) {
 }
 
 function patternToSVG(encoded) {
-  const patternWidth = [...encoded.pattern].reduce((sum, width) => sum + Number(width), 0);
-  const totalWidth = patternWidth + QUIET_ZONE * 2;
+  const totalWidth = [...encoded.pattern].reduce((sum, width) => sum + Number(width), 0);
 
-  let x = QUIET_ZONE;
+  let x = 0;
   let isBar = true;
   let pathData = "";
   for (const digit of encoded.pattern) {
@@ -128,6 +130,7 @@ export function createBarcode(root) {
     } catch (error) {
       root.dataset.state = "error";
       const message = error instanceof Error ? error.message : String(error);
+      root.dispatchEvent(new CustomEvent("faqir:error", { bubbles: true, detail: { message, value } }));
       console.warn(`[barcode] Failed to encode: ${message}`);
     }
   }

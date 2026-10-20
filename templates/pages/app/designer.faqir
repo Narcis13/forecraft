@@ -275,6 +275,15 @@ block body
                 label(data-part="label" for="prop-placeholder") Placeholder
                 div(data-part="input")
                   input#prop-placeholder(data-ui="input" type="text" :value="field().placeholder" @input="setProp('placeholder', $event.target.value)")
+            template(l-if="field().isScalar")
+              div(data-ui="field-group")
+                label(data-part="label" for="prop-width") Width
+                div(data-part="input")
+                  select#prop-width(data-ui="select" :value="field().width" @change="setProp('width', $event.target.value)" aria-describedby="prop-width-hint")
+                    option(value="full" :selected="field().width === 'full'") Full row
+                    option(value="half" :selected="field().width === 'half'") Half
+                    option(value="third" :selected="field().width === 'third'") Third
+                p#prop-width-hint(data-part="description") From the tablet tier up; phones stay one column.
             div(data-ui="field-group")
               label(data-part="label" for="prop-help") Help text
               div(data-part="input")

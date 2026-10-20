@@ -8,7 +8,7 @@
 // `description`. Everything below derives from that document; nothing here is a
 // second model of it.
 
-import { renderForm, type ObjectSchema, type RenderFormOptions, type UISchema } from "@faqir-ui/forms";
+import { renderForm, rulesFor, type ObjectSchema, type RenderFormOptions, type UISchema } from "@faqir-ui/forms";
 import { coerce, compile, fromFormData, lintDefinition, validate } from "@faqir-ui/rules";
 import { createHash } from "node:crypto";
 import { readdirSync } from "node:fs";
@@ -41,8 +41,8 @@ export const THEMES: string[] = readdirSync(join(import.meta.dirname, "../../ui/
   .map((f) => f.replace(/\.scoped\.css$/, ""))
   .sort();
 
-/** Accent hues `public/app.css` knows (`[data-accent]`); "theme" keeps the theme's own primary. */
-export const ACCENTS = ["theme", "indigo", "violet", "rose", "orange", "amber", "emerald", "teal", "sky"] as const;
+/** Accent hues Faqir's `tokens/accent.css` knows; "theme" keeps the theme's own primary. */
+export const ACCENTS = ["theme", "rose", "red", "orange", "blue", "indigo", "violet", "purple", "fuchsia", "pink"] as const;
 export const LAYOUTS = ["card", "split", "page"] as const;
 export const SCHEMES = ["auto", "light", "dark"] as const;
 
@@ -93,23 +93,34 @@ export function compileForm(input: unknown): CompiledForm {
 
   const definition = checkShape(input);
   const appearance = normalizeAppearance(definition.appearance);
-  const { title: _title, description: _description, ...schema } = definition.schema;
+  const schema = definition.schema;
+  const ui = definition.ui ?? {};
+  // Always pass rules so the form carries a definition the server can re-check.
+  // heading/labelledBy: the page draws its own hero; submit: false: the page
+  // places the button beside the error callout; gap: rhythm inside groups too.
+  const renderOpts: RenderFormOptions = {
+    idPrefix: ID_PREFIX,
+    rules: definition.rules ?? {},
+    heading: false,
+    labelledBy: "fc-title",
+    submit: false,
+    gap: "6",
+    // "Select {title}" reads badly when titles are questions ("Select What do you do?").
+    i18n: { submitLabel: appearance.submitLabel, selectPlaceholder: "Choose one…" },
+  };
 
   let html: string;
+  let rules: RulesDefinition;
   try {
-    html = renderForm(schema as ObjectSchema, definition.ui ?? {}, {
-      idPrefix: ID_PREFIX,
-      // Always pass rules, so the form always carries its definition — the one
-      // the server validates with. See FAQIR-UPSTREAM.md #1.
-      rules: definition.rules ?? {},
-      // "Select {title}" reads badly when titles are questions ("Select What do you do?").
-      i18n: { submitLabel: appearance.submitLabel, selectPlaceholder: "Choose one…" },
-    });
+    html = renderForm(schema as ObjectSchema, ui, renderOpts);
+    const derived = rulesFor(schema as ObjectSchema, ui, renderOpts);
+    if (!derived) throw new Error("rulesFor returned null for a form that always carries rules");
+    // Same object renderForm embeds; forms and rules package types differ only on fields.
+    rules = derived as RulesDefinition;
   } catch (err) {
     throw new DefinitionProblem([{ pointer: "/schema", detail: cleanMessage(err) }]);
   }
 
-  const rules = extractRules(html);
   try {
     compile(rules);
   } catch (err) {
@@ -138,13 +149,6 @@ export function compileForm(input: unknown): CompiledForm {
   if (cache.size > 500) cache.delete(cache.keys().next().value!);
   cache.set(key, compiled);
   return compiled;
-}
-
-/** The `<script type="application/json" id="fc-rules">` renderForm wrote. */
-function extractRules(html: string): RulesDefinition {
-  const match = /<script type="application\/json" id="fc-rules">\n([\s\S]*?)\n<\/script>/.exec(html);
-  if (!match) throw new Error("renderForm emitted no rules definition");
-  return JSON.parse(match[1]!);
 }
 
 function cleanMessage(err: unknown): string {

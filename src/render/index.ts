@@ -30,7 +30,13 @@ const HELPERS = {
   /** Answers as one line of text for a table cell. */
   answer: (v: unknown): string => {
     if (v === undefined || v === null || v === "") return "—";
-    if (Array.isArray(v)) return v.map((x) => (typeof x === "object" ? HELPERS.answer(x) : String(x))).join(", ");
+    if (Array.isArray(v)) {
+      if (v.length === 0) return "—";
+      if (v.every((x) => x && typeof x === "object" && !Array.isArray(x))) {
+        return `${v.length} row${v.length === 1 ? "" : "s"}`;
+      }
+      return v.map((x) => (typeof x === "object" ? HELPERS.answer(x) : String(x))).join(", ");
+    }
     if (typeof v === "object") return Object.entries(v as object).map(([k, x]) => `${k}: ${HELPERS.answer(x)}`).join("; ");
     if (typeof v === "boolean") return v ? "Yes" : "No";
     return String(v);

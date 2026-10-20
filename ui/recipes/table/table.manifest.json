@@ -441,6 +441,16 @@
       "default": "",
       "description": "Print mode: compact (data-print attribute)"
     },
+    "printFooter": {
+      "type": "enum",
+      "values": [
+        "repeat",
+        "last"
+      ],
+      "default": "repeat",
+      "attr": "data-print-footer",
+      "description": "data-print-footer on root: where the tfoot prints. In print the thead is a table-header-group, so the column headings repeat at the top of every printed page; the tfoot is a table-footer-group and by default (repeat) repeats at the foot of every page the same way. data-print-footer=\"last\" prints it once, after the last row, as a plain row group: an invoice's total belongs on its last page, not on page 1 of 3. Screen rendering is unchanged"
+    },
     "multi-sort": {
       "type": "boolean",
       "default": false,

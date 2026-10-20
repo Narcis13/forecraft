@@ -210,7 +210,7 @@
     "weight-semibold"
   ],
   "templates": {
-    "html": "<div data-ui=\"dialog\" data-state=\"closed\" id=\"{id}\">\n  <button data-part=\"trigger\">{trigger_text}</button>\n  <div data-part=\"overlay\" hidden></div>\n  <div data-part=\"panel\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"{id}-title\" data-size=\"{size}\" hidden>\n    <div data-part=\"header\">\n      <h2 id=\"{id}-title\" data-part=\"title\">{title}</h2>\n      <button data-part=\"close\" aria-label=\"Close dialog\">✕</button>\n    </div>\n    <div data-part=\"body\">{body}</div>\n    <div data-part=\"footer\">{footer}</div>\n  </div>\n</div>"
+    "html": "<div data-ui=\"dialog\" data-state=\"closed\" id=\"{id}\">\n  <button data-part=\"trigger\" data-ui=\"button\" data-variant=\"primary\">{trigger_text}</button>\n  <div data-part=\"overlay\" hidden></div>\n  <div data-part=\"panel\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"{id}-title\" data-size=\"{size}\" hidden>\n    <div data-part=\"header\">\n      <h2 id=\"{id}-title\" data-part=\"title\">{title}</h2>\n      <button data-part=\"close\" aria-label=\"Close dialog\">✕</button>\n    </div>\n    <div data-part=\"body\">{body}</div>\n    <div data-part=\"footer\">{footer}</div>\n  </div>\n</div>"
   },
   "safe_transforms": [
     "change-variant-size",

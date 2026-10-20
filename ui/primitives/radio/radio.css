@@ -1,5 +1,5 @@
 /* @ui:component radio */
-/* @ui:tokens color-bg color-primary color-border color-border-strong color-ring radius-full space-2 duration-fast ease-default border-width focus-ring-width focus-ring-offset focus-ring-style focus-ring-color focus-shadow disabled-opacity */
+/* @ui:tokens color-bg color-primary color-border color-border-strong color-ring color-fg-muted radius-full space-2 space-4 duration-fast ease-default border-width focus-ring-width focus-ring-offset focus-ring-style focus-ring-color focus-shadow disabled-opacity text-sm */
 
 /* -- Radio group -- */
 [data-ui="radio-group"] {
@@ -9,6 +9,48 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+}
+
+/* A row instead of a column: the options wrap, a cluster data-gap="4" step
+   apart, wider than each label's own space-2 step. Written on the group whose
+   direct children are the radio-labels (a fieldset's legend stays above). */
+[data-ui="radio-group"][data-orientation="horizontal"] {
+  flex-direction: row;
+  flex-wrap: wrap;
+  column-gap: var(--space-4);
+}
+
+/* -- Captions (a scale) --
+   The words at a horizontal group's two ends ("Not likely" … "Very likely"),
+   on their own line under the options. The group shrinks to its options so
+   the last caption ends under the last option rather than at the page edge.
+   A flex row's fit-content width counts a gap before every item, the captions
+   included, so here the step between options is each option's end padding
+   instead, and the last option has none: the group ends where it does. */
+[data-ui="radio-group"]:has(> [data-part="captions"]) {
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  column-gap: 0;
+}
+
+[data-ui="radio-group"]:has(> [data-part="captions"]) > [data-ui="radio-label"] {
+  padding-inline-end: var(--space-4);
+}
+
+[data-ui="radio-group"] > [data-ui="radio-label"]:has(+ [data-part="captions"]) {
+  padding-inline-end: 0;
+}
+
+[data-ui="radio-group"] > [data-part="captions"] {
+  /* Sized by the options, never sizing them: uncontained, the captions' own
+     width would count toward the group's fit-content width. */
+  contain: inline-size;
+  flex-basis: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
 }
 
 /* -- Label wrapper -- */

@@ -165,7 +165,17 @@ table {
   display: none !important;
 }
 
-.sr-only {
+/* @ui:base-value visually-hidden — text a screen reader reads and the page does not show (alias: .sr-only) */
+/* Visually hidden, still read — text for assistive technology only: a label
+   for an icon-only control, a table caption the layout does not show.
+   `data-ui="visually-hidden"` is the protocol spelling (a base-layer value:
+   no parts, variants or states); `.sr-only` stays as an alias for markup that
+   predates it, but a `class` attribute is a `no-class-attribute` warning, so
+   new markup writes the attribute. Never on a focusable element — a focused
+   control that cannot be seen is a keyboard trap for sighted users; a link
+   that should appear on focus is the `skip-link` primitive. */
+.sr-only,
+[data-ui="visually-hidden"] {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -173,6 +183,7 @@ table {
   margin: -1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   white-space: nowrap;
   border-width: 0;
 }

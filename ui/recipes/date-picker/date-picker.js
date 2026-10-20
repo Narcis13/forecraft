@@ -1,5 +1,5 @@
 // @ui:controller date-picker
-// @ui:provides open close getValue setValue navigate selectDate destroy
+// @ui:provides open close getValue setValue clear navigate selectDate destroy
 
 import { onOutsideClick } from "../../core/events.js";
 import { createCalendar } from "../calendar/calendar.js";
@@ -16,6 +16,12 @@ export function createDatePicker(root) {
   const trigger = root.querySelector("[data-part='trigger']");
   const input = root.querySelector("[data-part='input']");
   const popup = root.querySelector("[data-part='calendar']");
+  // The submitted value. The visible input shows "October 15, 2026"; a form
+  // must send 2026-10-15, so a picker inside one carries a hidden input with
+  // the field's `name`, and this controller keeps it holding the ISO date.
+  // Optional: without it the picker works as before, the ISO date on
+  // `input.dataset.value`.
+  const valueInput = root.querySelector(":scope > [data-part='value']");
 
   // The month grid is the standalone `calendar` recipe. Canonical markup nests
   // [data-ui="calendar"] inside the popup; legacy flat markup (grid parts
@@ -38,6 +44,7 @@ export function createDatePicker(root) {
       close() {},
       getValue: () => null,
       setValue() {},
+      clear() {},
       navigate() {},
       selectDate() {},
       destroy() {},
@@ -54,9 +61,19 @@ export function createDatePicker(root) {
     return `${MONTH_NAMES[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
   }
 
-  function syncInput(dateStr, dateObj) {
-    input.value = formatDisplay(dateObj);
+  // `dateObj` null is no date. The submitted value is announced the way typing
+  // into a field would be — `input` then `change`, bubbling — so l-model,
+  // faqir-validate and faqir-rules all see the new answer; not when it did not
+  // change, and not on the `silent` sync at start-up.
+  function syncInput(dateStr, dateObj, silent) {
+    input.value = dateObj ? formatDisplay(dateObj) : "";
     input.dataset.value = dateStr;
+    if (valueInput && valueInput.value !== dateStr) {
+      valueInput.value = dateStr;
+      if (!silent) {
+        for (const type of ["input", "change"]) valueInput.dispatchEvent(new Event(type, { bubbles: true }));
+      }
+    }
   }
 
   function open() {
@@ -96,11 +113,21 @@ export function createDatePicker(root) {
   }
 
   function setValue(dateStr) {
+    show(dateStr);
+  }
+
+  function show(dateStr, silent) {
     const parsed = new Date(dateStr + "T00:00:00");
     if (!isNaN(parsed.getTime())) {
       calendar.setValue(dateStr);
-      syncInput(dateStr, parsed);
+      syncInput(dateStr, parsed, silent);
     }
+  }
+
+  // No date: the calendar, the visible input and the submitted value all empty.
+  function clear() {
+    calendar.clear();
+    syncInput("", null);
   }
 
   function navigate(month, year) {
@@ -143,9 +170,26 @@ export function createDatePicker(root) {
     }
   }
 
+  // Start-up: a value the server rendered into the hidden input is the
+  // selection — the calendar shows it and the visible input reads it as a
+  // person would. Silent: nothing changed.
+  const initialValue = valueInput ? valueInput.value : "";
+  if (initialValue) show(initialValue, true);
+
+  // A form reset puts the visible input back to its default text but never
+  // touches a hidden input, so the rendered value is restored here — after
+  // the reset has run, since `reset` fires before it does.
+  const form = valueInput && valueInput.form;
+  let resetTimer;
+  function onFormReset() {
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(() => (initialValue ? setValue(initialValue) : clear()));
+  }
+
   trigger?.addEventListener("click", onTriggerClick);
   root.addEventListener("faqir:calendar-change", onCalendarChange);
   root.addEventListener("keydown", onRootKeyDown);
+  form?.addEventListener("reset", onFormReset);
 
   function destroy() {
     // Leaving a destroyed overlay open leaves a dead one: nothing is listening
@@ -155,12 +199,14 @@ export function createDatePicker(root) {
     trigger?.removeEventListener("click", onTriggerClick);
     root.removeEventListener("faqir:calendar-change", onCalendarChange);
     root.removeEventListener("keydown", onRootKeyDown);
+    form?.removeEventListener("reset", onFormReset);
+    clearTimeout(resetTimer);
     if (outsideClickCleanup) outsideClickCleanup();
     calendar.destroy();
     delete root._faqirDatePicker;
   }
 
-  const api = { open, close, getValue, setValue, navigate, selectDate, destroy };
+  const api = { open, close, getValue, setValue, clear, navigate, selectDate, destroy };
   root._faqirDatePicker = api;
   return api;
 }

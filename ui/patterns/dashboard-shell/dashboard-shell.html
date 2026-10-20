@@ -4,12 +4,17 @@
 <!-- @ui:variants sidebar-position=left|right sidebar-state=expanded|collapsed -->
 <!-- @ui:composition card grid avatar dropdown button separator badge -->
 
-<!-- Default: Sidebar Left, Expanded -->
+<!-- Default: Sidebar Left. No data-state on the sidebar: docked from the md
+     floor up, an off-canvas drawer below it that the sidebar-toggle opens.
+     The drawer is wired with three directives and no controller — `drawer`
+     in the root's l-data, the sidebar's :data-state, the toggle's @click —
+     and Escape closes it. Without faqir-core the phone drawer simply stays
+     closed; the desktop layout needs no script at all. -->
 <!-- @ui:scaffold admin-dashboard -->
-<div data-ui="dashboard-shell">
+<div data-ui="dashboard-shell" l-data="{ drawer: false }" @keydown.escape="drawer = false">
 
   <!-- ── Sidebar ── -->
-  <aside data-part="sidebar" data-state="expanded">
+  <aside data-part="sidebar" id="shell-sidebar" :data-state="drawer ? 'expanded' : null">
 
     <!-- Logo -->
     <div data-part="logo">
@@ -67,8 +72,8 @@
   <!-- ── Header ── -->
   <header data-part="header" role="banner">
 
-    <!-- Sidebar Toggle -->
-    <button data-ui="button" data-variant="ghost" data-part="sidebar-toggle" aria-label="Toggle sidebar">
+    <!-- Sidebar Toggle: opens the phone drawer; hidden from md up -->
+    <button data-ui="button" data-variant="ghost" data-part="sidebar-toggle" type="button" aria-label="Toggle sidebar" aria-controls="shell-sidebar" aria-expanded="false" :aria-expanded="drawer ? 'true' : 'false'" @click="drawer = !drawer">
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M1 3h14v2H1zm0 4h14v2H1zm0 4h14v2H1z"/></svg>
     </button>
 
@@ -222,9 +227,9 @@
 </div>
 <!-- @ui:scaffold-end -->
 
-<!-- Sidebar Right Variant -->
+<!-- Sidebar Right Variant (docked from md up, off-canvas below it) -->
 <div data-ui="dashboard-shell" data-variant="right">
-  <aside data-part="sidebar" data-state="expanded">
+  <aside data-part="sidebar">
     <div data-part="logo">
       <span>Acme</span>
     </div>

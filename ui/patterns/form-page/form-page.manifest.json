@@ -1,10 +1,18 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "form-page",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "kind": "pattern",
   "category": "composite",
-  "description": "The canonical schema-rendered form page — the pinned reference output shape for @faqir-ui/forms. A single form with a heading, description, and a field-group per property (text, email, enum radio, textarea, checkbox), driven by faqir-core (l-data) and validated by faqir-validate (l-validate). This markup is emitted verbatim by @faqir-ui/forms for its reference schema; the forms package drift-tests that the generator output still matches this page byte-for-byte.",
+  "description": "The canonical schema-rendered form page — the pinned reference output shape for @faqir-ui/forms. A single form with a heading, description, a field-group per property (text, email, enum radio, textarea, checkbox) and a footer holding its submit button, driven by faqir-core (l-data) and validated by faqir-validate (l-validate). This markup is emitted verbatim by @faqir-ui/forms for its reference schema; the forms package drift-tests that the generator output still matches this page byte-for-byte.",
+
+  "changes": [
+    {
+      "version": "1.1.0",
+      "note": "A footer holding the form's submit button, as @faqir-ui/forms now renders for single-page forms. One step between everything in the form. The form is a one-column grid whose row gap is the form's data-gap (read as --flow-space; @faqir-ui/forms writes data-gap=\"4\" by default), and the base rhythm's margin on its children is dropped, so a field is no longer --space-5 plus --section-gap-sm from the next. Fields inside a ui:groups card or a wizard step keep the same step (card), and field-groups carrying data-span share rows from the md tier (field-group).",
+      "breaking": false
+    }
+  ],
 
   "anatomy": {
     "tag": "form",
@@ -30,6 +38,12 @@
       "required": true,
       "tag_hint": "div",
       "description": "One field-group per schema property, carrying label, control, optional hint, and error slot"
+    },
+    "footer": {
+      "selector": "> div:not([data-ui])",
+      "required": false,
+      "tag_hint": "div",
+      "description": "The last child: a primary submit button labelled from `i18n.submitLabel` (`opts.submit: false` leaves it out)"
     }
   },
 
@@ -49,7 +63,7 @@
     ],
     "keyboard": {
       "Tab": "move focus between controls",
-      "Enter": "submit the form (native submit; faqir-validate gates it)",
+      "Enter": "submit the form (native submit; faqir-validate gates it and fires faqir:valid-submit when it is clean)",
       "Shift+Tab": "reverse focus order"
     }
   },
@@ -63,7 +77,7 @@
   ],
 
   "templates": {
-    "html": "<form id=\"{id}-form\" l-data l-validate aria-label=\"{title}\" aria-describedby=\"{id}-form-description\">\n  <h1>{title}</h1>\n  <p id=\"{id}-form-description\">{description}</p>\n  <div data-ui=\"field-group\">\n    <label data-part=\"label\" for=\"{id}-field-name\">{field_label} <span data-part=\"required\">*</span></label>\n    <div data-part=\"input\"><input data-ui=\"input\" id=\"{id}-field-name\" name=\"{field_name}\" required aria-required=\"true\" aria-describedby=\"{id}-field-name-error\" type=\"text\"></div>\n    <p data-part=\"error\" id=\"{id}-field-name-error\" aria-live=\"polite\"></p>\n  </div>\n</form>"
+    "html": "<form id=\"{id}-form\" l-data l-validate aria-label=\"{title}\" aria-describedby=\"{id}-form-description\" data-gap=\"4\">\n  <h1>{title}</h1>\n  <p id=\"{id}-form-description\">{description}</p>\n  <div data-ui=\"field-group\">\n    <label data-part=\"label\" for=\"{id}-field-name\">{field_label} <span data-part=\"required\">*</span></label>\n    <div data-part=\"input\"><input data-ui=\"input\" id=\"{id}-field-name\" name=\"{field_name}\" required aria-required=\"true\" aria-describedby=\"{id}-field-name-error\" type=\"text\"></div>\n    <p data-part=\"error\" id=\"{id}-field-name-error\" aria-live=\"polite\"></p>\n  </div>\n  <div>\n    <button type=\"submit\" data-ui=\"button\" data-variant=\"primary\">{submit_label}</button>\n  </div>\n</form>"
   },
 
   "safe_transforms": [
@@ -85,7 +99,7 @@
   ],
 
   "composition": {
-    "contains": ["field-group", "input", "radio-group", "textarea", "checkbox"],
+    "contains": ["field-group", "input", "radio-group", "textarea", "checkbox", "button"],
     "used_in": []
   },
 

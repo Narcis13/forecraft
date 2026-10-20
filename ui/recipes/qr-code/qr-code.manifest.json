@@ -1,11 +1,16 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "qr-code",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "kind": "recipe",
   "category": "data-display",
-  "description": "SVG QR code generator from text input with configurable size and error correction",
+  "description": "SVG QR code generator (byte mode, versions 1–40) from text input with configurable size and error correction",
   "changes": [
+    {
+      "version": "1.1.0",
+      "note": "Versions 1–40, a visible failure, and the ISO quiet zone as padding. The encoder stopped at version 10 (about 213 bytes at ECL M); it now carries ISO/IEC 18004 Table 9 for every version, computes the codeword count and the Annex E alignment centres, and writes the version word from version 7 up — 2953 bytes at L, 2331 at M, 1663 at Q, 1273 at H. A value it cannot encode used to leave an empty box and a console warning: the root now takes data-state=\"error\" and dispatches a bubbling faqir:error { message, value, ecl } (the warning stays), and data-state is \"ready\" or \"empty\" otherwise, as barcode's is. The modules are drawn flush — the viewBox is the symbol, so the ink meets the SVG's content box — and the quiet zone is CSS padding on the SVG, --qr-quiet modules (default 4, as ISO asks; it was 2), inside the same 80/128/200 px box, painted in --color-bg. A layout that aligns the ink with a caption or column edge sets --qr-quiet: 0 or pulls the box out by the padding. The code itself draws smaller inside the unchanged box.",
+      "breaking": false
+    },
     {
       "version": "1.0.1",
       "note": "Nested components keep their own parts. The stylesheet reached the svg and caption with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Both are the root's children. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
@@ -22,7 +27,7 @@
       "selector": "[data-part='svg']",
       "required": false,
       "tag_hint": "svg",
-      "description": "Generated SVG QR code (created by controller)"
+      "description": "Generated SVG QR code (created by controller). Drawn flush (the viewBox is the symbol, one unit per module); the quiet zone is its padding, and it carries the module count as the --qr-modules custom property"
     },
     "caption": {
       "selector": "[data-part='caption']",
@@ -54,7 +59,20 @@
       "applied_to": "root"
     }
   },
-  "states": {},
+  "states": {
+    "empty": {
+      "attr": "data-state=\"empty\"",
+      "description": "No data-value to encode; nothing is drawn"
+    },
+    "ready": {
+      "attr": "data-state=\"ready\"",
+      "description": "The code is drawn"
+    },
+    "error": {
+      "attr": "data-state=\"error\"",
+      "description": "The value could not be encoded (longer than version 40 holds at this ECL); nothing is drawn and faqir:error was dispatched"
+    }
+  },
   "api": {
     "methods": [
       {
@@ -81,6 +99,18 @@
       "type": "string",
       "default": "M",
       "description": "Error correction level: L (7%), M (15%), Q (25%), H (30%)"
+    },
+    "--qr-quiet": {
+      "type": "number",
+      "default": 4,
+      "description": "Quiet zone in modules (custom property), drawn as the SVG's padding inside its size. ISO/IEC 18004 asks for 4; set 0 where the page already leaves light space round the code, or to align the ink with a caption or column edge"
+    }
+  },
+  "events": {
+    "faqir:error": {
+      "detail": "{ message: string, value: string, ecl: string }",
+      "bubbles": true,
+      "description": "Fires on the root when the value cannot be encoded — longer than version 40 holds at this ECL (2953 bytes at L, 2331 at M, 1663 at Q, 1273 at H). The root has data-state=\"error\" and no SVG."
     }
   },
   "a11y": {
@@ -92,6 +122,7 @@
   },
   "tokens_used": [
     "color-fg-muted",
+    "color-bg",
     "space-2",
     "text-xs",
     "font-body",
@@ -128,6 +159,9 @@
   },
   "tests": [
     "renders-svg-from-data-value",
+    "encodes-versions-1-to-40-at-every-ecl",
+    "error-state-and-event-when-too-long",
+    "modules-flush-quiet-zone-as-padding",
     "default-size-is-128px",
     "sm-size-is-80px",
     "lg-size-is-200px",

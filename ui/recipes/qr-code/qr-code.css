@@ -1,5 +1,5 @@
 /* @ui:component qr-code */
-/* @ui:tokens color-fg-muted space-2 text-xs font-body doc-font doc-legal-size doc-legal-color */
+/* @ui:tokens color-fg-muted color-bg space-2 text-xs font-body doc-font doc-legal-size doc-legal-color */
 
 /* ── Base ── */
 [data-ui="qr-code"] {
@@ -7,12 +7,33 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-2);
+  --qr-size: 128px;
 }
 
-/* ── SVG ── */
+/* ── Sizes: the box the code takes, quiet zone included ── */
+[data-ui="qr-code"][data-size="sm"] {
+  --qr-size: 80px;
+}
+
+[data-ui="qr-code"][data-size="lg"] {
+  --qr-size: 200px;
+}
+
+/* ── SVG ──
+   The controller draws the modules flush (the viewBox is the symbol) and
+   writes the module count on the svg as --qr-modules. The quiet zone is
+   padding: --qr-quiet modules (4, as ISO/IEC 18004 asks) on every side, inside
+   --qr-size, painted in the background colour. A layout that already leaves
+   light space round the code, or that aligns the ink with a caption or a
+   column edge, sets --qr-quiet: 0 or pulls the box out by the padding. */
 [data-ui="qr-code"] > [data-part="svg"],
 [data-ui="qr-code"] svg {
   display: block;
+  box-sizing: border-box;
+  width: var(--qr-size);
+  height: var(--qr-size);
+  padding: calc(var(--qr-size) * var(--qr-quiet, 4) / (var(--qr-modules, 21) + 2 * var(--qr-quiet, 4)));
+  background-color: var(--color-bg);
 }
 
 /* ── Caption ── */
@@ -22,25 +43,6 @@
   color: var(--doc-legal-color, var(--color-fg-muted));
   text-align: center;
   line-height: 1.4;
-}
-
-/* ── Size: SM (80px) ── */
-[data-ui="qr-code"][data-size="sm"] svg {
-  width: 80px;
-  height: 80px;
-}
-
-/* ── Size: MD (128px, default) ── */
-[data-ui="qr-code"][data-size="md"] svg,
-[data-ui="qr-code"]:not([data-size]) svg {
-  width: 128px;
-  height: 128px;
-}
-
-/* ── Size: LG (200px) ── */
-[data-ui="qr-code"][data-size="lg"] svg {
-  width: 200px;
-  height: 200px;
 }
 
 /* ── Print ── */

@@ -1,12 +1,17 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "progress",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "kind": "primitive",
   "category": "feedback",
   "description": "Progress bar with animated fill, color variants, and an optional percentage label",
 
   "changes": [
+    {
+      "version": "1.2.0",
+      "note": "The value can come without an inline style. New prop data-value (0–100, a percentage) on the root sets the fill width in pure CSS: whole 5 % steps in every engine, any number exactly where typed attr() is supported, clamped to the track, and an unparseable value draws an empty bar rather than a full one. A server template, which rightly refuses data in a style attribute, renders data-value instead; the reference markup and templates.html now use it. The style=\"width: …\" form on the fill still works and wins when both are present.",
+      "breaking": false
+    },
     {
       "version": "1.1.1",
       "note": "Nested components keep their own parts. The track, fill and label rules were descendant selectors. label is a common part name, so anything nested in a bespoke progress indicator with a label of its own took this component's label size, colour and reserved width. They are child chains now (root > track > fill, root > label), with the track hop in :where() so no rule changes specificity.",
@@ -36,7 +41,7 @@
       "selector": "[data-part='fill']",
       "required": true,
       "tag_hint": "div",
-      "description": "Filled portion — width set via inline style or reactive binding"
+      "description": "Filled portion. Its width comes from data-value on the root (pure CSS, no style attribute), or from an inline style or reactive binding on the fill, which wins when both are present"
     },
     "label": {
       "selector": "[data-part='label']",
@@ -60,6 +65,15 @@
     }
   },
 
+  "props": {
+    "value": {
+      "type": "number",
+      "default": 0,
+      "attr": "data-value",
+      "description": "The value as a percentage, 0–100, on the root; sets the fill width with no inline style. Whole multiples of 5 render in every engine; any other number renders exactly where typed attr() is supported and as an empty bar elsewhere, so round to 5 when the page must look the same everywhere. Keep aria-valuenow and the label text in step with it"
+    }
+  },
+
   "states": {},
 
   "a11y": {
@@ -77,13 +91,13 @@
   ],
 
   "templates": {
-    "html": "<div data-ui=\"progress\" data-variant=\"{variant}\" role=\"progressbar\" aria-label=\"Progress\" aria-valuenow=\"{value}\" aria-valuemin=\"0\" aria-valuemax=\"100\"><div data-part=\"track\"><div data-part=\"fill\" style=\"width: {value}%\"></div></div><span data-part=\"label\">{value}%</span></div>"
+    "html": "<div data-ui=\"progress\" data-variant=\"{variant}\" data-value=\"{value}\" role=\"progressbar\" aria-label=\"Progress\" aria-valuenow=\"{value}\" aria-valuemin=\"0\" aria-valuemax=\"100\"><div data-part=\"track\"><div data-part=\"fill\"></div></div><span data-part=\"label\">{value}%</span></div>"
   },
 
   "safe_transforms": [
     "Change data-variant to any listed variant",
     "Change data-size to any listed size",
-    "Update fill width percentage and matching label text",
+    "Update data-value (or the fill's width) with the matching aria-valuenow and label text",
     "Add or remove the label slot"
   ],
   "unsafe_transforms": [
@@ -106,6 +120,7 @@
     "Renders track and fill",
     "Every variant renders track fill and label",
     "Fill width reflects value",
+    "data-value sets the fill width without an inline style",
     "Variants change fill color",
     "Sizes change track height",
     "Labels stay fully within the root including 100 percent"

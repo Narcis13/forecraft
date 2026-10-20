@@ -2,12 +2,9 @@
 // page reload, then show the thank-you state (or follow the redirect).
 //
 // The form is rendered by @faqir-ui/forms and driven by faqir-core,
-// faqir-validate and faqir-rules; this file only does what none of them do —
-// post the answers. It listens on the document, so it runs after the form's
-// own submit handlers have had their say:
-//   • a single-page form: faqir-validate leaves a clean submit un-prevented;
-//   • a wizard: faqir-validate's on-valid hook marks the form
-//     data-state="submitted" on the last step (and prevents the native submit).
+// faqir-validate and faqir-rules; this file only posts the answers. Both a
+// single-page form and a wizard fire `faqir:valid-submit` with the coerced
+// answers in `event.detail` (Faqir.rules.data when rules are loaded).
 (function () {
   "use strict";
 
@@ -15,42 +12,27 @@
   if (!config) return;
   var sending = false;
 
-  // The answers, read the way FormData reads them — except that a control the
-  // wizard disabled (another step) still answers, and a field a rule hid does not.
-  function pairs(form) {
-    var out = [];
-    for (var i = 0; i < form.elements.length; i++) {
-      var el = form.elements[i];
-      if (!el.name || /^(submit|button|reset|file|image)$/.test(el.type)) continue;
-      var group = el.closest('[data-ui="field-group"]');
-      if (group && group.hidden) continue;
-      if ((el.type === "checkbox" || el.type === "radio") && !el.checked) continue;
-      if (el.tagName === "SELECT" && el.multiple) {
-        for (var j = 0; j < el.selectedOptions.length; j++) out.push([el.name, el.selectedOptions[j].value]);
-        continue;
-      }
-      // A date-picker's input shows "October 15, 2026"; its ISO value is data-value.
-      var picker = el.closest('[data-ui="date-picker"]');
-      out.push([el.name, picker && el.dataset.value !== undefined ? el.dataset.value : el.value]);
-    }
-    return out;
-  }
-
   function fail(form, message) {
     if (form.dataset.state === "submitted") delete form.dataset.state;
     form.dispatchEvent(new CustomEvent("fc-failed", { bubbles: true, detail: message }));
   }
 
-  document.addEventListener("submit", function (e) {
+  // Honeypot and published-version sit outside the form (form="fc-form") so the
+  // page chrome can own them; fold them into the JSON body the API expects.
+  function extras(form) {
+    var out = {};
+    var els = form.elements;
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (el.name === "_fc_hp" || el.name === "_fc_v") out[el.name] = el.value;
+    }
+    return out;
+  }
+
+  document.addEventListener("faqir:valid-submit", function (e) {
     var form = e.target;
     if (!form || form.id !== "fc-form") return;
-    var wizard = (form.getAttribute("l-validate") || "").trim() !== "";
-    if (wizard) {
-      if (form.dataset.state !== "submitted") return; // a step advanced, or a field is invalid
-    } else {
-      if (e.defaultPrevented) return; // faqir-validate refused it
-      e.preventDefault();
-    }
+    e.preventDefault();
     if (sending) return;
 
     if (config.dataset.preview === "true") {
@@ -59,13 +41,14 @@
     }
 
     sending = true;
+    var body = Object.assign({}, e.detail || {}, extras(form));
     fetch(config.dataset.action, {
       method: "POST",
-      headers: { accept: "application/json" },
-      body: new URLSearchParams(pairs(form)),
+      headers: { accept: "application/json", "content-type": "application/json" },
+      body: JSON.stringify({ data: body }),
     })
       .then(function (res) {
-        return res.json().then(function (body) { return { ok: res.ok, body: body }; });
+        return res.json().then(function (payload) { return { ok: res.ok, body: payload }; });
       })
       .then(function (r) {
         sending = false;

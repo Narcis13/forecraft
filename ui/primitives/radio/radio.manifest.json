@@ -1,12 +1,17 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "radio",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "kind": "primitive",
   "category": "forms",
   "description": "Custom styled radio button for single selection within a group, with size variants; inline option rows use cluster data-gap=4 inside their fieldset",
 
   "changes": [
+    {
+      "version": "1.2.0",
+      "note": "radio-group takes data-orientation=\"horizontal\": its direct radio-label children lay out in a wrapping row, a space-4 step apart (the cluster data-gap='4' step), for a group with no cluster inside — the role=\"radiogroup\" shape @faqir-ui/forms renders. A new captions part, the last child of a horizontal group, puts two captions under the options' ends (a scale: \"Not likely\" … \"Very likely\"); the group then shrinks to its options so each caption ends under its option. Groups without either keep their column.",
+      "breaking": false
+    },
     {
       "version": "1.1.0",
       "note": "Canonical inline radio options now use cluster data-gap='4' inside the semantic fieldset, keeping the inter-control step wider than each label's internal space-2 step; one option may remain a direct fieldset child.",
@@ -26,6 +31,12 @@
       "required": false,
       "tag_hint": "span",
       "description": "Text label displayed next to the radio button"
+    },
+    "captions": {
+      "selector": "[data-part='captions']",
+      "required": false,
+      "tag_hint": "div",
+      "description": "Written as the last child of a horizontal radio-group: two <span>s, the captions of the first and the last option (a scale's ends), laid out under the options. Give each an id and add it to its option's aria-describedby so the caption is announced with the option; an end with no caption is an empty <span>."
     }
   },
 
@@ -48,7 +59,14 @@
     "checked": { "type": "boolean", "default": false, "description": "Whether the radio is checked" },
     "disabled": { "type": "boolean", "default": false, "description": "Whether the radio is disabled" },
     "value": { "type": "string", "default": "", "description": "Radio value" },
-    "label": { "type": "string", "default": "", "description": "Radio label text" }
+    "label": { "type": "string", "default": "", "description": "Radio label text" },
+    "orientation": {
+      "type": "enum",
+      "values": ["vertical", "horizontal"],
+      "default": "vertical",
+      "attr": "data-orientation",
+      "description": "Written on the radio-group wrapper, never the radio: horizontal lays the group's direct radio-label children out in a wrapping row a space-4 step apart. For the canonical fieldset + cluster shape the cluster already owns the row; this is for a group whose options are its own children."
+    }
   },
 
   "a11y": {
@@ -68,9 +86,10 @@
   },
 
   "tokens_used": [
-    "color-bg", "color-primary", "color-border", "color-border-strong", "color-ring", "radius-full",
-    "space-2", "duration-fast", "ease-default", "border-width", "focus-ring-width",
-    "focus-ring-offset", "focus-ring-style", "focus-ring-color", "focus-shadow", "disabled-opacity"
+    "color-bg", "color-primary", "color-border", "color-border-strong", "color-ring",
+    "color-fg-muted", "radius-full", "space-2", "space-4", "duration-fast", "ease-default",
+    "border-width", "focus-ring-width", "focus-ring-offset", "focus-ring-style", "focus-ring-color",
+    "focus-shadow", "disabled-opacity", "text-sm"
   ],
 
   "templates": {
@@ -114,6 +133,8 @@
     "group-wrapped-in-fieldset-with-legend",
     "native-appearance-is-none",
     "inline-option-rows-use-cluster-gap-4",
-    "single-fieldset-option-may-stand-outside-cluster"
+    "single-fieldset-option-may-stand-outside-cluster",
+    "horizontal-group-wraps-options-in-a-row",
+    "captions-sit-under-the-group-ends"
   ]
 }

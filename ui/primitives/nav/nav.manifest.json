@@ -1,11 +1,16 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "nav",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "kind": "primitive",
   "category": "navigation",
   "description": "Navigation bar with link slots, active state, and horizontal/vertical/underline/pill variants",
   "changes": [
+    {
+      "version": "1.0.2",
+      "note": "The row wraps (flex-wrap: wrap) in the horizontal, underline and pill variants: a nav wider than its container — six links on a phone — moves its last links to a second line instead of overflowing the page. A row that fits is unchanged. Wrapping rather than a horizontal scroller keeps every link visible and every focus ring unclipped; in the underline variant the hairline sits under the last line.",
+      "breaking": false
+    },
     {
       "version": "1.0.1",
       "note": "Nested components keep their own parts. The stylesheet reached the links and separators with descendant selectors, so a component nested inside with parts of the same name took this one's styles. Both are the root's children. Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",

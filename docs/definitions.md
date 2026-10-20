@@ -50,7 +50,7 @@ Only `schema` is required. Any other top-level key is rejected with a `422` that
   },
   "appearance": {
     "theme": "nordic",
-    "accent": "sky",
+    "accent": "blue",
     "layout": "split",
     "cover": { "image": "", "eyebrow": "Demo · 30 minutes" },
     "submitLabel": "Book the call",
@@ -86,11 +86,14 @@ Mirrors the schema: a key per field, with these options.
 
 | Key | For | Example |
 |---|---|---|
-| `widget` | any field | `"textarea"`, `"switch"`, `"radio"`, `"select"`, `"checkbox-group"`, `"multi-select"`, `"date-picker"` |
+| `widget` | any field | `"textarea"`, `"switch"`, `"radio"`, `"select"`, `"checkbox-group"`, `"multi-select"`, `"date-picker"`, `"scale"` |
 | `placeholder` | inputs, textareas | `"We are launching…"` |
 | `rows` | a textarea | `6` |
 | `enumLabels` | enums | `["Conference — €390", "Remote — €90"]` (one label per value) |
-| `addLabel`, `removeLabel`, `items` | repeatable groups | `"Add another role"` |
+| `width` | scalars and enum arrays | `"full"`, `"half"`, `"third"` — multi-column from the tablet tier up |
+| `orientation` | radio / checkbox-group | `"vertical"` (default) or `"horizontal"` |
+| `minLabel`, `maxLabel` | `scale` widget | captions under the first and last choice |
+| `addLabel`, `removeLabel`, `items` | repeatable groups | `"Add another role"`; `items` is per-column UI (including `width`) |
 
 Two root keys arrange the top-level fields. Use one or the other; every field must appear exactly once.
 
@@ -108,7 +111,7 @@ Every key is optional; the defaults are shown.
 | Key | Default | Values |
 |---|---|---|
 | `theme` | `"default"` | one of the 31 themes below |
-| `accent` | `"theme"` | `theme`, `indigo`, `violet`, `rose`, `orange`, `amber`, `emerald`, `teal`, `sky` |
+| `accent` | `"theme"` | `theme`, `rose`, `red`, `orange`, `blue`, `indigo`, `violet`, `purple`, `fuchsia`, `pink` (Faqir `data-accent` hues) |
 | `scheme` | `"auto"` | `auto` (follows the device), `light`, `dark` |
 | `layout` | `"card"` | `card`, `split` (cover beside the form), `page` |
 | `cover` | `null` | `{ "image": "https://…" or "/path" or "", "eyebrow": "…" }` |

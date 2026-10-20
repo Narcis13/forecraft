@@ -1,7 +1,7 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "auth-form",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "kind": "pattern",
   "category": "composite",
   "description": "Authentication form with login, register, and social auth options",
@@ -137,7 +137,7 @@
   ],
 
   "templates": {
-    "html": "<div data-ui=\"auth-form\" data-variant=\"login\" data-size=\"md\" data-state=\"default\">\n  <div data-ui=\"card\">\n    <div data-part=\"header\">\n      <h2 data-part=\"title\">{title}</h2>\n      <p data-part=\"description\">{description}</p>\n    </div>\n    <div data-part=\"error\" role=\"alert\" hidden>{error_message}</div>\n    <form data-part=\"form\" aria-label=\"{form_label}\">\n      <div data-part=\"name-field\">\n        <label data-ui=\"label\" for=\"{id}-name\">Full name</label>\n        <input data-ui=\"input\" type=\"text\" id=\"{id}-name\" autocomplete=\"name\">\n      </div>\n      <div data-part=\"email-field\">\n        <label data-ui=\"label\" for=\"{id}-email\">Email</label>\n        <input data-ui=\"input\" type=\"email\" id=\"{id}-email\" autocomplete=\"email\">\n      </div>\n      <div data-part=\"password-field\">\n        <label data-ui=\"label\" for=\"{id}-password\">Password</label>\n        <input data-ui=\"input\" type=\"password\" id=\"{id}-password\" autocomplete=\"current-password\">\n      </div>\n      <button data-ui=\"button\" data-variant=\"primary\" data-part=\"submit\" type=\"submit\">{submit_text}</button>\n    </form>\n    <div data-part=\"separator\">\n      <div data-ui=\"separator\" role=\"separator\"><span data-part=\"label\">OR</span></div>\n    </div>\n    <div data-part=\"social\">{social_buttons}</div>\n    <div data-part=\"footer\">{footer_content}</div>\n  </div>\n</div>"
+    "html": "<div data-ui=\"auth-form\" data-variant=\"login\" data-size=\"md\" data-state=\"default\">\n  <div data-ui=\"card\">\n    <div data-part=\"header\">\n      <h2 data-part=\"title\">{title}</h2>\n      <p data-part=\"description\">{description}</p>\n    </div>\n    <div data-part=\"body\">\n      <div data-part=\"error\" role=\"alert\" hidden>{error_message}</div>\n      <form data-part=\"form\" aria-label=\"{form_label}\">\n        <div data-part=\"name-field\">\n          <label data-ui=\"label\" for=\"{id}-name\">Full name</label>\n          <input data-ui=\"input\" type=\"text\" id=\"{id}-name\" autocomplete=\"name\">\n        </div>\n        <div data-part=\"email-field\">\n          <label data-ui=\"label\" for=\"{id}-email\">Email</label>\n          <input data-ui=\"input\" type=\"email\" id=\"{id}-email\" autocomplete=\"email\">\n        </div>\n        <div data-part=\"password-field\">\n          <label data-ui=\"label\" for=\"{id}-password\">Password</label>\n          <input data-ui=\"input\" type=\"password\" id=\"{id}-password\" autocomplete=\"current-password\">\n        </div>\n        <button data-ui=\"button\" data-variant=\"primary\" data-part=\"submit\" type=\"submit\">{submit_text}</button>\n      </form>\n      <div data-part=\"separator\">\n        <div data-ui=\"separator\" role=\"separator\"><span data-part=\"label\">OR</span></div>\n      </div>\n      <div data-part=\"social\">{social_buttons}</div>\n    </div>\n    <div data-part=\"footer\">{footer_content}</div>\n  </div>\n</div>"
   },
 
   "safe_transforms": [
@@ -190,6 +190,11 @@
   ],
 
   "changes": [
+    {
+      "version": "2.0.1",
+      "note": "The template puts the card content (error, form, separator, social) inside the card required [data-part=\"body\"], with the footer after it, as the reference markup always did. The template had them straight in the card, a critical required-slot finding from card itself on every page built from it.",
+      "breaking": false
+    },
     {
       "version": "2.0.0",
       "note": "The full-bleed treatment moves onto the breakpoint canon, mobile-first (task 0.8-09). The card is edge-to-edge, square and shadowless by default and becomes a card again at @media (min-width: 40rem), which moves the floor from an ad-hoc 480px to the canon sm tier (640px). MIGRATION: viewports from 480px to 639px now render the form full bleed where 1.x gave them a 400px card — deliberately, since FAQIR-NEXT §19 declines to create an 'xs' tier for a single declaration in a single pattern, and a 400px card floating in 600px of viewport reads as a dialog that failed to centre. The sm block restates card.css's border-radius, box-shadow and inline borders through card's own custom properties (--card-radius/--card-shadow/--card-border) because 'revert' would drop to the user-agent origin and discard the primitive's author rules. The dead 'flex-direction: column' on [data-part='social'] is removed: the base rule already declares it.",

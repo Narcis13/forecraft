@@ -1,12 +1,14 @@
 <!-- @ui:component date-picker -->
 <!-- @ui:kind recipe -->
-<!-- @ui:slots trigger input icon calendar -->
+<!-- @ui:slots value trigger input icon calendar -->
 <!-- @ui:variants size=sm|md|lg -->
 <!-- @ui:controller date-picker.js -->
 <!-- @ui:composes calendar (calendar.js owns the month grid) -->
 
-<!-- Default (medium) -->
+<!-- Default (medium), inside a form: the hidden value part carries the name
+     and submits the ISO date; the visible input shows it as a person reads it -->
 <div data-ui="date-picker" data-state="closed" data-size="md">
+  <input data-part="value" type="hidden" name="due-date">
   <div data-part="trigger">
     <input
       data-part="input"

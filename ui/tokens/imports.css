@@ -10,6 +10,9 @@
 @import './aliases.css';
 @import './document.css';
 @import './doc-aliases.css';
+/* accent.css re-points the accent tokens under [data-accent]; it declares nothing
+   on :root but its captures, so it may sit anywhere after the tokens it reads. */
+@import './accent.css';
 /* density.css re-declares alias tokens under [data-density] — same specificity as
    :root, so it must stay last. */
 @import './density.css';

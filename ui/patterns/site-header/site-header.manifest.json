@@ -1,10 +1,18 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "site-header",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "kind": "pattern",
   "category": "navigation",
-  "description": "Website header: a brand link, the nav primitive centred beside it, an actions cluster of buttons and links, and a native <details> phone menu that holds a vertical copy of the same nav. Composition only: zero JavaScript, no controller, no reactive directives — the plain/floating/glass styles, the sticky pin and the scroll-condense are pure CSS, the condense a scroll timeline that degrades to the plain sticky bar.",
+  "description": "Website header: a skip link, a brand link, the nav primitive centred beside it, an actions cluster of buttons and links, and a native <details> phone menu that holds a vertical copy of the same nav. Composition only: zero JavaScript, no controller, no reactive directives — the plain/floating/glass styles, the sticky pin and the scroll-condense are pure CSS, the condense a scroll timeline that degrades to the plain sticky bar.",
+
+  "changes": [
+    {
+      "version": "1.1.0",
+      "note": "The reference markup and template open with a nested skip-link primitive (<a data-ui=\"skip-link\" href=\"#main\">Skip to content</a>) as the bar's first child, so the page's first tab stop skips the header; give the page's <main> the id it points at. The base rhythm no longer puts --flow-space between a site-header (or a skip link) and the element after it, so a page's main starts flush under the bar. Markup without a skip link is unchanged.",
+      "breaking": false
+    }
+  ],
 
   "anatomy": {
     "tag": "header",
@@ -97,13 +105,14 @@
   "a11y": {
     "required_attrs": [
       "the root is a <header> element at the top of the page (banner landmark)",
+      "a skip link as the root's first child (or just before the header), pointing at the id of the page's <main>",
       "every nested nav has an accessible name via aria-label, and the inline nav and the menu nav use different names",
       "the menu is a <details> whose <summary> carries visible text — that text is the toggle's accessible name",
       "descriptive link text on the brand and on every action (never 'click here')"
     ],
-    "notes": "The links are written twice — inline nav and menu nav — but CSS shows exactly one copy at a time, so neither the tab order nor the landmark list doubles up. The <summary> toggle is natively focusable and operable with Enter and Space; nothing needs a script. Under reduced motion the toggle stops transitioning; the condense is kept because it only moves as far as the reader's own scrolling moves it.",
+    "notes": "The skip link comes first, so the first Tab on the page reveals it and Enter jumps past the header to <main>; it is out of the flow (absolutely positioned against the bar) and hidden by clipping, never by display: none, so a screen reader always reads it. The links are written twice — inline nav and menu nav — but CSS shows exactly one copy at a time, so neither the tab order nor the landmark list doubles up. The <summary> toggle is natively focusable and operable with Enter and Space; nothing needs a script. Under reduced motion the toggle stops transitioning; the condense is kept because it only moves as far as the reader's own scrolling moves it.",
     "keyboard": {
-      "Tab": "move through the brand, then the nav links, then the actions in source order (on a phone: the brand, then the menu toggle, then — once open — the panel's links and actions)",
+      "Tab": "the first Tab reveals the skip link; then move through the brand, then the nav links, then the actions in source order (on a phone: the brand, then the menu toggle, then — once open — the panel's links and actions)",
       "Enter / Space": "on the menu toggle, open or close the panel"
     }
   },
@@ -119,7 +128,7 @@
   ],
 
   "templates": {
-    "html": "<header data-ui=\"site-header\" data-variant=\"{style}\" data-sticky>\n  <a data-part=\"brand\" href=\"{home_href}\">{brand}</a>\n  <div data-part=\"nav\">\n    <nav data-ui=\"nav\" aria-label=\"Main\">\n      <a data-part=\"link\" data-state=\"active\" href=\"{link_href}\">{link_label}</a>\n    </nav>\n  </div>\n  <div data-part=\"actions\">\n    <a data-ui=\"link\" data-variant=\"muted\" href=\"{secondary_href}\">{secondary_label}</a>\n    <a data-ui=\"button\" data-variant=\"primary\" data-size=\"sm\" href=\"{primary_href}\">{primary_label}</a>\n  </div>\n  <details data-part=\"menu\">\n    <summary data-part=\"toggle\">Menu</summary>\n    <div data-part=\"panel\">\n      <nav data-ui=\"nav\" data-variant=\"vertical\" aria-label=\"Main menu\">\n        <a data-part=\"link\" data-state=\"active\" href=\"{link_href}\">{link_label}</a>\n      </nav>\n      <div data-part=\"actions\">\n        <a data-ui=\"button\" data-variant=\"primary\" href=\"{primary_href}\">{primary_label}</a>\n        <a data-ui=\"button\" data-variant=\"outline\" href=\"{secondary_href}\">{secondary_label}</a>\n      </div>\n    </div>\n  </details>\n</header>"
+    "html": "<header data-ui=\"site-header\" data-variant=\"{style}\" data-sticky>\n  <a data-ui=\"skip-link\" href=\"#{main_id}\">Skip to content</a>\n  <a data-part=\"brand\" href=\"{home_href}\">{brand}</a>\n  <div data-part=\"nav\">\n    <nav data-ui=\"nav\" aria-label=\"Main\">\n      <a data-part=\"link\" data-state=\"active\" href=\"{link_href}\">{link_label}</a>\n    </nav>\n  </div>\n  <div data-part=\"actions\">\n    <a data-ui=\"link\" data-variant=\"muted\" href=\"{secondary_href}\">{secondary_label}</a>\n    <a data-ui=\"button\" data-variant=\"primary\" data-size=\"sm\" href=\"{primary_href}\">{primary_label}</a>\n  </div>\n  <details data-part=\"menu\">\n    <summary data-part=\"toggle\">Menu</summary>\n    <div data-part=\"panel\">\n      <nav data-ui=\"nav\" data-variant=\"vertical\" aria-label=\"Main menu\">\n        <a data-part=\"link\" data-state=\"active\" href=\"{link_href}\">{link_label}</a>\n      </nav>\n      <div data-part=\"actions\">\n        <a data-ui=\"button\" data-variant=\"primary\" href=\"{primary_href}\">{primary_label}</a>\n        <a data-ui=\"button\" data-variant=\"outline\" href=\"{secondary_href}\">{secondary_label}</a>\n      </div>\n    </div>\n  </details>\n</header>"
   },
 
   "safe_transforms": [
@@ -145,9 +154,10 @@
   ],
 
   "composition": {
-    "contains": ["nav", "link", "button"],
+    "contains": ["nav", "link", "button", "skip-link"],
     "used_in": [],
     "notes": [
+      "The skip link is a nested skip-link primitive, not a site-header part: it carries data-ui, no data-part, and the header's grid never places it (it is absolutely positioned against the bar, which is positioned either way).",
       "Both navs nest the nav primitive: the <a> elements inside are the NAV's [data-part='link'] slots, not site-header's. The wrapper [data-part='nav'] only places the inline one; the panel holds the vertical one directly.",
       "Nested primitives that carry their own data-variant (nav's vertical, button's primary, link's muted) must not also carry a data-part — a part's data-variant is validated against site-header's variant values.",
       "The menu panel is an absolutely positioned overlay with the header as its containing block, which is why the root is positioned (relative, or sticky with data-sticky) and why a non-sticky header still layers the open panel over the content below it.",
@@ -164,6 +174,7 @@
 
   "tests": [
     "renders-as-header-with-data-ui-site-header",
+    "skip-link-is-the-first-tab-stop",
     "brand-slot-is-required-and-is-a-link",
     "inline-nav-and-menu-nav-carry-different-accessible-names",
     "menu-is-a-details-with-a-summary-toggle",

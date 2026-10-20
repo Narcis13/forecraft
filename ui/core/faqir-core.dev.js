@@ -11,7 +11,7 @@
 // DEVELOPMENT BUILD — verbose diagnostics, no size budget. Never ship this;
 // point <script src> at faqir-core.js for production.
 // Regenerate with: bun run build:core
-// Package version: 1.2.5
+// Package version: 1.3.0
 // ============================================================================
 
 /**
@@ -368,7 +368,7 @@
   // @ui:magic $store | every expression | Every store registered with `Faqir.store()`.
   // @ui:magic $state | every expression | `data-state` of the `[data-ui]` closest to the scope root. Writable — assigning sets the attribute — and reads re-run when a controller changes it.
   // @ui:magic $variant | every expression | `data-variant` of the same `[data-ui]`, writable and observed the same way.
-  // @ui:magic $ui | every expression | The controller API of that same `[data-ui]` — `$ui.open()`. Also callable, to reach ANOTHER component's controller by CSS selector: `$ui('#detail-drawer').open()`, which returns `null` when nothing matches or the match has no controller.
+  // @ui:magic $ui | every expression | The controller API of that same `[data-ui]` — `$ui.open()`. Also callable, to reach ANOTHER component's controller by CSS selector: `$ui('#detail-drawer').open()`, which returns `null` when nothing matches or the match has no controller. `Faqir.ui(selectorOrElement)` is the same lookup from plain JavaScript.
   // @ui:magic $dispatch | every expression | `$dispatch('name', detail)` fires a bubbling, composed `CustomEvent` from the scope root.
   // @ui:magic $nextTick | every expression | `$nextTick(fn)` queues `fn` as a microtask, so it runs after the effects a mutation queued have flushed and the DOM is updated.
   // @ui:magic $watch | every expression | `$watch('key', function (value, old) { … })` — returns a disposer.
@@ -1220,9 +1220,39 @@
         if (customDirectives.has(dir.type)) {
           var cleanupFn = customDirectives.get(dir.type)(el, dir, scope);
           if (typeof cleanupFn === 'function') addCleanup(el, cleanupFn);
+          return;
         }
-        else if (devHooks) devHooks.unknownDirective(el, dir);
+        holdDirective(el, dir, scope);
+        if (devHooks) devHooks.unknownDirective(el, dir);
     }
+  }
+
+  // A directive nothing has registered YET, held with the scope it was bound
+  // in. A plugin loaded after the boot — a slow `defer` script, an on-demand
+  // `import()` — registered its directive against a tree that had already been
+  // walked, and every element carrying it stayed inert with no error.
+  // `Faqir.directive()` now applies what was held for its name, exactly once:
+  // only elements the engine actually bound (so scopes, stray markup and
+  // teleports keep the scope they were bound in), and an element torn down in
+  // the meantime drops out through its own cleanup. An entry leaves the set
+  // when it is applied, so registering a directive twice applies nothing the
+  // second time.
+  var heldDirectives = new Set();
+
+  function holdDirective(el, dir, scope) {
+    var entry = [el, dir, scope];
+    heldDirectives.add(entry);
+    addCleanup(el, function() { heldDirectives.delete(entry); });
+  }
+
+  function registerDirective(name, handler) {
+    customDirectives.set(name, handler);
+    heldDirectives.forEach(function(entry) {
+      if (entry[1].type === name) {
+        heldDirectives.delete(entry);
+        applyDirective(entry[0], entry[1], entry[2]);
+      }
+    });
   }
 
   // --- 3.6 l-text ---
@@ -2788,7 +2818,10 @@ function createAlertDialog(root) {
  * Code set B covers printable ASCII (U+0020–U+007E), which keeps the public
  * contract predictable while supporting document identifiers, URLs, and
  * ordinary business text. The generated symbol includes a modulo-103 check
- * character, the stop pattern, and ten-module quiet zones on both sides.
+ * character and the stop pattern. The bars are drawn flush (the viewBox is the
+ * symbol, one unit per module, BAR_HEIGHT units tall); the quiet zone the
+ * symbology needs — ten modules each side — is CSS padding on the SVG,
+ * --barcode-quiet modules wide, so layout can align the first bar.
  */
 
 const CODE128_PATTERNS = Object.freeze([
@@ -2814,7 +2847,7 @@ const CODE128_PATTERNS = Object.freeze([
 
 const START_B = 104;
 const STOP = 106;
-const QUIET_ZONE = 10;
+// barcode.css divides by this to turn the padding into modules: keep them equal.
 const BAR_HEIGHT = 50;
 
 function encodeCode128B(value) {
@@ -2844,10 +2877,9 @@ function encodeCode128B(value) {
 }
 
 function patternToSVG(encoded) {
-  const patternWidth = [...encoded.pattern].reduce((sum, width) => sum + Number(width), 0);
-  const totalWidth = patternWidth + QUIET_ZONE * 2;
+  const totalWidth = [...encoded.pattern].reduce((sum, width) => sum + Number(width), 0);
 
-  let x = QUIET_ZONE;
+  let x = 0;
   let isBar = true;
   let pathData = "";
   for (const digit of encoded.pattern) {
@@ -2909,6 +2941,7 @@ function createBarcode(root) {
     } catch (error) {
       root.dataset.state = "error";
       const message = error instanceof Error ? error.message : String(error);
+      root.dispatchEvent(new CustomEvent("faqir:error", { bubbles: true, detail: { message, value } }));
       console.warn(`[barcode] Failed to encode: ${message}`);
     }
   }
@@ -3919,6 +3952,11 @@ function createCommandPalette(root) {
 
   function open() {
     previouslyFocused = document.activeElement;
+    // A link item is a tab stop of its own; in a combobox's listbox the search
+    // field is the one stop, so a link item without a tabindex gets -1.
+    items().forEach((item) => {
+      if (linkOf(item) && !item.hasAttribute("tabindex")) item.tabIndex = -1;
+    });
     root.dataset.state = "open";
     overlay.hidden = false;
     panel.hidden = false;
@@ -4063,18 +4101,37 @@ function createCommandPalette(root) {
     return totalVisible;
   }
 
-  function selectItem(index) {
-    const visible = visibleItems();
-    if (index < 0 || index >= visible.length) return;
+  /** An item that is a link: an `<a href>` the palette follows when chosen. */
+  function linkOf(item) {
+    return item.tagName === "A" && item.hasAttribute("href") ? item : null;
+  }
 
-    const item = visible[index];
+  // Set while the controller itself clicks a link item, so the list's click
+  // listener does not take that click for a second selection.
+  let following = false;
+
+  /**
+   * Choose an item: `command-select` first, then the registered command,
+   * then close, then — for an `<a href>` item — follow the link.
+   *
+   * The event is cancelable, and `preventDefault()` cancels only the
+   * navigation: a router that handles `detail.href` itself still gets a closed
+   * palette. `clickEvent` is the user's click on a link item, whose own default
+   * action is the navigation; from the keyboard there is none, so the item is
+   * clicked here — which keeps `target`, `download` and the like working.
+   */
+  function choose(item, clickEvent) {
+    const link = linkOf(item);
 
     // Fire a custom event for the application to handle
     const event = new CustomEvent("command-select", {
       bubbles: true,
+      cancelable: true,
       detail: {
         item,
-        label: item.querySelector("[data-part='item-label']")?.textContent || item.textContent
+        label: item.querySelector("[data-part='item-label']")?.textContent || item.textContent,
+        value: item.getAttribute("data-value"),
+        href: link ? link.href : null,
       }
     });
     root.dispatchEvent(event);
@@ -4085,6 +4142,24 @@ function createCommandPalette(root) {
     if (cmd?.action) cmd.action();
 
     close();
+
+    if (!link) return;
+    if (event.defaultPrevented) {
+      clickEvent?.preventDefault();
+    } else if (!clickEvent) {
+      following = true;
+      try {
+        link.click();
+      } finally {
+        following = false;
+      }
+    }
+  }
+
+  function selectItem(index) {
+    const visible = visibleItems();
+    if (index < 0 || index >= visible.length) return;
+    choose(visible[index]);
   }
 
   function registerCommand(cmd) {
@@ -4144,14 +4219,11 @@ function createCommandPalette(root) {
   }
 
   function onItemClick(e) {
+    if (following) return;
     const item = e.target.closest("[data-part='item']");
     if (!item) return;
 
-    const visible = visibleItems();
-    const index = visible.indexOf(item);
-    if (index >= 0) {
-      selectItem(index);
-    }
+    if (visibleItems().includes(item)) choose(item, e);
   }
 
   /**
@@ -4329,7 +4401,7 @@ function createContextMenu(root) {
   // ── date-picker ── (registry/recipes/date-picker/date-picker.js)
   var createDatePicker = controllerRegistry["date-picker"] = (function() {
 // @ui:controller date-picker
-// @ui:provides open close getValue setValue navigate selectDate destroy
+// @ui:provides open close getValue setValue clear navigate selectDate destroy
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
@@ -4343,6 +4415,12 @@ function createDatePicker(root) {
   const trigger = root.querySelector("[data-part='trigger']");
   const input = root.querySelector("[data-part='input']");
   const popup = root.querySelector("[data-part='calendar']");
+  // The submitted value. The visible input shows "October 15, 2026"; a form
+  // must send 2026-10-15, so a picker inside one carries a hidden input with
+  // the field's `name`, and this controller keeps it holding the ISO date.
+  // Optional: without it the picker works as before, the ISO date on
+  // `input.dataset.value`.
+  const valueInput = root.querySelector(":scope > [data-part='value']");
 
   // The month grid is the standalone `calendar` recipe. Canonical markup nests
   // [data-ui="calendar"] inside the popup; legacy flat markup (grid parts
@@ -4365,6 +4443,7 @@ function createDatePicker(root) {
       close() {},
       getValue: () => null,
       setValue() {},
+      clear() {},
       navigate() {},
       selectDate() {},
       destroy() {},
@@ -4381,9 +4460,19 @@ function createDatePicker(root) {
     return `${MONTH_NAMES[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
   }
 
-  function syncInput(dateStr, dateObj) {
-    input.value = formatDisplay(dateObj);
+  // `dateObj` null is no date. The submitted value is announced the way typing
+  // into a field would be — `input` then `change`, bubbling — so l-model,
+  // faqir-validate and faqir-rules all see the new answer; not when it did not
+  // change, and not on the `silent` sync at start-up.
+  function syncInput(dateStr, dateObj, silent) {
+    input.value = dateObj ? formatDisplay(dateObj) : "";
     input.dataset.value = dateStr;
+    if (valueInput && valueInput.value !== dateStr) {
+      valueInput.value = dateStr;
+      if (!silent) {
+        for (const type of ["input", "change"]) valueInput.dispatchEvent(new Event(type, { bubbles: true }));
+      }
+    }
   }
 
   function open() {
@@ -4423,11 +4512,21 @@ function createDatePicker(root) {
   }
 
   function setValue(dateStr) {
+    show(dateStr);
+  }
+
+  function show(dateStr, silent) {
     const parsed = new Date(dateStr + "T00:00:00");
     if (!isNaN(parsed.getTime())) {
       calendar.setValue(dateStr);
-      syncInput(dateStr, parsed);
+      syncInput(dateStr, parsed, silent);
     }
+  }
+
+  // No date: the calendar, the visible input and the submitted value all empty.
+  function clear() {
+    calendar.clear();
+    syncInput("", null);
   }
 
   function navigate(month, year) {
@@ -4470,9 +4569,26 @@ function createDatePicker(root) {
     }
   }
 
+  // Start-up: a value the server rendered into the hidden input is the
+  // selection — the calendar shows it and the visible input reads it as a
+  // person would. Silent: nothing changed.
+  const initialValue = valueInput ? valueInput.value : "";
+  if (initialValue) show(initialValue, true);
+
+  // A form reset puts the visible input back to its default text but never
+  // touches a hidden input, so the rendered value is restored here — after
+  // the reset has run, since `reset` fires before it does.
+  const form = valueInput && valueInput.form;
+  let resetTimer;
+  function onFormReset() {
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(() => (initialValue ? setValue(initialValue) : clear()));
+  }
+
   trigger?.addEventListener("click", onTriggerClick);
   root.addEventListener("faqir:calendar-change", onCalendarChange);
   root.addEventListener("keydown", onRootKeyDown);
+  form?.addEventListener("reset", onFormReset);
 
   function destroy() {
     // Leaving a destroyed overlay open leaves a dead one: nothing is listening
@@ -4482,12 +4598,14 @@ function createDatePicker(root) {
     trigger?.removeEventListener("click", onTriggerClick);
     root.removeEventListener("faqir:calendar-change", onCalendarChange);
     root.removeEventListener("keydown", onRootKeyDown);
+    form?.removeEventListener("reset", onFormReset);
+    clearTimeout(resetTimer);
     if (outsideClickCleanup) outsideClickCleanup();
     calendar.destroy();
     delete root._faqirDatePicker;
   }
 
-  const api = { open, close, getValue, setValue, navigate, selectDate, destroy };
+  const api = { open, close, getValue, setValue, clear, navigate, selectDate, destroy };
   root._faqirDatePicker = api;
   return api;
 }
@@ -6348,9 +6466,9 @@ function createPopover(root) {
 // @ui:provides render update destroy
 
 /**
- * Minimal QR Code encoder (byte mode, versions 1–10).
- * Produces a boolean matrix suitable for SVG rendering.
- * Covers most practical use-cases (URLs, short text up to ~170 chars at ECL-M).
+ * Minimal QR Code encoder (byte mode, versions 1–40, ISO/IEC 18004).
+ * Produces a boolean matrix suitable for SVG rendering: up to 2953 bytes at
+ * ECL-L, 2331 at M, 1663 at Q and 1273 at H.
  */
 
 // ── GF(256) arithmetic for Reed-Solomon ──
@@ -6403,34 +6521,48 @@ function rsEncode(data, ecLen) {
 
 const ECL_MAP = { L: 0, M: 1, Q: 2, H: 3 };
 
-// ISO/IEC 18004 Table 9, flattened as [(version - 1) * 4 + ecl]: EC codewords
+// ISO/IEC 18004 Table 9 for versions 1–40, flattened as [(version - 1) * 4 +
+// ecl] (L, M, Q, H) and packed one value per character, value + 40: EC codewords
 // per block, and the block count. Data codewords are what is left of the
-// version's total once the EC blocks are taken out.
-const EC_PER_BLOCK = [
-  7, 10, 13, 17, 10, 16, 22, 28, 15, 26, 18, 22, 20, 18, 26, 16, 26, 24, 18, 22,
-  18, 16, 24, 28, 20, 18, 18, 26, 24, 22, 22, 26, 30, 22, 20, 24, 18, 26, 24, 28,
-];
-const BLOCKS = [
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 2, 4, 1, 2, 4, 4,
-  2, 4, 4, 4, 2, 4, 6, 5, 2, 4, 6, 6, 2, 5, 8, 8, 4, 5, 8, 8,
-];
-const TOTAL_CODEWORDS = [26, 44, 70, 100, 134, 172, 196, 242, 292, 346];
+// version's total once the EC blocks are taken out (tests/recipes/
+// forecraft-qr-code.test.ts checks all 160 against the Table 7 capacities).
+const EC_PER_BLOCK = "/25928>D7B:><:B8B@:>:8@D<::B@>>BF><@:B@D<FD@@>BDB>@>F@<@>@F@@D@FDDDDFBDDDBBBDBFDDBDFDDF@FDFFFDFFBDFFDDDFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFFFDFF";
+const BLOCKS = "))))))))))**)**,)*,,*,,,*,.-*,..*-00,-00,-03,023,148,188.24:.298.38;.5:=/6=A08<A09?A19?J1:AF2<CH4=EK4?JM4AJP5BKR6DNU7EPX8GS[9IU^:KXa;M[d;N]g<P`j=Scn>Ufr@WiuAYly";
+
+// Codewords in a version: the modules left once the function patterns
+// (finders, timing, alignment, format and version info) are taken out, / 8.
+function totalCodewords(v) {
+  let m = (16 * v + 128) * v + 64;
+  if (v > 1) {
+    const n = ((v / 7) | 0) + 2;
+    m -= (25 * n - 10) * n - 55;
+    if (v > 6) m -= 36;
+  }
+  return m >> 3;
+}
 
 function versionInfo(version, eclIdx) {
   const i = (version - 1) * 4 + eclIdx;
-  const ec = EC_PER_BLOCK[i];
-  const b = BLOCKS[i];
-  return { dc: TOTAL_CODEWORDS[version - 1] - ec * b, ec, b };
+  const ec = EC_PER_BLOCK.charCodeAt(i) - 40;
+  const b = BLOCKS.charCodeAt(i) - 40;
+  return { dc: totalCodewords(version) - ec * b, ec, b };
 }
 
-// Alignment centres: none for v1, two up to v6, three from v7 (evenly spaced).
+// Alignment centres (ISO/IEC 18004 Annex E): none for v1; otherwise 6, then
+// floor(v / 7) + 1 more stepped back evenly from 4v + 10 (7 modules from the far
+// edge), the step rounded to an even number.
 function alignmentPositions(v) {
-  return v < 2 ? [] : v < 7 ? [6, 4 * v + 10] : [6, 2 * v + 8, 4 * v + 10];
+  if (v < 2) return [];
+  const n = ((v / 7) | 0) + 2;
+  const step = (((v * 8 + n * 3 + 5) / (n * 4 - 4)) | 0) * 2;
+  const out = [6];
+  for (let i = 0, p = v * 4 + 10; i < n - 1; i++, p -= step) out.splice(1, 0, p);
+  return out;
 }
 
 function selectVersion(dataLen, ecl) {
   const eclIdx = ECL_MAP[ecl] ?? 1;
-  for (let v = 1; v <= 10; v++) {
+  for (let v = 1; v <= 40; v++) {
     const info = versionInfo(v, eclIdx);
     // + 4-bit mode and 8-bit (v1–9) or 16-bit (v10) character count, rounded up.
     if (dataLen + (v < 10 ? 2 : 3) <= info.dc) return v;
@@ -6572,28 +6704,18 @@ function placeFormatInfo(matrix, ecl, maskId) {
 
 // ── Penalty scoring (simplified) ──
 
+// Rule 1: a run of five same-colour modules in a row or a column scores 3, and
+// each module beyond five 1 more. Row a and column a are walked together.
 function penalty(matrix) {
   const s = matrix.length;
   let score = 0;
-  // Rule 1: runs of same color
-  for (let r = 0; r < s; r++) {
-    let count = 1;
-    for (let c = 1; c < s; c++) {
-      if (matrix[r][c] === matrix[r][c - 1]) {
-        count++;
-        if (count === 5) score += 3;
-        else if (count > 5) score++;
-      } else count = 1;
-    }
-  }
-  for (let c = 0; c < s; c++) {
-    let count = 1;
-    for (let r = 1; r < s; r++) {
-      if (matrix[r][c] === matrix[r - 1][c]) {
-        count++;
-        if (count === 5) score += 3;
-        else if (count > 5) score++;
-      } else count = 1;
+  for (let a = 0; a < s; a++) {
+    let row = 1;
+    let col = 1;
+    for (let b = 1; b < s; b++) {
+      row = matrix[a][b] === matrix[a][b - 1] ? row + 1 : 1;
+      col = matrix[b][a] === matrix[b - 1][a] ? col + 1 : 1;
+      score += (row === 5 ? 3 : row > 5) + (col === 5 ? 3 : col > 5);
     }
   }
   return score;
@@ -6604,7 +6726,9 @@ function penalty(matrix) {
 function encodeQR(text, ecl = "M") {
   const data = new TextEncoder().encode(text);
   const version = selectVersion(data.length, ecl);
-  if (version < 0) throw new Error("Data too long for QR versions 1–10");
+  if (version < 0) {
+    throw new Error(`data too long for QR version 40 at ECL ${ecl}`);
+  }
 
   const eclIdx = ECL_MAP[ecl] ?? 1;
   const info = versionInfo(version, eclIdx);
@@ -6721,29 +6845,33 @@ function encodeQR(text, ecl = "M") {
 
 // ── SVG renderer ──
 
+// The modules are drawn flush: the viewBox is the symbol itself, so the ink
+// meets the SVG's content box. The quiet zone is CSS padding on the SVG,
+// --qr-quiet modules wide (4 by default, as ISO/IEC 18004 asks), worked out
+// from the module count the SVG carries as --qr-modules. Layout can align the
+// ink edge, or set --qr-quiet: 0 where the page already leaves the space.
 function matrixToSVG(matrix) {
   const size = matrix.length;
-  const quiet = 2; // quiet zone modules
-  const total = size + quiet * 2;
 
   let paths = "";
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
       if (matrix[r][c]) {
-        paths += `M${c + quiet},${r + quiet}h1v1h-1z`;
+        paths += `M${c},${r}h1v1h-1z`;
       }
     }
   }
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", `0 0 ${total} ${total}`);
+  svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
   svg.setAttribute("shape-rendering", "crispEdges");
   svg.setAttribute("data-part", "svg");
+  svg.style.setProperty("--qr-modules", String(size));
 
   // Background
   const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-  bg.setAttribute("width", total);
-  bg.setAttribute("height", total);
+  bg.setAttribute("width", size);
+  bg.setAttribute("height", size);
   bg.setAttribute("fill", "var(--color-bg, #fff)");
   svg.appendChild(bg);
 
@@ -6769,7 +6897,10 @@ function createQRCode(root) {
     const old = root.querySelector("[data-part='svg']");
     if (old) old.remove();
 
-    if (!value) return;
+    if (!value) {
+      root.dataset.state = "empty";
+      return;
+    }
 
     try {
       const matrix = encodeQR(value, ecl);
@@ -6781,7 +6912,13 @@ function createQRCode(root) {
       } else {
         root.appendChild(svg);
       }
+      root.dataset.state = "ready";
     } catch (e) {
+      // An empty box is no answer: say so in the markup, and to the page.
+      root.dataset.state = "error";
+      root.dispatchEvent(
+        new CustomEvent("faqir:error", { bubbles: true, detail: { message: e.message, value, ecl } }),
+      );
       console.warn(`[qr-code] Failed to encode: ${e.message}`);
     }
   }
@@ -6807,6 +6944,7 @@ function createQRCode(root) {
     observer.disconnect();
     const svg = root.querySelector("[data-part='svg']");
     if (svg) svg.remove();
+    if (["empty", "ready", "error"].includes(root.dataset.state)) delete root.dataset.state;
     delete root._faqirQR;
   }
 
@@ -10757,8 +10895,13 @@ function createToastContainer(root) {
  * Every user mutation funnels through a native `change` event on the affected
  * input, so the engine's `l-model` listener and this controller stay in lockstep.
  * Store-driven `l-model` writes arrive as the engine's `faqir:model` event (and
- * a form `reset`); both re-sync state without a `faqir:change`. A plain script
- * write (`input.checked = x`) is silent and is not observed — use `setValue()`.
+ * a form `reset`); both re-sync state without a `faqir:change`. A `:checked`
+ * binding is followed too: it writes the `checked` attribute, which a
+ * MutationObserver sees (on an untouched control that attribute write flips the
+ * property by itself, so no `faqir:model` follows it). A plain script write of
+ * the property (`input.checked = x`) is silent and is not observed — use
+ * `setValue()`. The CSS keys the pressed look on `:checked` as well, so a
+ * stale `data-state` never misdraws the group.
  */
 function createToggleGroup(root) {
   // Prevent double-init.
@@ -10925,6 +11068,14 @@ function createToggleGroup(root) {
   const form = root.closest("form");
   const onReset = () => setTimeout(syncState, 0);
 
+  // A `:checked` binding writes the ATTRIBUTE before the property, and on a
+  // control the user has not touched that attribute write flips the property
+  // too — so the property write after it changes nothing and announces nothing.
+  // Watch the attribute itself. syncState writes only tabindex and data-state,
+  // which this filter ignores, so it cannot feed back into itself.
+  const observer = new MutationObserver(syncState);
+  observer.observe(root, { subtree: true, attributeFilter: ["checked"] });
+
   root.addEventListener("change", onChange);
   root.addEventListener("faqir:model", syncState);
   root.addEventListener("keydown", onKeyDown);
@@ -10932,6 +11083,7 @@ function createToggleGroup(root) {
   syncState();
 
   function destroy() {
+    observer.disconnect();
     root.removeEventListener("change", onChange);
     root.removeEventListener("faqir:model", syncState);
     root.removeEventListener("keydown", onKeyDown);
@@ -11910,7 +12062,7 @@ function createTreeView(root) {
         'directive',
         'directive:' + dir.raw + ':' + describeElement(el),
         'Unknown directive "' + dir.raw + '" — no built-in handler and no plugin ' +
-          'registered Faqir.directive("' + dir.type + '", …). It does nothing.',
+          'registered Faqir.directive("' + dir.type + '", …). It does nothing until one is.',
         el,
         { directive: dir.raw, expression: dir.expression }
       );
@@ -12221,6 +12373,16 @@ function createTreeView(root) {
   // enough for the rest of the module graph and any `import().then(...)`, and
   // `DOMContentLoaded` still wins if it has not fired yet. `bootstrap` is
   // re-entry safe, so an explicit `Faqir.start()` before then costs nothing.
+  //
+  // Except for a classic `defer` script. It runs while `readyState` is
+  // `interactive` too, but with the page's other deferred scripts still to
+  // come — and a one-task timer can fire between two of them, so the engine
+  // booted before the plugins and `Faqir.data()` calls loaded after it
+  // (`faqir-rules`' `l-rules` stayed inert about four loads in six). A
+  // parser-inserted `defer` script always runs before `DOMContentLoaded`, so
+  // there the event alone is right; `load` covers a script that merely carries
+  // the attribute and was injected after the event. An `async` or injected
+  // script cannot tell whether the event has passed, and keeps the timer.
   var autoStarted = false;
   function autoStart() {
     if (autoStarted) return;
@@ -12229,10 +12391,11 @@ function createTreeView(root) {
   }
 
   if (!isManual && typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', autoStart);
-    } else {
-      if (document.readyState === 'interactive') document.addEventListener('DOMContentLoaded', autoStart);
+    var readyState = document.readyState;
+    if (readyState !== 'complete') document.addEventListener('DOMContentLoaded', autoStart);
+    if (readyState === 'interactive' && currentScript && currentScript.defer && !currentScript.async) {
+      window.addEventListener('load', autoStart);
+    } else if (readyState !== 'loading') {
       setTimeout(autoStart, 0);
     }
   }
@@ -12247,7 +12410,7 @@ function createTreeView(root) {
     // one time it was hand-maintained (0.1.0 in a package versioned 0.2.4), so
     // the built artifact is now the only place the number is authoritative and
     // the build fails if this marker goes missing.
-    version: '1.2.5', // @faqir:version
+    version: '1.3.0', // @faqir:version
     reactive: reactive,
     effect: effect,
     batch: batch,
@@ -12257,7 +12420,7 @@ function createTreeView(root) {
     nextTick: function(fn) { return queueMicrotask(fn || function() {}); },
     data: function(name, factory) { dataRegistry.set(name, factory); },
     store: function(name, obj) { globalStores[name] = reactive(obj); },
-    directive: function(name, handler) { customDirectives.set(name, handler); },
+    directive: registerDirective,
     magic: function(name, callback) {
       if (name === 'this') throw new Error('[Faqir] "this" is reserved: $this is the directive element');
       customMagics.set(name, callback);
@@ -12269,6 +12432,10 @@ function createTreeView(root) {
     // Snapshot of Faqir's view of one element — scope, directives, controller,
     // protocol attributes. [0.7-12]
     inspect: inspect,
+    // A component's controller API from plain JavaScript — the function `$ui()`
+    // calls, by element or selector; `null` when nothing matches or the match
+    // has no controller.
+    ui: resolveUi,
     // The same object installed at window.__FAQIR_DEVTOOLS__. Exposed here too
     // so code holding a specific engine instance (a bundler import, a test
     // loading one build) reaches ITS handle rather than whichever engine

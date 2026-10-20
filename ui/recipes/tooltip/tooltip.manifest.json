@@ -109,7 +109,7 @@
     "surface-backdrop"
   ],
   "templates": {
-    "html": "<div data-ui=\"tooltip\" data-variant=\"{position}\" data-state=\"hidden\">\n  <button data-part=\"trigger\" aria-describedby=\"{id}-content\">{trigger_text}</button>\n  <div data-part=\"content\" id=\"{id}-content\" role=\"tooltip\" hidden>{tooltip_text}</div>\n</div>"
+    "html": "<div data-ui=\"tooltip\" data-variant=\"{position}\" data-state=\"hidden\">\n  <button data-part=\"trigger\" data-ui=\"button\" data-variant=\"outline\" aria-describedby=\"{id}-content\">{trigger_text}</button>\n  <div data-part=\"content\" id=\"{id}-content\" role=\"tooltip\" hidden>{tooltip_text}</div>\n</div>"
   },
   "safe_transforms": [
     "change-position",

@@ -1,12 +1,17 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "document",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "kind": "pattern",
   "category": "composite",
   "description": "Full-page document container with repeatable print headers, footers, and page counters",
 
   "changes": [
+    {
+      "version": "1.3.0",
+      "note": "Print moves onto named pages. The pattern's @page rules were unnamed, so once bundled every printed page of an app took the document's margins and its 'Page N / M' counter; a document now prints on @page faqir-document (paper and margins from the --page-* tokens, as before) and a page without a document prints on the browser's defaults. A document that states both data-format and data-orientation pins its paper with a literal named page (faqir-document-a4-portrait, …-letter-landscape), so one file can print A4 and Letter documents. A change of named page is a forced break — Chromium printed a blank first page when even an empty element preceded a document — so the <body> of a file that prints a document takes the document's page as well; only documents that ask for different paper break between them. New, all opt-in: the counter is localised from the document's lang (de, es, fr, it, nl, pt, ro built in; --doc-page-label / --doc-page-separator / --doc-page-suffix for others); data-running=\"margin\" prints the running header and footer from the --doc-running-header / --doc-running-footer strings in the page-margin boxes, with the footer and counter on one line under one rule; data-header=\"from-page-2\" leaves the running header off the first page; the letter variant is a DIN 5008 business letter (A4, fold marks at 105/210mm, punch mark at 148.5mm, an address slot in the Form B window, data-form=\"a\" for Form A). The report variant reads --doc-serif instead of naming Georgia, and a quote inside a document takes the document's body and legal sizes. Four table tokens give a print theme's table its own voice (forecraft #48): --doc-rule-scale weighs the row rules and --doc-rule-strong-scale the rule under the head (not in a bordered table) and over the totals, as multiples of the theme's edge roles; --doc-table-num-scale sizes number, currency and percent cells; --doc-table-flush takes a row's first and last cell inset away. Every default draws what the table drew before.",
+      "breaking": false
+    },
     {
       "version": "1.2.0",
       "note": "The responsive ladder moves onto the breakpoint canon, mobile-first (task 0.8-09). The sheet's max-width media blocks became min-width floors on canon tiers (sm 40rem/640px, md 48rem/768px, lg 64rem/1024px), so every unconditional rule is now the PHONE case and a tier block only ever widens it. The sheet fills a phone edge to edge and gets its margin, padding and rounded corners back at md — the same 768px floor as before. The tier block is declared BEFORE @media print, because a min-width query is true on paper (a Letter page box is 8.5in ≈ 816px) and print must still win. The floors keep their values, so the only behavioural shift is at exactly a floor: 1024px now gets the wide layout rather than the narrow one.",
@@ -31,6 +36,12 @@
       "required": false,
       "tag_hint": "header",
       "description": "Canonical running document header; repeats on every printed page"
+    },
+    "address": {
+      "selector": "[data-part='address']",
+      "required": false,
+      "tag_hint": "address",
+      "description": "letter variant only: the recipient's address, between the letterhead (doc-header) and the body. Printed in the DIN 5008 envelope window (--doc-window-top/-left/-width/-height/-padding)."
     },
     "body": {
       "selector": "[data-part='body']",
@@ -60,7 +71,7 @@
 
   "variants": {
     "variant": {
-      "values": ["invoice", "form", "report"],
+      "values": ["invoice", "form", "report", "letter"],
       "default": "",
       "attr": "data-variant",
       "applied_to": "root"
@@ -76,19 +87,43 @@
       "default": "portrait",
       "attr": "data-orientation",
       "applied_to": "root"
+    },
+    "header": {
+      "values": ["every-page", "from-page-2"],
+      "default": "every-page",
+      "attr": "data-header",
+      "applied_to": "root"
+    },
+    "running": {
+      "values": ["element", "margin"],
+      "default": "element",
+      "attr": "data-running",
+      "applied_to": "root"
+    },
+    "form": {
+      "values": ["b", "a"],
+      "default": "b",
+      "attr": "data-form",
+      "applied_to": "root"
     }
   },
 
   "states": {},
 
   "props": {
-    "theme": { "type": "string", "default": "", "description": "Theme name applied via data-theme attribute" }
+    "theme": { "type": "string", "default": "", "description": "Theme name applied via data-theme attribute" },
+    "--doc-running-header": { "type": "string", "default": "none", "description": "The running header as a CSS string, drawn in the top-left page-margin box (custom property). Set it on :root (or <html style>): a page box inherits from the root only, so a value on the article is not seen. Pair with data-running=\"margin\" or data-header=\"from-page-2\" to keep the DOM doc-header for the screen only." },
+    "--doc-running-footer": { "type": "string", "default": "none", "description": "The running footer as a CSS string, drawn in the bottom-left page-margin box beside the counter (custom property, set on :root). \\A breaks a line. Pair with data-running=\"margin\"." },
+    "--doc-page-label": { "type": "string", "default": "\"Page \"", "description": "Text before the page number (custom property, set on :root). The pattern restates it for de, es, fr, it, nl, pt and ro from the document's lang." },
+    "--doc-page-separator": { "type": "string", "default": "\" / \"", "description": "Text between the page number and the page count (custom property, set on :root)." },
+    "--doc-page-suffix": { "type": "string", "default": "\"\"", "description": "Text after the page count (custom property, set on :root)." },
+    "--doc-accent": { "type": "string", "default": "var(--color-primary)", "description": "The one accent a print theme inks in; every print theme points --color-primary at it (custom property, set on :root)." }
   },
 
   "renderer_support": {
     "chromium": {
-      "mechanism": "position: fixed repetition for full DOM header/footer plus @page margin-box page counters",
-      "notes": "Chrome 131+ supports page-margin generated content and page counters; unsupported running()/element() declarations fall back to fixed positioning. Disable browser-supplied print headers and footers.",
+      "mechanism": "position: fixed repetition for full DOM header/footer plus @page margin-box page counters; with data-running=\"margin\" / data-header=\"from-page-2\", margin-box strings from --doc-running-header / --doc-running-footer",
+      "notes": "Chrome 131+ supports page-margin generated content and page counters; unsupported running()/element() declarations fall back to fixed positioning. Disable browser-supplied print headers and footers. Named pages (Chrome 85+) give each document its paper; page selector lists are not parsed, so each named page is its own rule. A fixed DOM header repeats on every page, page 1 included — to leave it off page 1, print it as a margin-box string with data-header=\"from-page-2\". Margin boxes inherit only from the root element, so their strings, counter labels and fonts are root custom properties; the pattern reaches them from a document's attributes and lang through :root:has().",
       "documentation": "https://developer.chrome.com/blog/print-margins"
     },
     "prince": {
@@ -122,7 +157,13 @@
     "doc-section-gap", "doc-component-gap", "doc-table-cell-pad-y", "doc-table-cell-pad-x",
     "doc-table-font-size", "doc-table-header-weight", "doc-table-header-fg", "doc-table-header-bg",
     "doc-table-border", "doc-table-num-font", "doc-table-footer-weight", "doc-table-footer-bg",
-    "doc-table-stripe-bg", "doc-bg", "doc-fg", "z-raised", "border-width", "texture-page"
+    "doc-table-stripe-bg", "doc-bg", "doc-fg", "doc-letter-margin-right", "doc-letter-margin-left",
+    "doc-fold-mark-1", "doc-mark-length", "doc-mark-inset", "doc-mark-width", "doc-mark-color",
+    "doc-punch-mark-length", "doc-fold-mark-2", "doc-running-header", "doc-running-footer",
+    "doc-serif", "doc-page-label", "doc-page-separator", "doc-page-suffix", "doc-window-top",
+    "doc-window-height", "doc-window-width", "doc-window-padding", "doc-window-left",
+    "doc-rule-scale", "doc-rule-strong-scale", "doc-table-flush", "doc-table-num-scale", "z-raised",
+    "border-width", "border-width-strong", "texture-page"
   ],
 
   "templates": {
@@ -134,6 +175,9 @@
     "change-variant",
     "change-format",
     "change-orientation",
+    "change-header",
+    "change-running",
+    "change-form",
     "add-doc-header",
     "remove-doc-header",
     "add-doc-footer",
@@ -176,6 +220,13 @@
     "three-page-print-reference-is-audit-clean",
     "invoice-variant-adjusts-spacing",
     "form-variant-adjusts-spacing",
-    "report-variant-adjusts-typography"
+    "report-variant-adjusts-typography",
+    "page-rules-are-named-so-a-page-without-a-document-has-no-counter",
+    "format-and-orientation-pin-the-paper-per-document",
+    "page-counter-follows-the-document-language",
+    "margin-running-footer-and-counter-share-a-line",
+    "from-page-2-leaves-the-running-header-off-page-1",
+    "letter-variant-draws-din-5008-fold-and-punch-marks",
+    "quote-inside-a-document-takes-the-document-sizes"
   ]
 }

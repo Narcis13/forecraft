@@ -1,7 +1,7 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "feature-grid",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "kind": "pattern",
   "category": "marketing",
   "description": "Responsive feature list for a marketing page: a section heading plus a real <ul> of icon + title + description items. Composition only: zero JavaScript, no controller, no reactive directives. Column count is data-cols on the root (2|3|4) and follows grid's mobile-first semantics: it names the WIDEST count, reached at the lg floor, with two columns from sm and one on a phone — all in pure CSS.",
@@ -90,8 +90,9 @@
   "tokens_used": [
     "color-bg", "color-fg", "color-fg-muted", "color-primary", "color-primary-subtle", "space-2",
     "space-3", "space-4", "space-6", "space-8", "space-10", "space-12", "space-16", "font-body",
-    "text-base", "text-lg", "text-xl", "text-3xl", "weight-semibold", "weight-bold",
-    "leading-tight", "leading-normal", "leading-relaxed", "radius-md"
+    "font-heading", "text-base", "text-lg", "text-xl", "text-3xl", "weight-bold", "leading-tight",
+    "leading-normal", "leading-relaxed", "radius-md", "heading-weight", "heading-tracking",
+    "heading-transform", "heading-caps"
   ],
 
   "templates": {
@@ -146,6 +147,11 @@
   ],
 
   "changes": [
+    {
+      "version": "1.1.1",
+      "note": "The section heading and the item titles speak in the theme heading voice, like bento, faq, pricing and the hero: --font-heading at --heading-weight with the heading tracking (and, on the heading, its case and caps), instead of the body face at a fixed bold or semibold. A theme whose heading face differs from its body face now shows it here.",
+      "breaking": false
+    },
     {
       "version": "1.1.0",
       "note": "The responsive ladder moves onto the breakpoint canon, mobile-first (task 0.8-09). The sheet's max-width media blocks became min-width floors on canon tiers (sm 40rem/640px, md 48rem/768px, lg 64rem/1024px), so every unconditional rule is now the PHONE case and a tier block only ever widens it. The item grid follows grid's mobile-first semantics (0.8-04): data-cols names the WIDEST count, reached at lg, with two columns from sm and one on a phone. The floors keep their values, so the only behavioural shift is at exactly a floor: 1024px now gets the wide layout rather than the narrow one.",

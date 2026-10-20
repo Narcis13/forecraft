@@ -1,11 +1,16 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "alert-dialog",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "kind": "recipe",
   "category": "overlay",
   "description": "Interruptive confirmation dialog (role=alertdialog) for destructive or irreversible actions",
   "changes": [
+    {
+      "version": "1.1.0",
+      "note": "The trigger is optional, as dialog's has been since 0.9-04. An alert dialog is usually opened by the application — a row's delete button, a failed save, a session timeout — and a required trigger part kept the root inside <main> next to it, which the landmark rule reports. Without a trigger, open it with open() (or a [data-open=\"{id}\"] button anywhere on the page) and place the root outside <main>; focus still returns to whatever was focused when it opened. The shared dialog controller already handled a missing trigger; only the manifest's required flag changes.",
+      "breaking": false
+    },
     {
       "version": "1.0.3",
       "note": "Nested components keep their own parts. The stylesheet reached every part with descendant selectors, so a component in the body with a title, description, header or footer of its own took the alert dialog's styles. Kept beyond direct children: the header, body and footer may be children of a <form> that is the panel's child (a form dialog); the title and description may sit in one plain div, stack or cluster inside its section (an eyebrow above the title). Every part rule is now a child chain from the root, with the hops in :where(), so no rule changes specificity. No change for markup that follows the template.",
@@ -43,9 +48,9 @@
   "slots": {
     "trigger": {
       "selector": "[data-part='trigger']",
-      "required": true,
+      "required": false,
       "tag_hint": "button",
-      "description": "Button that opens the alert dialog. Carries data-ui=\"button\": a trigger part is either a component in its own right or styled by its own recipe (the trigger contract, audit rule `trigger-contract`)."
+      "description": "Button that opens the alert dialog. Optional since 1.1.0: an alert dialog is often opened by the application (a row's delete button, a failed save, a timeout), so leave the trigger out, place the root outside <main>, and open it with open() or a [data-open=\"{id}\"] button elsewhere on the page; focus returns to whatever was focused when it opened. Carries data-ui=\"button\": a trigger part is either a component in its own right or styled by its own recipe (the trigger contract, audit rule `trigger-contract`)."
     },
     "overlay": {
       "selector": "[data-part='overlay']",
@@ -206,7 +211,7 @@
       "Tab": "cycle focus within panel",
       "Shift+Tab": "reverse cycle focus within panel"
     },
-    "notes": "Focus returns to the opener unless focus moved elsewhere while closing, or the opener has left the document. The panel carries tabindex=\"-1\" so it can take focus on open; the controller adds it if the markup does not."
+    "notes": "Focus returns to the opener (the trigger, a [data-open] button, or whatever was focused when open() ran) unless focus moved elsewhere while closing, or the opener has left the document. The panel carries tabindex=\"-1\" so it can take focus on open; the controller adds it if the markup does not."
   },
   "events": {
     "faqir:confirm": {
@@ -247,7 +252,7 @@
     "weight-semibold"
   ],
   "templates": {
-    "html": "<div data-ui=\"alert-dialog\" data-state=\"closed\" id=\"{id}\"{confirm_required}>\n  <button data-part=\"trigger\">{trigger_text}</button>\n  <div data-part=\"overlay\" hidden></div>\n  <div data-part=\"panel\" role=\"alertdialog\" aria-modal=\"true\" aria-labelledby=\"{id}-title\" aria-describedby=\"{id}-desc\" data-variant=\"{tone}\" data-size=\"{size}\" hidden>\n    <div data-part=\"header\">\n      <h2 id=\"{id}-title\" data-part=\"title\">{title}</h2>\n    </div>\n    <div data-part=\"body\">\n      <p id=\"{id}-desc\" data-part=\"description\">{description}</p>\n    </div>\n    <div data-part=\"footer\">\n      <button data-ui=\"button\" data-part=\"cancel\" data-variant=\"outline\">{cancel_text}</button>\n      <button data-ui=\"button\" data-part=\"confirm\" data-variant=\"destructive\">{confirm_text}</button>\n    </div>\n  </div>\n</div>"
+    "html": "<div data-ui=\"alert-dialog\" data-state=\"closed\" id=\"{id}\"{confirm_required}>\n  <button data-part=\"trigger\" data-ui=\"button\" data-variant=\"destructive\">{trigger_text}</button>\n  <div data-part=\"overlay\" hidden></div>\n  <div data-part=\"panel\" role=\"alertdialog\" aria-modal=\"true\" aria-labelledby=\"{id}-title\" aria-describedby=\"{id}-desc\" data-variant=\"{tone}\" data-size=\"{size}\" hidden>\n    <div data-part=\"header\">\n      <h2 id=\"{id}-title\" data-part=\"title\">{title}</h2>\n    </div>\n    <div data-part=\"body\">\n      <p id=\"{id}-desc\" data-part=\"description\">{description}</p>\n    </div>\n    <div data-part=\"footer\">\n      <button data-ui=\"button\" data-part=\"cancel\" data-variant=\"outline\">{cancel_text}</button>\n      <button data-ui=\"button\" data-part=\"confirm\" data-variant=\"destructive\">{confirm_text}</button>\n    </div>\n  </div>\n</div>"
   },
   "safe_transforms": [
     "change-variant-size",

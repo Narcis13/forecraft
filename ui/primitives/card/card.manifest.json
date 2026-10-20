@@ -1,12 +1,17 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "card",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "kind": "primitive",
   "category": "layout",
   "description": "Container surface with header, optional divider, body, and footer slots; direct children can participate in grid's four-row alignment mode",
 
   "changes": [
+    {
+      "version": "1.4.0",
+      "note": "A card written as a <fieldset> (what @faqir-ui/forms renders for a nested object, a ui:groups group and a repeatable group) drops the fieldset's margin, padding and min-content width, and its <legend data-part=\"title\"> is floated into the card's first row: full width, inset like a title, no longer cutting a notch into the top border. Inside a form, a card body's consecutive field-groups and nested cards stand --flow-space apart, the step the form's data-gap gives its own fields, so a grouped form and a wizard step have the same rhythm as a flat one. Cards outside forms, and div cards, are unchanged.",
+      "breaking": false
+    },
     {
       "version": "1.3.0",
       "note": "A media slot and a hover prop. [data-part=\"media\"] is a figure across the top of the card, full bleed, cut to the new --card-media-ratio alias (16 / 9) with its image covering the frame. data-hover names what the card does under the pointer and under focus-within: lift (rises one spacing step), raise (rises and climbs to the new --card-hover-shadow alias, --shadow-lg), tint (the accent along its edge) or zoom (its picture leans in). Nothing changes for markup that carries neither: the resting card reads no new token.",
@@ -105,7 +110,7 @@
     "card-border", "card-radius", "card-bg", "card-shadow", "card-padding", "card-media-ratio",
     "card-hover-shadow", "surface-backdrop", "texture-surface", "motion-hover-lift",
     "duration-fast", "duration-slower", "duration-normal", "ease-default", "ease-emphasized",
-    "ease-out"
+    "ease-out", "section-gap-sm"
   ],
 
   "templates": {

@@ -1,9 +1,9 @@
 <!-- @ui:component form-page -->
 <!-- @ui:kind pattern -->
-<!-- @ui:composition field-group input radio-group textarea checkbox -->
+<!-- @ui:composition field-group input radio-group textarea checkbox button -->
 
 <!-- @ui:requires faqir-core.js faqir-validate.js -->
-<form id="form-page-form" l-data l-validate aria-label="Create your account" aria-describedby="form-page-form-description">
+<form id="form-page-form" l-data l-validate aria-label="Create your account" aria-describedby="form-page-form-description" data-gap="4">
   <h1>Create your account</h1>
   <p id="form-page-form-description">Join the workspace. You can change any of this later in settings.</p>
   <div data-ui="field-group">
@@ -54,5 +54,8 @@
       <input data-ui="checkbox" type="checkbox" id="form-page-field-newsletter" name="newsletter" aria-describedby="form-page-field-newsletter-error">
     </div>
     <p data-part="error" id="form-page-field-newsletter-error" aria-live="polite"></p>
+  </div>
+  <div>
+    <button type="submit" data-ui="button" data-variant="primary">Submit</button>
   </div>
 </form>

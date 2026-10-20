@@ -1,5 +1,5 @@
 /* @ui:component barcode */
-/* @ui:tokens color-fg-muted doc-font doc-legal-color doc-legal-size font-mono font-body leading-normal space-2 space-12 space-16 space-20 mono-ligatures */
+/* @ui:tokens color-fg-muted color-bg doc-font doc-legal-color doc-legal-size font-mono font-body leading-normal space-2 space-12 space-16 space-20 mono-ligatures */
 
 [data-ui="barcode"] {
   display: inline-flex;
@@ -7,21 +7,32 @@
   align-items: center;
   max-inline-size: 100%;
   gap: var(--space-2);
+  --barcode-height: var(--space-16);
 }
 
+[data-ui="barcode"][data-size="sm"] {
+  --barcode-height: var(--space-12);
+}
+
+[data-ui="barcode"][data-size="lg"] {
+  --barcode-height: var(--space-20);
+}
+
+/* The controller draws the bars flush: the viewBox is the symbol, one unit per
+   module and 50 units tall, so a module is --barcode-height / 50 wide. The
+   quiet zone Code 128 needs (ten modules each side) is inline padding,
+   --barcode-quiet modules wide, painted in the background colour. A layout
+   that aligns the first bar with a caption or a column edge sets
+   --barcode-quiet: 0 where the page already leaves the space, or pulls the
+   box out by the padding. */
 [data-ui="barcode"] > [data-part="svg"] {
   display: block;
+  box-sizing: border-box;
   inline-size: auto;
   max-inline-size: 100%;
-  block-size: var(--space-16);
-}
-
-[data-ui="barcode"][data-size="sm"] > [data-part="svg"] {
-  block-size: var(--space-12);
-}
-
-[data-ui="barcode"][data-size="lg"] > [data-part="svg"] {
-  block-size: var(--space-20);
+  block-size: var(--barcode-height);
+  padding-inline: calc(var(--barcode-height) * var(--barcode-quiet, 10) / 50);
+  background-color: var(--color-bg);
 }
 
 [data-ui="barcode"] > [data-part="caption"] {

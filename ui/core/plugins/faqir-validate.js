@@ -38,6 +38,17 @@
  *     completes — the on-valid hook if the form declares one, otherwise a
  *     native `form.submit()`, which fires no submit event and cannot re-enter.
  *
+ * ── `faqir:valid-submit` (the SPA hook) ─────────────────────────────────────
+ *   Fired on the form, bubbling and cancelable, once per submit that finishes
+ *   it: a clean submit of a form with no on-valid hook (before the native
+ *   submit — cancel the event and there is none), or a clean submit whose hook
+ *   set the form's `data-state` to "submitted", as a wizard's last step does.
+ *   A hook that only moves a step on announces nothing. `detail` is the data:
+ *   `Faqir.rules.data(form)` when faqir-rules is loaded — coerced through the
+ *   form's definition, with a rule-hidden field left out — otherwise the same
+ *   read uncoerced (name → value, an array when a name repeats). Either way a
+ *   disabled control still answers, so a wizard's other steps are in it.
+ *
  * ── Custom validators ───────────────────────────────────────────────────────
  *   `l-validate:<name>="expr"` on a control runs only after native constraints
  *   pass. `expr` is evaluated with the control's current `value` (and `$el`) in
@@ -79,7 +90,7 @@
  * after faqir-core) and is also exported for bundlers/tests. It installs the
  * optional `Faqir.validate` member — plugin-installed surface, declared in
  * `faqir-core.d.ts` as optional for exactly that reason. Zero dependencies,
- * ≤ 3 KB gzip. The only attributes it owns are `data-state="invalid"` and
+ * ≤ 4 KB gzip. The only attributes it owns are `data-state="invalid"` and
  * `data-state="validating"` on the group, `aria-invalid`/`aria-describedby`
  * on the control and `novalidate` on the form (the plugin replaces the
  * browser's own bubbles) — the frozen five-attribute protocol is untouched.
@@ -440,6 +451,49 @@
     return dir.expression && dir.expression.trim() ? dir.expression : null;
   }
 
+  // The data a clean submit hands `faqir:valid-submit`: faqir-rules' reader
+  // when it is loaded (coerced through the form's definition), else the same
+  // read uncoerced — FormData's, except that a disabled control (a wizard's
+  // other steps) still answers.
+  function formData(form) {
+    if (F.rules) return F.rules.data(form);
+    var out = {};
+    var list = form.querySelectorAll("input,select,textarea");
+    for (var i = 0; i < list.length; i++) {
+      var el = list[i];
+      var n = el.name;
+      var t = el.type;
+      if (!n || (t !== "hidden" && SKIP_TYPES[t]) || ((t === "checkbox" || t === "radio") && !el.checked)) continue;
+      var v = el.options
+        ? [].filter.call(el.options, function (o) { return o.selected && !o.disabled; }).map(function (o) { return o.value; })
+        : t === "file" ? [].slice.call(el.files || []) : [el.value];
+      for (var j = 0; j < v.length; j++) {
+        out[n] = Object.prototype.hasOwnProperty.call(out, n) ? [].concat(out[n], v[j]) : v[j];
+      }
+    }
+    return out;
+  }
+
+  // One clean submit, announced: `faqir:valid-submit` on the form, the data as
+  // its detail. Cancelable — false means a listener took the submit over.
+  function announce(form) {
+    return form.dispatchEvent(
+      new CustomEvent("faqir:valid-submit", { bubbles: true, cancelable: true, detail: formData(form) })
+    );
+  }
+
+  // Run the on-valid hook. A hook that sets the form's `data-state` to
+  // "submitted" — a wizard's last step — has finished the form, so that submit
+  // is announced too; one that only moved a step on is not.
+  function runHook(form, dir, scope) {
+    var mo = new MutationObserver(function () {});
+    mo.observe(form, { attributes: true, attributeFilter: ["data-state"] });
+    F.evaluateAssignment(dir.expression, scope, form);
+    var wrote = mo.takeRecords().length;
+    mo.disconnect();
+    if (wrote && form.getAttribute("data-state") === "submitted") announce(form);
+  }
+
   // Every check has answered after a submit that had to wait. Either focus the
   // first offender, or finish the submit the wait interrupted — unless the
   // page's own submit handler cancelled it (`@submit.prevent` on an SPA form):
@@ -451,10 +505,10 @@
       return;
     }
     if (hookExpression(dir)) {
-      F.evaluateAssignment(dir.expression, ctx.scope, form);
+      runHook(form, dir, ctx.scope);
       return;
     }
-    if (cancelled()) return;
+    if (!announce(form) || cancelled()) return;
     // Native submit: fires no submit event, so the listener below cannot
     // re-enter and the async pass cannot loop.
     if (typeof form.submit === "function") form.submit();
@@ -608,11 +662,14 @@
           return;
         }
         // Clean. A non-empty `l-validate` expression is an on-valid hook (SPA
-        // submit): run it and keep the browser from navigating. Otherwise let
-        // the native submit proceed.
+        // submit): run it and keep the browser from navigating. Otherwise
+        // announce the submit and let the native one proceed — unless a
+        // listener cancelled the announcement.
         if (hookExpression(dir)) {
           e.preventDefault();
-          Faqir.evaluateAssignment(dir.expression, scope, form);
+          runHook(form, dir, scope);
+        } else if (!announce(form)) {
+          e.preventDefault();
         }
       });
 

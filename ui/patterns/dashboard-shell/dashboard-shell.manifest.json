@@ -1,7 +1,7 @@
 {
   "$schema": "../../../manifest.schema.json",
   "name": "dashboard-shell",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "kind": "pattern",
   "category": "composite",
   "description": "Application dashboard layout with sidebar navigation, header, and content area",
@@ -69,7 +69,7 @@
       "selector": "[data-part='sidebar-toggle']",
       "required": false,
       "tag_hint": "button",
-      "description": "Button collapsing the sidebar on narrow viewports"
+      "description": "Button that opens and closes the off-canvas sidebar below the md floor; hidden from md up, where the sidebar is docked and there is no drawer to open. Wire it with directives, no controller: a drawer flag in the root's l-data, @click=\"drawer = !drawer\" and :aria-expanded on the toggle (aria-controls names the sidebar's id), :data-state=\"drawer ? 'expanded' : null\" on the sidebar"
     },
     "nav-icon": {
       "selector": "[data-part='nav-icon']",
@@ -140,6 +140,7 @@
     }
   },
   "a11y": {
+    "notes": "Ship the sidebar WITHOUT a data-state: from the md floor up it is a docked grid column whatever its state, and below md an absent state is the closed off-canvas drawer. data-state=\"expanded\" in static markup opens that drawer as a fixed overlay over a phone's content. The toggle is a real <button type=\"button\"> with aria-controls and aria-expanded kept in step with the drawer; a closed drawer is visibility: hidden, so its links are out of the tab order.",
     "required_attrs": [
       "role=\"navigation\" on nav",
       "aria-label on nav",
@@ -149,7 +150,7 @@
     ],
     "keyboard": {
       "Tab": "move focus through interactive elements",
-      "Escape": "close open dropdown menus"
+      "Escape": "close open dropdown menus, and the phone drawer (an @keydown.escape on the root)"
     }
   },
   "tokens_used": [
@@ -161,7 +162,7 @@
     "border-width", "focus-ring-width", "focus-ring-style", "focus-ring-color", "focus-ring-offset"
   ],
   "templates": {
-    "html": "<div data-ui=\"dashboard-shell\">\n  <aside data-part=\"sidebar\" data-state=\"expanded\">\n    <div data-part=\"logo\">{logo}</div>\n    <nav data-part=\"nav\" aria-label=\"Main navigation\">\n      <a data-part=\"nav-item\" aria-current=\"page\">{item}</a>\n    </nav>\n  </aside>\n  <header data-part=\"header\">{header}</header>\n  <main data-part=\"content\">{content}</main>\n  <footer data-part=\"footer\">{footer}</footer>\n</div>"
+    "html": "<div data-ui=\"dashboard-shell\" l-data=\"{ drawer: false }\" @keydown.escape=\"drawer = false\">\n  <aside data-part=\"sidebar\" id=\"{id}-sidebar\" :data-state=\"drawer ? 'expanded' : null\">\n    <div data-part=\"logo\">{logo}</div>\n    <nav data-part=\"nav\" role=\"navigation\" aria-label=\"Main navigation\">\n      <a data-part=\"nav-item\" href=\"{href}\" aria-current=\"page\">{item}</a>\n    </nav>\n  </aside>\n  <header data-part=\"header\" role=\"banner\">\n    <button data-ui=\"button\" data-variant=\"ghost\" data-part=\"sidebar-toggle\" type=\"button\" aria-label=\"Toggle sidebar\" aria-controls=\"{id}-sidebar\" aria-expanded=\"false\" :aria-expanded=\"drawer ? 'true' : 'false'\" @click=\"drawer = !drawer\">{menu_icon}</button>\n    {header}\n  </header>\n  <main data-part=\"content\" role=\"main\">{content}</main>\n  <footer data-part=\"footer\">{footer}</footer>\n</div>"
   },
   "safe_transforms": [
     "toggle-sidebar-state",
@@ -202,7 +203,8 @@
     "sidebar-slot-is-required",
     "header-slot-is-required",
     "content-slot-is-required",
-    "sidebar-has-expanded-state-by-default",
+    "sidebar-ships-without-a-state-so-a-phone-opens-on-the-content",
+    "sidebar-toggle-is-hidden-from-md-up",
     "sidebar-collapses-with-data-state-collapsed",
     "sidebar-position-right-variant-moves-sidebar",
     "collapsed-sidebar-keeps-navigation-within-the-rail",
@@ -215,6 +217,11 @@
     "contains-dropdown-component"
   ],
   "changes": [
+    {
+      "version": "1.3.0",
+      "note": "The reference markup and template no longer ship data-state=\"expanded\" on the sidebar, which opened the off-canvas drawer as a fixed overlay over a phone with no way to close it: the sidebar is docked from md up whatever its state, and an absent state is the closed drawer below md. The default variant wires its sidebar-toggle with directives (a drawer flag in l-data, @click, :aria-expanded, :data-state, Escape closes) and the toggle is hidden from md up, where there is no drawer. Markup that sets data-state itself is unchanged.",
+      "breaking": false
+    },
     {
       "version": "1.2.0",
       "note": "Give the collapsed rail's navigation the available inline size, center its glyphs, and hide label-dependent badges so no navigation box is clipped past the viewport start.",

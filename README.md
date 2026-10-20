@@ -2,7 +2,7 @@
 
 Forms for the agentic era. An agent creates, previews, publishes and reads forms
 through a REST API or an MCP server; people do the same through a dashboard and a
-drag-and-drop designer; everyone else fills the forms in. Every pixel is Faqir UI 1.2.5.
+drag-and-drop designer; everyone else fills the forms in. Every pixel is Faqir UI 1.3.0.
 
 One form is one JSON document — `{ schema, ui, rules, appearance }` — that the API
 accepts, the designer edits and `@faqir-ui/forms` renders. The server re-checks every

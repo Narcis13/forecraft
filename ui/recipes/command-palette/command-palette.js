@@ -25,6 +25,11 @@ export function createCommandPalette(root) {
 
   function open() {
     previouslyFocused = document.activeElement;
+    // A link item is a tab stop of its own; in a combobox's listbox the search
+    // field is the one stop, so a link item without a tabindex gets -1.
+    items().forEach((item) => {
+      if (linkOf(item) && !item.hasAttribute("tabindex")) item.tabIndex = -1;
+    });
     root.dataset.state = "open";
     overlay.hidden = false;
     panel.hidden = false;
@@ -169,18 +174,37 @@ export function createCommandPalette(root) {
     return totalVisible;
   }
 
-  function selectItem(index) {
-    const visible = visibleItems();
-    if (index < 0 || index >= visible.length) return;
+  /** An item that is a link: an `<a href>` the palette follows when chosen. */
+  function linkOf(item) {
+    return item.tagName === "A" && item.hasAttribute("href") ? item : null;
+  }
 
-    const item = visible[index];
+  // Set while the controller itself clicks a link item, so the list's click
+  // listener does not take that click for a second selection.
+  let following = false;
+
+  /**
+   * Choose an item: `command-select` first, then the registered command,
+   * then close, then — for an `<a href>` item — follow the link.
+   *
+   * The event is cancelable, and `preventDefault()` cancels only the
+   * navigation: a router that handles `detail.href` itself still gets a closed
+   * palette. `clickEvent` is the user's click on a link item, whose own default
+   * action is the navigation; from the keyboard there is none, so the item is
+   * clicked here — which keeps `target`, `download` and the like working.
+   */
+  function choose(item, clickEvent) {
+    const link = linkOf(item);
 
     // Fire a custom event for the application to handle
     const event = new CustomEvent("command-select", {
       bubbles: true,
+      cancelable: true,
       detail: {
         item,
-        label: item.querySelector("[data-part='item-label']")?.textContent || item.textContent
+        label: item.querySelector("[data-part='item-label']")?.textContent || item.textContent,
+        value: item.getAttribute("data-value"),
+        href: link ? link.href : null,
       }
     });
     root.dispatchEvent(event);
@@ -191,6 +215,24 @@ export function createCommandPalette(root) {
     if (cmd?.action) cmd.action();
 
     close();
+
+    if (!link) return;
+    if (event.defaultPrevented) {
+      clickEvent?.preventDefault();
+    } else if (!clickEvent) {
+      following = true;
+      try {
+        link.click();
+      } finally {
+        following = false;
+      }
+    }
+  }
+
+  function selectItem(index) {
+    const visible = visibleItems();
+    if (index < 0 || index >= visible.length) return;
+    choose(visible[index]);
   }
 
   function registerCommand(cmd) {
@@ -250,14 +292,11 @@ export function createCommandPalette(root) {
   }
 
   function onItemClick(e) {
+    if (following) return;
     const item = e.target.closest("[data-part='item']");
     if (!item) return;
 
-    const visible = visibleItems();
-    const index = visible.indexOf(item);
-    if (index >= 0) {
-      selectItem(index);
-    }
+    if (visibleItems().includes(item)) choose(item, e);
   }
 
   /**
