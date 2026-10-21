@@ -72,8 +72,8 @@ A **report** is one JSON definition (`{ schema, sample, layout, appearance, … 
 | Tool | Arguments | When to use it |
 | --- | --- | --- |
 | `forecraft_get_report_vocabulary` | none | Before writing or editing a definition: every block with an example, helpers, print themes, type pairings, locales, papers and preflight codes. |
-| `forecraft_list_report_starters` | none | First step of every new report: invoice, letter, business-report, confirmation, survey-summary, blank. |
-| `forecraft_create_report` | `starter`, `title?`, `appearance?`, `sample?`, `form?` — or `definition` (exactly one of `starter` / `definition`) | Create a draft report. From a starter the result includes the definition so you can edit it; `form` (`frm_…`) is required for the confirmation and survey-summary starters. |
+| `forecraft_list_report_starters` | none | First step of every new report: invoice, letter, business-report, confirmation, survey-summary, submissions-register, blank. |
+| `forecraft_create_report` | `starter`, `title?`, `appearance?`, `sample?`, `form?` — or `definition` (exactly one of `starter` / `definition`) | Create a draft report. From a starter the result includes the definition so you can edit it; `form` (`frm_…`) is required for the confirmation, survey-summary and submissions-register starters. |
 | `forecraft_update_report` | `id`, `definition` | Replace the whole draft definition (read it with `forecraft_get_report` first). Publish again afterwards. |
 | `forecraft_get_report` | `id` | One report with its draft definition, `published_version` and `has_unpublished_changes`. |
 | `forecraft_list_reports` | none | All reports (no definitions) with `document_count`. |

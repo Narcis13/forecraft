@@ -1,10 +1,14 @@
-div(data-ui="cluster" data-gap="2" l-data="publisher" data-prop-form-id=id)
+//- A form page's header actions. Publish only when the draft differs from the
+//- live version: republishing an unchanged form would only add a version.
+//- On a phone the buttons keep their icons; the words stay for screen readers.
+div(data-ui="cluster" data-gap="2" l-data="publisher" data-prop-form-id=id data-app-actions)
   a(data-ui="button" data-variant="outline" data-size="sm" href="/app/forms/{{ id }}/preview" target="_blank" rel="noopener")
     span(data-ui="icon" data-icon="eye" aria-hidden="true")
-    | Preview
+    span(data-action-label) Preview
   a(data-ui="button" data-variant="outline" data-size="sm" href="/app/forms/{{ id }}/design")
     span(data-ui="icon" data-icon="pencil" aria-hidden="true")
-    | Design
-  button(type="button" data-ui="button" data-variant="primary" data-size="sm" :disabled="busy" @click="publish()")
-    span(data-ui="icon" data-icon="send" aria-hidden="true")
-    | {{ draft ? "Publish changes" : "Republish" }}
+    span(data-action-label) Design
+  if draft
+    button(type="button" data-ui="button" data-variant="primary" data-size="sm" :disabled="busy" @click="publish()")
+      span(data-ui="icon" data-icon="send" aria-hidden="true")
+      span(data-action-label) {{ live ? "Publish changes" : "Publish" }}

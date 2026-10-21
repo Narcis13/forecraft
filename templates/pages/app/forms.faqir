@@ -11,42 +11,56 @@ block actions
 
 block content
   div(data-ui="stack" data-gap="6")
+    //- The signup page promises a key: until the workspace has one, the first screen offers it.
+    if page.needsKey
+      div(data-ui="callout" data-variant="info" role="note" data-key-cta)
+        span(data-part="icon")
+          span(data-ui="icon" data-icon="key" aria-hidden="true")
+        div(data-part="content")
+          strong(data-part="title") Your agent needs an API key
+          p Create it here and copy it into your agent's settings. It is shown once; we only keep its hash.
+          div(data-ui="cluster" data-gap="2")
+            button(type="button" data-ui="button" data-variant="primary" data-size="sm" @click="$ui('#new-key').open()")
+              span(data-ui="icon" data-icon="key" aria-hidden="true")
+              | Create your API key
+            a(data-ui="button" data-variant="ghost" data-size="sm" href="/for-agents") How an agent uses it
     if page.forms.length == 0
       div(data-ui="reveal" data-variant="rise")
-        div(data-ui="card" data-size="lg")
-          div(data-part="body")
-            div(data-ui="empty-state")
-              span(data-part="icon")
-                span(data-ui="icon" data-icon="sparkles" aria-hidden="true")
-              h2(data-part="title") Create your first form, or ask your agent to
-              p(data-part="description") Drag fields onto a canvas yourself, or give your agent an API key and one sentence. Either way you get the same form, the same public page and the same submissions table.
-              div(data-part="actions" l-data="newForm")
-                button(type="button" data-ui="button" data-variant="primary" :disabled="busy" @click="create()")
-                  span(data-ui="icon" data-icon="plus" aria-hidden="true")
-                  | Open the designer
-                a(data-ui="button" data-variant="outline" href="/app/keys")
-                  span(data-ui="icon" data-icon="key" aria-hidden="true")
-                  | Get an API key
-        div(data-ui="grid" data-cols="1" data-cols-md="2" data-gap="4")
-          div(data-ui="card")
-            div(data-part="header")
-              h3(data-part="title") From Claude, Cursor or any MCP host
-              p(data-part="description") Add forecraft to the host's .mcp.json, then ask: “Make me a waitlist form with name, email and team size, and publish it.”
+        div(data-ui="stack" data-gap="4")
+          div(data-ui="card" data-size="lg")
             div(data-part="body")
-              pre(data-ui="text" data-variant="mono" data-size="sm")
-                | "forecraft": { "command": "node",
-                |   "args": ["packages/mcp/index.mjs"],
-                |   "env": { "FORECRAFT_API_KEY": "fc_live_…" } }
-          div(data-ui="card")
-            div(data-part="header")
-              h3(data-part="title") From a terminal
-              p(data-part="description") One POST with a JSON Schema. The response carries the public URL once you publish.
-            div(data-part="body")
-              pre(data-ui="text" data-variant="mono" data-size="sm")
-                | curl -X POST {{ page.origin }}/api/v1/forms \
-                |   -H "Authorization: Bearer $FORECRAFT_API_KEY" \
-                |   -H "content-type: application/json" \
-                |   -d @definition.json
+              div(data-ui="empty-state")
+                span(data-part="icon")
+                  span(data-ui="icon" data-icon="sparkles" aria-hidden="true")
+                h2(data-part="title") Create your first form, or ask your agent to
+                p(data-part="description") Drag fields onto a canvas yourself, or give your agent an API key and one sentence. Either way you get the same form, the same public page and the same submissions table.
+                div(data-part="actions" l-data="newForm")
+                  button(type="button" data-ui="button" data-variant="primary" :disabled="busy" @click="create()")
+                    span(data-ui="icon" data-icon="plus" aria-hidden="true")
+                    | Open the designer
+                  a(data-ui="button" data-variant="outline" href="/app/keys")
+                    span(data-ui="icon" data-icon="key" aria-hidden="true")
+                    | Get an API key
+          div(data-ui="grid" data-cols="1" data-cols-md="2" data-gap="4")
+            div(data-ui="card")
+              div(data-part="header")
+                h3(data-part="title") From Claude, Cursor or any MCP host
+                p(data-part="description") Add forecraft to the host's .mcp.json, then ask: “Make me a waitlist form with name, email and team size, and publish it.”
+              div(data-part="body")
+                pre(data-ui="text" data-variant="mono" data-size="sm")
+                  | "forecraft": { "command": "node",
+                  |   "args": ["packages/mcp/index.mjs"],
+                  |   "env": { "FORECRAFT_API_KEY": "fc_live_…" } }
+            div(data-ui="card")
+              div(data-part="header")
+                h3(data-part="title") From a terminal
+                p(data-part="description") One POST with a JSON Schema. The response carries the public URL once you publish.
+              div(data-part="body")
+                pre(data-ui="text" data-variant="mono" data-size="sm")
+                  | curl -X POST {{ page.origin }}/api/v1/forms \
+                  |   -H "Authorization: Bearer $FORECRAFT_API_KEY" \
+                  |   -H "content-type: application/json" \
+                  |   -d @definition.json
     else
       div(data-ui="grid" data-cols="1" data-cols-sm="3" data-gap="4")
         div(data-ui="stat" data-variant="card" data-size="lg" aria-label="{{ page.totals.forms }} forms in {{ page.workspace }}")
@@ -90,3 +104,7 @@ block content
                     a(data-ui="button" data-variant="ghost" data-size="sm" href="/app/forms/{{ f.id }}/submissions") Responses
             tr(data-part="empty" hidden)
               td(data-part="td" colspan="5") No form matches that filter.
+
+block dialogs
+  if page.needsKey
+    include "partials/new-key-dialog.faqir"

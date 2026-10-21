@@ -72,50 +72,188 @@
     return id;
   }
 
-  /** Sensible first content for a block dropped from the palette. */
-  function newBlock(name, vocab, layout) {
+  function titleCase(k) {
+    return String(k).replace(/_/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, function (c) { return c.toUpperCase(); });
+  }
+
+  /**
+   * What the data holds, for seeding new blocks: its lists of rows (with the
+   * keys every row has, by type), its numbers and its strings. Lists inside
+   * a null object (no NPS question, say) are not there, so nothing binds them.
+   */
+  function shapeOf(data) {
+    var out = { arrays: [], numbers: [], strings: [] };
+    (function walk(v, prefix, depth) {
+      if (!v || typeof v !== "object" || depth > 3) return;
+      Object.keys(v).forEach(function (k) {
+        var x = v[k], path = prefix + k;
+        if (Array.isArray(x)) {
+          var rows = x.filter(function (r) { return r && typeof r === "object" && !Array.isArray(r); });
+          if (!rows.length) return;
+          var every = function (key, test) { return rows.every(function (r) { return test(r[key]); }); };
+          var keys = Object.keys(rows[0]);
+          out.arrays.push({
+            path: path,
+            strings: keys.filter(function (key) { return every(key, function (y) { return typeof y === "string"; }); }),
+            numbers: keys.filter(function (key) { return every(key, function (y) { return typeof y === "number"; }); }),
+            scalars: keys.filter(function (key) { return every(key, function (y) { return y === null || typeof y === "string" || typeof y === "number"; }); }),
+          });
+        } else if (x && typeof x === "object") walk(x, path + ".", depth + 1);
+        else if (typeof x === "number") out.numbers.push(path);
+        else if (typeof x === "string") out.strings.push(path);
+      });
+    })(data, "", 0);
+    return out;
+  }
+
+  /** The first of `preferred` in `keys`, else the first key that is not an id or a row number. */
+  function pick(keys, preferred) {
+    return preferred.find(function (k) { return keys.indexOf(k) >= 0; }) || keys.find(function (k) { return !/^(id|number|i)$/.test(k) && !/_at$/.test(k); }) || "";
+  }
+
+  /** The title the schema gives `key` of the rows of `path` (or of `path` itself), else the key, readable. */
+  function titleOf(schema, path, key) {
+    var node = { properties: schema.properties };
+    path.split(".").forEach(function (k) { node = node && node.properties && node.properties[k]; });
+    if (key) node = node && node.items && node.items.properties && node.items.properties[key];
+    return (node && node.title) || titleCase(key || path.replace(/\./g, " "));
+  }
+
+  /**
+   * Sensible first content for a block dropped from the palette, seeded from
+   * the data the report really sees (`ctx.data`, `ctx.schema`): the first
+   * list of rows, its label and its first number. With nothing to bind, a
+   * block starts empty with a hint, never bound to fields that do not exist.
+   */
+  function newBlock(name, vocab, layout, ctx) {
+    ctx = ctx || {};
+    var schema = ctx.schema || { properties: {} };
+    var shape = shapeOf(ctx.data || {});
+    var LABELS = ["label", "title", "name", "description", "text"];
+    var NUMBERS = ["count", "total", "value", "amount", "answered", "qty", "quantity", "price"];
+    // A list with something to name each row by and something to count.
+    var measured = shape.arrays.find(function (a) { return pick(a.strings, LABELS) && pick(a.numbers, NUMBERS); });
+    var listed = shape.arrays[0];
+    var bars = function () {
+      if (!measured) return { rows: "[]", label: "", value: "0" };
+      var l = pick(measured.strings, LABELS), n = pick(measured.numbers, NUMBERS);
+      return { rows: measured.path, label: "{{ row." + l + " }}", value: "row." + n, title: titleOf(schema, measured.path, n) + " by " + titleOf(schema, measured.path, l).toLowerCase() };
+    };
     var DEFAULTS = {
       letterhead: { name: "Your company", lines: ["Street and number", "Postcode and city"], details: [{ label: "Email", value: "hello@example.com" }] },
-      title: { text: "{{ label(\"invoice\") }}", details: [{ label: "{{ label(\"number\") }}", value: "{{ doc.number ?? label(\"draft\") }}" }, { label: "{{ label(\"issueDate\") }}", value: "{{ date(doc.issuedAt) }}" }] },
+      title: { text: ctx.title || "{{ label(\"invoice\") }}", details: [{ label: "{{ label(\"number\") }}", value: "{{ doc.number ?? label(\"draft\") }}" }, { label: "{{ label(\"issueDate\") }}", value: "{{ date(doc.issuedAt) }}" }] },
       facts: { items: [{ label: "Reference", value: "—" }, { label: "Terms", value: "30 days" }] },
       parties: { parties: [{ label: "{{ label(\"billTo\") }}", name: "Customer name", lines: ["Street", "City"] }] },
-      table: { rows: "items", columns: [
-        { label: "{{ label(\"description\") }}", value: "{{ row.description ?? \"\" }}", width: "wide" },
-        { label: "{{ label(\"quantity\") }}", value: "{{ number(row.qty ?? 0) }}", format: "number" },
-      ] },
-      totals: {},
+      table: listed ? {
+        rows: listed.path,
+        columns: listed.scalars.filter(function (k) { return !/^(id|i)$/.test(k); }).slice(0, 4).map(function (k, i) {
+          var c = { label: titleOf(schema, listed.path, k), value: "{{ row." + k + " ?? \"\" }}" };
+          if (listed.numbers.indexOf(k) >= 0) c.format = "number";
+          else if (i === 0) c.width = "wide";
+          return c;
+        }),
+      } : { rows: "[]", columns: [{ label: "Column", value: "" }], empty: "Nothing to list yet." },
+      // Without priced lines (no money), a totals block lists what the data totals.
+      totals: ctx.money ? {} : { items: [shape.numbers.length ? { label: titleOf(schema, shape.numbers[0]), value: "{{ number(" + shape.numbers[0] + ") }}", emphasis: true } : { label: "Total", value: "", emphasis: true }] },
       text: { markdown: "Write here. Use **bold**, lists and [links](https://example.com); insert data with holes." },
       callout: { title: "Note", markdown: "Something the reader should not miss." },
+      stats: { items: [shape.numbers.length ? { label: titleOf(schema, shape.numbers[0]), value: "{{ number(" + shape.numbers[0] + ") }}" } : { label: "", value: "" }] },
+      bars: bars(),
+      chart: (function () {
+        var b = bars();
+        return { kind: "column", rows: b.rows, label: b.label, series: [{ name: measured ? titleOf(schema, measured.path, b.value.slice(4)) : "", value: b.value }], format: "number", title: b.title || "" };
+      })(),
+      quote: (function () {
+        var said = shape.arrays.find(function (a) { return a.strings.indexOf("text") >= 0; });
+        return said ? { rows: said.path, text: "{{ row.text }}" } : { text: "A sentence worth quoting.", name: "" };
+      })(),
       signature: { signatures: [{ name: "Name", role: "Role" }, { name: "Name", role: "Role" }] },
       section: { title: "Section", numbered: true, blocks: [] },
       columns: { columns: [[], []] },
       stamp: { text: "{{ label(\"copy\") }}", tone: "default" },
-      footer: { lines: ["Company · Address · Registration"] },
+      footer: { lines: [ctx.title ? "{{ doc.title }} · {{ doc.number ?? label(\"draft\") }}" : "Company · Address · Registration"] },
       qr: { value: "{{ doc.number ?? \"DRAFT\" }}", caption: "Reference" },
       barcode: { value: "{{ doc.number ?? \"DRAFT\" }}" },
+      faqir: { source: "+callout(variant=\"muted\")\n  @content\n    p Write here." },
+      image: { src: ctx.asset || "", alt: ctx.alt || "Figure" },
     };
     var base = DEFAULTS[name] ? clone(DEFAULTS[name]) : clone(vocab.blocks[name].example);
     delete base.id;
     delete base.block;
+    if (base.title === "") delete base.title;
     var b = { id: freshId(layout, name), block: name };
     Object.keys(base).forEach(function (k) { b[k] = base[k]; });
     return b;
   }
 
-  /** Field paths the Insert field picker offers: the schema's, the row's, the system's. */
-  function schemaPaths(schema) {
-    var out = [];
-    (function walk(props, prefix, rowPrefix) {
+  /**
+   * The Insert field picker: the data's own fields, then one group per list of
+   * rows ("questions[] →" offers row.title, row.answered…), then the document's
+   * values that exist for this report (money only with money, the submission
+   * only for a submission source). A path is offered once per group.
+   */
+  function pathGroups(schema, def) {
+    var top = { label: "Fields", items: [] };
+    var groups = [top];
+    (function walk(props, prefix, group, trail) {
       Object.keys(props || {}).forEach(function (k) {
         var p = props[k] || {};
         var path = prefix + k;
-        if (p.type === "object" && p.properties) walk(p.properties, path + ".", rowPrefix);
+        if (p.type === "object" && p.properties) walk(p.properties, path + ".", group, trail);
         else if (p.type === "array" && p.items && p.items.properties) {
-          out.push({ path: path, type: "array", title: p.title || k });
-          walk(p.items.properties, "row.", true);
-        } else out.push({ path: path, type: p.type + (p.format ? " (" + p.format + ")" : "") + (p.enum ? " (choice)" : ""), title: p.title || k });
+          group.items.push({ path: path, label: path + " (a list of rows)" });
+          var name = trail + path.replace(/^row\./, "") + "[] →";
+          var g = { label: name, items: [] };
+          groups.push(g);
+          walk(p.items.properties, "row.", g, name + " ");
+        } else group.items.push({ path: path, label: path + (/0–100/.test(p.description || "") ? " (a percentage, 0–100)" : "") });
       });
-    })(schema.properties, "", false);
+    })(schema.properties, "", top, "");
+    var doc = { label: "The document", items: ["doc.title", "doc.number", "doc.issuedAt"].map(function (p) { return { path: p, label: p }; }) };
+    if (def.money) ["doc.money.subtotal", "doc.money.tax", "doc.money.total", "doc.money.due", "line.net", "line.tax"].forEach(function (p) { doc.items.push({ path: p, label: p }); });
+    if (def.source && def.source.kind === "submission") ["doc.submission.id", "doc.submission.created_at"].forEach(function (p) { doc.items.push({ path: p, label: p }); });
+    groups.push(doc);
+    groups.forEach(function (g) {
+      var seen = {};
+      g.items = g.items.filter(function (it) { if (seen[it.path]) return false; seen[it.path] = true; return true; });
+    });
+    return groups.filter(function (g) { return g.items.length; });
+  }
+
+  /** A's properties, with B's added where A has none (the schema first, what the data shows second). */
+  function mergeSchema(a, b) {
+    var out = clone(a || { properties: {} });
+    out.properties = out.properties || {};
+    Object.keys((b && b.properties) || {}).forEach(function (k) {
+      var x = out.properties[k], y = b.properties[k];
+      if (!x) out.properties[k] = y;
+      else if (x.type === "object" && y.type === "object") out.properties[k] = mergeSchema(x, y);
+      else if (x.type === "array" && y.type === "array" && x.items && y.items && y.items.properties) out.properties[k] = Object.assign({}, x, { items: mergeSchema(x.items, y.items) });
+    });
+    return out;
+  }
+
+  /** What each stat of a summary question means, for the Pick a question list. */
+  var STAT_LABELS = {
+    answered: "answered", skipped: "skipped", mean: "mean", median: "median", min: "lowest", max: "highest", earliest: "earliest", latest: "latest",
+    "top.label": "most chosen", "top.count": "most chosen, count", "top.share": "most chosen, share (0–100)", options: "options (a list of rows)", tops: "tied options (a list)",
+    samples: "written answers (a list)", "rows.total": "rows in all", "rows.perSubmission": "rows per submission",
+  };
+
+  /** Field paths the Data tab lists: the schema's, and each list's row fields (keyed by their list). */
+  function schemaPaths(schema) {
+    var out = [];
+    (function walk(props, prefix, list) {
+      Object.keys(props || {}).forEach(function (k) {
+        var p = props[k] || {};
+        var path = prefix + k;
+        if (p.type === "object" && p.properties) walk(p.properties, path + ".", list);
+        else if (p.type === "array" && p.items && p.items.properties) {
+          out.push({ key: list + path, path: path, type: "array", title: p.title || k });
+          walk(p.items.properties, "row.", list + path + "[].");
+        } else out.push({ key: list + path, path: path, type: (p.type || "any") + (p.format ? " (" + p.format + ")" : "") + (p.enum ? " (choice)" : ""), title: (p.title || k) + (p.description ? " — " + p.description : "") });
+      });
+    })(schema.properties, "", "");
     return out;
   }
 
@@ -158,14 +296,15 @@
   function get(obj, path) {
     return path.split(".").reduce(function (o, k) { return o === undefined || o === null ? undefined : o[k]; }, obj);
   }
-  function set(obj, path, value) {
+  /** Sets obj[path]; an empty value removes the key, unless `keepEmpty` (a required text stays ""). */
+  function set(obj, path, value, keepEmpty) {
     var keys = path.split(".");
     var last = keys.pop();
     var o = keys.reduce(function (o, k, i) {
       if (o[k] === undefined) o[k] = /^\d+$/.test(keys[i + 1] || last) ? [] : {};
       return o[k];
     }, obj);
-    if (value === undefined || value === "") delete o[last];
+    if (value === undefined || (value === "" && !keepEmpty)) delete o[last];
     else o[last] = value;
   }
 
@@ -191,8 +330,19 @@
         preflightRan: false,
         preflightBusy: false,
         fields: [],
-        paths: [],
+        pathGroups: [],
         schemaFields: [],
+        // The data the report really sees (GET …/sample): the bound form's
+        // submissions, a synthetic sample shaped like the form, or the sample.
+        data: null,
+        dataOrigin: "",
+        dataCount: 0,
+        dataKey: "",
+        sourceKind: "data",
+        questions: [],
+        question: "",
+        questionStats: [],
+        published: false,
         sampleText: "",
         sampleError: "",
         jsonText: "",
@@ -214,14 +364,17 @@
         preflightTimer: 0,
         dragging: null,
         lastText: null,
+        revealId: "",
 
         init: function () {
           var self = this;
           api("GET", "/reports/" + self.reportId).then(function (r) {
             self.def = r.definition;
+            self.published = r.published_version !== null;
             self.history = [JSON.stringify(r.definition)];
             self.cursor = 0;
             self.render();
+            self.loadData();
             self.refreshCanvas(0);
             self.runPreflight(0);
           }, function (err) {
@@ -292,11 +445,87 @@
           this.moneyArrays = Object.keys(props).filter(function (k) { return props[k].type === "array" && props[k].items && props[k].items.properties; });
           var lines = this.money.lines && props[this.money.lines];
           this.moneyItemProps = lines ? Object.keys(lines.items.properties) : [];
-          var paths = this.schemaFields.filter(function (f) { return f.type !== "array"; }).map(function (f) { return f.path; });
-          this.paths = paths.concat(["doc.number", "doc.issuedAt", "doc.money.total", "doc.money.due", "doc.money.subtotal", "line.net", "line.tax", "i"]);
+          var source = def.source || { kind: "data" };
+          this.sourceKind = source.kind;
+          this.bindForm = source.form || "";
+          this.renderData();
+          // The source changed (bound, unbound, edited as JSON, undone): fetch what it gives.
+          if (this.dataKey && JSON.stringify(source) !== this.dataKey) this.loadData();
           if (!opts.fromSample) this.sampleText = JSON.stringify(def.sample, null, 2);
           if (!opts.fromJson) this.jsonText = JSON.stringify(def, null, 2);
           this.renderProps();
+        },
+
+        /** The views that depend on the data: the Insert field groups, the questions to pick from. */
+        renderData: function () {
+          var self = this;
+          var data = self.currentData();
+          self.pathGroups = pathGroups(mergeSchema(self.def.schema, infer(data)), self.def);
+          var qs = self.sourceKind === "summary" && data && Array.isArray(data.questions) ? data.questions : [];
+          self.questions = qs.map(function (q) { return { name: q.name, label: (q.title || q.name) + (q.kind ? " (" + q.kind + ")" : "") }; });
+          if (!qs.some(function (q) { return q.name === self.question; })) self.question = "";
+          self.renderStats();
+        },
+        /** What the canvas prints: the form's data for a summary or a register, else the sample. */
+        currentData: function () {
+          var live = this.sourceKind === "summary" || this.sourceKind === "submissions";
+          return live && this.data ? this.data : (this.def.sample || {});
+        },
+        /** The data the report really sees, from the server: the form's submissions, or a sample shaped like it. */
+        loadData: function () {
+          var self = this;
+          var source = self.def.source || { kind: "data" };
+          var key = JSON.stringify(source);
+          self.dataKey = key;
+          var query = source.form ? "?form=" + encodeURIComponent(source.form) + "&kind=" + encodeURIComponent(source.kind) : "";
+          return api("GET", "/reports/" + self.reportId + "/sample" + query).then(function (r) {
+            if (self.dataKey !== key) return r;
+            self.data = r.data;
+            self.dataOrigin = r.origin;
+            self.dataCount = r.count || 0;
+            self.renderData();
+            return r;
+          }, function () {
+            if (self.dataKey !== key) return;
+            self.data = null;
+            self.dataOrigin = "";
+            self.renderData();
+          });
+        },
+        formTitle: function (id) {
+          var f = this.forms.find(function (x) { return x.id === id; });
+          return f ? f.title : "";
+        },
+        /** Where the canvas's data comes from, in a sentence. */
+        dataNote: function () {
+          var form = this.formTitle(this.bindForm) || "the form";
+          if (this.sourceKind === "summary" || this.sourceKind === "submissions") {
+            if (this.dataOrigin === "submissions") return this.dataCount + " submission" + (this.dataCount === 1 ? "" : "s") + " from " + form + ".";
+            if (this.dataOrigin === "synthetic") return "Synthetic sample shaped like " + form + ": it has no submissions yet.";
+            return "Reading the submissions of " + form + "…";
+          }
+          if (this.sourceKind === "submission") return "One document per submission of " + form + ". The canvas prints its latest submission.";
+          return "Data sent with each document. The canvas prints the sample data.";
+        },
+        renderStats: function () {
+          var self = this;
+          var data = self.currentData();
+          var q = self.question && (data.questions || []).find(function (x) { return x.name === self.question; });
+          var out = [];
+          if (q) (function walk(o, prefix) {
+            Object.keys(o).forEach(function (k) {
+              var v = o[k], path = prefix + k;
+              if (!prefix && /^(name|title|kind)$/.test(k)) return;
+              if (Array.isArray(v)) out.push({ path: path, label: STAT_LABELS[path] || path + " (a list)" });
+              else if (v && typeof v === "object") { if (!prefix) walk(v, path + "."); }
+              else if (v !== null && v !== undefined) out.push({ path: path, label: (STAT_LABELS[path] || path) + " · " + v });
+            });
+          })(q, "");
+          self.questionStats = out;
+        },
+        pickQuestion: function (name) {
+          this.question = name;
+          this.renderStats();
         },
 
         renderProps: function () {
@@ -308,42 +537,46 @@
           self.selectedType = b.block;
           var fields = [];
           var label = function (k) { return k.replace(/([A-Z])/g, " $1").replace(/^./, function (c) { return c.toUpperCase(); }); };
+          var PLACEHOLDERS = { label: "e.g. Responses", value: "Text, or {{ path }}", change: "e.g. +12 % on May", name: "Name", role: "Role", note: "Small print", mono: "", date: "Date", details: "Label: value | …", lines: "Line | line" };
           var cellOf = function (key, name, kind, value) {
-            var c = { key: key, label: label(name), kind: kind.k === "list" && kind.of.k === "text" ? "lines" : kind.k, value: value };
+            var c = { key: key, label: label(name), kind: kind.k === "list" && kind.of.k === "text" ? "lines" : kind.k, value: value === undefined ? "" : value, required: Boolean(kind.required), placeholder: PLACEHOLDERS[name] || "" };
             if (kind.k === "enum") { c.options = [""].concat(kind.values); c.value = value || ""; }
             if (c.kind === "lines") c.value = (value || []).join(" | ");
             if (kind.k === "bool") c.value = Boolean(value);
+            if (kind.k === "expr") c.placeholder = name === "value" && b.block === "chart" ? "row.count" : "A path";
             return c;
           };
           Object.keys(spec).forEach(function (name) {
             var kind = spec[name];
             var v = b[name];
-            var f = { key: name, label: label(name) + (kind.required ? "" : " (optional)"), kind: kind.k, value: v === undefined ? "" : v, hint: "" };
+            var f = { key: name, label: label(name) + (kind.required ? "" : " (optional)"), kind: kind.k, value: v === undefined ? "" : v, hint: "", required: Boolean(kind.required) };
             if (kind.k === "blocks" || kind.k === "columns") return; // children are edited on the page
             if (kind.k === "enum") { f.options = [""].concat(kind.values); f.value = v || ""; }
             if (kind.k === "bool") f.value = Boolean(v);
-            if (kind.k === "expr") f.hint = "A bare expression, e.g. items or doc.money.due != \"0.00\".";
+            if (kind.k === "expr") f.hint = name === "rows" ? "A list in the data, e.g. " + (self.firstList() || "items") + ". [] is an empty list." : "A bare expression, e.g. items or doc.money.due != \"0.00\".";
             if (kind.k === "md") f.hint = "Markdown with {{ }} holes. Data is always printed as text.";
             if (kind.k === "asset") f.hint = "asset:ast_… — upload under Appearance.";
             if (kind.k === "list" && kind.of.k === "text") { f.kind = "lines"; f.value = (v || []).join("\n"); f.hint = "One line each."; }
             if (kind.k === "list" && kind.of.k === "object") {
               f.kind = "rows";
-              f.addLabel = name === "columns" ? "Add a column" : "Add a row";
+              f.addLabel = name === "columns" ? "Add a column" : name === "series" ? "Add a series" : "Add a row";
               var sub = kind.of.props;
+              var keys = Object.keys(sub).filter(function (k) { return !(sub[k].k === "list" && sub[k].of.k === "object"); });
+              f.heads = keys.map(function (k) { return label(k); });
               f.rows = (v || []).map(function (row, i) {
-                return {
-                  key: name + "." + i, index: i,
-                  cells: Object.keys(sub).filter(function (k) { return !(sub[k].k === "list" && sub[k].of.k === "object"); }).map(function (k) {
-                    return cellOf(name + "." + i + "." + k, k, sub[k], row[k]);
-                  }),
-                };
+                return { key: name + "." + i, index: i, cells: keys.map(function (k) { return cellOf(name + "." + i + "." + k, k, sub[k], row[k]); }) };
               });
+              if (!f.rows.length) f.hint = "No rows yet.";
             }
             fields.push(f);
           });
-          fields.push({ key: "when", label: "Show when (optional)", kind: "expr", value: b.when || "", hint: "Leave empty to always show it." });
+          fields.push({ key: "when", label: "Show when (optional)", kind: "expr", value: b.when || "", hint: "Leave empty to always show it. When it is false for this data, the block is not on the page and Move up / down step over it." });
           fields.push({ key: "keep", label: "Keep", kind: "enum", options: ["", "together", "with-next"], value: b.keep || "" });
           self.fields = fields;
+        },
+        firstList: function () {
+          var a = shapeOf(this.currentData()).arrays[0];
+          return a ? a.path : "";
         },
 
         // ── Selection, editing ───────────────────────────────────────────
@@ -356,15 +589,19 @@
         setField: function (key, value) {
           var self = this;
           var id = self.selected;
-          var kind = null;
-          self.fields.forEach(function (f) { if (f.key === key) kind = f.kind; });
+          var kind = null, required = false;
+          self.fields.forEach(function (f) {
+            if (f.key === key) { kind = f.kind; required = f.required; }
+            (f.rows || []).forEach(function (r) { r.cells.forEach(function (c) { if (c.key === key) required = c.required; }); });
+          });
           self.apply(function (d) {
             var at = locate(d.layout, id);
             if (!at) return;
             var cellLines = typeof value === "string" && /\.lines$/.test(key);
             if (kind === "lines") value = value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
             else if (cellLines) value = value.split("|").map(function (s) { return s.trim(); }).filter(Boolean);
-            set(at.block, key, value);
+            // A required text (a stat's label, say) may be empty while it is being typed; it stays "".
+            set(at.block, key, value, required && kind !== "enum" && kind !== "expr");
           }, { key: id + ":" + key });
         },
         addRow: function (key) {
@@ -372,7 +609,8 @@
           this.apply(function (d) {
             var at = locate(d.layout, id);
             var list = get(at.block, key) || [];
-            list.push(key === "columns" ? { label: "Column", value: "{{ row.x ?? \"\" }}" } : key === "signatures" ? { name: "Name" } : key === "series" ? { name: "Series", value: "row.value" } : key === "parties" ? { name: "Name" } : key === "items" && at.block.block === "stats" ? { label: "Label", value: "0" } : { label: "Label", value: "Value" });
+            // New rows start empty: the placeholders say what goes where.
+            list.push(key === "columns" ? { label: "", value: "" } : key === "signatures" ? { name: "" } : key === "series" ? { name: "", value: "0" } : key === "parties" ? { name: "" } : { label: "", value: "" });
             set(at.block, key, list);
           });
         },
@@ -391,34 +629,72 @@
           this.selected = "";
           this.apply(function (d) { var at = locate(d.layout, id); if (at) at.list.splice(at.index, 1); });
         },
+        /** The ids of the blocks the canvas shows (a block whose `when` is false for this data is not there). */
+        shownBlocks: function () {
+          var frame = document.getElementById("rd-canvas");
+          var doc = frame && frame.contentDocument;
+          if (!doc || !doc.querySelector("[data-block]")) return null;
+          var ids = {};
+          doc.querySelectorAll("[data-block]").forEach(function (el) { ids[el.getAttribute("data-block")] = true; });
+          return ids;
+        },
+        /**
+         * One place up or down on the page. Blocks the page does not show are
+         * stepped over, so every move is visible; a block moves into a section
+         * it meets (at its end going up, at its start going down) and out of
+         * its own section at either end.
+         */
         move: function (step) {
           var id = this.selected;
+          var shown = this.shownBlocks();
+          var hidden = function (b) { return b.block === "footer" || b.block === "watermark" || Boolean(b.when && shown && !shown[b.id]); };
+          var nests = function (b) { return ["section", "columns", "footer", "watermark"].indexOf(b.block) < 0; };
           this.apply(function (d) {
             var at = locate(d.layout, id);
             if (!at) return;
-            var to = at.index + step;
-            if (to < 0 || to >= at.list.length) return;
-            at.list.splice(at.index, 1);
-            at.list.splice(to, 0, at.block);
+            var list = at.list, j = at.index + step;
+            while (j >= 0 && j < list.length && hidden(list[j])) j += step;
+            if (j >= 0 && j < list.length) {
+              var next = list[j];
+              list.splice(at.index, 1);
+              if (next.block === "section" && Array.isArray(next.blocks) && nests(at.block)) {
+                if (step < 0) next.blocks.push(at.block); else next.blocks.unshift(at.block);
+              } else {
+                var k = list.indexOf(next);
+                list.splice(step < 0 ? k : k + 1, 0, at.block);
+              }
+            } else if (at.parent && at.parent.block === "section") {
+              var outer = locate(d.layout, at.parent.id);
+              list.splice(at.index, 1);
+              outer.list.splice(step < 0 ? outer.index : outer.index + 1, 0, at.block);
+            }
           });
+          this.reveal(id);
         },
         addFromPalette: function (e) {
           var el = e.currentTarget || e.target;
           var btn = el.closest ? el.closest("[data-rd-block]") : null;
           if (btn) this.addBlock(btn.getAttribute("data-rd-block"));
         },
-        addBlock: function (name) {
+        /** What a new block is seeded from: the data the canvas prints and its shape. */
+        seedContext: function (image) {
+          var data = this.currentData();
+          return { data: data, schema: mergeSchema(this.def.schema, infer(data)), title: "{{ doc.title }}", asset: image && image.ref, alt: image && image.alt };
+        },
+        addBlock: function (name, image) {
           var self = this;
-          var b = newBlock(name, self.vocabulary, self.def.layout);
+          // An image needs its picture first: choose it, upload it, then add the block.
+          if (name === "image" && !image) { self.pickImage(null); return; }
+          if (!self.canAdd(name)) return;
+          // A totals block needs money: guess it from the first array of priced lines (a quantity and a price).
+          var money = name === "totals" && !self.def.money ? self.guessedMoney() : null;
+          var ctx = self.seedContext(image);
+          ctx.money = Boolean(self.def.money || money);
+          var b = newBlock(name, self.vocabulary, self.def.layout, ctx);
           self.apply(function (d) {
-            // A totals block needs money: guess it from the first array of priced lines.
-            if (name === "totals" && !d.money) {
-              var props = d.schema.properties || {};
-              var arr = Object.keys(props).find(function (k) { return props[k].type === "array" && props[k].items && props[k].items.properties; });
-              if (arr) d.money = guessMoney(d.schema, arr);
-            }
+            if (name === "totals" && !d.money && money) d.money = money;
             var at = self.selected ? locate(d.layout, self.selected) : null;
-            if (at) at.list.splice(at.index + 1, 0, b);
+            if (at && name !== "footer") at.list.splice(at.index + 1, 0, b);
             else {
               // The footer stays last.
               var fi = d.layout.findIndex(function (x) { return x.block === "footer"; });
@@ -426,20 +702,88 @@
             }
           });
           self.select(b.id);
+          self.reveal(b.id);
+        },
+        guessedMoney: function () {
+          var props = this.def.schema.properties || {};
+          var self = this;
+          var found = null;
+          Object.keys(props).some(function (k) {
+            if (props[k].type !== "array" || !props[k].items || !props[k].items.properties) return false;
+            var m = guessMoney(self.def.schema, k);
+            if (m.quantity && m.unitPrice) found = m;
+            return Boolean(found);
+          });
+          return found;
+        },
+        /** The answers block prints the bound submission: elsewhere it could only print an error. */
+        canAdd: function (name) {
+          if (name !== "answers" || this.sourceKind === "submission") return true;
+          this.toast("The answers block prints a submission: bind the report to a form, one document per submission (Data tab).", "default");
+          return false;
+        },
+        /** Bring a block into view: on the canvas once it is drawn, and its properties at the top of the panel. */
+        reveal: function (id) {
+          this.revealId = id;
+          var props = document.querySelector("[data-designer-props]");
+          if (props) props.scrollTop = 0;
+          this.scrollToBlock();
+        },
+        scrollToBlock: function () {
+          var frame = document.getElementById("rd-canvas");
+          var el = this.revealId && frame && frame.contentDocument && frame.contentDocument.querySelector('[data-block="' + this.revealId.replace(/"/g, "") + '"]');
+          if (!el) return;
+          this.revealId = "";
+          el.scrollIntoView({ block: "center" });
+        },
+        pickImage: function (drop) {
+          var self = this;
+          var input = document.createElement("input");
+          input.type = "file";
+          input.accept = "image/png,image/jpeg,image/webp,image/svg+xml";
+          input.addEventListener("change", function () {
+            var file = input.files && input.files[0];
+            if (!file) return;
+            self.upload(file).then(function (asset) {
+              var image = { ref: asset.ref, alt: titleCase(file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ")) };
+              if (drop) { self.dragging = { add: "image", image: image }; self.dropAt(drop.target, drop.where); }
+              else self.addBlock("image", image);
+            }, function (err) { self.toast(err.message, "error"); });
+          });
+          input.click();
+        },
+        upload: function (file) {
+          return fetch("/api/v1/assets?name=" + encodeURIComponent(file.name), { method: "POST", body: file, headers: { "content-type": file.type || "application/octet-stream" }, credentials: "same-origin" })
+            .then(function (res) { return res.json().then(function (j) { if (!res.ok) throw new Error(j.detail); return j; }); });
         },
 
-        remember: function (e) { this.lastText = { el: e.target, key: e.target.getAttribute("data-rd-key") }; },
+        remember: function (e) { this.lastText = { el: e.target, key: e.target.getAttribute("data-rd-key"), kind: e.target.getAttribute("data-rd-kind") || "text" }; },
+        /** Put `expr` into the field last typed in: bare in an expression field, as a {{ }} hole in text. */
+        insertPath: function (expr, hole) {
+          if (!this.lastText || !this.lastText.el.isConnected) {
+            this.toast("Click into a text field of the block first, then insert.", "default");
+            return;
+          }
+          var el = this.lastText.el;
+          var pos = el.selectionStart == null ? el.value.length : el.selectionStart;
+          var text = this.lastText.kind === "expr" ? expr : "{{ " + (hole || expr) + " }}";
+          el.value = el.value.slice(0, pos) + text + el.value.slice(el.selectionEnd == null ? pos : el.selectionEnd);
+          el.focus();
+          el.selectionStart = el.selectionEnd = pos + text.length;
+          this.setField(this.lastText.key, el.value);
+        },
         insertField: function (e) {
           var path = e.target.value;
           e.target.value = "";
-          if (!path || !this.lastText || !this.lastText.el.isConnected) return;
-          var el = this.lastText.el;
-          var pos = el.selectionStart == null ? el.value.length : el.selectionStart;
-          var hole = "{{ " + path + " }}";
-          el.value = el.value.slice(0, pos) + hole + el.value.slice(el.selectionEnd == null ? pos : el.selectionEnd);
-          el.focus();
-          el.selectionStart = el.selectionEnd = pos + hole.length;
-          this.setField(this.lastText.key, el.value);
+          if (path) this.insertPath(path);
+        },
+        /** question("seats").mean: a summary question by its name, so the report survives a reordered form. */
+        insertStat: function (e) {
+          var stat = e.target.value;
+          e.target.value = "";
+          if (!stat || !this.question) return;
+          var expr = "question(\"" + this.question + "\")." + stat;
+          this.insertPath(expr, /^(mean|median|avg)$/.test(stat) ? "number(" + expr + ", 1)" : expr);
         },
 
         // ── Data, appearance, JSON ───────────────────────────────────────
@@ -462,22 +806,36 @@
           });
           this.toast("Fields added from the sample. Existing fields kept their settings.", "success");
         },
+        /** The Data tab's source: none (data sent with each document), or a form read one of three ways. */
+        setSourceKind: function (kind) {
+          this.sourceKind = kind;
+          if (kind === "data") {
+            this.apply(function (d) { d.source = { kind: "data" }; });
+            this.toast("No form: each document prints the data sent with it.", "success");
+          } else if (this.bindForm) this.bindToForm();
+        },
+        /**
+         * Bind to the chosen form, read the chosen way: the schema, the sample
+         * and the source become what the server says that source gives (its
+         * submissions, or a sample shaped like them when there are none).
+         */
         bindToForm: function () {
           var self = this;
           var id = self.bindForm;
           if (!id) return;
-          Promise.all([api("GET", "/forms/" + id), api("GET", "/forms/" + id + "/submissions?limit=1")]).then(function (res) {
-            var form = res[0].definition;
-            var latest = res[1].items[0];
+          var kind = self.sourceKind === "data" ? "submission" : self.sourceKind;
+          api("GET", "/reports/" + self.reportId + "/sample?form=" + encodeURIComponent(id) + "&kind=" + kind).then(function (r) {
+            self.dataKey = JSON.stringify({ kind: kind, form: id });
+            self.data = r.data;
+            self.dataOrigin = r.origin;
+            self.dataCount = r.count || 0;
             self.apply(function (d) {
-              var props = {};
-              Object.keys(form.schema.properties).forEach(function (k) { var p = clone(form.schema.properties[k]); delete p.required; props[k] = p; });
-              d.schema.properties = props;
-              delete d.schema.required;
-              d.sample = latest ? latest.data : {};
-              d.source = { kind: "submission", form: id };
+              d.schema = Object.assign({}, r.schema, { title: d.schema.title });
+              if (d.schema.description === undefined && r.schema.description) d.schema.description = r.schema.description;
+              d.sample = r.data;
+              d.source = { kind: kind, form: id };
             });
-            self.toast("Bound to the form: its fields, its latest answers, its submissions.", "success");
+            self.toast(kind === "submission" ? "Bound to " + self.formTitle(id) + ": one document per submission." : kind === "summary" ? "Bound to " + self.formTitle(id) + ": a summary of its submissions." : "Bound to " + self.formTitle(id) + ": a register of its submissions.", "success");
           }, function (err) { self.toast(err.message, "error"); });
         },
         setMoney: function (k, v) {
@@ -496,6 +854,14 @@
         setLetter: function (k, v) {
           this.apply(function (d) { d.appearance = d.appearance || {}; d.appearance.letter = d.appearance.letter || {}; d.appearance.letter[k] = v; });
         },
+        themeName: function (t) {
+          var info = (this.vocabulary.themeInfo || {})[t];
+          return info ? info.name : t;
+        },
+        themeNote: function (t) {
+          var info = (this.vocabulary.themeInfo || {})[t];
+          return info ? info.note : "";
+        },
         pairingNote: function () {
           var t = this.look.type;
           var p = (this.vocabulary.pairings || []).find(function (x) { return x.id === t; });
@@ -505,9 +871,7 @@
           var self = this;
           var file = e.target.files && e.target.files[0];
           if (!file) return;
-          fetch("/api/v1/assets?name=" + encodeURIComponent(file.name), { method: "POST", body: file, headers: { "content-type": file.type || "application/octet-stream" }, credentials: "same-origin" })
-            .then(function (res) { return res.json().then(function (j) { if (!res.ok) throw new Error(j.detail); return j; }); })
-            .then(function (asset) { self.setLook("logo", asset.ref); self.toast("Logo uploaded.", "success"); }, function (err) { self.toast(err.message, "error"); });
+          self.upload(file).then(function (asset) { self.setLook("logo", asset.ref); self.toast("Logo uploaded.", "success"); }, function (err) { self.toast(err.message, "error"); });
         },
         setJson: function (text) {
           try {
@@ -554,6 +918,9 @@
               var frame = document.getElementById("rd-canvas");
               if (frame) frame.srcdoc = res.html;
             }, function (err) {
+              if (seq !== self.canvasSeq) return;
+              // Busy or rate-limited: draw it again shortly rather than report a refusal.
+              if (err.status === 503 || err.status === 429) { self.refreshCanvas(2000); return; }
               self.problems = (err.problems || []).map(function (p) { return (p.pointer ? p.pointer + ": " : "") + p.detail; });
               if (!self.problems.length) self.problems = [err.message];
             });
@@ -565,7 +932,21 @@
           var h = a.paper === "letter" ? 279.4 : 297;
           return Math.round((a.orientation === "landscape" ? h : w) * MM) + 48;
         },
-        setZoom: function (z) { this.zoom = z; this.fit(); },
+        /** Fit, 100 % or 150 %: the desk keeps the same place in the document, not the same pixel offset. */
+        setZoom: function (z) {
+          var desk = document.querySelector("[data-rd-desk]");
+          var room = desk ? desk.scrollHeight - desk.clientHeight : 0;
+          var at = room > 0 ? desk.scrollTop / room : 0;
+          this.zoom = z;
+          this.fit();
+          if (!desk) return;
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              desk.scrollTop = at * Math.max(0, desk.scrollHeight - desk.clientHeight);
+              desk.scrollLeft = Math.max(0, (desk.scrollWidth - desk.clientWidth) / 2);
+            });
+          });
+        },
         fit: function () {
           var desk = document.querySelector("[data-rd-desk]");
           if (!desk) return;
@@ -620,6 +1001,7 @@
           });
           doc.addEventListener("keydown", function (e) { self.keys(e); });
           self.markSelection();
+          self.scrollToBlock();
         },
         markSelection: function () {
           var frame = document.getElementById("rd-canvas");
@@ -643,8 +1025,14 @@
           var drag = self.dragging;
           self.dragging = null;
           if (!drag || drag.move === target) return;
-          var added = drag.add ? newBlock(drag.add, self.vocabulary, self.def.layout) : null;
+          if (drag.add === "image" && !drag.image) { self.pickImage({ target: target, where: where }); return; }
+          if (drag.add && !self.canAdd(drag.add)) return;
+          var money = drag.add === "totals" && !self.def.money ? self.guessedMoney() : null;
+          var ctx = self.seedContext(drag.image);
+          ctx.money = Boolean(self.def.money || money);
+          var added = drag.add ? newBlock(drag.add, self.vocabulary, self.def.layout, ctx) : null;
           self.apply(function (d) {
+            if (money) d.money = money;
             var moving = added;
             if (drag.move) {
               var from = locate(d.layout, drag.move);
@@ -661,6 +1049,7 @@
             at.list.splice(at.index + (where === "after" ? 1 : 0), 0, moving);
           });
           self.select(added ? added.id : drag.move);
+          self.reveal(added ? added.id : drag.move);
         },
 
         // ── Saving, preflight, publishing ────────────────────────────────
@@ -734,23 +1123,23 @@
             return api("POST", "/reports/" + self.reportId + "/publish");
           }).then(function (v) {
             self.busy = false;
+            self.published = true;
             self.toast("Published version " + v.version + ". New documents use it.", "success");
           }, function (err) {
             self.busy = false;
             self.toast("Not published: " + err.message, "error");
           });
         },
+        /** Issue a document from the published version: the issue dialog asks for its period, submission or data. */
         testDocument: function () {
           var self = this;
+          if (!self.published) return;
           self.busy = true;
           self.save().then(function () {
-            return api("GET", "/reports/" + self.reportId);
-          }).then(function (r) {
-            if (r.published_version === null) throw new Error("Publish first: documents come from a published version.");
-            return api("POST", "/reports/" + self.reportId + "/documents", { data: r.definition.sample, issue: false });
-          }).then(function (doc) {
             self.busy = false;
-            window.open("/app/documents/" + doc.id, "_blank", "noopener");
+            window.dispatchEvent(new CustomEvent("issue-open"));
+            var dialog = self.$ui("#issue-document");
+            if (dialog) dialog.open();
           }, function (err) {
             self.busy = false;
             self.toast(err.message, "error");
@@ -763,6 +1152,8 @@
         keys: function (e) {
           var t = e.target;
           var typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT");
+          // Keys inside the issue dialog are the dialog's.
+          if (t && t.closest && t.closest('[data-ui="dialog"]')) return;
           var mod = e.ctrlKey || e.metaKey;
           if (mod && !typing && (e.key === "z" || e.key === "Z")) { e.preventDefault(); if (e.shiftKey) this.redo(); else this.undo(); }
           else if (mod && !typing && (e.key === "y" || e.key === "Y")) { e.preventDefault(); this.redo(); }

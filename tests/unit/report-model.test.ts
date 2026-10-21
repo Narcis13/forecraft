@@ -60,8 +60,8 @@ const table = (extra: Def = {}): Def => ({ id: "items", block: "table", rows: "i
 
 const starterIds = readdirSync(STARTERS).filter((f) => f.endsWith(".json")).map((f) => f.slice(0, -5)).sort();
 
-test("the six starters are all there", () => {
-  assert.deepEqual(starterIds, ["blank", "business-report", "confirmation", "invoice", "letter", "survey-summary"]);
+test("the seven starters are all there", () => {
+  assert.deepEqual(starterIds, ["blank", "business-report", "confirmation", "invoice", "letter", "submissions-register", "survey-summary"]);
 });
 
 for (const id of starterIds) {

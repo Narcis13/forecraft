@@ -24,7 +24,7 @@ There is no setting for any of this, on purpose. If a page looks wrong, prefligh
 
 | Choice | Choose | Why |
 |---|---|---|
-| **Starter** | The nearest one (`invoice`, `letter`, `business-report`, `confirmation`, `survey-summary`) | Each is a finished document; editing one keeps its grid and rhythm |
+| **Starter** | The nearest one (`invoice`, `letter`, `business-report`, `confirmation`, `survey-summary`, `submissions-register`) | Each is a finished document; editing one keeps its grid and rhythm |
 | **Print theme** | `document` for invoices and statements, `document-serif` for letters, `editorial-document` for reports, `ink-document` for confirmations, `swiss-document` for data | The theme is the paper's voice; keep one per kind of document across a business |
 | **Type pairing** | `plex-sans` (invoices), `source-serif` (letters), `editorial` (reports), `inter` (dense numbers) | At most two families plus a mono, all self-hosted, so the PDF is the same on every machine |
 | **Accent** | One dark, saturated ink: navy `#1f3a8a`, oxblood `#5b2333`, forest `#14532d`, petrol `#0f4c5c` | It marks three things only — the letterhead rule, eyebrows, the amount due. It must contrast 4.5:1 on white or the API refuses it |
@@ -35,6 +35,9 @@ There is no setting for any of this, on purpose. If a page looks wrong, prefligh
 
 - **Bind data, do not paste it.** `{{ customer.name }}`, not "Atlas Retail". Mark optional
   values: `{{ customer.vat ?? "—" }}`. A missing path is an error at issue, by design.
+- **Bind questions by name.** In a summary, `{{ number(question("seats").mean, 1) }}`, not
+  `questions[5].mean`, which moves when the form does. Shares are already percentages
+  (0–100): `{{ percent(row.share) }}`.
 - **Use the built-in words.** `{{ label("invoice") }}`, `label("dueDate")`, `label("amountDue")`:
   they are correct in en, ro, de and fr, and a report can override any of them.
 - **Let money compute.** Point `money` at the lines; print `line.net`, the totals block and

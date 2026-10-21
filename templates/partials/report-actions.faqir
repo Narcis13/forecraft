@@ -2,10 +2,11 @@ div(data-ui="cluster" data-gap="2" l-data="reportActions" data-prop-report-id=to
   a(data-ui="button" data-variant="outline" data-size="sm" href="/app/reports/{{ id }}/design")
     span(data-ui="icon" data-icon="pencil" aria-hidden="true")
     | Design
-  button(type="button" data-ui="button" data-variant="outline" data-size="sm" :disabled="busy" @click="publish()")
-    span(data-ui="icon" data-icon="send" aria-hidden="true")
-    | {{ draft ? "Publish changes" : "Republish" }}
+  if draft
+    button(type="button" data-ui="button" data-variant="outline" data-size="sm" :disabled="busy" @click="publish()")
+      span(data-ui="icon" data-icon="send" aria-hidden="true")
+      | {{ published ? "Publish changes" : "Publish" }}
   if published
-    button(type="button" data-ui="button" data-variant="primary" data-size="sm" :disabled="busy" @click="issueSample()")
+    button(type="button" data-ui="button" data-variant="primary" data-size="sm" :disabled="busy" @click="$dispatch('issue-open'); $ui('#issue-document').open()")
       span(data-ui="icon" data-icon="plus" aria-hidden="true")
       | Issue a document

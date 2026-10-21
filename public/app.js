@@ -53,30 +53,12 @@
       return { text: "", label: "Copied", copy: function () { copy(this, this.text, this.label); } };
     });
 
-    // New form: create a blank definition through the API, then open the designer.
+    // New form: open the designer on a starter definition. The designer creates
+    // the form on the first change, so an abandoned visit leaves no draft behind.
     Faqir.data("newForm", function () {
       return {
         busy: false,
-        create: function () {
-          var self = this;
-          if (self.busy) return;
-          self.busy = true;
-          api("POST", "/forms", {
-            definition: {
-              schema: {
-                title: "Untitled form",
-                type: "object",
-                properties: { name: { type: "string", title: "Your name" }, email: { type: "string", format: "email", title: "Email" } },
-                required: ["email"],
-              },
-            },
-          }).then(function (form) {
-            window.location.assign("/app/forms/" + form.id + "/design");
-          }, function (err) {
-            self.busy = false;
-            toast(self, err.message, "error");
-          });
-        },
+        create: function () { window.location.assign("/app/forms/new/design"); },
       };
     });
 
@@ -199,7 +181,7 @@
       };
     });
 
-    // A report's header actions: publish, and issue a document from its sample.
+    // A report's header actions: publish (issuing goes through the issue dialog, public/issue-dialog.js).
     Faqir.data("reportActions", function () {
       return {
         reportId: "",
@@ -211,15 +193,6 @@
           api("POST", "/reports/" + self.reportId + "/publish").then(function (v) {
             toast(self, "Published version " + v.version + ".", "success");
             setTimeout(function () { window.location.reload(); }, 600);
-          }, function (err) { self.busy = false; toast(self, err.message, "error"); });
-        },
-        issueSample: function () {
-          var self = this;
-          self.busy = true;
-          api("GET", "/reports/" + self.reportId).then(function (r) {
-            return api("POST", "/reports/" + self.reportId + "/documents", { data: r.definition.sample, issue: true });
-          }).then(function (d) {
-            window.location.assign("/app/documents/" + d.id);
           }, function (err) { self.busy = false; toast(self, err.message, "error"); });
         },
       };
@@ -290,6 +263,45 @@
           var self = this;
           api("PATCH", "/forms/" + self.formId, { documents: { confirmation_report_id: self.reportId || null, issue_on_submit: Boolean(self.issue), thank_you_link: Boolean(self.link) } })
             .then(function () { toast(self, "Documents saved.", "success"); }, function (err) { toast(self, err.message, "error"); });
+        },
+      };
+    });
+
+    // Submissions: which answers are columns. The server shows the first few
+    // one-line answers; a person's own choice is kept per form in this browser.
+    Faqir.data("responseColumns", function () {
+      return {
+        formId: "",
+        defaults: [],
+        storageKey: function () { return "forecraft:columns:" + this.formId; },
+        boxes: function () { return Array.prototype.slice.call(this.$el.querySelectorAll("[data-column-chooser] input[type=checkbox]")); },
+        init: function () {
+          this.defaults = this.boxes().filter(function (b) { return b.checked; }).map(function (b) { return b.value; });
+          var saved = null;
+          try { saved = JSON.parse(window.localStorage.getItem(this.storageKey()) || "null"); } catch (e) { saved = null; }
+          if (Array.isArray(saved)) this.apply(saved);
+        },
+        apply: function (names) {
+          var self = this;
+          self.boxes().forEach(function (b) {
+            b.checked = names.indexOf(b.value) >= 0;
+            self.show(b.value, b.checked);
+          });
+        },
+        show: function (name, on) {
+          var th = document.querySelector('#responses [data-part="thead"] th[data-field="' + CSS.escape(name) + '"]');
+          var table = Faqir.ui("#responses");
+          if (!th || !table) return;
+          table.toggleColumn(Array.prototype.indexOf.call(th.parentElement.children, th), on);
+        },
+        toggle: function (box) {
+          this.show(box.value, box.checked);
+          var names = this.boxes().filter(function (b) { return b.checked; }).map(function (b) { return b.value; });
+          try { window.localStorage.setItem(this.storageKey(), JSON.stringify(names)); } catch (e) { /* private mode: the choice lasts this page */ }
+        },
+        reset: function () {
+          try { window.localStorage.removeItem(this.storageKey()); } catch (e) { /* nothing was stored */ }
+          this.apply(this.defaults);
         },
       };
     });

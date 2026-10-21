@@ -7,6 +7,9 @@
 // autosaves (PATCH /api/v1/forms/:id) and refreshes the live preview
 // (POST /api/v1/preview → the real public page in an iframe).
 //
+// A new form is not stored until its first change: the page opens on a starter
+// definition and the first save creates it (POST /api/v1/forms).
+//
 // Built on faqir-core (l-data, l-for, l-on) and native HTML5 drag and drop.
 (function () {
   "use strict";
@@ -23,14 +26,14 @@
     { id: "url", label: "Link", icon: "link", schema: { type: "string", format: "uri", title: "Website" } },
     { id: "choice", label: "Single choice", icon: "circle-check", schema: { type: "string", title: "Pick one", enum: ["Option A", "Option B", "Option C"] }, ui: { widget: "radio" } },
     { id: "dropdown", label: "Dropdown", icon: "chevron-down", schema: { type: "string", title: "Choose", enum: ["First", "Second", "Third", "Fourth", "Fifth"] }, ui: { widget: "select" } },
-    { id: "multi", label: "Checkboxes", icon: "check-check", schema: { type: "array", title: "Pick any", items: { type: "string", enum: ["One", "Two", "Three"] }, uniqueItems: true }, ui: { widget: "checkbox-group" } },
-    { id: "scale", label: "Scale 1–5", icon: "star", schema: { type: "string", title: "How would you rate it?", enum: ["1", "2", "3", "4", "5"] }, ui: { widget: "scale", minLabel: "Poor", maxLabel: "Excellent" } },
+    { id: "multi", label: "Checkboxes", icon: "list", schema: { type: "array", title: "Pick any", items: { type: "string", enum: ["One", "Two", "Three"] }, uniqueItems: true }, ui: { widget: "checkbox-group" } },
+    { id: "scale", label: "Scale", icon: "star", schema: { type: "string", title: "How would you rate it?", enum: ["1", "2", "3", "4", "5"] }, ui: { widget: "scale", minLabel: "Poor", maxLabel: "Excellent" } },
     { id: "yesno", label: "Checkbox", icon: "check", schema: { type: "boolean", title: "I agree" } },
     { id: "switch", label: "Switch", icon: "sliders-horizontal", schema: { type: "boolean", title: "Turn it on" }, ui: { widget: "switch" } },
     {
       id: "repeat",
       label: "Repeatable rows",
-      icon: "table",
+      icon: "layers",
       schema: {
         type: "array",
         title: "Line items",
@@ -46,27 +49,40 @@
           required: ["label", "qty"],
         },
       },
+      // Three thirds fill one row from the tablet tier up.
       ui: {
         addLabel: "Add a row",
         removeLabel: "Remove row",
-        items: { label: { width: "half" }, qty: { width: "third" }, amount: { width: "third" } },
+        items: { label: { width: "third" }, qty: { width: "third" }, amount: { width: "third" } },
       },
     },
   ];
   var KIND = {};
   KINDS.forEach(function (k) { KIND[k.id] = k; });
 
+  // The column types a repeatable row can hold (rows take scalars only; a row's choice is a dropdown).
+  var COLUMN_TYPES = [
+    { id: "text", label: "Text", schema: { type: "string" } },
+    { id: "number", label: "Number", schema: { type: "number" } },
+    { id: "integer", label: "Whole number", schema: { type: "integer" } },
+    { id: "email", label: "Email", schema: { type: "string", format: "email" } },
+    { id: "date", label: "Date", schema: { type: "string", format: "date" } },
+    { id: "dropdown", label: "Dropdown", schema: { type: "string", enum: ["Option A", "Option B"] } },
+    { id: "checkbox", label: "Checkbox", schema: { type: "boolean" } },
+  ];
+
   function clone(v) { return JSON.parse(JSON.stringify(v)); }
 
   function kindOf(schema, ui) {
     ui = ui || {};
     var widget = ui.widget || ui["ui:widget"];
+    if (widget === "scale") return "scale";
     if (schema.type === "boolean") return widget === "switch" ? "switch" : "yesno";
     if (schema.type === "number" || schema.type === "integer") return "number";
     if (schema.type === "array") return schema.items && schema.items.type === "object" ? "repeat" : "multi";
     if (schema.type === "object") return "object";
     if (schema.enum) {
-      if (widget === "scale" || schema.enum.join(",") === "1,2,3,4,5") return "scale";
+      if (schema.enum.join(",") === "1,2,3,4,5") return "scale";
       if (widget === "select" || (!widget && schema.enum.length > 4)) return "dropdown";
       return "choice";
     }
@@ -77,18 +93,42 @@
     return "text";
   }
 
+  function columnType(s) {
+    if (s.type === "boolean") return "checkbox";
+    if (s.type === "integer") return "integer";
+    if (s.type === "number") return "number";
+    if (s.enum) return "dropdown";
+    if (s.format === "email") return "email";
+    if (s.format === "date") return "date";
+    return "text";
+  }
+
   function kindMeta(id) {
     return KIND[id] || { id: id, label: id === "repeat" ? "Repeatable group" : "Group", icon: "layers" };
   }
 
   /** "What's your name?" → "whatsYourName" (unique among `taken`). */
   function nameFor(title, taken) {
-    var words = String(title).toLowerCase().replace(/[^a-z0-9\s]/g, " ").trim().split(/\s+/).filter(Boolean).slice(0, 4);
+    var plain = String(title).normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
+    var words = plain.replace(/[^a-z0-9\s]/g, "").trim().split(/\s+/).filter(Boolean).slice(0, 4);
     var base = words.map(function (w, i) { return i ? w[0].toUpperCase() + w.slice(1) : w; }).join("") || "field";
     if (/^[0-9]/.test(base)) base = "f" + base;
     var name = base, n = 2;
     while (taken[name]) name = base + n++;
     return name;
+  }
+
+  /** The keys of `obj` other than `name`, as a lookup. */
+  function others(obj, name) {
+    var out = {};
+    Object.keys(obj).forEach(function (k) { if (k !== name) out[k] = true; });
+    return out;
+  }
+
+  /** A name still follows its label while it is the name the label would make. */
+  function followsLabel(props, name) {
+    var s = props[name];
+    return !!s && nameFor(s.title || "", others(props, name)) === name;
   }
 
   // ── Field references in rules ─────────────────────────────────────────────
@@ -126,6 +166,50 @@
     return hit;
   }
 
+  function sectionList(d) {
+    return d.ui && (d.ui["ui:wizard"] ? d.ui["ui:wizard"].steps : d.ui["ui:groups"]);
+  }
+
+  /** Rename field `from` to `to` everywhere the definition names it. */
+  function renameIn(d, from, to) {
+    var props = {};
+    Object.keys(d.schema.properties).forEach(function (k) { props[k === from ? to : k] = d.schema.properties[k]; });
+    d.schema.properties = props;
+    if (d.schema.required) d.schema.required = d.schema.required.map(function (n) { return n === from ? to : n; });
+    if (d.ui) {
+      if (d.ui[from]) { d.ui[to] = d.ui[from]; delete d.ui[from]; }
+      var list = sectionList(d);
+      if (list) list.forEach(function (s) { s.fields = s.fields.map(function (n) { return n === from ? to : n; }); });
+    }
+    var swap = function (n) { return refersTo(n, from) ? to + n.slice(from.length) : n; };
+    if (d.rules && d.rules.rules) d.rules.rules = d.rules.rules.map(function (r) { return mapRule(r, swap); });
+    if (d.ui && d.ui["ui:wizard"]) d.ui["ui:wizard"].steps.forEach(function (st) { if (st.when) st.when = mapLogic(st.when, swap); });
+  }
+
+  /** Set or clear one key of a field's UI schema, dropping what is left empty. */
+  function setUi(d, name, key, value) {
+    d.ui = d.ui || {};
+    d.ui[name] = d.ui[name] || {};
+    if (value === undefined || value === "" || value === null || value === false) delete d.ui[name][key]; else d.ui[name][key] = value;
+    if (!Object.keys(d.ui[name]).length) delete d.ui[name];
+    if (!Object.keys(d.ui).length) delete d.ui;
+  }
+
+  /**
+   * What is saved: the working copy without its empty sections. A section you
+   * just added has no fields yet, which the renderer refuses; it stays on the
+   * canvas until you fill or remove it.
+   */
+  function serialise(def) {
+    var list = sectionList(def);
+    if (!list || list.every(function (s) { return s.fields.length; })) return def;
+    var out = clone(def);
+    var key = out.ui["ui:wizard"] ? "ui:wizard" : "ui:groups";
+    var kept = sectionList(out).filter(function (s) { return s.fields.length; });
+    if (key === "ui:wizard") out.ui["ui:wizard"].steps = kept; else out.ui["ui:groups"] = kept;
+    return out;
+  }
+
   function api(method, path, body) {
     return fetch("/api/v1" + path, {
       method: method,
@@ -144,15 +228,64 @@
     });
   }
 
+  // ── Problems in plain words ──────────────────────────────────────────────
+  // The API names a fault by JSON pointer and the renderer by its own path
+  // (uiSchema["ui:groups"][3].fields). People know sections and labels.
+  function humanProblem(p, def) {
+    var props = (def && def.schema && def.schema.properties) || {};
+    var label = function (n) { return props[n] ? "“" + (props[n].title || n) + "”" : "“" + n + "”"; };
+    var place = function (text) {
+      return String(text)
+        .replace(/uiSchema\["ui:groups"\]\[(\d+)\](\.\w+)?/g, function (_m, i) { return "Section " + (Number(i) + 1); })
+        .replace(/uiSchema\["ui:wizard"\]\.steps\[(\d+)\](\.\w+)?/g, function (_m, i) { return "Step " + (Number(i) + 1); })
+        .replace(/uiSchema\["ui:groups"\]/g, "A section")
+        .replace(/uiSchema\["ui:wizard"\](\.steps)?/g, "A step")
+        .replace(/(?:schema|uiSchema)(?:\.properties)?\.([A-Za-z_]\w*)((?:\.\w+|\[\d+\])*)/g, function (_m, n) { return label(n); });
+    };
+    var detail = String(p.detail || "");
+    var pointer = String(p.pointer || "");
+    if (/fields must be a non-empty/.test(detail)) return place(detail.split(" ")[0]) + " has no fields yet. Drag a field into it, or remove it.";
+    var unknown = /references unknown property "([^"]+)"/.exec(detail);
+    if (unknown) return place(detail.split(" ")[0]) + " lists a field that is no longer on the form (" + unknown[1] + "). Fix it in the JSON tab.";
+    if (/more than once/.test(detail)) return "A field sits in two sections at once. Fix it in the JSON tab.";
+    if (/^\/rules/.test(pointer) && /rule-refs/.test(detail)) return "A rule names a field that is not on the form any more. Delete the rule, or fix it in the JSON tab.";
+    if (/^\/rules/.test(pointer)) return "A rule cannot work as written: " + detail.replace(/^[\w-]+: /, "");
+    if (pointer === "/schema/title") return "The form needs a title.";
+    var m = /^\/(?:ui|schema\/properties)\/([^/]+)/.exec(pointer);
+    if (m && props[m[1]]) return label(m[1]) + ": " + place(detail);
+    return place(detail) || "The form could not be saved.";
+  }
+
   // ── Conditions in plain words (the rules tab) ────────────────────────────
+  var OPS = {
+    eq: "is", neq: "is not", gt: "is more than", gte: "is at least", lt: "is less than", lte: "is at most",
+    includes: "includes", excludes: "does not include", filled: "is filled in", empty: "is empty",
+    ticked: "is ticked", unticked: "is not ticked",
+  };
+  var DATE_OPS = { gt: "is after", gte: "is on or after", lt: "is before", lte: "is on or before" };
+  var MATH = { "+": "+", "-": "−", "*": "×", "/": "÷" };
+
+  function opsFor(kind) {
+    if (kind === "yesno" || kind === "switch") return ["ticked", "unticked"];
+    if (kind === "multi") return ["includes", "excludes", "filled", "empty"];
+    if (kind === "number" || kind === "scale" || kind === "date") return ["eq", "neq", "gt", "gte", "lt", "lte", "filled", "empty"];
+    return ["eq", "neq", "filled", "empty"];
+  }
+
   function conditionFor(field, op, value, kind) {
     var v = { var: field };
     if (op === "filled") return { "!": { missing: [field] } };
     if (op === "empty") return { missing: [field] };
-    if (kind === "yesno" || kind === "switch") return { "==": [v, op === "eq"] };
-    if (kind === "multi") return op === "eq" ? { in: [value, v] } : { "!": { in: [value, v] } };
-    if (kind === "number") value = Number(value);
-    return op === "eq" ? { "==": [v, value] } : { "!=": [v, value] };
+    if (op === "ticked") return { "==": [v, true] };
+    if (op === "unticked") return { "!=": [v, true] };
+    if (op === "includes") return { in: [value, v] };
+    if (op === "excludes") return { "!": { in: [value, v] } };
+    var sym = { eq: "==", neq: "!=", gt: ">", gte: ">=", lt: "<", lte: "<=" }[op];
+    if (kind === "date" && op !== "eq" && op !== "neq") return { date: [v, sym, value] };
+    if (kind === "number" || (kind === "scale" && op !== "eq" && op !== "neq")) value = Number(value);
+    var out = {};
+    out[sym] = [v, value];
+    return out;
   }
 
   function describeCondition(when, titleOf) {
@@ -160,11 +293,18 @@
     var op = Object.keys(when)[0];
     var args = when[op];
     var q = function (x) { return "“" + x + "”"; };
+    var syms = { ">": "gt", ">=": "gte", "<": "lt", "<=": "lte" };
+    if ((op === "and" || op === "or") && Array.isArray(args)) {
+      var parts = args.map(function (a) { return describeCondition(a, titleOf); });
+      return parts.indexOf(null) >= 0 ? null : parts.join(op === "and" ? " and " : " or ");
+    }
     if ((op === "==" || op === "!=") && args[0] && args[0].var !== undefined) {
       if (args[1] === true) return titleOf(args[0].var) + (op === "==" ? " is ticked" : " is not ticked");
       if (args[1] === false) return titleOf(args[0].var) + (op === "==" ? " is not ticked" : " is ticked");
       return titleOf(args[0].var) + (op === "==" ? " is " : " is not ") + q(args[1]);
     }
+    if (syms[op] && Array.isArray(args) && args.length === 2 && args[0] && args[0].var !== undefined) return titleOf(args[0].var) + " " + OPS[syms[op]] + " " + args[1];
+    if (op === "date" && Array.isArray(args) && args[0] && args[0].var !== undefined && syms[args[1]]) return titleOf(args[0].var) + " " + DATE_OPS[syms[args[1]]] + " " + args[2];
     if (op === "in" && args[1] && args[1].var !== undefined) return titleOf(args[1].var) + " includes " + q(args[0]);
     if (op === "missing") return titleOf(args[0]) + " is empty";
     if (op === "!" && args.missing) return titleOf(args.missing[0]) + " is filled in";
@@ -172,10 +312,34 @@
     return null;
   }
 
+  function describeFormula(value, titleOf) {
+    var op = value && typeof value === "object" ? Object.keys(value)[0] : "";
+    var args = op && value[op];
+    if (!MATH[op] || !Array.isArray(args) || args.length !== 2 || !args[0] || args[0].var === undefined) return null;
+    var right = args[1] && args[1].var !== undefined ? titleOf(args[1].var) : args[1];
+    return titleOf(args[0].var) + " " + MATH[op] + " " + right;
+  }
+
+  function blankCondition() { return { field: "", op: "eq", value: "" }; }
+  function blankRule(verb) { return { verb: verb || "show", target: "", match: "all", conditions: [blankCondition()], a: "", math: "*", b: "", bNumber: "" }; }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+    var area = document.createElement("textarea");
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand("copy");
+    area.remove();
+    return Promise.resolve();
+  }
+
   function register(Faqir) {
     Faqir.data("designer", function () {
       return {
         formId: "",
+        starter: null,
+        slug: "",
         themes: [],
         accents: [],
         def: null,
@@ -186,9 +350,12 @@
         rulesView: [],
         fieldOptions: [],
         jsonText: "",
+        publishState: "draft",
         // editor state
         kinds: KINDS,
+        columnTypes: COLUMN_TYPES,
         selected: "",
+        editKey: "",
         tab: "build",
         device: "desktop",
         drop: null,
@@ -199,35 +366,57 @@
         jsonError: "",
         audit: null,
         title: "",
-        slug: "",
         publishing: false,
         announce: "",
         history: [],
         cursor: -1,
         lastEdit: { key: "", at: 0 },
+        lastNudge: 0,
         saveTimer: 0,
+        inflight: null,
         previewTimer: 0,
         previewSeq: 0,
         defaults: {},
-        ruleDraft: { verb: "show", target: "", field: "", op: "eq", value: "" },
+        // What the public link serves: its definition (JSON text) and field names.
+        publishedVersion: null,
+        publishedJson: "",
+        publishedNames: {},
+        unlocked: {},
+        ruleDraft: blankRule("show"),
 
         init: function () {
           var self = this;
-          api("GET", "/forms/" + self.formId).then(function (form) {
-            self.slug = form.slug;
-            self.def = form.definition;
-            self.history = [JSON.stringify(form.definition)];
-            self.cursor = 0;
-            self.loaded = true;
-            self.render();
-            self.refreshPreview(0);
-          }, function (err) {
-            self.status = "error";
-            self.statusText = "Could not load the form: " + err.message;
-          });
           window.addEventListener("beforeunload", function (e) {
             if (self.status !== "saved") { e.preventDefault(); e.returnValue = ""; } // dirty, saving, or refused by the API
           });
+          if (!self.formId) { self.start(self.starter); return; }
+          api("GET", "/forms/" + self.formId).then(function (form) {
+            self.slug = form.slug;
+            self.publishedVersion = form.published_version;
+            self.start(form.definition);
+            if (form.published_version === null) return;
+            return api("GET", "/forms/" + self.formId + "/versions/" + form.published_version).then(function (v) {
+              self.markPublished(v.definition);
+            });
+          }).catch(function (err) {
+            self.status = "error";
+            self.statusText = "Could not load the form: " + err.message;
+          });
+        },
+        start: function (definition) {
+          this.def = definition;
+          this.history = [JSON.stringify(definition)];
+          this.cursor = 0;
+          this.loaded = true;
+          this.render();
+          this.refreshPreview(0);
+        },
+        markPublished: function (definition) {
+          var names = {};
+          Object.keys(definition.schema.properties).forEach(function (n) { names[n] = true; });
+          this.publishedJson = JSON.stringify(definition);
+          this.publishedNames = names;
+          this.render();
         },
 
         // ── The one way to change the definition ──────────────────────────
@@ -271,6 +460,7 @@
         // ── Views ─────────────────────────────────────────────────────────
         render: function (fromJson) {
           var def = this.def;
+          if (!def) return;
           var ui = def.ui || {};
           var props = def.schema.properties;
           var required = def.schema.required || [];
@@ -298,53 +488,139 @@
           this.fieldOptions = Object.keys(props).map(card);
           this.title = def.schema.title;
           this.rulesView = this.describeRules();
+          this.publishState = this.publishedVersion === null ? "draft" : JSON.stringify(serialise(def)) === this.publishedJson ? "live" : "changed";
           if (!fromJson) {
             this.jsonText = JSON.stringify(def, null, 2);
             this.jsonError = "";
           }
         },
 
+        titleOf: function (n) {
+          var f = this.def.schema.properties[n];
+          return f ? "“" + (f.title || n) + "”" : "“" + n + "”";
+        },
+
         describeRules: function () {
           var self = this;
-          var titleOf = function (n) { var f = self.def.schema.properties[n]; return f ? "“" + (f.title || n) + "”" : "“" + n + "”"; };
+          var titleOf = function (n) { return self.titleOf(n); };
           return ((this.def.rules && this.def.rules.rules) || []).map(function (r) {
-            var cond = describeCondition(r.when, titleOf);
-            var text;
-            if (r.show !== undefined) text = "Show " + titleOf(r.show) + (cond ? " when " + cond : " (custom condition)");
-            else if (r.require !== undefined) text = "Require " + titleOf(r.require) + (cond ? " when " + cond : " (custom condition)");
-            else if (r.validate !== undefined) text = "Check " + titleOf(r.path) + ": " + (r.message || r.id);
-            else text = "Custom rule " + r.id + " (edit it in the JSON tab)";
-            return { id: r.id, text: text, verb: r.show !== undefined ? "show" : r.require !== undefined ? "require" : "other" };
+            var text, verb;
+            var hidden = r.show !== undefined && /^hide-/.test(r.id) && r.when && r.when["!"] !== undefined;
+            if (hidden) {
+              var inner = describeCondition(r.when["!"], titleOf);
+              text = "Hide " + titleOf(r.show) + (inner ? " when " + inner : " (custom condition)");
+              verb = "hide";
+            } else if (r.show !== undefined) {
+              var cond = describeCondition(r.when, titleOf);
+              text = "Show " + titleOf(r.show) + (cond ? " when " + cond : " (custom condition)");
+              verb = "show";
+            } else if (r.require !== undefined) {
+              var req = describeCondition(r.when, titleOf);
+              text = "Require " + titleOf(r.require) + (req ? " when " + req : " (custom condition)");
+              verb = "require";
+            } else if (r.compute !== undefined) {
+              var formula = describeFormula(r.value, titleOf);
+              text = "Calculate " + titleOf(r.compute) + (formula ? " = " + formula : " (custom formula)");
+              verb = "compute";
+            } else if (r.validate !== undefined) {
+              text = "Check " + titleOf(r.path) + ": " + (r.message || r.id);
+              verb = "check";
+            } else {
+              text = "Custom rule " + r.id + " (edit it in the JSON tab)";
+              verb = "other";
+            }
+            return { id: r.id, text: text, verb: verb };
           });
         },
 
+        /** The field the inspector shows: the selected one, on the Build tab only. */
+        inspecting: function () { return this.tab === "build" ? this.field() : null; },
+
         field: function () {
           if (!this.selected || !this.def) return null;
-          var s = this.def.schema.properties[this.selected];
+          var name = this.selected;
+          var props = this.def.schema.properties;
+          var s = props[name];
           if (!s) return null;
-          var ui = (this.def.ui && this.def.ui[this.selected]) || {};
+          var ui = (this.def.ui && this.def.ui[name]) || {};
           var kind = kindOf(s, ui);
-          var options = s.enum || (s.items && s.items.enum) || null;
+          var options = kind === "scale" ? null : s.enum || (s.items && s.items.enum) || null;
+          var isNumber = kind === "number";
+          var range = kind === "scale" ? (s.enum ? { from: Number(s.enum[0]), to: Number(s.enum[s.enum.length - 1]) } : { from: s.minimum, to: s.maximum }) : null;
+          var published = !!this.publishedNames[name];
           return {
-            name: this.selected,
+            name: name,
             kind: kind,
             kindLabel: kindMeta(kind).label,
             title: s.title || "",
             description: s.description || "",
             placeholder: ui.placeholder || ui["ui:placeholder"] || "",
             width: ui.width || ui["ui:width"] || "full",
-            required: (this.def.schema.required || []).indexOf(this.selected) >= 0,
+            required: (this.def.schema.required || []).indexOf(name) >= 0,
             options: options ? options.join("\n") : "",
             hasOptions: !!options,
-            isText: s.type === "string" && !options && !s.format,
-            isNumber: s.type === "number" || s.type === "integer",
+            isText: s.type === "string" && !options && !s.format && kind !== "scale",
+            isNumber: isNumber,
             isScalar: s.type !== "array" && s.type !== "object",
-            hasPlaceholder: s.type !== "boolean" && !options && s.type !== "array",
+            hasPlaceholder: s.type !== "boolean" && !options && s.type !== "array" && kind !== "scale",
             minLength: s.minLength === undefined ? "" : s.minLength,
             maxLength: s.maxLength === undefined ? "" : s.maxLength,
             minimum: s.minimum === undefined ? "" : s.minimum,
             maximum: s.maximum === undefined ? "" : s.maximum,
+            // Number
+            numberKind: s.type === "integer" ? "integer" : "number",
+            step: s.multipleOf === undefined ? (s.step === undefined ? "" : s.step) : s.multipleOf,
+            prefix: ui.prefix || "",
+            suffix: ui.suffix || "",
+            defaultValue: s.default === undefined ? "" : s.default,
+            computed: isNumber && this.computedBy(name),
+            // Scale
+            isScale: kind === "scale",
+            scaleFrom: range ? range.from : "",
+            scaleTo: range ? range.to : "",
+            minLabel: ui.minLabel || ui["ui:minLabel"] || "",
+            maxLabel: ui.maxLabel || ui["ui:maxLabel"] || "",
+            // Long text
+            isLongText: kind === "textarea",
+            verbatim: !!ui.verbatim,
+            // Date
+            isDate: kind === "date",
+            earliest: s.formatMinimum || "",
+            latest: s.formatMaximum || "",
+            // Repeatable rows
+            isRepeat: kind === "repeat",
+            minItems: s.minItems === undefined ? "" : s.minItems,
+            maxItems: s.maxItems === undefined ? "" : s.maxItems,
+            addLabel: ui.addLabel || ui["ui:addLabel"] || "",
+            removeLabel: ui.removeLabel || ui["ui:removeLabel"] || "",
+            columns: kind === "repeat" ? this.columns(name) : [],
+            // Name
+            published: published,
+            locked: published && !this.unlocked[name],
+            follows: !published && followsLabel(props, name),
           };
+        },
+
+        /** The rule that computes `name`, if one does. */
+        computedBy: function (name) {
+          var rules = (this.def.rules && this.def.rules.rules) || [];
+          for (var i = 0; i < rules.length; i++) if (rules[i].compute === name) return rules[i].id;
+          return "";
+        },
+
+        columns: function (name) {
+          var s = this.def.schema.properties[name];
+          var row = (s.items && s.items.properties) || {};
+          var req = (s.items && s.items.required) || [];
+          var itemsUi = (this.def.ui && this.def.ui[name] && this.def.ui[name].items) || {};
+          return Object.keys(row).map(function (key, ci) {
+            var c = row[key];
+            var cu = itemsUi[key] || {};
+            return {
+              key: key, index: ci, title: c.title || key, type: columnType(c), required: req.indexOf(key) >= 0,
+              width: cu.width || cu["ui:width"] || "full", options: (c.enum || []).join("\n"),
+            };
+          });
         },
 
         // ── Adding, moving, removing fields ───────────────────────────────
@@ -360,7 +636,7 @@
             props[name] = clone(kind.schema);
             d.schema.properties = props;
             if (kind.ui) { d.ui = d.ui || {}; d.ui[name] = clone(kind.ui); }
-            var list = d.ui && (d.ui["ui:wizard"] ? d.ui["ui:wizard"].steps : d.ui["ui:groups"]);
+            var list = sectionList(d);
             if (list) {
               var sec = list[si === undefined ? list.length - 1 : si];
               sec.fields.splice(index === undefined ? sec.fields.length : index, 0, name);
@@ -368,14 +644,13 @@
               reorderTop(d, name, index);
             }
           });
-          this.selected = name;
+          this.select(name);
           this.announce = kind.label + " added";
         },
 
         moveField: function (name, si, index) {
-          var self = this;
           this.apply(function (d) {
-            var list = d.ui && (d.ui["ui:wizard"] ? d.ui["ui:wizard"].steps : d.ui["ui:groups"]);
+            var list = sectionList(d);
             if (list) {
               var from = -1, at = -1;
               list.forEach(function (s, i) { var j = s.fields.indexOf(name); if (j >= 0) { from = i; at = j; } });
@@ -389,23 +664,32 @@
               reorderTop(d, name, index);
             }
           });
-          self.announce = "Moved";
+          this.announce = "Moved";
         },
 
         nudge: function (name, delta) {
           var pos = this.position(name);
           var sec = this.sections[pos.si];
           var to = pos.fi + delta;
+          var into = pos.si;
           if (to >= 0 && to < sec.fields.length) {
             this.moveField(name, pos.si, delta > 0 ? to + 1 : to);
           } else if (delta < 0 && pos.si > 0) {
-            this.moveField(name, pos.si - 1, this.sections[pos.si - 1].fields.length);
+            into = pos.si - 1;
+            this.moveField(name, into, this.sections[into].fields.length);
           } else if (delta > 0 && pos.si < this.sections.length - 1) {
-            this.moveField(name, pos.si + 1, 0);
+            into = pos.si + 1;
+            this.moveField(name, into, 0);
           } else return;
-          this.announce = "Moved " + (delta < 0 ? "up" : "down");
-          var self = this;
-          setTimeout(function () { var el = document.getElementById("field-" + name); if (el) el.focus(); self.selected = name; }, 30);
+          this.lastNudge = Date.now();
+          this.announce = into === pos.si ? "Moved " + (delta < 0 ? "up" : "down")
+            : "Moved to " + (this.mode === "wizard" ? "step " : "section ") + (into + 1);
+          this.selected = name;
+          // The card is re-created in its new place; give it focus back so the next Alt+arrow moves it again.
+          var refocus = function () { var el = document.getElementById("field-" + name); if (el && document.activeElement !== el) el.focus(); };
+          Promise.resolve().then(refocus);
+          setTimeout(refocus, 0);
+          setTimeout(refocus, 60);
         },
 
         position: function (name) {
@@ -422,7 +706,7 @@
             if (d.schema.required) d.schema.required = d.schema.required.filter(function (n) { return n !== name; });
             if (d.ui) {
               delete d.ui[name];
-              var list = d.ui["ui:wizard"] ? d.ui["ui:wizard"].steps : d.ui["ui:groups"];
+              var list = sectionList(d);
               if (list) list.forEach(function (s) {
                 s.fields = s.fields.filter(function (n) { return n !== name; });
                 if (s.when && ruleUses({ when: s.when }, name)) delete s.when;
@@ -448,45 +732,62 @@
             });
             d.schema.properties = props;
             if (d.ui && d.ui[name]) d.ui[copy] = clone(d.ui[name]);
-            var list = d.ui && (d.ui["ui:wizard"] ? d.ui["ui:wizard"].steps : d.ui["ui:groups"]);
+            var list = sectionList(d);
             if (list) list.forEach(function (s) { var i = s.fields.indexOf(name); if (i >= 0) s.fields.splice(i + 1, 0, copy); });
           });
-          this.selected = copy;
+          this.select(copy);
         },
 
         // ── Drag and drop ─────────────────────────────────────────────────
+        // Where a drop lands is worked out from the drop event itself; `drop`
+        // only paints the indicator, so a stale one can never move the wrong field.
         dragKind: function (e, kindId) {
           e.dataTransfer.setData("text/plain", "kind:" + kindId);
           e.dataTransfer.effectAllowed = "copy";
+          this.drop = null;
           this.dragging = { kind: kindId };
         },
         dragField: function (e, name) {
           e.dataTransfer.setData("text/plain", "field:" + name);
           e.dataTransfer.effectAllowed = "move";
+          this.drop = null;
           this.dragging = { field: name };
         },
         dragEnd: function () { this.dragging = null; this.drop = null; },
+        landing: function (e, fi) {
+          var rect = e.currentTarget.getBoundingClientRect();
+          return e.clientY > rect.top + rect.height / 2 ? fi + 1 : fi;
+        },
+        mark: function (si, index) {
+          if (!this.drop || this.drop.si !== si || this.drop.index !== index) this.drop = { si: si, index: index };
+        },
         overField: function (e, si, fi) {
           e.preventDefault();
-          var rect = e.currentTarget.getBoundingClientRect();
-          var index = e.clientY > rect.top + rect.height / 2 ? fi + 1 : fi;
-          if (!this.drop || this.drop.si !== si || this.drop.index !== index) this.drop = { si: si, index: index };
+          e.stopPropagation();
+          this.mark(si, this.landing(e, fi));
         },
         overEnd: function (e, si) {
           e.preventDefault();
-          var index = this.sections[si].fields.length;
-          if (!this.drop || this.drop.si !== si || this.drop.index !== index) this.drop = { si: si, index: index };
+          e.stopPropagation();
+          this.mark(si, this.sections[si].fields.length);
+        },
+        // Anywhere else in a section (its head, its padding): the end of that section.
+        overSection: function (e, si) {
+          e.preventDefault();
+          this.mark(si, this.sections[si].fields.length);
         },
         isDrop: function (si, index) { return !!this.drop && this.drop.si === si && this.drop.index === index; },
-        dropHere: function (e) {
+        isDropSection: function (si) { return !!this.drop && this.drop.si === si; },
+        dropHere: function (e, si, fi) {
           e.preventDefault();
+          e.stopPropagation();
           var data = e.dataTransfer.getData("text/plain");
-          var at = this.drop;
+          var index = fi === undefined ? this.sections[si].fields.length : this.landing(e, fi);
           this.drop = null;
           this.dragging = null;
-          if (!at || !data) return;
-          if (data.indexOf("kind:") === 0) this.addKind(data.slice(5), at.si, at.index);
-          else if (data.indexOf("field:") === 0) this.moveField(data.slice(6), at.si, at.index);
+          if (!data) return;
+          if (data.indexOf("kind:") === 0) this.addKind(data.slice(5), si, index);
+          else if (data.indexOf("field:") === 0) this.moveField(data.slice(6), si, index);
         },
         leaveCanvas: function (e) {
           if (!e.currentTarget.contains(e.relatedTarget)) this.drop = null;
@@ -495,6 +796,8 @@
         cardKey: function (e, name) {
           if (e.altKey && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
             e.preventDefault();
+            // Holding the keys repeats them faster than a person can follow: one step at a time.
+            if (e.repeat && Date.now() - this.lastNudge < 180) return;
             this.nudge(name, e.key === "ArrowUp" ? -1 : 1);
           } else if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -507,28 +810,41 @@
 
         select: function (name) {
           this.selected = name;
+          this.editKey = name + ":" + Date.now();
           this.tab = "build";
+        },
+        /** A click on the canvas's empty space puts the form back in the inspector. */
+        canvasClick: function (e) {
+          if (this.tab !== "build") return;
+          if (e.target.closest("[data-designer-field], button, input, select, textarea, a, label, [role='tab']")) return;
+          this.selected = "";
         },
 
         // ── Properties ────────────────────────────────────────────────────
         setProp: function (prop, value) {
           var name = this.selected;
           if (!name) return;
+          var renamed = name;
+          var self = this;
           this.apply(function (d) {
             var s = d.schema.properties[name];
-            var num = function (v) { return v === "" || v === null ? undefined : Number(v); };
-            if (prop === "title") s.title = value;
-            else if (prop === "description") { if (value) s.description = value; else delete s.description; }
-            else if (prop === "placeholder") {
-              d.ui = d.ui || {};
-              d.ui[name] = d.ui[name] || {};
-              if (value) d.ui[name].placeholder = value; else delete d.ui[name].placeholder;
-              if (!Object.keys(d.ui[name]).length) delete d.ui[name];
+            var num = function (v) { return v === "" || v === null || v === undefined ? undefined : Number(v); };
+            var int = s.type === "integer";
+            if (prop === "title") {
+              // The name follows the label until someone names it by hand, and never once published.
+              var follow = !self.publishedNames[name] && followsLabel(d.schema.properties, name);
+              s.title = value;
+              if (follow) {
+                var next = nameFor(value, others(d.schema.properties, name));
+                if (next !== name) { renameIn(d, name, next); renamed = next; }
+              }
+            } else if (prop === "description") { if (value) s.description = value; else delete s.description; }
+            else if (["placeholder", "prefix", "suffix", "minLabel", "maxLabel", "addLabel", "removeLabel"].indexOf(prop) >= 0) {
+              setUi(d, name, prop, value);
+            } else if (prop === "verbatim") {
+              setUi(d, name, "verbatim", value ? true : undefined);
             } else if (prop === "width") {
-              d.ui = d.ui || {};
-              d.ui[name] = d.ui[name] || {};
-              if (value && value !== "full") d.ui[name].width = value; else delete d.ui[name].width;
-              if (!Object.keys(d.ui[name]).length) delete d.ui[name];
+              setUi(d, name, "width", value && value !== "full" ? value : undefined);
             } else if (prop === "required") {
               var req = (d.schema.required || []).filter(function (n) { return n !== name; });
               if (value) req.push(name);
@@ -538,11 +854,48 @@
               opts = opts.filter(function (x, i) { return opts.indexOf(x) === i; });
               if (!opts.length) opts = ["Option A"];
               if (s.items) s.items.enum = opts; else s.enum = opts;
-            } else if (["minLength", "maxLength", "minimum", "maximum"].indexOf(prop) >= 0) {
+              var ui = d.ui && d.ui[name];
+              if (ui && ui.enumLabels && ui.enumLabels.length !== opts.length) setUi(d, name, "enumLabels", undefined);
+              if (s.default !== undefined && (Array.isArray(s.default) ? s.default.some(function (x) { return opts.indexOf(x) < 0; }) : opts.indexOf(s.default) < 0)) delete s.default;
+            } else if (["minLength", "maxLength", "minimum", "maximum", "minItems", "maxItems"].indexOf(prop) >= 0) {
               var n = num(value);
+              if (n !== undefined && int && (prop === "minimum" || prop === "maximum")) n = Math.round(n);
               if (n === undefined || isNaN(n)) delete s[prop]; else s[prop] = n;
+            } else if (prop === "numberKind") {
+              // Whole numbers: the bounds, step and default round to integers.
+              s.type = value === "integer" ? "integer" : "number";
+              if (s.type === "integer") {
+                ["minimum", "maximum", "default"].forEach(function (k) { if (typeof s[k] === "number") s[k] = Math.round(s[k]); });
+                if (s.multipleOf !== undefined && s.multipleOf % 1) delete s.multipleOf;
+                if (s.step !== undefined && s.step % 1) delete s.step;
+              }
+            } else if (prop === "step") {
+              var st = num(value);
+              delete s.step;
+              if (st === undefined || isNaN(st) || st <= 0 || (int && st % 1)) delete s.multipleOf; else s.multipleOf = st;
+            } else if (prop === "default") {
+              var dv = num(value);
+              if (dv === undefined || isNaN(dv)) delete s.default; else s.default = int ? Math.round(dv) : dv;
+            } else if (prop === "scaleFrom" || prop === "scaleTo") {
+              var cur = s.enum ? { from: Number(s.enum[0]), to: Number(s.enum[s.enum.length - 1]) } : { from: s.minimum, to: s.maximum };
+              var lo = prop === "scaleFrom" ? Number(value) : cur.from;
+              var hi = prop === "scaleTo" ? Number(value) : cur.to;
+              if (isNaN(lo) || isNaN(hi) || hi <= lo || hi - lo > 20) return;
+              if (s.enum) {
+                var values = [];
+                for (var v = lo; v <= hi; v++) values.push(String(v));
+                s.enum = values;
+                if (s.default !== undefined && values.indexOf(s.default) < 0) delete s.default;
+                if (d.ui && d.ui[name] && d.ui[name].enumLabels) setUi(d, name, "enumLabels", undefined);
+              } else {
+                s.minimum = lo;
+                s.maximum = hi;
+              }
+            } else if (prop === "formatMinimum" || prop === "formatMaximum") {
+              if (value) s[prop] = value; else delete s[prop];
             }
-          }, { key: name + ":" + prop });
+          }, { key: this.editKey + ":" + prop });
+          if (renamed !== name) this.selected = renamed;
         },
 
         rename: function (value) {
@@ -551,21 +904,104 @@
           if (!from || !to || to === from) return;
           if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(to)) { this.announce = "A name is letters, digits and _ and starts with a letter."; return; }
           if (this.def.schema.properties[to]) { this.announce = "Another field already has that name."; return; }
-          this.apply(function (d) {
-            var props = {};
-            Object.keys(d.schema.properties).forEach(function (k) { props[k === from ? to : k] = d.schema.properties[k]; });
-            d.schema.properties = props;
-            if (d.schema.required) d.schema.required = d.schema.required.map(function (n) { return n === from ? to : n; });
-            if (d.ui) {
-              if (d.ui[from]) { d.ui[to] = d.ui[from]; delete d.ui[from]; }
-              var list = d.ui["ui:wizard"] ? d.ui["ui:wizard"].steps : d.ui["ui:groups"];
-              if (list) list.forEach(function (s) { s.fields = s.fields.map(function (n) { return n === from ? to : n; }); });
-            }
-            var swap = function (n) { return refersTo(n, from) ? to + n.slice(from.length) : n; };
-            if (d.rules && d.rules.rules) d.rules.rules = d.rules.rules.map(function (r) { return mapRule(r, swap); });
-            if (d.ui && d.ui["ui:wizard"]) d.ui["ui:wizard"].steps.forEach(function (st) { if (st.when) st.when = mapLogic(st.when, swap); });
-          });
+          this.apply(function (d) { renameIn(d, from, to); });
+          if (this.unlocked[from]) { var u = Object.assign({}, this.unlocked); u[to] = true; this.unlocked = u; }
           this.selected = to;
+        },
+        unlockName: function () {
+          var u = Object.assign({}, this.unlocked);
+          u[this.selected] = true;
+          this.unlocked = u;
+          var self = this;
+          setTimeout(function () { var el = document.getElementById("prop-name"); if (el) { el.focus(); el.select(); } self.announce = "The name can be changed now"; }, 0);
+        },
+
+        // ── Repeatable rows: columns ──────────────────────────────────────
+        editRow: function (mutate, key) {
+          var name = this.selected;
+          this.apply(function (d) {
+            var s = d.schema.properties[name];
+            var items = s.items;
+            d.ui = d.ui || {};
+            var ui = d.ui[name] = d.ui[name] || {};
+            ui.items = ui.items || {};
+            mutate(items, ui.items, d);
+            Object.keys(ui.items).forEach(function (k) { if (!items.properties[k] || !Object.keys(ui.items[k]).length) delete ui.items[k]; });
+            if (!Object.keys(ui.items).length) delete ui.items;
+            if (items.required && !items.required.length) delete items.required;
+            if (!Object.keys(ui).length) delete d.ui[name];
+            if (!Object.keys(d.ui).length) delete d.ui;
+          }, key ? { key: this.editKey + ":" + key } : undefined);
+        },
+        setColumn: function (ci, prop, value) {
+          this.editRow(function (items, itemsUi) {
+            var keys = Object.keys(items.properties);
+            var key = keys[ci];
+            var c = items.properties[key];
+            if (prop === "title") {
+              var follow = nameFor(c.title || "", others(items.properties, key)) === key;
+              c.title = value;
+              var next = follow ? nameFor(value, others(items.properties, key)) : key;
+              if (next !== key) {
+                var props = {};
+                keys.forEach(function (k) { props[k === key ? next : k] = items.properties[k]; });
+                items.properties = props;
+                if (items.required) items.required = items.required.map(function (n) { return n === key ? next : n; });
+                if (itemsUi[key]) { itemsUi[next] = itemsUi[key]; delete itemsUi[key]; }
+              }
+            } else if (prop === "type") {
+              var t = COLUMN_TYPES.filter(function (x) { return x.id === value; })[0];
+              if (!t) return;
+              var out = clone(t.schema);
+              out.title = c.title;
+              items.properties[key] = out;
+              if (itemsUi[key]) delete itemsUi[key].placeholder;
+            } else if (prop === "required") {
+              var req = (items.required || []).filter(function (n) { return n !== key; });
+              if (value) req.push(key);
+              items.required = req;
+            } else if (prop === "width") {
+              itemsUi[key] = itemsUi[key] || {};
+              if (value && value !== "full") itemsUi[key].width = value; else delete itemsUi[key].width;
+            } else if (prop === "options") {
+              var opts = String(value).split("\n").map(function (x) { return x.trim(); }).filter(Boolean);
+              opts = opts.filter(function (x, i) { return opts.indexOf(x) === i; });
+              c.enum = opts.length ? opts : ["Option A"];
+            }
+          }, "col:" + ci + ":" + prop);
+        },
+        addColumn: function () {
+          this.editRow(function (items, itemsUi) {
+            // A column's key follows its label, like a field's name.
+            var title = "Column " + (Object.keys(items.properties).length + 1);
+            var key = nameFor(title, items.properties);
+            items.properties[key] = { type: "string", title: title };
+            itemsUi[key] = { width: "third" };
+          });
+          this.announce = "Column added";
+        },
+        removeColumn: function (ci) {
+          var cols = this.columns(this.selected);
+          if (cols.length <= 1) { this.announce = "Rows need at least one column."; return; }
+          this.editRow(function (items, itemsUi) {
+            var key = Object.keys(items.properties)[ci];
+            delete items.properties[key];
+            delete itemsUi[key];
+            if (items.required) items.required = items.required.filter(function (n) { return n !== key; });
+          });
+          this.announce = "Column removed";
+        },
+        moveColumn: function (ci, delta) {
+          this.editRow(function (items) {
+            var keys = Object.keys(items.properties);
+            var to = ci + delta;
+            if (to < 0 || to >= keys.length) return;
+            var k = keys.splice(ci, 1)[0];
+            keys.splice(to, 0, k);
+            var props = {};
+            keys.forEach(function (x) { props[x] = items.properties[x]; });
+            items.properties = props;
+          });
         },
 
         setTitle: function (value) {
@@ -611,11 +1047,21 @@
           var word = this.mode === "wizard" ? "Step" : "Section";
           if (this.mode === "flat") { this.setMode("sections"); }
           var mode = this.mode;
+          var at;
           this.apply(function (d) {
             var list = mode === "wizard" ? d.ui["ui:wizard"].steps : d.ui["ui:groups"];
             list.push({ title: word + " " + (list.length + 1), fields: [] });
+            at = list.length - 1;
           });
           this.announce = word + " added — drag fields into it";
+          // Show what happened: the new section, its title ready to type over.
+          setTimeout(function () {
+            var input = document.getElementById("sec-title-" + at);
+            if (!input) return;
+            input.scrollIntoView({ block: "center", behavior: "smooth" });
+            input.focus({ preventScroll: true });
+            input.select();
+          }, 30);
         },
 
         removeSection: function (si) {
@@ -648,31 +1094,91 @@
         },
 
         // ── Rules ─────────────────────────────────────────────────────────
-        draftField: function () {
-          var f = this.def && this.def.schema.properties[this.ruleDraft.field];
-          if (!f) return { kind: "", options: [] };
-          var kind = kindOf(f, this.def.ui && this.def.ui[this.ruleDraft.field]);
+        fieldInfo: function (name) {
+          var f = this.def && this.def.schema.properties[name];
+          if (!f) return { kind: "", options: [], boolean: false };
+          var kind = kindOf(f, this.def.ui && this.def.ui[name]);
           return { kind: kind, options: f.enum || (f.items && f.items.enum) || [], boolean: f.type === "boolean" };
+        },
+        /** The comparisons that make sense for the field a condition watches. */
+        opsFor: function (ci) {
+          var c = this.ruleDraft.conditions[ci];
+          var kind = this.fieldInfo(c && c.field).kind;
+          return opsFor(kind).map(function (id) { return { id: id, label: kind === "date" && DATE_OPS[id] ? DATE_OPS[id] : OPS[id] }; });
+        },
+        needsValue: function (ci) {
+          var c = this.ruleDraft.conditions[ci];
+          return !!c && ["filled", "empty", "ticked", "unticked"].indexOf(c.op) < 0;
+        },
+        valueOptions: function (ci) {
+          var c = this.ruleDraft.conditions[ci];
+          return this.fieldInfo(c && c.field).options;
+        },
+        valueType: function (ci) {
+          var kind = this.fieldInfo(this.ruleDraft.conditions[ci].field).kind;
+          return kind === "number" ? "number" : kind === "date" ? "date" : "text";
+        },
+        numberFields: function () {
+          return this.fieldOptions.filter(function (f) { return f.kind === "number"; });
+        },
+        setDraft: function (prop, value) {
+          var next = Object.assign({}, this.ruleDraft);
+          next[prop] = value;
+          if (prop === "verb" && (value === "compute") !== (this.ruleDraft.verb === "compute")) next.target = "";
+          this.ruleDraft = next;
+        },
+        setCondition: function (ci, prop, value) {
+          var list = this.ruleDraft.conditions.map(function (c) { return Object.assign({}, c); });
+          list[ci][prop] = value;
+          if (prop === "field") {
+            // A new field: start from its first comparison, with no stale value.
+            list[ci].op = opsFor(this.fieldInfo(value).kind)[0];
+            list[ci].value = "";
+          }
+          this.setDraft("conditions", list);
+        },
+        addCondition: function () { this.setDraft("conditions", this.ruleDraft.conditions.concat([blankCondition()])); },
+        removeCondition: function (ci) {
+          if (this.ruleDraft.conditions.length <= 1) return;
+          this.setDraft("conditions", this.ruleDraft.conditions.filter(function (_c, i) { return i !== ci; }));
         },
         addRule: function () {
           var r = this.ruleDraft;
-          if (!r.target || !r.field || r.target === r.field) { this.announce = "Pick the field to " + r.verb + " and a different field to watch."; return; }
-          var info = this.draftField();
-          if ((r.op === "eq" || r.op === "neq") && !info.boolean && r.value === "") { this.announce = "Pick or type the value to compare with."; return; }
-          var when = conditionFor(r.field, r.op, r.value, info.kind);
           var self = this;
+          var rule;
+          if (!r.target) { this.announce = r.verb === "compute" ? "Pick the number field to calculate." : "Pick the field to " + r.verb + "."; return; }
+          if (r.verb === "compute") {
+            var b = r.b === "#" ? Number(r.bNumber) : { var: r.b };
+            if (!r.a || !r.b || (r.b === "#" && (r.bNumber === "" || isNaN(b)))) { this.announce = "Pick what to calculate it from."; return; }
+            if (r.a === r.target || r.b === r.target) { this.announce = "A field cannot be calculated from itself."; return; }
+            var value = {};
+            value[r.math] = [{ var: r.a }, b];
+            rule = { compute: r.target, value: value };
+          } else {
+            var parts = [];
+            for (var i = 0; i < r.conditions.length; i++) {
+              var c = r.conditions[i];
+              var info = this.fieldInfo(c.field);
+              if (!c.field || c.field === r.target) { this.announce = "Pick a different field to watch for each condition."; return; }
+              if (this.needsValue(i) && c.value === "") { this.announce = "Pick or type the value to compare with."; return; }
+              if (info.kind === "number" && this.needsValue(i) && isNaN(Number(c.value))) { this.announce = "Type a number to compare with."; return; }
+              parts.push(conditionFor(c.field, c.op, c.value, info.kind));
+            }
+            var when = parts.length === 1 ? parts[0] : r.match === "any" ? { or: parts } : { and: parts };
+            // The engine's verb is show; "hide when X" is "show unless X" (its id keeps the intent for the list).
+            if (r.verb === "hide") rule = { show: r.target, when: { "!": when } };
+            else if (r.verb === "require") rule = { require: r.target, when: when };
+            else rule = { show: r.target, when: when };
+          }
           this.apply(function (d) {
             d.rules = d.rules || {};
             d.rules.rules = d.rules.rules || [];
             var base = r.verb + "-" + r.target.toLowerCase(), id = base, n = 2;
             var taken = d.rules.rules.map(function (x) { return x.id; });
             while (taken.indexOf(id) >= 0) id = base + "-" + n++;
-            var rule = { id: id };
-            rule[r.verb] = r.target;
-            rule.when = when;
-            d.rules.rules.push(rule);
+            d.rules.rules.push(Object.assign({ id: id }, rule));
           });
-          self.ruleDraft = { verb: r.verb, target: "", field: "", op: "eq", value: "" };
+          self.ruleDraft = blankRule(r.verb);
           this.announce = "Rule added";
         },
         removeRule: function (id) {
@@ -692,6 +1198,14 @@
           if (key === "thanksTitle") return (a.thankYou && a.thankYou.title) || def.thankYou.title;
           if (key === "thanksMessage") return (a.thankYou && a.thankYou.message) || def.thankYou.message;
           return a[key] === undefined || a[key] === null ? def[key] || "" : a[key];
+        },
+        themeName: function () {
+          var id = this.look("theme");
+          var t = this.themes.filter(function (x) { return x.id === id; })[0];
+          return t ? t.name : id;
+        },
+        swatch: function (t) {
+          return { "--swatch-bg": t.swatch.bg, "--swatch-fg": t.swatch.fg, "--swatch-primary": t.swatch.primary, "--swatch-surface": t.swatch.surface };
         },
         setLook: function (key, value) {
           var thanks = this.defaults.thankYou;
@@ -731,43 +1245,69 @@
         formatJson: function () { this.jsonText = JSON.stringify(this.def, null, 2); this.jsonError = ""; },
 
         // ── Saving, preview, publishing ───────────────────────────────────
+        publicUrl: function () { return this.slug ? window.location.origin + "/f/" + this.slug : ""; },
+        settingsHref: function () { return this.formId ? "/app/forms/" + this.formId + "/settings#set-slug" : ""; },
+        publishLabel: function () {
+          return this.publishing ? "Publishing…" : this.publishState === "live" ? "Published" : this.publishState === "changed" ? "Publish changes" : "Publish";
+        },
         scheduleSave: function () {
           var self = this;
           self.status = "dirty";
           self.statusText = "Unsaved changes";
           clearTimeout(self.saveTimer);
-          self.saveTimer = setTimeout(function () { self.save(); }, 800);
+          self.saveTimer = setTimeout(function () { self.save().catch(function () { /* shown in the problems callout */ }); }, 800);
         },
         save: function () {
           var self = this;
           clearTimeout(self.saveTimer);
+          // One request at a time: above all, never two POSTs creating two forms.
+          if (self.inflight) return self.inflight.then(function () { return self.status === "saved" ? null : self.save(); });
           var snapshot = JSON.stringify(self.def);
+          var body = { definition: serialise(self.def) };
           self.status = "saving";
           self.statusText = "Saving…";
-          return api("PATCH", "/forms/" + self.formId, { definition: self.def }).then(function () {
+          var request = self.formId ? api("PATCH", "/forms/" + self.formId, body) : api("POST", "/forms", body).then(function (form) {
+            self.formId = form.id;
+            // The address bar now names the stored form, so a reload opens it.
+            window.history.replaceState(null, "", "/app/forms/" + form.id + "/design");
+            return form;
+          });
+          self.inflight = request.then(function (form) {
+            self.inflight = null;
+            self.slug = form.slug;
+            self.problems = [];
             if (JSON.stringify(self.def) !== snapshot) return self.save();
             self.status = "saved";
             self.statusText = "All changes saved";
-            self.problems = [];
           }, function (err) {
+            self.inflight = null;
             self.status = "error";
-            self.statusText = "Not saved — fix the problems below";
-            self.problems = (err.problems || []).map(function (p) { return (p.pointer ? p.pointer + ": " : "") + p.detail; });
+            self.statusText = "Not saved — see the note below";
+            self.problems = self.explain(err);
             throw err;
           });
+          return self.inflight;
+        },
+        explain: function (err) {
+          var def = this.def;
+          var seen = {};
+          return (err.problems || [{ detail: err.message }]).map(function (p) { return humanProblem(p, def); })
+            .filter(function (t) { if (seen[t]) return false; seen[t] = true; return true; });
         },
         refreshPreview: function (delay) {
           var self = this;
           clearTimeout(self.previewTimer);
           self.previewTimer = setTimeout(function () {
             var seq = ++self.previewSeq;
-            api("POST", "/preview", { definition: self.def }).then(function (res) {
+            api("POST", "/preview", { definition: serialise(self.def) }).then(function (res) {
               if (seq !== self.previewSeq) return; // a newer preview is on its way
               var frame = document.getElementById("designer-preview");
               if (frame) frame.srcdoc = res.html;
               self.audit = res.audit;
+              if (self.status !== "error") self.problems = [];
             }, function (err) {
-              self.problems = (err.problems || []).map(function (p) { return (p.pointer ? p.pointer + ": " : "") + p.detail; });
+              if (seq !== self.previewSeq) return;
+              self.problems = self.explain(err);
             });
           }, delay);
         },
@@ -779,25 +1319,55 @@
         },
         publish: function () {
           var self = this;
+          if (self.publishing) return;
           self.publishing = true;
           self.save().then(function () {
             return api("POST", "/forms/" + self.formId + "/publish");
           }).then(function (v) {
             self.publishing = false;
+            self.publishedVersion = v.version;
+            self.markPublished(serialise(self.def));
             self.announce = "Published version " + v.version;
-            var t = self.$ui("#toasts");
-            if (t) t.add({ message: "Published version " + v.version + ". The public link serves it now.", tone: "success" });
+            self.publishedToast(v);
           }, function (err) {
             self.publishing = false;
             var t = self.$ui("#toasts");
-            if (t) t.add({ message: "Not published: " + err.message, tone: "error" });
+            if (t) t.add({ message: "Not published: " + (self.explain(err)[0] || err.message), tone: "error" });
           });
+        },
+        /** The toast says where the form lives: open it, copy it, or change the address. */
+        publishedToast: function (v) {
+          var self = this;
+          var url = v.url || self.publicUrl();
+          var t = self.$ui("#toasts");
+          if (!t) return;
+          var id = t.add({
+            message: "Published version " + v.version + ". It is live at",
+            tone: "success",
+            duration: 15000,
+            actionLabel: "Copy link",
+            onAction: function () { copyText(url).then(function () { self.announce = "Link copied"; }); },
+          });
+          var message = document.querySelector('[data-toast-id="' + id + '"] [data-part="message"]');
+          if (!message) return;
+          var link = document.createElement("a");
+          link.href = url;
+          link.target = "_blank";
+          link.rel = "noopener";
+          link.textContent = url.replace(/^https?:\/\//, "");
+          link.setAttribute("data-designer-toast-link", "");
+          var change = document.createElement("a");
+          change.href = self.settingsHref();
+          change.textContent = "Change";
+          message.append(" ", link, " · ", change);
         },
 
         keys: function (e) {
           var t = e.target;
           var typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT");
           var mod = e.ctrlKey || e.metaKey;
+          // A key that lands while the moved card is being re-drawn (focus on the page) still moves it.
+          if (e.altKey && !typing && (e.key === "ArrowUp" || e.key === "ArrowDown") && this.selected && t === document.body) { this.cardKey(e, this.selected); return; }
           if (mod && !typing && (e.key === "z" || e.key === "Z")) { e.preventDefault(); if (e.shiftKey) this.redo(); else this.undo(); }
           else if (mod && !typing && (e.key === "y" || e.key === "Y")) { e.preventDefault(); this.redo(); }
           else if (mod && (e.key === "s" || e.key === "S")) { e.preventDefault(); this.save().catch(function () {}); }

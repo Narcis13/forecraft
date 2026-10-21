@@ -18,6 +18,8 @@ Every rule has a unique `id` and exactly one verb. A rule that would quietly do 
 | `compute` | `{ id, compute: "field", value: <logic> }` | the field's value is derived, in the browser and on the server |
 | `jump` | `{ id, jump: "step", from: "step", when }` | a wizard's next step |
 
+There is no `hide` verb: "hide X when C" is `{ "show": "X", "when": { "!": C } }`, which is what the designer writes (with an id starting `hide-`). A `compute` target is shown read-only on the public page; the server works the value out again from the answers, whatever was sent for it.
+
 Several `show` rules on one field must all hold; several `require` rules need only one. `validate` rules skip a blank field, because `required` is the rule that should complain about that.
 
 ## One form, four verbs
@@ -91,6 +93,8 @@ Conditions and computed values are JSONLogic. The useful subset:
 ```
 
 `==` is loose, which is what form data wants (`"5" == 5`); use `===` when it is not. An unknown operator is an error, never a silent `null`.
+
+The designer's Rules tab writes these for you: show, hide or require a field when one or more conditions hold (all of them, or any), and calculate a number field from two others (`+ − × ÷`, or a field and a fixed number). A condition compares a number, a scale or a date (`is`, `is not`, `more/less than`, `at least/most`; before and after for dates), checks whether checkboxes include a choice, or whether a field is filled in. Anything beyond that — `validate`, `jump`, nested logic — is edited in the JSON tab and listed there as a custom rule.
 
 ## Messages
 

@@ -93,3 +93,46 @@ test("nested answers: hidden paths and undeclared keys are not stored", () => {
   assert.equal(v.valid, true);
   assert.deepEqual(v.data, { kind: "a", addr: { city: "Oslo" }, rows: [{ n: "1" }] });
 });
+
+test("forecraft's own keys: units around a number, a read-only computed field, date bounds, verbatim", () => {
+  const definition = {
+    schema: {
+      title: "Order", type: "object",
+      properties: {
+        seats: { type: "integer", title: "Seats", default: 2 },
+        price: { type: "number", title: "Price", multipleOf: 0.01 },
+        total: { type: "number", title: "Total" },
+        day: { type: "string", format: "date", title: "Day", formatMinimum: "2026-01-01", formatMaximum: "2026-12-31" },
+        notes: { type: "string", title: "Notes" },
+      },
+    },
+    ui: { seats: { suffix: "seats" }, price: { prefix: "€" }, notes: { widget: "textarea", verbatim: true } },
+    rules: { rules: [{ id: "total", compute: "total", value: { "*": [{ var: "seats" }, { var: "price" }] } }] },
+  };
+  const form = compileForm(definition);
+  // The definition is kept as written; the renderer never saw the extra keys.
+  assert.deepEqual(form.definition, definition);
+  assert.match(form.html, /<div data-ui="input-group" data-forecraft-unit><input[^>]*name="seats"[^>]*aria-describedby="[^"]*fc-field-seats-unit"[^>]*><span data-part="suffix" id="fc-field-seats-unit">seats<\/span><\/div>/);
+  assert.match(form.html, /<span data-part="prefix" id="fc-field-price-unit">€<\/span><input[^>]*name="price"/);
+  assert.match(form.html, /<input[^>]*name="total"[^>]*readonly/);
+  assert.deepEqual(form.rules.rules?.map((r: { id: string }) => r.id), ["total", "date-min-day", "date-max-day"]);
+
+  const v = checkSubmission(form, { seats: "3", price: "2.5", total: "1", day: "2025-12-31" });
+  assert.equal(v.data.total, 7.5);
+  assert.deepEqual(v.findings.map((f) => [f.path, f.rule]), [["day", "date-min-day"]]);
+  assert.equal(checkSubmission(form, { seats: "3", price: "2.5", day: "2026-06-01" }).valid, true);
+});
+
+test("forecraft's own keys are refused where they mean nothing", () => {
+  const bad = (props: Record<string, unknown>, ui: Record<string, unknown>) => {
+    try { compileForm({ schema: { title: "X", type: "object", properties: props }, ui }); } catch (e) { return (e as DefinitionProblem).errors.map((x) => x.pointer); }
+    return [];
+  };
+  assert.deepEqual(bad({ a: { type: "string" } }, { a: { prefix: "€" } }), ["/ui/a/prefix"]);
+  assert.deepEqual(bad({ a: { type: "number" } }, { a: { suffix: "far too long a unit" } }), ["/ui/a/suffix"]);
+  assert.deepEqual(bad({ a: { type: "string" } }, { a: { verbatim: true } }), ["/ui/a/verbatim"]);
+  assert.deepEqual(bad({ a: { type: "string" } }, { a: { widget: "textarea", verbatim: "yes" } }), ["/ui/a/verbatim"]);
+  assert.deepEqual(bad({ a: { type: "string", formatMinimum: "2026-01-01" } }, {}), ["/schema/properties/a/formatMinimum"]);
+  assert.deepEqual(bad({ a: { type: "string", format: "date", formatMinimum: "2026-02-01", formatMaximum: "2026-01-01" } }, {}), ["/schema/properties/a/formatMaximum"]);
+  assert.deepEqual(bad({ a: { type: "string", format: "date", formatMaximum: "1 May" } }, {}), ["/schema/properties/a/formatMaximum"]);
+});

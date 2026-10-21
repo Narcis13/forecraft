@@ -10,7 +10,7 @@ import { join } from "node:path";
 const ROOT = join(import.meta.dirname, "../../templates");
 const loader = createFileLoader(ROOT);
 
-const HELPERS = {
+export const HELPERS = {
   /** "2026-10-18T09:12:00Z" → "18 Oct 2026, 09:12" (UTC, so tests and screenshots are stable). */
   datetime: (iso: unknown) => {
     if (typeof iso !== "string" || !iso) return "—";

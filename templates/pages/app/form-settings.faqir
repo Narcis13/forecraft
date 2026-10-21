@@ -8,7 +8,7 @@ block header
   span(data-ui="badge" data-variant=page.form.statusVariant) {{ page.form.statusLabel }}
 
 block actions
-  include "partials/form-actions.faqir" (id=page.form.id draft=page.form.draft)
+  include "partials/form-actions.faqir" (id=page.form.id draft=page.form.draft live=page.form.version)
 
 block content
   div(data-ui="stack" data-gap="6" l-data="formSettings" data-prop-form-id=tojson(page.settings.formId) data-prop-open=tojson(page.settings.open) data-prop-limit=tojson(page.settings.limit) data-prop-slug=tojson(page.settings.slug))

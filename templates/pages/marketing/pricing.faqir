@@ -9,7 +9,7 @@ block body
   main#main(data-site="marketing" data-gap="12")
     div(data-ui="backdrop" data-variant="dots" data-intensity="subtle")
       div(data-ui="container" data-measure="wide" data-gutter="4")
-        section(data-ui="hero" data-variant="center" data-animate aria-labelledby="pricing-headline")
+        section(data-ui="hero" data-variant="center" aria-labelledby="pricing-headline")
           span(data-ui="badge" data-part="eyebrow" data-variant="primary") Pricing
           h1(data-part="headline" id="pricing-headline")
             | Free while it is a

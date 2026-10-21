@@ -11,7 +11,7 @@ block body
   main#main(data-site="marketing" data-gap="12")
     div(data-ui="backdrop" data-variant="grid" data-intensity="subtle")
       div(data-ui="container" data-measure="wide" data-gutter="4")
-        section(data-ui="hero" data-variant="center" data-animate aria-labelledby="agents-headline")
+        section(data-ui="hero" data-variant="center" aria-labelledby="agents-headline")
           span(data-ui="badge" data-part="eyebrow" data-variant="primary") For agents
           h1(data-part="headline" id="agents-headline") If you are an agent, start here.
           p(data-part="description") Four steps: get a key, read the contract, connect, call. Everything below is plain text you can copy. A person can follow along too.

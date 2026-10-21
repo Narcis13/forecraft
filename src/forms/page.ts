@@ -5,6 +5,7 @@ import { spawn } from "node:child_process";
 import { join } from "node:path";
 import { page } from "../render/index.ts";
 import type { CompiledForm } from "./model.ts";
+import { WORDING } from "./wording.ts";
 
 const SCENES: Record<string, string> = { card: "aurora", split: "spotlight", page: "grid" };
 
@@ -33,7 +34,9 @@ export function renderFormPage(form: CompiledForm, opts: FormPageOptions): strin
       scene: SCENES[a.layout],
       coverImage: a.cover?.image || null,
       eyebrow: a.cover?.eyebrow || null,
-      formHtml: form.html,
+      // The browser's own checks are off (faqir-validate sets this too, but only
+      // once it has booted): the page words every refusal itself.
+      formHtml: form.html.replace(/<form id="fc-form"/, "$& novalidate"),
       wizard: form.wizard,
       submitLabel: a.submitLabel,
       thankYou: a.thankYou,
@@ -42,8 +45,27 @@ export function renderFormPage(form: CompiledForm, opts: FormPageOptions): strin
       action: opts.action,
       version: opts.version ?? null,
       state: { status: "idle", message: "", confirmation: "" },
+      wording: WORDING,
+      dates: dateBounds(form),
     },
   });
+}
+
+/**
+ * The earliest and latest day each date field takes (`formatMinimum` /
+ * `formatMaximum`, ISO dates), for the page's calendar; the server enforces
+ * them as rules (src/forms/model.ts).
+ */
+function dateBounds(form: CompiledForm): Record<string, { min?: string; max?: string }> {
+  const out: Record<string, { min?: string; max?: string }> = {};
+  for (const [name, raw] of Object.entries(form.definition.schema.properties)) {
+    const f = raw as { format?: unknown; formatMinimum?: unknown; formatMaximum?: unknown };
+    if (f.format !== "date") continue;
+    const min = typeof f.formatMinimum === "string" ? f.formatMinimum : undefined;
+    const max = typeof f.formatMaximum === "string" ? f.formatMaximum : undefined;
+    if (min || max) out[name] = { ...(min ? { min } : {}), ...(max ? { max } : {}) };
+  }
+  return out;
 }
 
 export function renderClosedPage(form: CompiledForm, reason: "closed" | "full" | "unpublished"): string {

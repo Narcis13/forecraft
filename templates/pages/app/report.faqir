@@ -51,7 +51,7 @@ block content
             div(data-ui="field-group")
               label(data-part="label" for="doc-number") Number
               div(data-part="input")
-                input#doc-number(data-ui="input" type="search" name="number" value=page.filters.number placeholder="INV-2026-…")
+                input#doc-number(data-ui="input" type="search" name="number" value=page.filters.number placeholder=page.report.numberHint)
             div(data-ui="field-group")
               label(data-part="label" for="doc-status") Status
               div(data-part="input")
@@ -62,3 +62,10 @@ block content
               span(data-ui="icon" data-icon="funnel" aria-hidden="true")
               | Filter
         include "partials/documents-table.faqir" (documents=page.documents showReport=false)
+
+block dialogs
+  if page.report.published
+    include "partials/issue-dialog.faqir" (id=page.report.id newTab=false)
+
+block scripts
+  script(src="/issue-dialog.js" defer)

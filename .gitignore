@@ -2,6 +2,7 @@ node_modules/
 data/
 .env
 test-results/
+test-results-*/
 playwright-report/
 .faqir/
 .claude/

@@ -12,12 +12,15 @@ submission with `@faqir-ui/rules` on the same definition the browser enforced.
 
 ```bash
 npm install
+npx playwright install --only-shell chromium   # the Chromium reports print with (npm install does not fetch it)
 npm run seed     # demo workspace, four forms, prints a demo API key once
 npm run dev      # http://localhost:3000 (node --watch; templates reload)
 ```
 
 `npm start` runs without watching. The database is `data/forecraft.db` (override with
-`FORECRAFT_DB`), the port 3000 (`PORT`).
+`FORECRAFT_DB`), the port 3000 (`PORT`). Without that Chromium the server still starts, says
+so once, and answers report previews and PDFs with a 503 that names the install command;
+`FORECRAFT_CHROMIUM` points at a Chromium of your own instead.
 
 ## For agents
 

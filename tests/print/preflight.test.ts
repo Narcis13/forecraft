@@ -50,10 +50,13 @@ function bad(): ReportDefinition {
     { label: "Tax", value: "{{ money(line.tax) }}", format: "currency" },
     { label: "Gross", value: "{{ money(line.gross) }}", format: "currency" },
   ); // nine columns, portrait
+  // 2433 bytes: more than a QR code holds at error correction M (2331, version 40).
+  def.schema.properties.checkout = { type: "string" };
+  def.sample.checkout = "https://pay.example.com/checkout?" + "a=1&".repeat(600);
   const at = def.layout.findIndex((b) => b.id === "payment");
   def.layout.splice(at, 0,
     { id: "refs", block: "facts", cols: "2", items: [{ label: "Mandate", value: "SEPA-MANDATE-" + "X".repeat(67) }, { label: "Contract", value: "MSA-2025-03" }] }, // 80 unbreakable characters
-    { id: "long-qr", block: "qr", value: "https://pay.example.com/checkout?" + "a=1&".repeat(70), caption: "Pay" }, // too long for the QR recipe
+    { id: "long-qr", block: "qr", value: "{{ checkout }}", caption: "Pay" }, // too long for the QR recipe
     { id: "annex", block: "section", title: "Annex: service levels", blocks: [] }, // a heading that ends a page
     { id: "annex-break", block: "page-break" },
   );

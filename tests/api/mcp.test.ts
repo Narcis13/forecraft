@@ -246,7 +246,7 @@ describe("MCP server (stdio)", () => {
     test("starters and the report vocabulary", async () => {
       const starters = JSON.parse((await mcp.tool("forecraft_list_report_starters")).content[0]!.text);
       const ids = starters.items.map((i: { id: string }) => i.id);
-      assert.deepEqual(ids, ["invoice", "letter", "business-report", "confirmation", "survey-summary", "blank"]);
+      assert.deepEqual(ids, ["invoice", "letter", "business-report", "confirmation", "survey-summary", "submissions-register", "blank"]);
       const vocab = JSON.parse((await mcp.tool("forecraft_get_report_vocabulary")).content[0]!.text);
       assert.ok(vocab.blocks.length > 5);
       assert.ok(vocab.print_themes.includes("document"));

@@ -38,6 +38,7 @@ const ROUTES: [method: string, path: string][] = [
   ["get", "/reports"],
   ["post", "/reports"],
   ["get", "/reports/{id}"],
+  ["get", "/reports/{id}/sample"],
   ["patch", "/reports/{id}"],
   ["delete", "/reports/{id}"],
   ["post", "/reports/{id}/publish"],

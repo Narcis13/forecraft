@@ -17,5 +17,6 @@ html(lang="en" data-skin=page.skin ?? false data-accent=page.accent ?? false dat
     a(href="#main") Skip to content
     block body
     script(src="/ui/core/faqir-core.js" defer data-manual)
+    script(src="/kbd.js" defer)
     block scripts
     script(src="/boot.js" defer)

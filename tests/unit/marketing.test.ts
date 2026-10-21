@@ -48,6 +48,26 @@ describe("marketing site", () => {
     assert.doesNotMatch(r.html, /\sclass=/);
   });
 
+  test("every hero is there on first paint: no load entrance that starts at opacity 0", async () => {
+    for (const path of ["/", "/pricing", "/for-agents", "/docs"]) {
+      const r = await get(path);
+      const hero = r.html.match(/<section data-ui="hero"[^>]*>/)?.[0];
+      assert.ok(hero, `${path} has a hero`);
+      assert.doesNotMatch(hero, /data-animate/, `${path} hero renders visible`);
+    }
+  });
+
+  test("sign-up and sign-in wear the marketing skin and bar, with no fade-in", async () => {
+    for (const path of ["/signup", "/signin"]) {
+      const r = await get(path);
+      assert.equal(r.status, 200);
+      assert.match(r.html, /<html[^>]*data-skin="midnight"[^>]*data-theme="dark"/, `${path} is midnight, dark`);
+      assert.match(r.html, /data-ui="site-header"/);
+      assert.doesNotMatch(r.html, /data-ui="reveal"/);
+    }
+    assert.doesNotMatch((await get("/signup")).html, /an API key, and forms/, "the copy promises only what the dashboard delivers");
+  });
+
   test("/pricing has one live tier and two coming soon", async () => {
     const r = await get("/pricing");
     assert.equal(r.status, 200);

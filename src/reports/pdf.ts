@@ -10,6 +10,7 @@
 
 import { chromium, type Browser, type BrowserContext, type Route } from "playwright-core";
 import { readFile } from "node:fs/promises";
+import { Problem } from "../api/http.ts";
 import { extname, join, normalize, sep } from "node:path";
 
 export const ORIGIN = "https://render.forecraft.invalid";
@@ -48,9 +49,30 @@ export type AssetLookup = (id: string) => { bytes: Uint8Array; type: string } | 
 
 let browser: Promise<Browser> | null = null;
 
+/** What `npm install` does not do: fetch the Chromium build playwright-core drives. */
+export const INSTALL_COMMAND = "npx playwright install --only-shell chromium";
+
+/** FORECRAFT_CHROMIUM names a Chromium of your own; else playwright-core's. */
+const executable = () => process.env.FORECRAFT_CHROMIUM || undefined;
+
+/** The renderer cannot start: a 503 that says how to fix it, on every route that prints. */
+export function browserProblem(err: unknown): Problem {
+  const message = String(err instanceof Error ? err.message : err);
+  const missing = /executable doesn't exist|executable does not exist|ENOENT|not found|playwright install/i.test(message);
+  return missing
+    ? new Problem(503, "renderer-not-installed", "The PDF renderer is not installed", `Chromium for playwright-core is not installed on this server. Run \`${INSTALL_COMMAND}\`, then try again.`)
+    : new Problem(503, "renderer-unavailable", "The PDF renderer could not start", `Chromium did not start: ${message.split("\n")[0]!.slice(0, 300)}. If it is missing, run \`${INSTALL_COMMAND}\`.`);
+}
+
+/** `null` once Chromium has started (it then stays warm), else why it cannot: for one line at boot. */
+export function browserCheck(): Promise<string | null> {
+  return getBrowser().then(() => null, (err: unknown) => (err instanceof Problem ? err.message : browserProblem(err).message));
+}
+
 function getBrowser(): Promise<Browser> {
   if (!browser) {
-    browser = chromium.launch({ headless: true, args: ["--disable-gpu", "--font-render-hinting=none"] });
+    browser = chromium.launch({ headless: true, executablePath: executable(), args: ["--disable-gpu", "--font-render-hinting=none"] })
+      .catch((err: unknown) => { throw browserProblem(err); });
     browser.then((b) => b.on("disconnected", () => { browser = null; }), () => { browser = null; });
   }
   return browser;

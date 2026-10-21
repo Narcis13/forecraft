@@ -57,7 +57,7 @@ block body
               | Made with
               a(data-ui="link" href="/") forecraft
               | — forms your agent can build.
-    div(hidden data-form-config data-action=page.action data-redirect=page.redirect ?? "" data-preview=page.preview ? "true" : "false")
+    div(hidden data-form-config data-action=page.action data-redirect=page.redirect ?? "" data-preview=page.preview ? "true" : "false" data-wording=tojson(page.wording) data-dates=tojson(page.dates))
 
 block scripts
   script(src="/ui/core/plugins/faqir-validate.js" defer)

@@ -78,7 +78,9 @@ export interface MoneySpec {
   prices?: "net" | "gross"; rounding?: "line" | "total"; paid?: string;
 }
 
-export type Source = { kind: "data" } | { kind: "submission"; form: string } | { kind: "summary"; form: string };
+export type Source = { kind: "data" } | { kind: "submission"; form: string } | { kind: "summary"; form: string } | { kind: "submissions"; form: string };
+
+export const SOURCE_KINDS = ["data", "submission", "summary", "submissions"] as const;
 
 export interface Block { id: string; block: string; when?: string; keep?: "together" | "with-next"; [prop: string]: unknown }
 
@@ -180,9 +182,9 @@ export const BLOCKS: Record<string, BlockSpec> = {
     example: { id: "pay", block: "callout", title: "How to pay", markdown: "Transfer {{ money(doc.money.due) }} to {{ iban(seller.iban) }}, reference {{ doc.number ?? \"—\" }}." },
   },
   stats: {
-    group: "content", does: "KPI figures: a label, a value and an optional change.",
+    group: "content", does: "KPI figures: a label, a value and an optional change; trend (up, down, neutral) colours the change, so leave it out of a figure that has none.",
     props: { items: { ...list(obj({ label: req(text), value: req(text), change: text, trend: oneOf("up", "down", "neutral") }), 6, 1), required: true } },
-    example: { id: "kpis", block: "stats", items: [{ label: "Revenue", value: "{{ money(revenue) }}", change: "+18% y/y", trend: "up" }] },
+    example: { id: "kpis", block: "stats", items: [{ label: "Revenue", value: "{{ money(revenue) }}" }, { label: "Orders", value: "{{ number(orders) }}", change: "+18% y/y", trend: "up" }] },
   },
   bars: {
     group: "content", does: "Shares and distributions as labelled bars with their figures.",
@@ -571,8 +573,8 @@ function checkNumbering(n: unknown, errors: FieldError[]): void {
 
 function checkSource(s: unknown, errors: FieldError[]): void {
   if (s === undefined) return;
-  if (!isRecord(s) || !["data", "submission", "summary"].includes(s.kind as string)) {
-    errors.push({ pointer: "/source", detail: '{ "kind": "data" }, { "kind": "submission", "form": "frm_…" } or { "kind": "summary", "form": "frm_…" }.' });
+  if (!isRecord(s) || !(SOURCE_KINDS as readonly string[]).includes(s.kind as string)) {
+    errors.push({ pointer: "/source", detail: '{ "kind": "data" }, { "kind": "submission", "form": "frm_…" }, { "kind": "summary", "form": "frm_…" } or { "kind": "submissions", "form": "frm_…" }.' });
     return;
   }
   for (const k of Object.keys(s)) if (k !== "kind" && k !== "form") errors.push({ pointer: `/source/${esc(k)}`, detail: "Unknown key. Takes kind and form." });

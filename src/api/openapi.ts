@@ -4,7 +4,7 @@
 // the renderer's README, not re-modelled here.
 
 import { ACCENTS, LAYOUTS, SCHEMES, THEMES } from "../forms/model.ts";
-import { BLOCKS, DENSITIES, LOCALES, MARGINS, ORIENTATIONS, PAPERS, PRINT_THEMES, TYPE_PAIRINGS } from "../reports/model.ts";
+import { BLOCKS, DENSITIES, LOCALES, MARGINS, ORIENTATIONS, PAPERS, PRINT_THEMES, SOURCE_KINDS, TYPE_PAIRINGS } from "../reports/model.ts";
 import { PREFLIGHT_CODES } from "../reports/preflight.ts";
 
 type Obj = Record<string, unknown>;
@@ -366,11 +366,38 @@ export function openapi(baseUrl: string): Obj {
           },
         },
       },
+      "/reports/{id}/sample": {
+        parameters: [REPORT_ID],
+        get: {
+          operationId: "getReportSample", tags: ["reports"], summary: "The data the report designs against",
+          description: "For a `summary` or `submissions` source: the data computed from the bound form's real submissions (in `since`–`until` when given), or, while the form has none at all, from made-up submissions shaped like its questions (`origin: synthetic`). For `submission`: the latest answers with the form's schema. For `data`: the definition's sample. `form` and `kind` override the saved source, for a working copy not saved yet. `schema` is the data's JSON Schema with the report's title. Nothing is stored or printed.",
+          parameters: [
+            { name: "form", in: "query", description: "A form (frm_…) instead of the saved source's.", schema: { type: "string", pattern: "^frm_" } },
+            { name: "kind", in: "query", description: "A source kind instead of the saved one.", schema: { type: "string", enum: [...SOURCE_KINDS] } },
+            { name: "since", in: "query", description: "Period start (YYYY-MM-DD), summary and submissions.", schema: { type: "string", format: "date" } },
+            { name: "until", in: "query", description: "Period end (YYYY-MM-DD), inclusive.", schema: { type: "string", format: "date" } },
+          ],
+          responses: {
+            "200": jsonResponse("The data, its schema and where it came from.", {
+              type: "object",
+              properties: {
+                data: { type: "object", additionalProperties: true },
+                schema: { type: "object", description: "JSON Schema (root type object) of `data`.", additionalProperties: true },
+                origin: { type: "string", enum: ["submissions", "synthetic", "definition"], description: "submissions: real answers; synthetic: made up, the form has none yet; definition: the definition's sample." },
+                count: { type: "integer", description: "How many real submissions the data comes from (0 when synthetic)." },
+                source: { type: "object", properties: { kind: { type: "string", enum: [...SOURCE_KINDS] }, form: { type: "string" } }, required: ["kind"] },
+              },
+              required: ["data", "schema", "origin", "count", "source"],
+            }),
+            "404": problemRef("NotFound"), "422": problemRef("Invalid"), ...AUTH_ERRORS,
+          },
+        },
+      },
       "/reports/{id}/preview": {
         parameters: [REPORT_ID],
         post: {
           operationId: "previewReport", tags: ["reports"], summary: "Render the draft and run preflight; nothing is stored",
-          description: "Prints the saved draft (or `definition` from the body) with `data` (default: the report's sample), a `submission` or a summary `period`. `format` png (default) answers JSON with the preflight `findings` and base64 PNG `images`; pdf answers the PDF itself with `Preflight-Errors` and `Preflight-Warnings` headers; html answers JSON with the page's HTML. Fix every finding with severity error before publishing. Shares the render rate limit (30/min).",
+          description: "Prints the saved draft (or `definition` from the body) with `data` (default: the report's sample), a `submission` or a `period`. A summary or submissions report previews the bound form's real submissions (the period's, when given), or made-up ones shaped like its questions while it has none. `format` png (default) answers JSON with the preflight `findings` and base64 PNG `images`; pdf answers the PDF itself with `Preflight-Errors` and `Preflight-Warnings` headers; html answers JSON with the page's HTML. Fix every finding with severity error before publishing. Shares the render rate limit (30/min).",
           requestBody: jsonBody(ref("PreviewRequest"), false),
           responses: {
             "200": {
@@ -566,7 +593,7 @@ export function openapi(baseUrl: string): Obj {
         Conflict: { description: "State conflict (slug taken, form closed/full/unpublished).", content: { "application/problem+json": { schema: ref("Problem") } } },
         Invalid: { description: "The request, definition or submission is invalid; `errors[]` names each fault.", content: { "application/problem+json": { schema: ref("Problem") } } },
         RendererBusy: {
-          description: "The renderer is busy (`renderer-busy`) or failed to print (`render-failed`). Retry after `Retry-After` seconds.",
+          description: "The renderer is busy (`renderer-busy`) or failed to print (`render-failed`): retry after `Retry-After` seconds. Or it is not installed on the server (`renderer-not-installed`, whose detail says to run `npx playwright install --only-shell chromium`) or could not start (`renderer-unavailable`).",
           headers: { "Retry-After": { schema: { type: "integer" }, description: "Seconds to wait." } },
           content: { "application/problem+json": { schema: ref("Problem") } },
         },
@@ -638,7 +665,7 @@ export function openapi(baseUrl: string): Obj {
             },
             ui: {
               type: "object",
-              description: "Faqir UI schema. Per-field keys: widget (textarea, radio, select, switch, checkbox-group, multi-select, scale, ...), placeholder, rows, enumLabels, width (full|half|third), orientation, minLabel/maxLabel (scale), addLabel, removeLabel, items (repeatable row UI). Root keys: ui:groups [{title, description?, fields}] or ui:wizard {label, steps[{title, description?, fields, when?}]}).",
+              description: "Faqir UI schema. Per-field keys: widget (textarea, radio, select, switch, checkbox-group, multi-select, scale, ...), placeholder, rows, enumLabels, width (full|half|third), orientation, minLabel/maxLabel (scale), addLabel, removeLabel, items (repeatable row UI); forecraft adds prefix/suffix (number units) and verbatim (long text a summary may quote). Root keys: ui:groups [{title, description?, fields}] or ui:wizard {label, steps[{title, description?, fields, when?}]}).",
               additionalProperties: true,
             },
             rules: {
@@ -815,7 +842,9 @@ export function openapi(baseUrl: string): Obj {
             numbering: { type: "object", additionalProperties: true },
             money: { type: "object", additionalProperties: true },
             sources: { type: "array", items: { type: "object", additionalProperties: true } },
-            summary_shape: { type: "object", description: "The JSON Schema of the data a summary report prints.", additionalProperties: true },
+            summary_shape: { type: "object", description: "The JSON Schema of the data a summary report prints. Every share in it is a percentage on the 0–100 scale.", additionalProperties: true },
+            submissions_shape: { type: "object", description: "The JSON Schema of the data a submissions (register) report prints.", additionalProperties: true },
+            units: { type: "object", description: "What the numbers mean: share is 0–100; percent(value) reads value on the 0–100 scale.", additionalProperties: { type: "string" } },
             preflight_codes: { type: "array", items: ref("PreflightCode") },
           },
           required: ["blocks", "print_themes", "type_pairings", "papers", "preflight_codes"],
@@ -830,7 +859,7 @@ export function openapi(baseUrl: string): Obj {
           properties: {
             id: { type: "string" }, title: { type: "string" }, description: { type: "string" },
             theme: { type: "string" }, paper: { type: "string" },
-            source: { type: "string", enum: ["data", "submission", "summary"] },
+            source: { type: "string", enum: [...SOURCE_KINDS] },
             needsForm: { type: "boolean", description: "true: `form` (frm_…) is required to create a report from it." },
             blocks: { type: "array", items: { type: "string" } },
           },
@@ -895,8 +924,8 @@ export function openapi(baseUrl: string): Obj {
             labels: { type: "object", additionalProperties: { type: "string" } },
             source: {
               type: "object",
-              description: "Where the data comes from: `data` (JSON you send), `submission` (a form's submission) or `summary` (a form's answers over a period).",
-              properties: { kind: { type: "string", enum: ["data", "submission", "summary"] }, form: { type: "string", description: "frm_… (submission and summary)." } },
+              description: "Where the data comes from: `data` (JSON you send), `submission` (a form's submission), `summary` (a form's answers over a period, aggregated) or `submissions` (a register: one row per submission in a period).",
+              properties: { kind: { type: "string", enum: [...SOURCE_KINDS] }, form: { type: "string", description: "frm_… (every kind but data)." } },
               required: ["kind"],
               additionalProperties: false,
             },
@@ -911,7 +940,7 @@ export function openapi(baseUrl: string): Obj {
             title: { type: "string" },
             appearance: ref("ReportAppearance"),
             sample: { type: "object", description: "Each top-level key replaces the starter's sample key, e.g. a whole { seller: { … } }.", additionalProperties: true },
-            form: { type: "string", description: "frm_… for the confirmation and survey-summary starters." },
+            form: { type: "string", description: "frm_… for the confirmation, survey-summary and submissions-register starters. A summary's or register's sample is then that form's data." },
           },
           required: ["starter"],
           additionalProperties: false,

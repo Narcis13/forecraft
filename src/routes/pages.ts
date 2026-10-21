@@ -10,12 +10,14 @@ import {
 } from "../auth/index.ts";
 import type { DB } from "../db/index.ts";
 import { clientIp, type Env, ipHash, sameOrigin, take } from "../api/http.ts";
-import { ACCENTS, compileForm, DEFAULT_APPEARANCE, THEMES } from "../forms/model.ts";
+import { ACCENTS, compileForm, DEFAULT_APPEARANCE, STARTER_DEFINITION } from "../forms/model.ts";
+import { THEME_INFO } from "../forms/themes.ts";
 import { renderFormPage } from "../forms/page.ts";
 import {
   countSubmissions, getForm, getVersion, listForms, listSubmissions, listVersions, toResource, type FormRow,
 } from "../forms/store.ts";
-import { page } from "../render/index.ts";
+import { HELPERS, page } from "../render/index.ts";
+import { SKIN } from "./marketing.ts";
 import { reportPageRoutes } from "./report-pages.ts";
 
 export type PageEnv = Env & { Variables: { user: { id: string; email: string; name: string } } };
@@ -35,12 +37,15 @@ export function pageRoutes(db: DB) {
     !take(`auth-ip:${ipHash(db, clientIp(c))}`, 30).ok || !take(`auth-email:${email.trim().toLowerCase()}`, 10).ok;
   const TOO_MANY = "Too many attempts. Wait a minute and try again.";
 
+  // The auth pages wear the marketing site's skin: they are its next step.
   const authPage = (mode: "login" | "register", extra: Record<string, unknown> = {}) =>
     page("pages/auth.faqir", {
       page: {
+        skin: SKIN,
+        scheme: "dark",
         mode,
         heading: mode === "login" ? "Welcome back" : "Create your workspace",
-        lede: mode === "login" ? "Sign in to your forms, keys and submissions." : "One workspace, an API key, and forms your agent can build. Free while in prototype.",
+        lede: mode === "login" ? "Sign in to your forms, keys and submissions." : "One workspace and forms your agent can build. Your API key is one click away on the first screen. Free while in prototype.",
         action: mode === "login" ? "/signin" : "/signup",
         submit: mode === "login" ? "Sign in" : "Create account",
         error: null,
@@ -171,7 +176,10 @@ export function pageRoutes(db: DB) {
       responses: forms.reduce((n, f) => n + f.responses, 0),
     };
     return c.html(page("pages/app/forms.faqir", {
-      page: shell(c, "forms", "Forms", { forms, totals, workspace: ws.name, origin: new URL(c.req.url).origin }),
+      page: shell(c, "forms", "Forms", {
+        forms, totals, workspace: ws.name, origin: new URL(c.req.url).origin,
+        needsKey: !listApiKeys(db, c.var.principal.workspaceId).some((k) => !k.revoked_at),
+      }),
     }));
   });
 
@@ -235,34 +243,40 @@ export function pageRoutes(db: DB) {
     const q = c.req.query("q") ?? "";
     const version = c.req.query("version") ?? "";
     const { items, total } = listSubmissions(db, row.id, { q: q || undefined, version: version ? Number(version) : undefined, limit: 200 });
-    const columns = compiled.fields.slice(0, 4);
-    const schemaProps = compiled.definition.schema.properties as Record<string, { title?: string; type?: string; items?: { properties?: Record<string, { title?: string }> } }>;
+    const props = compiled.definition.schema.properties as Record<string, SchemaProp>;
+    const ui = (compiled.definition.ui ?? {}) as Record<string, UiOptions>;
+    const fields = compiled.fields.map((f) => ({ ...f, kind: answerKind(props[f.name], ui[f.name]) }));
+    // Every field is a column; the first four that read well in one line are shown
+    // until the person picks their own (public/app.js remembers that per form).
+    const shown = new Set(fields.filter((f) => f.kind === "short").slice(0, 4).map((f) => f.name));
     const rows = items.map((s) => ({
       id: s.id,
       created: s.created_at,
       version: s.version,
-      cells: columns.map((col) => s.data[col.name] ?? null),
-      answers: compiled.fields.filter((f) => s.data[f.name] !== undefined).map((f) => {
+      cells: fields.map((f) => readable(s.data[f.name], props[f.name], ui[f.name])),
+      answers: fields.filter((f) => s.data[f.name] !== undefined).map((f) => {
         const value = s.data[f.name];
-        const prop = schemaProps[f.name];
-        const rowProps = prop?.items?.properties;
-        if (Array.isArray(value) && rowProps && value.every((x) => x && typeof x === "object")) {
+        const rowProps = props[f.name]?.items?.properties;
+        if (f.kind === "rows" && Array.isArray(value) && rowProps) {
           const heads = Object.keys(rowProps);
+          const rowUi = ui[f.name]?.items ?? {};
           return {
             label: f.title,
+            wide: true,
             table: {
               head: heads.map((h) => rowProps[h]?.title ?? h),
-              rows: value.map((row) => heads.map((h) => (row as Record<string, unknown>)[h] ?? "")),
+              rows: value.map((r) => heads.map((h) => readable((r as Record<string, unknown>)[h], rowProps[h], rowUi[h]))),
             },
           };
         }
-        return { label: f.title, value };
+        return { label: f.title, wide: f.kind === "long", value: readable(value, props[f.name], ui[f.name]) };
       }),
     }));
     const exportQuery = (q ? `&q=${encodeURIComponent(q)}` : "") + (version ? `&version=${encodeURIComponent(version)}` : "");
     return c.html(page("pages/app/form-submissions.faqir", {
       page: formPage(c, row, "submissions", {
-        columns, rows, total, q, version,
+        columns: fields.map((f) => ({ name: f.name, title: f.title, shown: shown.has(f.name) })),
+        rows, total, q, version,
         versions: listVersions(db, row.id).map((v) => ({ value: String(v.version), label: `Version ${v.version}`, selected: String(v.version) === version })),
         csvHref: `/api/v1/forms/${row.id}/submissions/export?format=csv${exportQuery}`,
         jsonHref: `/api/v1/forms/${row.id}/submissions/export?format=json${exportQuery}`,
@@ -312,16 +326,23 @@ export function pageRoutes(db: DB) {
     return c.html(page("pages/app/form-versions.faqir", { page: formPage(c, row, "versions", { versions }) }));
   });
 
-  /** The drag-and-drop designer. It loads and saves the definition through /api/v1. */
+  /**
+   * The drag-and-drop designer. It loads and saves the definition through /api/v1.
+   * `/app/forms/new/design` opens it on a starter definition that is not stored
+   * yet: the form is created by the first change, so a visit that changes
+   * nothing leaves no "Untitled form" behind.
+   */
   app.get("/app/forms/:id/design", (c) => {
-    const row = mustForm(c);
-    if (!row) return c.notFound();
+    const fresh = c.req.param("id") === "new";
+    const row = fresh ? undefined : mustForm(c);
+    if (!fresh && !row) return c.notFound();
     return c.html(page("pages/app/designer.faqir", {
       page: {
-        formId: row.id,
-        slug: row.slug,
-        title: (JSON.parse(row.definition) as { schema: { title: string } }).schema.title,
-        themes: THEMES,
+        formId: row?.id ?? "",
+        slug: row?.slug ?? "",
+        title: row ? (JSON.parse(row.definition) as { schema: { title: string } }).schema.title : STARTER_DEFINITION.schema.title,
+        starter: row ? null : STARTER_DEFINITION,
+        themes: THEME_INFO,
         accents: ACCENTS,
         defaults: DEFAULT_APPEARANCE,
       },
@@ -359,4 +380,58 @@ export function pageRoutes(db: DB) {
   });
 
   return app;
+}
+
+// ── Answers as people read them ─────────────────────────────────────────────
+
+interface SchemaProp {
+  title?: string;
+  type?: string;
+  format?: string;
+  enum?: unknown[];
+  items?: { enum?: unknown[]; properties?: Record<string, SchemaProp> };
+  properties?: Record<string, SchemaProp>;
+}
+interface UiOptions { widget?: string; enumLabels?: string[]; items?: Record<string, UiOptions> }
+
+/** How an answer is shown: in one table cell ("short"), across the detail view ("long", "rows"). */
+function answerKind(prop: SchemaProp | undefined, ui: UiOptions | undefined): "short" | "long" | "rows" | "group" {
+  if (prop?.type === "array" && prop.items?.properties) return "rows";
+  if (prop?.type === "object") return "group";
+  if (ui?.widget === "textarea") return "long";
+  return "short";
+}
+
+const NUMBER = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 6 });
+
+/**
+ * One answer as text, the way the rest of the dashboard writes things: dates as
+ * "3 Dec 2026", booleans as Yes / No, choices by their label, numbers grouped.
+ * Repeatable rows count themselves here; the detail view draws them as a table.
+ */
+function readable(value: unknown, prop: SchemaProp | undefined, ui: UiOptions | undefined): string {
+  if (value === undefined || value === null || value === "") return "—";
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (typeof value === "number") return NUMBER.format(value);
+  const label = (v: unknown, choices: unknown[] | undefined) => {
+    const i = choices ? choices.indexOf(v) : -1;
+    return i >= 0 && ui?.enumLabels?.[i] ? ui.enumLabels[i]! : String(v);
+  };
+  if (typeof value === "string") {
+    if (prop?.format === "date" && /^\d{4}-\d{2}-\d{2}$/.test(value)) return HELPERS.date(value);
+    if (prop?.format === "date-time" && !Number.isNaN(Date.parse(value))) return HELPERS.datetime(value);
+    return label(value, prop?.enum);
+  }
+  if (Array.isArray(value)) {
+    if (value.length === 0) return "—";
+    if (value.every((x) => x && typeof x === "object")) return HELPERS.plural(value.length, "row");
+    return value.map((x) => label(x, prop?.items?.enum)).join(", ");
+  }
+  if (typeof value === "object") {
+    const sub = prop?.properties ?? {};
+    return Object.entries(value as Record<string, unknown>)
+      .map(([k, v]) => `${sub[k]?.title ?? k}: ${readable(v, sub[k], (ui as Record<string, UiOptions> | undefined)?.[k])}`)
+      .join("; ");
+  }
+  return String(value);
 }

@@ -458,3 +458,11 @@
 /* Bars run from the half line; the values end on the right margin. */
 [data-report-bar] { grid-template-columns: calc(50% + var(--space-6) / 2 - 3mm) 1fr 19mm; }
 [data-report-bar] [data-report-figure] { justify-self: end; text-align: end; }
+/* A block's title stays with its body (UX audit #38): an eyebrow title never
+   ends a page, and a bars block moves as one, its title with its first bar. */
+[data-report-block] [data-ui="text"][data-variant="eyebrow"] { break-after: avoid; }
+[data-report-block="bars"] { break-inside: avoid; }
+/* A value the data lacks prints as ‹path› (UX audit #36): it wraps inside its
+   own stat instead of running into the next one. */
+[data-report-block="stats"] [data-ui="stat"] { min-inline-size: 0; }
+[data-report-block="stats"] [data-ui="stat"] > [data-part] { min-inline-size: 0; overflow-wrap: anywhere; }

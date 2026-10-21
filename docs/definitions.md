@@ -78,6 +78,8 @@ A JSON Schema whose root is `"type": "object"`. The root `title` is the form's t
 
 Per field you may use `title`, `description`, `default`, `examples` (the first becomes the placeholder), `const`, `minLength`, `maxLength`, `pattern`, `minimum`, `maximum` and `multipleOf`. A top-level `required` array marks required fields; a nested object has its own.
 
+A date field (`format: "date"`) may also carry `formatMinimum` and `formatMaximum`, the earliest and latest date as `YYYY-MM-DD`. The browser and the server both refuse a date outside them.
+
 Conditional keywords are understood and become rules: `if` / `then` / `else` (and `allOf` of them) decide which fields are shown and required, and `dependentRequired` requires fields once a trigger is filled in. See [rules](/docs/rules).
 
 ## `ui`
@@ -94,6 +96,8 @@ Mirrors the schema: a key per field, with these options.
 | `orientation` | radio / checkbox-group | `"vertical"` (default) or `"horizontal"` |
 | `minLabel`, `maxLabel` | `scale` widget | captions under the first and last choice |
 | `addLabel`, `removeLabel`, `items` | repeatable groups | `"Add another role"`; `items` is per-column UI (including `width`) |
+| `prefix`, `suffix` | `number` / `integer` | `"€"`, `"seats"` — a unit shown inside the input (at most 12 characters) |
+| `verbatim` | a long-text field (`"widget": "textarea"`) | `true` lets a survey summary quote its answers word for word |
 
 Two root keys arrange the top-level fields. Use one or the other; every field must appear exactly once.
 
@@ -125,7 +129,7 @@ The 31 themes: `aurora`, `brutalist`, `candy`, `clay`, `clinical`, `contrast`, `
 
 - Creating or patching a form changes its **draft**. `has_unpublished_changes` says whether the draft differs from what is live.
 - `POST /api/v1/forms/:id/publish` snapshots the draft as the next **version**. The public URL `/f/<slug>` always serves the latest published version, and every submission records the version it was made against.
-- A **slug** is 3–64 characters of lowercase letters, digits and dashes. Leave it out and one is made from the title.
+- A **slug** is 3–64 characters of lowercase letters, digits and dashes. Leave it out and one is made from the title, and until the form is first published it follows the title: retitle "Untitled form" to "Workshop orders" and `untitled-form-088f77` becomes `workshop-orders-088f77`. A slug you chose, and the slug of a published form, never change on their own.
 
 ## Errors in a definition
 

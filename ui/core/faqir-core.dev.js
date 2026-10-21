@@ -3028,6 +3028,8 @@ function createCalendar(root) {
 
   const today = new Date();
   const mode = root.dataset.mode === "range" ? "range" : "single";
+  /* forecraft patch: see FAQIR-UPSTREAM.md #53 */
+  const weekStart = Math.min(6, Math.max(0, Number(root.dataset.weekStart) || 0));
 
   let minDate = parseISO(root.dataset.min);
   let maxDate = parseISO(root.dataset.max);
@@ -3100,7 +3102,8 @@ function createCalendar(root) {
   function buildGrid() {
     // First day of the displayed month
     const firstDay = new Date(viewYear, viewMonth, 1);
-    const startDow = firstDay.getDay(); // 0=Sun
+    // forecraft patch: see FAQIR-UPSTREAM.md #53 — the week starts on data-week-start (0=Sun … 6=Sat).
+    const startDow = (firstDay.getDay() - weekStart + 7) % 7; // 0=Sun
 
     // Last day of the displayed month
     const lastDay = new Date(viewYear, viewMonth + 1, 0);
@@ -3427,11 +3430,11 @@ function createCalendar(root) {
         break;
       case "Home":
         e.preventDefault();
-        if (focusedDate) moveFocus(-focusedDate.getDay());
+        if (focusedDate) moveFocus(-((focusedDate.getDay() - weekStart + 7) % 7)); /* forecraft patch: see FAQIR-UPSTREAM.md #53 */
         break;
       case "End":
         e.preventDefault();
-        if (focusedDate) moveFocus(6 - focusedDate.getDay());
+        if (focusedDate) moveFocus(6 - ((focusedDate.getDay() - weekStart + 7) % 7)); /* forecraft patch: see FAQIR-UPSTREAM.md #53 */
         break;
       case "PageUp":
         e.preventDefault();
