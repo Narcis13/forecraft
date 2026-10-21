@@ -43,7 +43,7 @@ html(lang="en")
             span(data-part="nav-label") Docs
         div(data-part="sidebar-user")
           div(data-ui="stack" data-gap="2")
-            span(data-part="sidebar-user-name") {{ page.user.email }}
+            span(data-part="sidebar-user-name" title=page.user.email) {{ page.user.email }}
             form(method="post" action="/signout")
               button(type="submit" data-ui="button" data-variant="ghost" data-size="sm")
                 span(data-ui="icon" data-icon="log-out" aria-hidden="true")
@@ -51,13 +51,13 @@ html(lang="en")
       header(data-part="header" role="banner")
         button(type="button" data-ui="button" data-variant="ghost" data-part="sidebar-toggle" aria-label="Toggle navigation" aria-controls="app-sidebar" :aria-expanded="nav ? 'true' : 'false'" @click="nav = !nav")
           span(data-ui="icon" data-icon="menu" aria-hidden="true")
-        div(data-ui="cluster" data-gap="3")
+        div(data-ui="cluster" data-gap="3" data-app-title)
           block header
             h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.heading }}
         div(data-part="header-actions")
           button(type="button" data-ui="button" data-variant="outline" data-size="sm" data-palette-button aria-label="Open the command palette" @click="$ui('#palette').open()")
             span(data-ui="icon" data-icon="search" aria-hidden="true")
-            kbd(data-ui="kbd") Ctrl K
+            kbd(data-ui="kbd" data-shortcut-hint) Ctrl K
           block actions
       main#main(data-part="content" role="main")
         block content
@@ -79,6 +79,7 @@ html(lang="en")
     div#toasts(data-ui="toast" data-variant="bottom-right" data-part="container" role="region" aria-label="Notifications")
     block dialogs
     script(src="/ui/core/faqir-core.js" defer data-manual)
+    script(src="/kbd.js" defer)
     script(src="/app.js" defer)
     block scripts
     script(src="/boot.js" defer)

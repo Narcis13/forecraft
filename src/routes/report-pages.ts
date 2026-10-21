@@ -4,10 +4,12 @@
 import type { Context, Hono } from "hono";
 import type { DB } from "../db/index.ts";
 import { listForms } from "../forms/store.ts";
+import { THEME_INFO } from "../forms/themes.ts";
 import { page } from "../render/index.ts";
 import { BLOCKS, DEFAULT_APPEARANCE, DENSITIES, LOCALES, MARGINS, ORIENTATIONS, PAPERS, PRINT_THEMES, TYPE_PAIRINGS, type ReportDefinition } from "../reports/model.ts";
 import { renderDocument, versionThumbnail } from "../reports/service.ts";
 import { HELPER_DOCS } from "../reports/helpers.ts";
+import { labelsFor } from "../reports/labels.ts";
 import { listStarters } from "../reports/starters.ts";
 import { getDocument, getReport, listDocuments, listReportVersions, listReports, toReportResource, type DocStatus, type DocumentRow, type ReportRow } from "../reports/store.ts";
 import type { PageEnv } from "./pages.ts";
@@ -21,6 +23,13 @@ const STATUS = {
   issued: { label: "Issued", variant: "success" },
   void: { label: "Void", variant: "destructive" },
 } as const;
+
+const SOURCE_LABELS: Record<string, string> = {
+  data: "Data sent with each document",
+  submission: "A submission of a form",
+  summary: "A summary of a form's submissions",
+  submissions: "A register of a form's submissions",
+};
 
 export function reportPageRoutes(app: Hono<PageEnv>, db: DB, shell: Shell) {
   const ws = (c: Context<PageEnv>) => c.var.principal.workspaceId;
@@ -40,8 +49,10 @@ export function reportPageRoutes(app: Hono<PageEnv>, db: DB, shell: Shell) {
       statusLabel: r.published_version === null ? "Draft" : `Live · v${r.published_version}${r.has_unpublished_changes ? " · edits" : ""}`,
       statusVariant: r.published_version === null ? "secondary" : "success",
       thumbnail: r.published_version !== null ? `/app/reports/${r.id}/thumbnail.png?v=${r.published_version}` : null,
-      sourceLabel: def.source?.kind === "submission" ? "A submission of a form" : def.source?.kind === "summary" ? "A summary of a form's submissions" : "Data sent with each document",
+      sourceLabel: SOURCE_LABELS[def.source?.kind ?? "data"] ?? SOURCE_LABELS.data,
       numbering: def.numbering?.manual ? "typed by hand" : def.numbering?.pattern ?? "{seq}",
+      // The documents filter's hint, in this report's own numbering: SUM-2026-…
+      numberHint: def.numbering?.manual ? "Number…" : (def.numbering?.pattern ?? "{seq}").replace("{YYYY}", String(new Date().getFullYear())).replace(/\{seq[^}]*\}.*$/, "…").replace(/\{[^}]*\}/g, "…"),
       paper: `${(def.appearance?.paper ?? "a4").toUpperCase()} ${def.appearance?.orientation ?? "portrait"}`,
       theme: def.appearance?.theme ?? "document",
     };
@@ -152,10 +163,13 @@ export function reportPageRoutes(app: Hono<PageEnv>, db: DB, shell: Shell) {
     if (!d) return c.notFound();
     const row = getReport(db, ws(c), d.report_id)!;
     const origin = new URL(c.req.url).origin;
+    // A draft is headed by its title ("Workshop orders — May"), without the "Draft" its badge already says.
+    const draft = labelsFor(d.locale).draft;
+    const heading = d.number ?? (d.title.endsWith(` ${draft}`) ? d.title.slice(0, -draft.length - 1) : d.title);
     return c.html(page("pages/app/document.faqir", {
-      page: shell(c, "documents", d.number ?? "Draft", {
+      page: shell(c, "documents", heading, {
         doc: {
-          id: d.id, number: d.number, title: d.title, status: d.status, statusLabel: STATUS[d.status].label, statusVariant: STATUS[d.status].variant,
+          id: d.id, number: d.number, title: d.title, heading, status: d.status, statusLabel: STATUS[d.status].label, statusVariant: STATUS[d.status].variant,
           report: (JSON.parse(row.definition) as ReportDefinition).schema.title, version: d.version, issued: d.issued_at, voided: d.voided_at, voidReason: d.void_reason,
           pages: d.pages, locale: d.locale, currency: d.currency, sha: d.pdf_sha256, shareUrl: `${origin}/d/${d.share_token}`,
           json: JSON.stringify(JSON.parse(d.data), null, 2),
@@ -187,7 +201,13 @@ export function reportPageRoutes(app: Hono<PageEnv>, db: DB, shell: Shell) {
         groups,
         vocabulary: {
           blocks: Object.fromEntries(Object.entries(BLOCKS).map(([k, s]) => [k, { group: s.group, does: s.does, example: s.example, props: s.props }])),
-          themes: PRINT_THEMES, pairings: Object.entries(TYPE_PAIRINGS).map(([id, p]) => ({ id, label: p.label, note: p.note })),
+          themes: PRINT_THEMES,
+          // "Swiss document", not "swiss-document": the form themes' names where the sets overlap.
+          themeInfo: Object.fromEntries(PRINT_THEMES.map((id) => {
+            const info = THEME_INFO.find((t) => t.id === id);
+            return [id, { name: info?.name ?? id.replace(/-/g, " ").replace(/^./, (ch) => ch.toUpperCase()), note: info?.note ?? "" }];
+          })),
+          pairings: Object.entries(TYPE_PAIRINGS).map(([id, p]) => ({ id, label: p.label, note: p.note })),
           papers: PAPERS, orientations: ORIENTATIONS, margins: MARGINS, densities: DENSITIES, locales: LOCALES, defaults: DEFAULT_APPEARANCE,
           helpers: HELPER_DOCS.map((h) => ({ name: h.name, signature: h.signature })),
         },

@@ -9,12 +9,14 @@ import { Problem } from "../api/http.ts";
 import type { DB } from "../db/index.ts";
 import { getForm, listSubmissions } from "../forms/store.ts";
 import type { ReportDefinition } from "./model.ts";
+import { kindOf, liveDefinition, registerSchema, sourceData, SYSTEM_KEYS, type FieldKind, type FormDef } from "./summary.ts";
 
 const DIR = join(import.meta.dirname, "starters");
 
 export interface StarterInfo { id: string; title: string; description: string; theme: string; paper: string; source: string; needsForm: boolean; blocks: string[] }
 
-const ORDER = ["invoice", "letter", "business-report", "confirmation", "survey-summary", "blank"];
+const ORDER = ["invoice", "letter", "business-report", "confirmation", "survey-summary", "submissions-register", "blank"];
+const FORM_SOURCES = ["submission", "summary", "submissions"];
 
 export function starterIds(): string[] {
   const ids = readdirSync(DIR).filter((f) => f.endsWith(".json")).map((f) => f.slice(0, -5));
@@ -31,7 +33,7 @@ export function listStarters(): StarterInfo[] {
     const d = loadStarter(id);
     return {
       id, title: d.schema.title, description: d.schema.description ?? "", theme: d.appearance?.theme ?? "document", paper: d.appearance?.paper ?? "a4",
-      source: d.source?.kind ?? "data", needsForm: d.source?.kind === "submission" || d.source?.kind === "summary",
+      source: d.source?.kind ?? "data", needsForm: FORM_SOURCES.includes(d.source?.kind ?? "data"),
       blocks: d.layout.map((b) => b.block),
     };
   });
@@ -52,13 +54,19 @@ export function fromStarter(db: DB, workspaceId: string, id: string, opts: Start
     // Each top-level key of the caller's sample replaces the starter's: your seller is all yours.
     def.sample = { ...def.sample, ...(opts.sample as Record<string, unknown>) };
   }
-  if (def.source?.kind === "submission" || def.source?.kind === "summary") {
-    if (typeof opts.form !== "string") throw new Problem(422, "form-required", "Form required", `The ${id} starter ${def.source.kind === "submission" ? "confirms" : "summarises"} a form: send \`form\` (frm_…).`, { errors: [{ pointer: "/form", detail: "Required for this starter." }] });
+  if (def.source && def.source.kind !== "data") {
+    const what = { submission: "confirms", summary: "summarises", submissions: "lists the submissions of" }[def.source.kind];
+    if (typeof opts.form !== "string") throw new Problem(422, "form-required", "Form required", `The ${id} starter ${what} a form: send \`form\` (frm_…).`, { errors: [{ pointer: "/form", detail: "Required for this starter." }] });
     const form = getForm(db, workspaceId, opts.form);
     if (!form) throw new Problem(404, "not-found", "Not found", "No form with that id in this workspace.");
     const kind = def.source.kind;
     def.source = { kind, form: form.id };
     if (kind === "submission") bindForm(def, JSON.parse(form.definition), listSubmissions(db, form.id, { limit: 1 }).items[0]?.data);
+    else {
+      // The sample is this form's data — its answers, or made-up ones shaped like its questions — never the starter's demo.
+      if (kind === "submissions") bindRegister(def, liveDefinition(db, form.id));
+      if (opts.sample === undefined) def.sample = sourceData(db, form.id, kind, {}, { examples: true }).data as unknown as Record<string, unknown>;
+    }
   }
   return def;
 }
@@ -87,6 +95,59 @@ export function bindForm(def: ReportDefinition, form: { schema: { title: string;
   def.schema.description = `Confirmation for “${form.schema.title}”, with the answers, a check-in QR code and a barcode.`;
 }
 
+
+/** Kinds a register prints in a column of its own; the rest (long text, emails, links, lists, groups) would crowd a row. */
+const COLUMN_KINDS: FieldKind[] = ["text", "choice", "scale", "nps", "number", "date", "boolean"];
+
+/**
+ * A register prints a form's submissions: its table's columns become the form's
+ * own — the date, the first few short answers, a total per repeatable group
+ * (its first numeric column) — and its totals row adds up the number columns.
+ */
+export function bindRegister(def: ReportDefinition, form: FormDef): void {
+  const table = def.layout.find((b) => b.id === "register" && b.block === "table");
+  if (!table) return;
+  const fields = Object.entries(form.schema.properties).map(([name, f]) => ({ name, f, kind: kindOf(f, (form.ui?.[name] ?? {}) as { widget?: unknown }) }))
+    .filter(({ name }) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(name) && !SYSTEM_KEYS.includes(name));
+  const columns: Record<string, unknown>[] = [
+    { label: "No.", value: "{{ row.number }}", align: "right", width: "narrow" },
+    { label: "Date", value: "{{ date(row.submitted_at, \"medium\") }}" },
+  ];
+  // One totals row: its figure sits under the first number column (the renderer's rule), so it adds up that one.
+  const footer: { label: string; value: string }[] = [];
+  // Column heads print in one line of spaced capitals: short ones, and no more of them than the page holds.
+  const at = (title: string) => title.length > 20 ? `${title.slice(0, 19).trimEnd()}…` : title;
+  let budget = 64;
+  // The first four short answers in form order — and the first number among them, so the register has a figure to total.
+  const eligible = fields.filter((x) => COLUMN_KINDS.includes(x.kind));
+  let picked = eligible.slice(0, 4);
+  const firstNumber = eligible.find((x) => x.kind === "number");
+  if (firstNumber && !picked.includes(firstNumber)) picked = [...picked.slice(0, 3), firstNumber];
+  for (const { name, f, kind } of picked) {
+    const label = at(f.title ?? name);
+    if ((budget -= label.length + 4) < 0) break;
+    if (kind === "number") {
+      columns.push({ label, value: `{{ row.${name} == null ? "—" : number(row.${name}) }}`, format: "number" });
+      if (!footer.length) footer.push({ label: "Total", value: `{{ number(sum(rows, "${name}")) }}` });
+    } else if (kind === "boolean") columns.push({ label, value: `{{ row.${name} ? label("yes") : label("no") }}` });
+    else if (kind === "date") columns.push({ label, value: `{{ row.${name} == null ? "—" : date(row.${name}, "medium") }}` });
+    else if (kind === "nps" || (kind === "scale" && (f.enum ?? []).every((o) => /^\d+$/.test(o)))) columns.push({ label, value: `{{ row.${name} ?? "—" }}`, align: "right" });
+    else columns.push({ label, value: `{{ row.${name} ?? "—" }}` });
+  }
+  for (const { name, f } of fields.filter((x) => x.kind === "rows")) {
+    if (columns.length >= 7 || budget < 0) break;
+    // The group's amount, if it names one; else its last number.
+    const nums = Object.entries(f.items?.properties ?? {}).filter(([k, c]) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(k) && kindOf(c) === "number");
+    const num = nums.find(([k, c]) => /amount|price|total|cost|sum|value/i.test(`${k} ${c.title ?? ""}`)) ?? nums.at(-1);
+    if (!num) continue;
+    columns.push({ label: at(`${f.title ?? name}: ${num[1].title ?? num[0]}`), value: `{{ number(row.totals.${name}.${num[0]}) }}`, format: "number" });
+    if (!footer.length) footer.push({ label: "Total", value: `{{ number(sum(rows, "totals.${name}.${num[0]}")) }}` });
+  }
+  def.schema = { ...def.schema, properties: registerSchema(form), required: [] };
+  table.columns = columns.slice(0, 7);
+  table.footer = footer;
+  table.empty = "No submissions in this period.";
+}
 
 /** The zero-setup submission record: any submission of any form, printed. */
 export function recordDefinition(formTitle: string): ReportDefinition {

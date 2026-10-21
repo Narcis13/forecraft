@@ -19,11 +19,11 @@ export const PREFLIGHT_CODES: PreflightCode[] = [
   { code: "cell-overflow", severity: "error", checks: "A table cell whose content does not fit its column." },
   { code: "too-many-columns", severity: "error", checks: "More table columns than the paper and orientation hold legibly (7 portrait, 10 landscape)." },
   { code: "window-overlap", severity: "error", checks: "Something other than the address inside the envelope window of a window letter." },
-  { code: "qr-capacity", severity: "error", checks: "A QR payload the qr-code recipe cannot encode (versions 1–10, ECL M: about 213 bytes)." },
+  { code: "qr-capacity", severity: "error", checks: "A QR payload the qr-code recipe cannot encode (versions 1–40, ECL M: at most 2331 bytes)." },
   { code: "barcode-value", severity: "error", checks: "A barcode value Code 128-B cannot encode (printable ASCII only)." },
   { code: "font-fallback", severity: "error", checks: "Any glyph set in a family the report did not declare, read from the PDF's font list." },
   { code: "page-limit", severity: "error", checks: `More than ${LIMITS.pages} pages.` },
-  { code: "orphan-heading", severity: "warning", checks: "A heading or section title that is the last thing on a page." },
+  { code: "orphan-heading", severity: "warning", checks: "A heading, section title or block title (a bars or chart block's title) that is the last thing on a page." },
   { code: "split-totals", severity: "warning", checks: "Totals or payment details on a later page than the rows they total." },
   { code: "blank-page", severity: "warning", checks: "A page with nothing on it but the running header and footer." },
   { code: "image-resolution", severity: "warning", checks: "An image under 200 dpi at its printed size." },
@@ -86,7 +86,11 @@ for (const img of body.querySelectorAll('img')) {
 for (const el of body.querySelectorAll('[data-ui="qr-code"], [data-ui="barcode"]')) {
   if (el.dataset.value && !el.querySelector('[data-part="svg"]')) out.codes.push({ block: blockOf(el), kind: el.dataset.ui, bytes: new TextEncoder().encode(el.dataset.value).length });
 }
-for (const h of body.querySelectorAll('h1, h2, h3, h4')) out.headings.push({ block: blockOf(h), text: h.textContent.replace(/\s+/g, ' ').trim() });
+// Headings, and the titles blocks print as eyebrows (a bars block's "Bookings per workshop").
+for (const h of body.querySelectorAll('h1, h2, h3, h4, [data-report-block] [data-ui="text"][data-variant="eyebrow"]')) {
+  if (h.closest('[data-report-block="title"], [data-report-block="letterhead"], [data-report-block="parties"]')) continue;
+  out.headings.push({ block: blockOf(h), text: h.textContent.replace(/\s+/g, ' ').trim() });
+}
 for (const t of body.querySelectorAll('[data-report-block="totals"]')) {
   const first = t.querySelector('[data-part="label"]')?.textContent.trim();
   // The rows they total: the closest table block before it in document order.
@@ -222,7 +226,7 @@ export async function preflight(report: CompiledReport, rendered: Rendered, opts
   for (const c of probe.cells) add("cell-overflow", `"${c.text}" is ${c.by} mm wider than its column.`, c.block);
   for (const im of probe.images) if (im.dpi < 200) add("image-resolution", `The image prints at ${im.dpi} dpi (${im.natural} px over ${Math.round(im.printedIn * 25.4)} mm); at least 200 dpi looks sharp on paper.`, im.block);
   for (const c of probe.codes) {
-    if (c.kind === "qr-code") add("qr-capacity", `The QR payload is ${c.bytes} bytes; the qr-code recipe encodes at most about 213 at error correction M (FAQIR-UPSTREAM.md #44). Shorten it.`, c.block);
+    if (c.kind === "qr-code") add("qr-capacity", `The QR payload is ${c.bytes} bytes; a QR code holds at most 2331 at error correction M. Shorten it.`, c.block);
     else add("barcode-value", "The barcode value is not printable ASCII (Code 128-B).", c.block);
   }
   for (const w of probe.window) add("window-overlap", `"${w.text}" shows through the envelope window; a window shows the address and nothing else.`, w.block);
@@ -235,7 +239,10 @@ export async function preflight(report: CompiledReport, rendered: Rendered, opts
     if (i === pages - 1) return;
     const last = p.body.at(-1);
     if (!last) return;
-    const h = probe.headings.find((x) => x.text && (norm(x.text) === last.text || (last.text.length >= 8 && norm(x.text).endsWith(last.text))));
+    // Case- and space-blind: an eyebrow prints in letter-spaced capitals its text does not have.
+    const flat = (t: string) => t.toLowerCase().replace(/\s+/g, "");
+    const at = flat(last.text);
+    const h = probe.headings.find((x) => x.text && (flat(x.text) === at || (at.length >= 8 && flat(x.text).endsWith(at))));
     if (h) add("orphan-heading", `"${h.text}" is the last thing on page ${i + 1}; it belongs with what follows.`, h.block, i + 1);
   });
 

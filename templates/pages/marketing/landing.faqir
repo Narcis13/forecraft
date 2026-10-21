@@ -10,7 +10,7 @@ block body
     //- ── Hero: the promise on the left, an agent's first call on the right ──
     div(data-ui="backdrop" data-variant="aurora" data-intensity="subtle")
       div(data-ui="container" data-measure="wide" data-gutter="4")
-        section(data-ui="hero" data-variant="split" data-animate aria-labelledby="hero-headline")
+        section(data-ui="hero" data-variant="split" aria-labelledby="hero-headline")
           div(data-part="content")
             span(data-ui="badge" data-part="eyebrow" data-variant="primary") Prototype · REST API + MCP server
             h1(data-part="headline" id="hero-headline")

@@ -4,7 +4,7 @@ block title
   | {{ page.doc.number ?? page.doc.title }} — forecraft
 
 block header
-  h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.doc.number ?? "Draft" }}
+  h1(data-ui="text" data-size="xl" data-weight="semibold") {{ page.doc.heading }}
   span(data-ui="badge" data-variant=page.doc.statusVariant) {{ page.doc.statusLabel }}
 
 block actions
@@ -19,7 +19,7 @@ block actions
       span(data-ui="icon" data-icon="link" aria-hidden="true")
       | Copy link
     if page.doc.status == "draft"
-      button(type="button" data-ui="button" data-variant="outline" data-size="sm" @click="issue()")
+      button(type="button" data-ui="button" data-variant="outline" data-size="sm" @click="$ui('#issue-draft').open()")
         span(data-ui="icon" data-icon="send" aria-hidden="true")
         | Issue
     if page.doc.status == "issued"
@@ -45,8 +45,10 @@ block content
             if page.doc.voidReason ?? false
               dt(data-part="term") Voided
               dd(data-part="details") {{ datetime(page.doc.voided) }} — {{ page.doc.voidReason }}
-            dt(data-part="term") Pages
-            dd(data-part="details") {{ page.doc.pages ?? "—" }}
+            //- A draft is printed afresh each time: its pages are counted once it is issued.
+            if page.doc.pages ?? false
+              dt(data-part="term") Pages
+              dd(data-part="details") {{ page.doc.pages }}
             dt(data-part="term") Locale
             dd(data-part="details") {{ page.doc.locale }} · {{ page.doc.currency ?? "—" }}
             if page.doc.sha ?? false
@@ -85,3 +87,15 @@ block dialogs
       div(data-part="footer")
         button(type="button" data-ui="button" data-variant="outline" @click="$ui('#void-document').close()") Keep it
         button(type="button" data-ui="button" data-variant="destructive" @click="voidIt()") Void document
+  if page.doc.status == "draft"
+    div#issue-draft(data-ui="dialog" data-state="closed" l-data="documentActions" data-prop-doc-id=tojson(page.doc.id))
+      div(data-part="overlay" hidden)
+      div(data-part="panel" role="dialog" aria-modal="true" aria-labelledby="issue-draft-title" aria-describedby="issue-draft-desc" data-size="md" hidden)
+        div(data-part="header")
+          h2#issue-draft-title(data-part="title") Issue this draft?
+          button(type="button" data-part="close" aria-label="Close dialog") ✕
+        div(data-part="body")
+          p#issue-draft-desc(data-part="description") It gets the next number and its PDF is kept. It cannot be edited afterwards, only voided.
+        div(data-part="footer")
+          button(type="button" data-ui="button" data-variant="outline" @click="$ui('#issue-draft').close()") Keep the draft
+          button(type="button" data-ui="button" data-variant="primary" @click="issue()") Issue (numbered, cannot be edited)

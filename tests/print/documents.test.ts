@@ -10,6 +10,7 @@ import { openDb, type DB } from "../../src/db/index.ts";
 import { seedDemo } from "../../src/seed.ts";
 import { seedReports, type SeededDocument } from "../../src/seed-reports-run.ts";
 import { compiledVersion, documentPdf, preview } from "../../src/reports/service.ts";
+import { fromStarter } from "../../src/reports/starters.ts";
 import { closeBrowser } from "../../src/reports/pdf.ts";
 import { declaredFamilies, readPdf, undeclaredFonts, type ReadPdf } from "../../src/reports/preflight.ts";
 import { compileReport, PAPER_POINTS } from "../../src/reports/model.ts";
@@ -190,9 +191,11 @@ describe("every starter prints with its sample", () => {
   const dirStarters = join(import.meta.dirname, "../../src/reports/starters");
   for (const file of readdirSync(dirStarters).filter((f) => f.endsWith(".json"))) {
     test(file, async () => {
-      const def = JSON.parse(readFileSync(join(dirStarters, file), "utf8"));
+      let def = JSON.parse(readFileSync(join(dirStarters, file), "utf8"));
       // A source form must exist in the workspace for summary/submission starters.
       if (def.source?.form) def.source.form = (db.prepare("SELECT id FROM forms WHERE slug = ?").get(def.source.kind === "summary" ? "customer-pulse" : "agents-summit") as { id: string }).id;
+      // A register's columns are its form's: made against one, as the API makes it.
+      if (def.source?.kind === "submissions") def = fromStarter(db, workspace, file.slice(0, -5), { form: (db.prepare("SELECT id FROM forms WHERE slug = 'expense-claim'").get() as { id: string }).id });
       const report = compileReport(def);
       const p = await preview(db, workspace, report, {}, { pdf: true });
       const pf = p.preflight!;

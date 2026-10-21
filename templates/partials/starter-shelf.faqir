@@ -1,4 +1,4 @@
-//- Starters as cards: start one with a click; a confirmation or a summary asks for its form first.
+//- Starters as cards: start one with a click; a starter that reads a form (a confirmation, a summary, a register) asks for it first.
 div(data-ui="grid" data-cols="1" data-cols-sm="2" data-cols-lg="3" data-gap="4")
   each s in starters
     div(data-ui="card" l-data="newReport" data-prop-starter=tojson(s.id))
@@ -11,7 +11,7 @@ div(data-ui="grid" data-cols="1" data-cols-sm="2" data-cols-lg="3" data-gap="4")
             span(data-ui="badge" data-variant="secondary" data-size="sm") {{ s.paper }}
             span(data-ui="badge" data-variant="secondary" data-size="sm") {{ s.theme }}
             if s.needsForm
-              span(data-ui="badge" data-variant="secondary" data-size="sm") {{ s.source == "summary" ? "Summarises a form" : "Confirms a form" }}
+              span(data-ui="badge" data-variant="secondary" data-size="sm") {{ s.source == "summary" ? "Summarises a form" : s.source == "submissions" ? "Lists a form's submissions" : "Confirms a form" }}
           if s.needsForm
             div(data-ui="field-group")
               label(data-part="label" for="starter-form-{{ s.id }}") Form

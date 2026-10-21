@@ -76,7 +76,8 @@
                   "type": "integer"
                 },
                 "share": {
-                  "type": "number"
+                  "type": "number",
+                  "description": "A percentage, 0–100: print it with percent(share)."
                 }
               }
             }
@@ -132,7 +133,8 @@
                     "type": "integer"
                   },
                   "share": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "A percentage, 0–100: print it with percent(share)."
                   }
                 }
               }
@@ -149,6 +151,15 @@
             "median": {
               "type": "number"
             },
+            "sum": {
+              "type": "number"
+            },
+            "earliest": {
+              "type": "string"
+            },
+            "latest": {
+              "type": "string"
+            },
             "top": {
               "type": "object",
               "properties": {
@@ -159,7 +170,66 @@
                   "type": "integer"
                 },
                 "share": {
+                  "type": "number",
+                  "description": "A percentage, 0–100: print it with percent(share)."
+                }
+              }
+            },
+            "tie": {
+              "type": "boolean"
+            },
+            "tops": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "count": {
+                    "type": "integer"
+                  },
+                  "share": {
+                    "type": "number",
+                    "description": "A percentage, 0–100: print it with percent(share)."
+                  }
+                }
+              }
+            },
+            "rows": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer"
+                },
+                "perSubmission": {
                   "type": "number"
+                },
+                "columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string"
+                      },
+                      "count": {
+                        "type": "integer"
+                      },
+                      "sum": {
+                        "type": "number"
+                      },
+                      "avg": {
+                        "type": "number"
+                      }
+                    }
+                  }
                 }
               }
             },
@@ -311,7 +381,15 @@
           "label": "10",
           "count": 32,
           "share": 26.7
-        }
+        },
+        "tops": [
+          {
+            "label": "10",
+            "count": 32,
+            "share": 26.7
+          }
+        ],
+        "tie": false
       },
       {
         "name": "easy",
@@ -354,7 +432,15 @@
           "label": "Agree",
           "count": 49,
           "share": 40.8
-        }
+        },
+        "tops": [
+          {
+            "label": "Agree",
+            "count": 49,
+            "share": 40.8
+          }
+        ],
+        "tie": false
       },
       {
         "name": "agents",
@@ -397,7 +483,15 @@
           "label": "Agree",
           "count": 39,
           "share": 32.5
-        }
+        },
+        "tops": [
+          {
+            "label": "Agree",
+            "count": 39,
+            "share": 32.5
+          }
+        ],
+        "tie": false
       },
       {
         "name": "features",
@@ -436,7 +530,15 @@
           "label": "The MCP server, from Claude or another agent host",
           "count": 75,
           "share": 65.2
-        }
+        },
+        "tops": [
+          {
+            "label": "The MCP server, from Claude or another agent host",
+            "count": 75,
+            "share": 65.2
+          }
+        ],
+        "tie": false
       },
       {
         "name": "next",
@@ -479,7 +581,15 @@
           "label": "File uploads that land in my own storage bucket",
           "count": 28,
           "share": 28.9
-        }
+        },
+        "tops": [
+          {
+            "label": "File uploads that land in my own storage bucket",
+            "count": 28,
+            "share": 28.9
+          }
+        ],
+        "tie": false
       },
       {
         "name": "comments",
@@ -805,12 +915,12 @@
               "format": "number"
             },
             {
-              "label": "Most chosen",
-              "value": "{{ row.top.label ?? \"Written answers\" }}"
+              "label": "Answer",
+              "value": "{{ row.kind == \"number\" ? (row.answered > 0 ? \"Mean \" + number(row.mean, 1) + \" · \" + number(row.min) + \"–\" + number(row.max) : \"—\") : row.kind == \"date\" ? (row.earliest ? date(row.earliest, \"medium\") + \" – \" + date(row.latest, \"medium\") : \"—\") : row.kind == \"rows\" ? number(row.rows.total) + \" rows · \" + number(row.rows.perSubmission, 1) + \" per answer\" : row.kind == \"text\" ? (row.samples ? \"Written answers\" : \"—\") : row.tie ? join(row.tops, \", \", \"label\") + \" (tie)\" : row.top ? row.top.label + (row.mean ? \" · mean \" + number(row.mean, 1) : \"\") : \"—\" }}"
             },
             {
               "label": "Share",
-              "value": "{{ (row.top ?? false) ? percent(row.top.share) : \"\" }}",
+              "value": "{{ row.top ? percent(row.top.share) : \"\" }}",
               "format": "percent"
             }
           ]
@@ -837,7 +947,7 @@
       "id": "footer",
       "block": "footer",
       "lines": [
-        "{{ form.title }} · {{ doc.number ?? label(\"draft\") }}"
+        "{{ doc.title }} · {{ doc.number ?? label(\"draft\") }}"
       ]
     }
   ],

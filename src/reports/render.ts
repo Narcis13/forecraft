@@ -9,7 +9,7 @@
 
 import { page } from "../render/index.ts";
 import { computeMoney, MoneyError, type DocMoney } from "./money.ts";
-import { evalExpr, evalText, EvalError, MissingData } from "./expr.ts";
+import { evalExpr, evalText, EvalError, MissingData, QUESTIONS_INDEX } from "./expr.ts";
 import { makeHelpers } from "./helpers.ts";
 import { labelsFor, type Labels } from "./labels.ts";
 import { MAX_COLUMNS, TYPE_PAIRINGS, type Appearance, type Block, type CompiledReport } from "./model.ts";
@@ -287,7 +287,8 @@ class Evaluator {
       case "text": return { md: this.md(b, b.markdown, scope), size: (b.size as string) ?? "body" };
       case "callout": return { title: b.title ? t(b.title) : false, aria: b.title ? t(b.title) : this.labels.paymentTerms, md: this.md(b, b.markdown, scope), tone: (b.tone as string) ?? "muted" };
       case "stats": {
-        const items = ((b.items as Block[]) ?? []).map((s) => ({ label: t(s.label), value: t(s.value), change: s.change ? t(s.change) : false, trend: (s.trend as string) ?? "neutral" }));
+        // A trend belongs to a change: a value that printed none shows no arrow or colour.
+        const items = ((b.items as Block[]) ?? []).map((s) => ({ label: t(s.label), value: t(s.value), change: (s.change ? t(s.change) : "") || false, trend: (s.trend as string) ?? "neutral" }));
         return { items, cols: String([1, 2, 3, 4, 4, 6, 6][items.length] ?? 3) };
       }
       case "bars": {
@@ -434,7 +435,7 @@ class Evaluator {
 
   totals(b: Block, scope: View): View {
     if (Array.isArray(b.items)) {
-      return { rows: (b.items as { label: string; value: string; emphasis?: boolean }[]).map((r) => ({ label: this.text(b, r.label, scope), value: this.text(b, r.value, scope), kind: r.emphasis ? "total" : "item" })) };
+      return { rows: (b.items as { label: string; value: string; emphasis?: boolean }[]).map((r) => ({ label: this.text(b, r.label, scope), note: false, value: this.text(b, r.value, scope), kind: r.emphasis ? "total" : "item" })) };
     }
     const m = this.money;
     if (!m) {
@@ -505,7 +506,7 @@ export function renderReport(input: RenderInput): Rendered {
   const currency = doc.currency ?? a.currency;
   const appearance: Appearance = { ...a, locale, currency };
   const labels = labelsFor(locale, def.labels);
-  const helpers = makeHelpers({ locale, currency, labels });
+  const helpers = makeHelpers({ locale, currency, labels, questions: data.questions });
   const findings: Finding[] = [];
 
   let money: DocMoney | null = null;
@@ -519,6 +520,8 @@ export function renderReport(input: RenderInput): Rendered {
   }
 
   const docScope = {
+    // The report's own name, so a footer follows a rename (the form's title is form.title).
+    title: def.schema.title,
     number: doc.number,
     status: doc.status,
     issuedAt: doc.issuedAt,
@@ -529,6 +532,12 @@ export function renderReport(input: RenderInput): Rendered {
     submission: doc.submission ?? null,
   };
   const scope: View = { ...data, doc: docScope };
+  // question("seats") reads this index (expr.ts): a summary's questions by field name.
+  if (Array.isArray(data.questions)) {
+    const index: Record<string, unknown> = Object.create(null);
+    for (const q of data.questions as { name?: unknown }[]) if (q && typeof q.name === "string" && !(q.name in index)) index[q.name] = q;
+    scope[QUESTIONS_INDEX] = index;
+  }
   const ev = new Evaluator(report, helpers, labels, money, (id) => `/assets/${id}`);
   ev.locale = locale;
   if (input.assetType) { ev.assetType = input.assetType; ev.assetsKnown = true; }

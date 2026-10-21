@@ -1,0 +1,50 @@
+//- Issue a document: the period (a summary, a register), the submission (one per
+//- submission) or the data (sent with it), then a draft or a numbered document.
+//- Opened by any button that dispatches "issue-open" and opens #issue-document.
+div#issue-document(data-ui="dialog" data-state="closed" l-data="issueDialog" data-prop-report-id=tojson(id) data-prop-new-tab=tojson(newTab ?? false) @issue-open.window="load()")
+  div(data-part="overlay" hidden)
+  div(data-part="panel" role="dialog" aria-modal="true" aria-labelledby="issue-title" aria-describedby="issue-desc" data-size="md" hidden)
+    div(data-part="header")
+      h2#issue-title(data-part="title") Issue a document
+      button(type="button" data-part="close" aria-label="Close dialog") ✕
+    div(data-part="body")
+      div(data-ui="stack" data-gap="4")
+        p#issue-desc(data-part="description" l-text="intro")
+        template(l-if="loading")
+          p(data-ui="text" data-size="sm" data-variant="muted") Reading the report…
+        template(l-if="kind === 'summary' || kind === 'submissions'")
+          div(data-ui="stack" data-gap="3")
+            div(data-ui="cluster" data-gap="2" role="group" aria-label="Period presets")
+              template(l-for="p in presets" l-key="p.id")
+                button(type="button" data-ui="button" data-size="sm" :data-variant="preset === p.id ? 'primary' : 'outline'" :aria-pressed="preset === p.id ? 'true' : 'false'" @click="usePreset(p.id)" l-text="p.label")
+            div(data-ui="grid" data-cols="2" data-gap="3")
+              div(data-ui="field-group")
+                label(data-part="label" for="issue-since") From
+                div(data-part="input")
+                  input#issue-since(data-ui="input" type="date" :value="since" @change="setPeriod('since', $event.target.value)")
+              div(data-ui="field-group")
+                label(data-part="label" for="issue-until") To
+                div(data-part="input")
+                  input#issue-until(data-ui="input" type="date" :value="until" @change="setPeriod('until', $event.target.value)")
+            p(data-ui="text" data-size="sm" data-variant="muted" aria-live="polite" data-issue-count l-text="countText")
+        template(l-if="kind === 'submission'")
+          div(data-ui="field-group")
+            label(data-part="label" for="issue-submission") Submission
+            div(data-part="input")
+              select#issue-submission(data-ui="select" l-model="submission")
+                template(l-for="s in submissions" l-key="s.id")
+                  option(:value="s.id" :selected="s.id === submission" l-text="s.label")
+            p(data-part="description" l-text="submissions.length ? 'The latest ' + submissions.length + ', newest first.' : 'The form has no submissions yet.'")
+        template(l-if="kind === 'data'")
+          div(data-ui="field-group")
+            label(data-part="label" for="issue-data") Data (JSON)
+            div(data-part="input")
+              textarea#issue-data(data-ui="textarea" data-designer-json rows="12" spellcheck="false" l-model="dataText")
+            p(data-part="description") Starts as the report's sample. It must be valid against the report's schema.
+        template(l-if="error")
+          div(data-ui="callout" data-variant="destructive" role="alert")
+            div(data-part="content" l-text="error")
+        p(data-ui="text" data-size="xs" data-variant="muted") Issuing gives the document the next number and keeps its PDF: it cannot be edited afterwards, only voided. A draft prints DRAFT and can be issued later.
+    div(data-part="footer")
+      button(type="button" data-ui="button" data-variant="outline" :disabled="busy || !ready" @click="create(false)") Save as draft
+      button(type="button" data-ui="button" data-variant="primary" :disabled="busy || !ready" @click="create(true)") Issue (numbered, cannot be edited)

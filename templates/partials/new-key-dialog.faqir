@@ -1,0 +1,33 @@
+//- Create an API key: name it, then show its secret, once (keysPage in app.js).
+//- Used by the keys page and by the first dashboard of a workspace without a key.
+div#new-key(data-ui="dialog" data-state="closed" l-data="keysPage")
+  div(data-part="overlay" hidden)
+  div(data-part="panel" role="dialog" aria-modal="true" aria-labelledby="new-key-title" data-size="md" hidden)
+    div(data-part="header")
+      h2#new-key-title(data-part="title") Create an API key
+      button(type="button" data-part="close" aria-label="Close dialog") ✕
+    div(data-part="body")
+      template(l-if="!secret")
+        form#new-key-form(aria-label="New key" @submit.prevent="create()")
+          div(data-ui="field-group")
+            label(data-part="label" for="key-name") Name
+            div(data-part="input")
+              input#key-name(data-ui="input" type="text" l-model="name" placeholder="e.g. Claude on my laptop" aria-describedby="key-name-hint")
+            p#key-name-hint(data-part="description") So you know which key to revoke later.
+      template(l-if="secret")
+        div(data-ui="stack" data-gap="3")
+          div(data-ui="callout" data-variant="warning" role="note")
+            div(data-part="content") Copy it now. This is the only time the secret is shown.
+          div(data-ui="field-group")
+            label(data-part="label" for="key-secret") Your new key
+            div(data-part="input")
+              input#key-secret(data-ui="input" type="text" readonly :value="secret")
+    div(data-part="footer")
+      template(l-if="!secret")
+        button(type="submit" form="new-key-form" data-ui="button" data-variant="primary" :disabled="busy") Create key
+      template(l-if="secret")
+        div(data-ui="cluster" data-gap="2")
+          button(type="button" data-ui="button" data-variant="outline" @click="copySecret()")
+            span(data-ui="icon" data-icon="copy" aria-hidden="true")
+            | Copy
+          button(type="button" data-ui="button" data-variant="primary" @click="done()") Done

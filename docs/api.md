@@ -112,7 +112,7 @@ curl -s -X POST "$FORECRAFT_URL/api/v1/f/beta-waitlist/submissions" \
   -d '{ "data": { "email": "ada@example.com", "plan": "Solo" } }'
 ```
 
-It takes JSON `{ "data": { … } }` or `application/x-www-form-urlencoded` / `multipart/form-data` with the field names the form uses (`contacts[0].name` for a repeatable row). The answer is `201 { id, created_at, thank_you, redirect }`. The server coerces the values, runs the form's rules, drops hidden and unknown fields, and stores what is left against the live version. A broken rule is a `422 invalid-submission` naming the `field` and the `rule`; an unpublished, closed or full form is a `409`.
+It takes JSON `{ "data": { … } }` or `application/x-www-form-urlencoded` / `multipart/form-data` with the field names the form uses (`contacts[0].name` for a repeatable row). The answer is `201 { id, created_at, thank_you, redirect }`. The server coerces the values, runs the form's rules, drops hidden and unknown fields, and stores what is left against the live version. A checkbox or switch field you leave out is stored as its `default`, or `false` when it has none, just as an untouched control on the page is sent: a visitor cannot leave a checkbox unanswered, so absent means "no". This happens after validation, so a required boolean you leave out is still refused, and a boolean a rule hides is not stored at all. A broken rule is a `422 invalid-submission` naming the `field` and the `rule`, with the sentence the public page shows for it in `detail` ("This field is required.", "Enter a valid email address."; a message the form defines wins); an unpublished, closed or full form is a `409`.
 
 ## Workspace and keys
 

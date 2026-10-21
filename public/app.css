@@ -88,7 +88,8 @@ body > a[href="#main"]:first-child:focus-visible {
 
 /* ── Auth and dashboard brand ─────────────────────────────────────────────── */
 [data-auth-page] {
-  min-block-size: 100dvh;
+  /* The site bar sits above: the card centres in the rest of the window. */
+  min-block-size: calc(100dvh - var(--space-16));
   display: grid;
   align-content: center;
   padding: var(--section-gap-sm) var(--content-gutter);
@@ -501,8 +502,8 @@ body {
 }
 [data-rd-row] {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)) auto;
-  gap: var(--space-1);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
   padding: var(--space-2);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-md);
@@ -546,3 +547,305 @@ body {
   box-shadow: 0 2px 6px oklch(0 0 0 / 0.12), 0 18px 40px oklch(0 0 0 / 0.18);
   rotate: 1.2deg;
 }
+
+/* ux-audit: dashboard */
+
+/* The app bar: the page title sits on the bar's centre line. Body flow space
+   gave the title cluster a top margin that pushed it onto the bar's border. A
+   long title ellipsises instead of wrapping out of the bar. */
+[data-app] > [data-part="header"] > * {
+  margin-block: 0;
+}
+[data-app-title] {
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  min-inline-size: 0;
+}
+[data-app-title] > h1 {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+[data-app-title] > [data-ui="badge"] {
+  flex-shrink: 0;
+}
+[data-app] > [data-part="header"] > [data-part="header-actions"] {
+  flex-shrink: 0;
+}
+/* On a phone a form page's header buttons are icons; the words stay for
+   screen readers (the reset's visually-hidden pattern, as [data-designer-sr]). */
+@media (max-width: 39.99rem) {
+  [data-app-actions] [data-action-label] {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* The first dashboard's key offer: its buttons a step below the sentence. */
+[data-key-cta] [data-part="content"] > [data-ui="cluster"] {
+  margin-block-start: var(--space-3);
+}
+
+/* The signed-in address: one line, ellipsised; the full address is its title. */
+[data-app] [data-part="sidebar-user"] > [data-ui="stack"] {
+  min-inline-size: 0;
+}
+[data-app] [data-part="sidebar-user-name"] {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Big numbers in the body face with lining, tabular figures: the heading
+   serif's "1" reads as a lowercase "l". */
+[data-app] [data-ui="stat"] > [data-part="value"] {
+  font-family: var(--font-body);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: normal;
+}
+
+/* A table's quick filter is a control like any other: the input height. */
+[data-app] [data-ui="table"] [data-part="filter"] {
+  block-size: var(--input-height);
+  max-inline-size: 24rem;
+  padding-inline: var(--space-3);
+  font-size: var(--text-sm);
+  border-radius: var(--input-radius, var(--radius-md));
+}
+
+/* Responses: the search box fits its placeholder; the count and the column
+   chooser share a line; an expanded response is a compact grid of answers. */
+[data-app] input[data-search] {
+  inline-size: 18rem;
+  max-inline-size: 100%;
+}
+[data-responses-bar] {
+  justify-content: space-between;
+}
+[data-column-chooser] {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 14rem;
+  max-block-size: 60dvh;
+  overflow-y: auto;
+}
+[data-column-chooser] > legend {
+  margin-block-end: var(--space-2);
+  padding: 0;
+}
+[data-app] dl[data-answers] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4) var(--space-6);
+  margin: 0;
+  padding: var(--space-2) var(--space-1);
+}
+@media (min-width: 48rem) {
+  [data-app] dl[data-answers] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 80rem) {
+  [data-app] dl[data-answers] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+[data-app] dl[data-answers] > div {
+  min-inline-size: 0;
+}
+[data-app] dl[data-answers] > [data-full-row] {
+  grid-column: 1 / -1;
+}
+[data-app] dl[data-answers] [data-part="term"] {
+  margin-block-end: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-fg-muted);
+}
+[data-app] dl[data-answers] [data-part="details"] {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+/* Long answers keep the line breaks people typed. */
+[data-app] dl[data-answers] [data-answer-text] {
+  white-space: pre-line;
+}
+
+/* ux-audit: report-designer */
+/* A row of a list (a stat, a column, a signature) is a small form: each cell
+   has its label above it, two to a line; the remove button closes the row. */
+[data-rd-cell] {
+  display: grid;
+  gap: var(--space-1);
+  min-inline-size: 0;
+}
+[data-rd-row-remove] {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+[data-rd-issue] { display: inline-flex; }
+[data-rd-origin] { margin-block-end: var(--space-2); }
+
+/* ux-audit: form-designer */
+/* An empty section is a drop target you can see; the one a drag is over lights up. */
+[data-designer-section][data-empty] [data-designer-end] {
+  padding-block: var(--space-8);
+  border: var(--border-width) dashed var(--color-border-strong);
+  background: var(--color-bg-subtle);
+}
+[data-designer-section][data-drop-target] {
+  border-color: var(--color-primary);
+  border-style: solid;
+}
+[data-designer-section][data-drop-target][data-empty] [data-designer-end] {
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+/* A label over its control, for the small forms inside a list (rule conditions, row columns). */
+[data-designer-pair] {
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+  min-inline-size: 0;
+}
+[data-designer-label] {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+[data-designer-condition] {
+  align-items: end;
+}
+[data-designer-columns] {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+[data-designer-column] [data-ui="cluster"] > input[data-ui="input"] {
+  flex: 1;
+  min-inline-size: 0;
+}
+/* Themes: a swatch (the page, a card on it, the primary colour) and a name. */
+[data-designer-themes] {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+[data-designer-theme-grid] {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: var(--space-2);
+}
+[data-designer-theme] {
+  position: relative;
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  cursor: pointer;
+}
+[data-designer-theme]:hover { border-color: var(--color-border-strong); }
+[data-designer-theme]:has(input:checked) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--color-primary-subtle);
+}
+[data-designer-theme]:has(input:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--color-ring);
+  outline-offset: 2px;
+}
+[data-designer-theme] input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+[data-designer-swatch] {
+  position: relative;
+  display: block;
+  block-size: 2.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--swatch-bg);
+  border: var(--border-width) solid var(--color-border);
+  overflow: hidden;
+}
+[data-swatch-surface] {
+  position: absolute;
+  inset: 25% 35% 0 10%;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: var(--swatch-surface);
+  box-shadow: inset 0 3px 0 var(--swatch-fg);
+}
+[data-swatch-primary] {
+  position: absolute;
+  inset-block-start: 30%;
+  inset-inline-end: 10%;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  border-radius: var(--radius-full);
+  background: var(--swatch-primary);
+}
+[data-designer-theme-name] {
+  font-size: var(--text-sm);
+}
+[data-designer-toast-link] {
+  font-weight: var(--weight-medium);
+  overflow-wrap: anywhere;
+}
+
+/* ux-audit: public-form */
+/* A date field is as wide as the other fields (the date-picker recipe is
+   inline-block for use in running text). */
+[data-form-page] [data-ui="field-group"] [data-ui="date-picker"],
+[data-form-page] [data-ui="field-group"] [data-ui="date-picker"] > [data-part="trigger"] {
+  display: flex;
+  inline-size: 100%;
+}
+[data-form-page] [data-ui="date-picker"] > [data-part="trigger"] > [data-part="input"] {
+  cursor: text;
+}
+/* Month and year selects in the calendar header (public/form.js), between the
+   two arrows. */
+[data-form-page] [data-fc-month-year] {
+  display: flex;
+  gap: var(--space-1);
+}
+[data-form-page] [data-fc-month-year] > select {
+  inline-size: auto;
+}
+/* A closed dropdown cannot wrap: it ends in an ellipsis rather than mid-letter,
+   and from the md tier one whose choices do not fit its share of the row takes
+   the whole row (data-fc-span, public/form.js). */
+[data-form-page] select[data-ui="select"] {
+  text-overflow: ellipsis;
+}
+@media (min-width: 48rem) {
+  [data-form-page] [data-ui="field-group"][data-fc-span="6"] { grid-column: 1 / -1; }
+}
+/* The three panes start right under the bar, level with each other: no flow
+   spacing between them, and the bar is exactly as tall as the panes' sticky offset. */
+[data-designer-bar] { min-block-size: var(--space-16); }
+[data-designer-panes] > * { margin-block: 0; }
+[data-designer-center] { padding-block-start: var(--space-4); }
+[data-designer-canvas] { margin-block-start: var(--space-5); }
+/* A group card after a field keeps the field rhythm (card zeroes its margin, so
+   a repeatable group touched the checkbox above it on a phone). In a grid row
+   the grid's gap is that step already. */
+[data-form-page] * + fieldset[data-ui="card"] {
+  margin-block-start: var(--flow-space, var(--space-6));
+}
+@media (min-width: 48rem) {
+  [data-form-page] :has(> [data-ui="field-group"][data-span]) > fieldset[data-ui="card"] {
+    margin-block-start: 0;
+  }
+}
+[data-designer-address] a { font-size: var(--text-sm); }
+[data-ui="toast"] [data-part="message"] a { color: inherit; text-decoration: underline; }

@@ -10,20 +10,21 @@ import { getSubmission } from "../forms/store.ts";
 import { HELPER_DOCS } from "../reports/helpers.ts";
 import { LABEL_KEYS, LANGUAGES } from "../reports/labels.ts";
 import {
-  BLOCKS, compileReport, dataErrors, DEFAULT_APPEARANCE, DENSITIES, LOCALES, MARGINS, ORIENTATIONS, PAPERS, PRINT_THEMES, TYPE_PAIRINGS,
+  BLOCKS, compileReport, dataErrors, DEFAULT_APPEARANCE, DENSITIES, LOCALES, MARGINS, ORIENTATIONS, PAPERS, PRINT_THEMES, SOURCE_KINDS, TYPE_PAIRINGS,
+  type ReportDefinition, type Source,
 } from "../reports/model.ts";
 import { RenderBusy, RenderFailed } from "../reports/pdf.ts";
 import { PREFLIGHT_CODES } from "../reports/preflight.ts";
 import { renderReport } from "../reports/render.ts";
 import {
-  checkOverrides, compiledVersion, createDocument, documentPdf, issueDocument, preview, submissionView,
+  checkOverrides, compiledVersion, createDocument, documentPdf, issueDocument, preview, sampleFor, submissionView,
 } from "../reports/service.ts";
 import { fromStarter, listStarters, recordDefinition } from "../reports/starters.ts";
 import {
   createReport, deleteDraft, deleteReport, getDocument, getReport, getReportVersion, listDocuments, listReports, listReportVersions,
   publishReport, rotateShareToken, toReportResource, updateDraft, updateReport, voidDocument, type DocStatus, type DocumentRow, type ReportRow,
 } from "../reports/store.ts";
-import { SUMMARY_SCHEMA } from "../reports/summary.ts";
+import { registerSchema, SUMMARY_SCHEMA } from "../reports/summary.ts";
 import { printPdf } from "../reports/pdf.ts";
 
 
@@ -76,7 +77,7 @@ export function reportRoutes(api: Hono<Env>, db: DB) {
     blocks: Object.entries(BLOCKS).map(([name, spec]) => ({ block: name, group: spec.group, does: spec.does, props: Object.keys(spec.props), example: spec.example })),
     common_props: { id: "stable, unique: lowercase letters, digits, dashes", when: "a bare expression; the block renders when it is truthy", keep: "together | with-next" },
     helpers: HELPER_DOCS,
-    system_values: ["doc.number", "doc.status", "doc.issuedAt", "doc.locale", "doc.currency", "doc.money.{lines, subtotal, discount, taxes[{rate, base, tax}], tax, total, paid, due}", "doc.labels", "doc.submission.{id, created_at, form, groups}"],
+    system_values: ["doc.title", "doc.number", "doc.status", "doc.issuedAt", "doc.locale", "doc.currency", "doc.money.{lines, subtotal, discount, taxes[{rate, base, tax}], tax, total, paid, due}", "doc.labels", "doc.submission.{id, created_at, form, groups}"],
     print_themes: PRINT_THEMES,
     type_pairings: Object.entries(TYPE_PAIRINGS).map(([id, p]) => ({ id, ...p })),
     papers: PAPERS, orientations: ORIENTATIONS, margins: MARGINS, densities: DENSITIES,
@@ -84,8 +85,10 @@ export function reportRoutes(api: Hono<Env>, db: DB) {
     appearance_defaults: DEFAULT_APPEARANCE,
     numbering: { tokens: ["{YYYY}", "{YY}", "{MM}", "{seq}", "{seq:N}"], example: "INV-{YYYY}-{seq:4}", manual: { manual: true } },
     money: { keys: ["lines", "quantity", "unitPrice", "taxRate", "discount", "prices (net|gross)", "rounding (line|total)", "paid"], example: { lines: "items", quantity: "qty", unitPrice: "price", taxRate: "vat", prices: "net", rounding: "line" } },
-    sources: [{ kind: "data" }, { kind: "submission", form: "frm_…" }, { kind: "summary", form: "frm_…" }],
+    sources: [{ kind: "data" }, { kind: "submission", form: "frm_…" }, { kind: "summary", form: "frm_…" }, { kind: "submissions", form: "frm_…" }],
     summary_shape: SUMMARY_SCHEMA,
+    submissions_shape: registerSchema(),
+    units: { share: "a percentage on the 0–100 scale (37.5 is 37.5 %): print it with percent(share)", percent: "percent(value) reads value on the 0–100 scale: percent(19) → 19%" },
     preflight_codes: PREFLIGHT_CODES,
   }));
 
@@ -145,6 +148,27 @@ export function reportRoutes(api: Hono<Env>, db: DB) {
     const v = getReportVersion(db, row.id, Number(c.req.param("version")));
     if (!v) throw notFound("version");
     return c.json({ version: v.version, published_at: v.published_at, definition: JSON.parse(v.definition) });
+  });
+
+  /**
+   * The data the designer designs against: for a summary or register, computed
+   * from the bound form's submissions (made-up ones shaped like its questions
+   * until the first arrives). `form` and `kind` override the stored source, for
+   * a working copy that is not saved yet.
+   */
+  api.get("/reports/:id/sample", (c) => {
+    const row = mustReport(c);
+    const def = JSON.parse(row.definition) as ReportDefinition;
+    const q = c.req.query();
+    const stored = def.source ?? { kind: "data" as const };
+    if (q.kind !== undefined && !(SOURCE_KINDS as readonly string[]).includes(q.kind)) throw invalid([{ pointer: "/kind", detail: `One of: ${SOURCE_KINDS.join(", ")}.` }]);
+    if (q.form !== undefined && !/^frm_\w+$/.test(q.form)) throw invalid([{ pointer: "/form", detail: "A form's id (frm_…)." }]);
+    for (const k of ["since", "until"] as const) if (q[k] !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(q[k])) throw invalid([{ pointer: `/${k}`, detail: "An ISO date, YYYY-MM-DD." }]);
+    const kind = (q.kind ?? (q.form && stored.kind === "data" ? "summary" : stored.kind)) as Source["kind"];
+    const form = q.form ?? ("form" in stored ? stored.form : undefined);
+    if (kind !== "data" && !form) throw invalid([{ pointer: "/form", detail: `Required for a ${kind} source: the form's id (frm_…).` }]);
+    const source = (kind === "data" ? { kind } : { kind, form }) as Source;
+    return c.json(sampleFor(db, c.var.principal.workspaceId, def, source, { since: q.since, until: q.until }));
   });
 
   /** Preview the working copy (or a definition in the body): preflight and page images; nothing is stored. */

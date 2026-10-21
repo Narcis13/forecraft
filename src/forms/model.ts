@@ -57,6 +57,16 @@ export const DEFAULT_APPEARANCE: Appearance = {
   redirect: null,
 };
 
+/** What "New form" opens the designer on; stored only once someone changes it. */
+export const STARTER_DEFINITION: FormDefinition = {
+  schema: {
+    title: "Untitled form",
+    type: "object",
+    properties: { name: { type: "string", title: "Your name" }, email: { type: "string", format: "email", title: "Email" } },
+    required: ["email"],
+  } as FormDefinition["schema"],
+};
+
 /** A definition problem, reported to an API client as a 422 that names where it is. */
 export class DefinitionProblem extends Error {
   errors: { pointer: string; detail: string }[];
@@ -93,14 +103,16 @@ export function compileForm(input: unknown): CompiledForm {
 
   const definition = checkShape(input);
   const appearance = normalizeAppearance(definition.appearance);
-  const schema = definition.schema;
-  const ui = definition.ui ?? {};
+  // The keys forecraft adds to the Faqir vocabulary come off before rendering.
+  const ext = extensions(definition);
+  const schema = ext.schema;
+  const ui = ext.ui;
   // Always pass rules so the form carries a definition the server can re-check.
   // heading/labelledBy: the page draws its own hero; submit: false: the page
   // places the button beside the error callout; gap: rhythm inside groups too.
   const renderOpts: RenderFormOptions = {
     idPrefix: ID_PREFIX,
-    rules: definition.rules ?? {},
+    rules: ext.rules,
     heading: false,
     labelledBy: "fc-title",
     submit: false,
@@ -112,7 +124,7 @@ export function compileForm(input: unknown): CompiledForm {
   let html: string;
   let rules: RulesDefinition;
   try {
-    html = renderForm(schema as ObjectSchema, ui, renderOpts);
+    html = decorate(renderForm(schema as ObjectSchema, ui, renderOpts), ext);
     const derived = rulesFor(schema as ObjectSchema, ui, renderOpts);
     if (!derived) throw new Error("rulesFor returned null for a form that always carries rules");
     // Same object renderForm embeds; forms and rules package types differ only on fields.
@@ -149,6 +161,131 @@ export function compileForm(input: unknown): CompiledForm {
   if (cache.size > 500) cache.delete(cache.keys().next().value!);
   cache.set(key, compiled);
   return compiled;
+}
+
+// ── forecraft's own keys ──────────────────────────────────────────────────
+// A few things the designer offers have no Faqir key, so they live beside the
+// Faqir ones in the definition and are taken off before @faqir-ui/forms (which
+// refuses unknown keys) sees it:
+//   ui.<field>.prefix / suffix   a unit around a number input ("€", "seats")
+//   ui.<field>.verbatim          a long-text answer reports may quote
+//   schema.<date>.formatMinimum / formatMaximum   the earliest / latest ISO date,
+//                                enforced by a `validate` rule on both sides
+// A `compute` rule's target is shown read-only: people see the result, not a box to type in.
+
+export const UI_EXTENSION_KEYS = ["prefix", "suffix", "verbatim"] as const;
+const DATE_BOUND_KEYS = ["formatMinimum", "formatMaximum"] as const;
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+interface Extensions {
+  schema: ObjectSchema;
+  ui: UISchema;
+  rules: NonNullable<RenderFormOptions["rules"]>;
+  units: { name: string; prefix?: string; suffix?: string }[];
+  computed: string[];
+}
+
+function extensions(definition: FormDefinition): Extensions {
+  const errors: { pointer: string; detail: string }[] = [];
+  const props = definition.schema.properties as unknown as Record<string, Record<string, unknown>>;
+  const uiIn = (definition.ui ?? {}) as Record<string, unknown>;
+  const ui: Record<string, unknown> = { ...uiIn };
+  const properties: Record<string, unknown> = { ...props };
+  const units: Extensions["units"] = [];
+  const extra: { id: string; validate: unknown; path: string; message: string }[] = [];
+
+  for (const [name, field] of Object.entries(props)) {
+    if (!isRecord(field)) continue;
+    const fieldUi = uiIn[name];
+    if (isRecord(fieldUi) && UI_EXTENSION_KEYS.some((k) => k in fieldUi)) {
+      const rest = { ...fieldUi };
+      const at = (k: string, detail: string) => errors.push({ pointer: `/ui/${name}/${k}`, detail });
+      const unit: Extensions["units"][number] = { name };
+      for (const k of ["prefix", "suffix"] as const) {
+        if (!(k in rest)) continue;
+        const v = rest[k];
+        delete rest[k];
+        if (field.type !== "number" && field.type !== "integer") at(k, "Only a number field takes a prefix or suffix.");
+        else if (typeof v !== "string" || v.length > 12) at(k, "A short string (at most 12 characters), e.g. \"€\" or \"seats\".");
+        else if (v) unit[k] = v;
+      }
+      if ("verbatim" in rest) {
+        if (typeof rest.verbatim !== "boolean") at("verbatim", "true or false.");
+        else if (field.type !== "string" || (rest.widget ?? rest["ui:widget"]) !== "textarea") at("verbatim", "Only a long-text field (widget \"textarea\") can be quoted in reports.");
+        delete rest.verbatim;
+      }
+      if (unit.prefix || unit.suffix) units.push(unit);
+      if (Object.keys(rest).length) ui[name] = rest; else delete ui[name];
+    }
+    if (DATE_BOUND_KEYS.some((k) => k in field)) {
+      const rest = { ...field };
+      const at = (k: string, detail: string) => errors.push({ pointer: `/schema/properties/${name}/${k}`, detail });
+      for (const k of DATE_BOUND_KEYS) {
+        if (!(k in rest)) continue;
+        const v = rest[k];
+        delete rest[k];
+        if (field.format !== "date") at(k, "Only a date field (format \"date\") takes an earliest or latest date.");
+        else if (typeof v !== "string" || !ISO_DATE.test(v) || Number.isNaN(Date.parse(v))) at(k, "A date written YYYY-MM-DD.");
+        else {
+          const min = k === "formatMinimum";
+          extra.push({
+            id: `date-${min ? "min" : "max"}-${name.toLowerCase()}`,
+            validate: { date: [{ var: name }, min ? ">=" : "<=", v] },
+            path: name,
+            message: `Pick a date on or ${min ? "after" : "before"} ${v}.`,
+          });
+        }
+      }
+      const lo = field.formatMinimum, hi = field.formatMaximum;
+      if (typeof lo === "string" && typeof hi === "string" && lo > hi) at("formatMaximum", "The latest date comes before the earliest.");
+      properties[name] = rest;
+    }
+  }
+  if (errors.length) throw new DefinitionProblem(errors);
+
+  const authored = (definition.rules ?? {}) as { rules?: { id: string; compute?: unknown }[] };
+  const taken = new Set((authored.rules ?? []).map((r) => r.id));
+  for (const r of extra) {
+    let id = r.id, n = 2;
+    while (taken.has(id)) id = `${r.id}-${n++}`;
+    taken.add(id);
+    r.id = id;
+  }
+  const computed = (authored.rules ?? []).map((r) => r.compute).filter((t): t is string => typeof t === "string" && t in props);
+  const rules = extra.length ? { ...authored, rules: [...(authored.rules ?? []), ...extra] } : authored;
+  return {
+    schema: { ...definition.schema, properties } as ObjectSchema,
+    ui: ui as UISchema,
+    rules: rules as NonNullable<RenderFormOptions["rules"]>,
+    units,
+    computed,
+  };
+}
+
+/** The markup half of the extensions: units around number inputs, computed fields read-only. */
+function decorate(html: string, ext: Extensions): string {
+  const input = (name: string) => new RegExp(`<input\\b[^>]*\\sname="${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*>`);
+  for (const u of ext.units) {
+    html = html.replace(input(u.name), (tag) => {
+      const id = /\sid="([^"]+)"/.exec(tag)?.[1] ?? `${ID_PREFIX}-${u.name}`;
+      // The unit is part of what the field asks for, so it is read with the field too.
+      const described = tag.replace(/\saria-describedby="([^"]*)"/, ` aria-describedby="$1 ${id}-unit"`);
+      const part = (k: "prefix" | "suffix") => u[k] ? `<span data-part="${k}" id="${id}-unit">${escapeText(u[k]!)}</span>` : "";
+      const withUnit = u.prefix && u.suffix
+        // Two parts, one id: the prefix is decoration, the suffix is the unit read aloud.
+        ? `<span data-part="prefix" aria-hidden="true">${escapeText(u.prefix)}</span>${described}${part("suffix")}`
+        : `${part("prefix")}${described}${part("suffix")}`;
+      return `<div data-ui="input-group" data-forecraft-unit>${withUnit}</div>`;
+    });
+  }
+  for (const name of ext.computed) {
+    html = html.replace(input(name), (tag) => (/\sreadonly\b/.test(tag) ? tag : tag.replace(/>$/, " readonly data-forecraft-computed>")));
+  }
+  return html;
+}
+
+function escapeText(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 function cleanMessage(err: unknown): string {
@@ -255,8 +392,32 @@ export function checkSubmission(form: CompiledForm, raw: Record<string, unknown>
   const coerced = coerce(form.rules, record) as Record<string, unknown>;
   const verdict = validate(form.rules, coerced);
   const hidden = (path: string) => verdict.visible[path] === false || verdict.visible[path.replace(/.(d+)(?=.|$)/g, "[$1]")] === false;
-  const data = keep(form.definition.schema, { ...coerced, ...verdict.computed }, "", hidden) as Record<string, unknown>;
-  return { valid: verdict.valid, findings: verdict.findings as Finding[], data: data ?? {} };
+  const data = (keep(form.definition.schema, { ...coerced, ...verdict.computed }, "", hidden) ?? {}) as Record<string, unknown>;
+  untouched(form.definition.schema, data, "", hidden);
+  return { valid: verdict.valid, findings: verdict.findings as Finding[], data };
+}
+
+/**
+ * An untouched checkbox or switch is an answer — "no" — so a boolean left out
+ * is stored as its `default`, or `false` when it has none: the page sends what
+ * an untouched control shows (public/form.js), and an API client that omits the
+ * field gets the same, so the data never depends on which client sent it.
+ * Not for a path a rule hid, and inside a group or a row only when that group
+ * or row was answered at all. Runs after validation, so a required boolean
+ * that was left out is still refused.
+ */
+function untouched(schema: { properties?: Record<string, unknown> }, value: Record<string, unknown>, path: string, hidden: (p: string) => boolean): void {
+  for (const [name, raw] of Object.entries(schema.properties ?? {})) {
+    const at = path ? `${path}.${name}` : name;
+    if (hidden(at)) continue;
+    const child = raw as { type?: unknown; default?: unknown; properties?: Record<string, unknown>; items?: { properties?: Record<string, unknown> } };
+    const v = value[name];
+    if (child.type === "boolean" && v === undefined) value[name] = typeof child.default === "boolean" ? child.default : false;
+    else if (child.properties && isRecord(v)) untouched(child, v, at, hidden);
+    else if (child.items?.properties && Array.isArray(v)) {
+      v.forEach((row, i) => { if (isRecord(row)) untouched(child.items!, row, `${at}.${i}`, hidden); });
+    }
+  }
 }
 
 /**

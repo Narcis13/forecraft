@@ -8,8 +8,7 @@ test("a person builds a wizard form in the designer, publishes it and a visitor 
 
   // Empty state -> the designer, with the starter form (name + email).
   await page.getByRole("button", { name: "Open the designer" }).click();
-  await page.waitForURL(/\/app\/forms\/[^/]+\/design$/);
-  const formId = page.url().match(/forms\/([^/]+)\/design/)![1];
+  await page.waitForURL(/\/app\/forms\/new\/design$/);
   await expect(page.locator("[data-designer-field]")).toHaveCount(2);
   // A tall viewport keeps source and target of every drag on screen: if Playwright has to scroll the
   // page between mouse-down and the first move, Chromium starts the native drag from the wrong card.
@@ -54,11 +53,12 @@ test("a person builds a wizard form in the designer, publishes it and a visitor 
 
   // 5. Appearance: a theme.
   await page.getByRole("tab", { name: "Appearance" }).click();
-  await page.locator("#look-theme").selectOption("aurora");
+  await page.getByRole("radiogroup", { name: "Theme" }).getByText("Aurora", { exact: true }).click();
   await page.locator("#look-thanks-title").fill("Thanks from the wizard");
 
-  // 6. Saved, then published.
+  // 6. Saved, then published. The first change stored the form; the address bar names it now.
   await waitSaved(page);
+  const formId = page.url().match(/forms\/(frm_[^/]+)\/design/)![1];
   await page.getByRole("button", { name: "Publish" }).click();
   await expect(page.getByText(/Published version 1/).first()).toBeVisible();
 

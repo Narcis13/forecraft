@@ -3,13 +3,14 @@ import { expect, signUp, test, waitSaved } from "./helpers.ts";
 test("designer: properties, JSON tab, undo, persistence and keyboard reorder are views of one definition", async ({ page }) => {
   await signUp(page);
   await page.getByRole("button", { name: "New form" }).click();
-  await page.waitForURL(/\/app\/forms\/[^/]+\/design$/);
-  const formId = page.url().match(/forms\/([^/]+)\/design/)![1];
+  await page.waitForURL(/\/app\/forms\/new\/design$/);
+  // The form is stored by its first change; the address bar then names it.
+  const formId = () => page.url().match(/forms\/(frm_[^/]+)\/design/)![1];
   const fields = page.locator("[data-designer-field]");
   await expect(fields).toHaveCount(2);
   await expect(page.locator("#designer-title")).toHaveValue("Untitled form");
 
-  const definition = async () => (await (await page.request.get(`/api/v1/forms/${formId}`)).json()).definition;
+  const definition = async () => (await (await page.request.get(`/api/v1/forms/${formId()}`)).json()).definition;
 
   // 1. Edit a label in the properties panel: the card and the JSON tab follow.
   await page.locator("#field-name").click();

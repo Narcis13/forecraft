@@ -5,11 +5,11 @@ import { join } from "node:path";
 import { openDb, type DB } from "../../src/db/index.ts";
 import { getFormBySlug, insertSubmission } from "../../src/forms/store.ts";
 import { compileReport, dataErrors } from "../../src/reports/model.ts";
-import { summarize, SUMMARY_SCHEMA, type Summary, type SummaryQuestion } from "../../src/reports/summary.ts";
+import { exampleSubmissions, registerOf, summarize, summaryOf, SUMMARY_SCHEMA, type FormDef, type Summary, type SummaryQuestion } from "../../src/reports/summary.ts";
 import { SEED_FORMS, seedDemo } from "../../src/seed.ts";
 import { pulseAnswers } from "../../src/seed-reports.ts";
 
-const KINDS = ["choice", "multi", "boolean", "nps", "number", "text", "date"];
+const KINDS = ["choice", "multi", "boolean", "nps", "number", "text", "date", "rows"];
 const STARTER = join(import.meta.dirname, "..", "..", "src", "reports", "starters", "survey-summary.json");
 
 // ── One demo workspace, with 120 September answers to the pulse survey ─────
@@ -357,4 +357,143 @@ test("the schema check is not vacuous: a wrong type is reported at its pointer",
 test("the starter compiles with the sample, and its sample has the summary's shape", () => {
   const sample = starter.sample as Record<string, unknown>;
   assert.deepEqual(Object.keys(sample).sort(), Object.keys(s).sort());
+});
+
+// ── What a summary says about a form like "Workshop orders" (UX audit #1, #2) ─
+
+const WORKSHOP: FormDef = {
+  schema: {
+    title: "Workshop orders",
+    properties: {
+      name: { type: "string", title: "Your name" },
+      email: { type: "string", format: "email", title: "Email" },
+      company: { type: "string", title: "Company name" },
+      website: { type: "string", format: "uri", title: "Website" },
+      workshop: { type: "string", title: "Workshop", enum: ["Advanced React", "Design systems", "Accessible forms"] },
+      start: { type: "string", format: "date", title: "Preferred start" },
+      seats: { type: "integer", title: "Seats" },
+      payment: { type: "string", title: "Payment", enum: ["Card", "Invoice"] },
+      level: { type: "string", title: "Experience", enum: ["1", "2", "3", "4", "5"] },
+      newsletter: { type: "boolean", title: "Newsletter" },
+      lineItems: { type: "array", title: "Line items", items: { type: "object", properties: { label: { type: "string", title: "Item" }, qty: { type: "number", title: "Qty" }, amount: { type: "number", title: "Amount" } } } },
+      notes: { type: "string", title: "Anything else?" },
+      internal: { type: "string", title: "Internal note" },
+      bio: { type: "string", title: "About you" },
+    },
+  },
+  ui: { level: { widget: "scale" }, notes: { widget: "textarea" }, internal: { widget: "textarea", verbatim: false }, bio: { verbatim: true } },
+};
+const orders = [
+  { name: "Elena Popescu", email: "elena@example.test", company: "Popescu Digital SRL", website: "https://popescu.example", workshop: "Advanced React", start: "2026-12-03", seats: 3, payment: "Invoice", level: "4", newsletter: true, lineItems: [{ label: "Lunch", qty: 3, amount: 45 }, { label: "Workbook", qty: 3, amount: 30.5 }], notes: "Please send the invoice to our accounts team.", internal: "Called twice about the invoice address.", bio: "Front-end lead at a small agency in Cluj." },
+  { name: "Tom Becker", email: "tom@example.test", workshop: "Design systems", start: "2026-11-20", seats: 1, payment: "Card", level: "2", lineItems: [{ label: "Lunch", qty: 1, amount: 15 }] },
+  { name: "Aiko Tanaka", email: "aiko@example.test", company: "Tanaka & Partners KK", workshop: "Advanced React", start: "2027-01-15", seats: 2, payment: "Card", level: "5", newsletter: false },
+  { name: "Marc Dubois", email: "marc@example.test", company: "Dubois Conseil SARL", workshop: "Accessible forms", seats: 6, payment: "Invoice", level: "3", lineItems: [] },
+].map((data, i) => ({ id: `sub_w${i + 1}`, created_at: `2026-10-0${i + 1}T10:00:00.000Z`, data: data as Record<string, unknown> }));
+const w = summaryOf(WORKSHOP, "frm_workshop", orders, {});
+const wq = (name: string) => w.questions.find((q) => q.name === name)!;
+
+test("only long text is quoted: never an email, a link, a name or a company", () => {
+  const quoted = w.verbatims.map((v) => v.text);
+  assert.deepEqual(quoted.sort(), ["Front-end lead at a small agency in Cluj.", "Please send the invoice to our accounts team."]);
+  for (const name of ["name", "email", "company", "website"]) {
+    assert.equal(wq(name).kind, "text", name);
+    assert.equal(wq(name).samples, undefined, name);
+  }
+  assert.equal(wq("internal").samples, undefined, "ui.verbatim: false keeps a long text out");
+  assert.equal(wq("bio").samples!.length, 1, "ui.verbatim: true lets a text field in");
+  assert.equal(wq("notes").samples!.length, 1);
+});
+
+test("a choice has no mean; a scale's mean is of its numbers", () => {
+  for (const name of ["workshop", "payment"]) {
+    const q = wq(name);
+    assert.equal(q.kind, "choice");
+    assert.equal(q.mean, undefined, name);
+    assert.equal(q.median, undefined, name);
+  }
+  const level = wq("level");
+  assert.equal(level.kind, "choice");
+  assert.equal(level.mean, 3.5);
+  assert.equal(level.min, 2);
+  assert.equal(level.max, 5);
+  assert.equal(level.median, 3.5);
+  const seats = wq("seats");
+  assert.deepEqual([seats.mean, seats.min, seats.max, seats.median, seats.sum], [3, 1, 6, 2.5, 12]);
+});
+
+test("an unanswered yes/no question counts as No", () => {
+  const q = wq("newsletter");
+  assert.equal(q.answered, 4);
+  assert.equal(q.skipped, 0);
+  assert.deepEqual(q.options!.map((o) => [o.label, o.count, o.share]), [["Yes", 1, 25], ["No", 3, 75]]);
+  assert.equal(q.top!.label, "No");
+});
+
+test("a tie is named: top stays, tie and tops say who shares it", () => {
+  const payment = wq("payment");
+  assert.equal(payment.tie, true);
+  assert.deepEqual(payment.tops!.map((o) => o.label), ["Card", "Invoice"]);
+  assert.equal(payment.top!.label, "Card");
+  const workshop = wq("workshop");
+  assert.equal(workshop.tie, false);
+  assert.deepEqual(workshop.tops!.map((o) => o.label), ["Advanced React"]);
+});
+
+test("a date question gives its earliest and latest date", () => {
+  const q = wq("start");
+  assert.equal(q.kind, "date");
+  assert.equal(q.answered, 3);
+  assert.equal(q.earliest, "2026-11-20");
+  assert.equal(q.latest, "2027-01-15");
+});
+
+test("repeatable rows are a question of kind rows, with totals per numeric column", () => {
+  const q = wq("lineItems");
+  assert.equal(q.kind, "rows");
+  assert.equal(q.answered, 2, "an empty list is not an answer");
+  assert.deepEqual(q.rows, {
+    total: 3, perSubmission: 1.5,
+    columns: [
+      { name: "label", title: "Item", kind: "text", count: 3 },
+      { name: "qty", title: "Qty", kind: "number", count: 3, sum: 7, avg: 2.33 },
+      { name: "amount", title: "Amount", kind: "number", count: 3, sum: 90.5, avg: 30.17 },
+    ],
+  });
+  assert.equal(w.questions.length, Object.keys(WORKSHOP.schema.properties).length, "no field is dropped");
+});
+
+test("the workshop summary validates against the survey-summary starter's schema", () => {
+  assert.deepEqual(dataErrors(rules, w as unknown as Record<string, unknown>), []);
+});
+
+// ── The register (the submissions source) ───────────────────────────────────
+
+test("a register has one row per submission, every field's key on every row", () => {
+  const r = registerOf(WORKSHOP, "frm_workshop", orders, { since: "2026-10-01", until: "2026-10-31" });
+  assert.deepEqual(Object.keys(r).sort(), ["columns", "count", "form", "period", "rows"]);
+  assert.equal(r.count, 4);
+  assert.deepEqual(r.period, { since: "2026-10-01", until: "2026-10-31" });
+  assert.deepEqual(r.columns.find((c) => c.name === "lineItems"), { name: "lineItems", title: "Line items", kind: "rows" });
+  assert.deepEqual(r.rows.map((x) => x.number), [1, 2, 3, 4]);
+  const tom = r.rows[1]!;
+  assert.equal(tom.id, "sub_w2");
+  assert.equal(tom.submitted_at, "2026-10-02T10:00:00.000Z");
+  assert.equal(tom.company, null, "unanswered is null");
+  assert.equal(tom.newsletter, false, "an untouched switch is false");
+  assert.equal(tom.level, 2, "a numeric scale is a number");
+  assert.deepEqual(r.rows[3]!.lineItems, []);
+  for (const row of r.rows) for (const c of r.columns) assert.ok(c.name in row, c.name);
+});
+
+test("made-up submissions are shaped like the form and summarise cleanly", () => {
+  const subs = exampleSubmissions(WORKSHOP, { since: "2026-09-01", until: "2026-09-30" });
+  assert.equal(subs.length, 12);
+  assert.ok(subs.every((s) => s.created_at >= "2026-09-01" && s.created_at < "2026-10-01"));
+  assert.deepEqual(exampleSubmissions(WORKSHOP, { since: "2026-09-01", until: "2026-09-30" }), subs, "deterministic");
+  const e = summaryOf(WORKSHOP, "frm_workshop", subs, { since: "2026-09-01", until: "2026-09-30" });
+  assert.deepEqual(e.questions.map((q) => q.name), Object.keys(WORKSHOP.schema.properties));
+  assert.ok(e.questions.find((q) => q.name === "seats")!.mean! > 0);
+  assert.ok(e.questions.find((q) => q.name === "lineItems")!.rows!.total > 0);
+  assert.ok(!e.verbatims.some((v) => v.text.includes("@")));
+  assert.deepEqual(dataErrors(rules, e as unknown as Record<string, unknown>), []);
 });

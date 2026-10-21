@@ -7,12 +7,13 @@ import { Problem } from "../api/http.ts";
 import { getWorkspaceAsset } from "../assets/index.ts";
 import type { DB } from "../db/index.ts";
 import { compileForm } from "../forms/model.ts";
-import { getForm, getSubmission, getVersion, type Submission } from "../forms/store.ts";
-import { checkCurrency, checkLocale, compileReport, dataErrors, type CompiledReport } from "./model.ts";
+import { getForm, getSubmission, getVersion, listSubmissions, type Submission } from "../forms/store.ts";
+import { checkCurrency, checkLocale, compileReport, dataErrors, type CompiledReport, type ReportDefinition, type Source } from "./model.ts";
+import { bindForm } from "./starters.ts";
 import { printPdf, rasterize, type AssetLookup } from "./pdf.ts";
 import { hasErrors, preflight, type PreflightResult } from "./preflight.ts";
 import { renderReport, type DocMeta, type Finding, type Rendered, type ShareView, type SubmissionView } from "./render.ts";
-import { summarize } from "./summary.ts";
+import { liveDefinition, register, registerSchema, sourceData, summarize, SUMMARY_SCHEMA } from "./summary.ts";
 import {
   getReportVersion, insertDraft, issueDraft, setThumbnail, storePdf, type DocumentRow, type ReportRow,
 } from "./store.ts";
@@ -142,10 +143,13 @@ export function resolveData(db: DB, workspaceId: string, report: CompiledReport,
     if (sub.form_id !== source.form) throw new Problem(422, "wrong-form", "Wrong form", `This report prints submissions of ${source.form}; that submission belongs to ${sub.form_id}.`);
     return { data: sub.data, submission: sub };
   }
-  if (source.kind === "summary") {
-    if (!getForm(db, workspaceId, source.form)) throw new Problem(422, "invalid-source", "Form not found", `The summary's form ${source.form} is not in this workspace.`);
-    if (input.data === undefined && !input.period && fallbackToSample) return { data: report.definition.sample, submission: null };
-    return { data: summarize(db, source.form, input.period ?? {}) as unknown as Record<string, unknown>, submission: null };
+  if (source.kind === "summary" || source.kind === "submissions") {
+    if (!getForm(db, workspaceId, source.form)) throw new Problem(422, "invalid-source", "Form not found", `The ${source.kind === "summary" ? "summary" : "register"}'s form ${source.form} is not in this workspace.`);
+    // A preview shows the form's real answers (made-up ones shaped like its questions until the first arrives);
+    // a document is computed from the answers in its period, whatever the caller sent as data.
+    if (fallbackToSample) return { data: sourceData(db, source.form, source.kind, input.period ?? {}, { examples: true }).data as unknown as Record<string, unknown>, submission: null };
+    const data = source.kind === "summary" ? summarize(db, source.form, input.period ?? {}) : register(db, source.form, input.period ?? {});
+    return { data: data as unknown as Record<string, unknown>, submission: null };
   }
   if (input.data === undefined) {
     if (fallbackToSample) return { data: report.definition.sample, submission: null };
@@ -155,6 +159,36 @@ export function resolveData(db: DB, workspaceId: string, report: CompiledReport,
     throw new Problem(422, "invalid-request", "Invalid request", "/data: an object.", { errors: [{ pointer: "/data", detail: "An object." }] });
   }
   return { data: input.data as Record<string, unknown>, submission: null };
+}
+
+// ── The data a designer designs against ─────────────────────────────────────
+
+export type SampleKind = "data" | "submission" | "summary" | "submissions";
+export interface SampleData { data: Record<string, unknown>; schema: ReportDefinition["schema"]; origin: "submissions" | "synthetic" | "definition"; count: number; source: Source }
+
+/**
+ * What a report designs against, for a source (the stored one, or the one the
+ * designer's working copy names): a summary or a register of the form's real
+ * submissions in the period, else made-up ones shaped like its questions; a
+ * submission's latest answers with the form's schema; a data report's sample.
+ * `schema` is the data's JSON Schema with the report's title and description.
+ */
+export function sampleFor(db: DB, workspaceId: string, def: ReportDefinition, source: Source, period: { since?: string; until?: string } = {}): SampleData {
+  const head = { type: "object" as const, title: def.schema.title, ...(def.schema.description ? { description: def.schema.description } : {}) };
+  if (source.kind === "data") return { data: def.sample, schema: def.schema, origin: "definition", count: 0, source };
+  if (!getForm(db, workspaceId, source.form)) throw new Problem(404, "not-found", "Not found", `No form ${source.form} in this workspace.`);
+  if (source.kind === "submission") {
+    const form = liveDefinition(db, source.form);
+    const bound = structuredClone(def);
+    const latest = listSubmissions(db, source.form, { limit: 1 }).items[0];
+    bindForm(bound, form as never, latest?.data);
+    const sameForm = def.source?.kind === "submission" && def.source.form === source.form;
+    // The definition's own sample stands while it binds this form; a newly chosen form brings its latest answers.
+    return { data: sameForm ? def.sample : bound.sample, schema: { ...bound.schema, ...head }, origin: latest && !sameForm ? "submissions" : "definition", count: latest ? 1 : 0, source };
+  }
+  const out = sourceData(db, source.form, source.kind, period, { examples: true });
+  const props = source.kind === "summary" ? SUMMARY_SCHEMA : registerSchema(liveDefinition(db, source.form));
+  return { data: out.data as unknown as Record<string, unknown>, schema: { ...head, properties: props as Record<string, unknown> }, origin: out.origin, count: out.count, source };
 }
 
 export function checkOverrides(locale: unknown, currency: unknown): { locale?: string; currency?: string } {

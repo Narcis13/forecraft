@@ -9,6 +9,7 @@ import {
 import type { DB } from "../db/index.ts";
 import { checkSubmission, compileForm, DEFAULT_APPEARANCE, THEMES, ACCENTS, LAYOUTS, SCHEMES } from "../forms/model.ts";
 import { auditHtml, renderFormPage } from "../forms/page.ts";
+import { wordFinding } from "../forms/wording.ts";
 import {
   countSubmissions, createForm, deleteForm, deleteSubmission, getForm, getFormBySlug, getSubmission, getVersion,
   insertSubmission, listForms, setFormDocuments, listSubmissions, listVersions, publishForm, toCsv, toResource, updateForm, exportSubmissions,
@@ -337,10 +338,12 @@ function invalid(errors: { pointer: string; detail: string }[]) {
   return new Problem(422, "invalid-request", "Invalid request", errors.map((e) => `${e.pointer}: ${e.detail}`).join("; "), { errors });
 }
 
-export function invalidSubmission(findings: { path: string; rule: string; message: string }[]) {
+/** A rejected submission, each finding worded as the public page words it (src/forms/wording.ts). */
+export function invalidSubmission(findings: { path: string; rule: string; message: string; params?: Record<string, unknown> }[]) {
+  const worded = findings.map((f) => ({ ...f, message: wordFinding(f) }));
   return new Problem(422, "invalid-submission", "The submission breaks the form's rules",
-    findings.map((f) => `${f.path}: ${f.message} (${f.rule})`).join("; "),
-    { errors: findings.map((f) => ({ pointer: `/${f.path.replace(/\./g, "/").replace(/\[(\d+)\]/g, "/$1")}`, field: f.path, rule: f.rule, detail: f.message })) });
+    worded.map((f) => `${f.path}: ${f.message} (${f.rule})`).join("; "),
+    { errors: worded.map((f) => ({ pointer: `/${f.path.replace(/\./g, "/").replace(/\[(\d+)\]/g, "/$1")}`, field: f.path, rule: f.rule, detail: f.message })) });
 }
 
 interface SubmissionBody { answers: Record<string, unknown> | URLSearchParams; honeypot: boolean; version: number | null }

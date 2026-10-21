@@ -54,8 +54,8 @@ in a Faqir print theme, then Chromium prints that page to PDF.
 - **`documentTitle`** — a document's name in lists; **`runningHeader`** — the header text
   from page 2 on. Both are template text.
 - **`labels`** — overrides of the built-in words (see `GET /api/v1/vocabulary/reports`).
-- **`source`** — `{ "kind": "data" }`, `{ "kind": "submission", "form": "frm_…" }` or
-  `{ "kind": "summary", "form": "frm_…" }`.
+- **`source`** — `{ "kind": "data" }`, `{ "kind": "submission", "form": "frm_…" }`,
+  `{ "kind": "summary", "form": "frm_…" }` or `{ "kind": "submissions", "form": "frm_…" }`.
 
 Every fault is a 422 problem whose `errors[]` name the JSON pointer — and, inside an
 expression, the `line`, `column` and `code`:
@@ -77,6 +77,13 @@ engine itself — never `eval`.
   `i` (its index) and `line` (the computed money line, when the rows are the money lines).
 - **Missing is an error.** A path the data lacks is a `missing-data` finding in preview and
   a 422 at issue. Say a value is optional with `??`: `{{ customer.vat ?? "—" }}`.
+- **A guard checks before it reads.** A bare path tested by `? :` or `!`, or on the left of
+  `&&` and `||`, is optional there (missing reads as null), so
+  `{{ questions[5] ? number(questions[5].mean, 1) : "—" }}` and `{{ a && a.b }}` are fine.
+- **Lists:** `[]` and `[a, b]` — `{{ count(questions[3].options ?? []) }}`, `"rows": "items ?? []"`.
+- **`question("name")`** is a summary's question by its field name, read like a path:
+  `{{ number(question("seats").mean ?? 0, 1) }}`, `{{ question("payment") ? … : "—" }}`. It
+  stays right when the form's questions move; `questions[5]` does not.
 - No assignment, no functions, no globals; `+ - * / %`, comparisons, `&& || !`, `? :`, `??`.
 
 ### Helpers
@@ -85,17 +92,19 @@ engine itself — never `eval`.
 |---|---|
 | `money(amount, currency?)` | An amount in the document's locale, with the currency's digits (more for a unit price that has them). Exact. |
 | `number(value, digits?)` | A number in the locale. |
-| `percent(value, digits?)` | 19 → 19 % (spacing per locale). |
+| `percent(value, digits?)` | A number on the 0–100 scale as a percentage: 19 → 19 % (spacing per locale). A summary's `share` is already 0–100: `percent(row.share)`, never `row.share * 100`. |
 | `date(iso, style?)` / `datetime(iso)` | Dates in the locale, UTC; `long` (default), `medium`, `short`. |
 | `label(key)` | A built-in word in the document's language (`invoice`, `subtotal`, `vat`, `total`, `amountDue`, `dueDate`, `page`, …). |
 | `iban(value)` | Grouped by four, upper case. |
-| `sum(array, key)`, `count(array, key?)`, `avg(array, key)` | Over an array of objects; `sum` is exact. |
+| `sum(array, key)`, `count(array, key?)`, `avg(array, key)` | Over an array of objects; `sum` is exact. A dotted key reads a path: `sum(rows, "totals.lineItems.amount")`. |
+| `question(name)` | A summary's question by field name (see above), or null. |
 | `round(value, digits?)` | Half away from zero. |
 | `join(array, separator?, key?)`, `upper(text)` | Text helpers. |
 | `epc(name, iban, amount, reference, bic?)` | A SEPA credit-transfer QR payload (EPC069-12) for a `qr` block. EUR documents only. |
 
 ### System values
 
+`doc.title` (the report's name, `schema.title`: a footer that prints it follows a rename),
 `doc.number` (null on a draft), `doc.status`, `doc.issuedAt`, `doc.locale`, `doc.currency`,
 `doc.money` (`lines`, `subtotal`, `discount`, `taxes[{rate, base, tax}]`, `tax`, `total`,
 `paid`, `due`), `doc.labels`, and `doc.submission` (`id`, `created_at`, `form`, `groups`)
@@ -131,10 +140,39 @@ each year), `{MM}`, `{seq}` and `{seq:N}` (padded to N digits). `{ "manual": tru
 - **`summary`** — forecraft computes the data from a form's submissions over a period
   given at issue (`"period": { "since": "2026-09-01", "until": "2026-09-30" }`), in one fixed
   shape: `form`, `period`, `responses {total, first, last}`, `nps {score, promoters,
-  passives, detractors, answered, question, groups}` (or null), `questions[]` (each with
-  `kind`, `answered`, `skipped`, and `options[{label, count, share}]`, `top`, `mean`,
-  `samples`), `verbatims[]` and `overTime[]`. `GET /api/v1/vocabulary/reports` returns it as
-  JSON Schema (`summary_shape`).
+  passives, detractors, answered, question, groups}` (or null), `questions[]`, `verbatims[]`
+  and `overTime[]`. `GET /api/v1/vocabulary/reports` returns it as JSON Schema
+  (`summary_shape`). Each question has `name`, `title`, `kind`, `answered`, `skipped`, and by
+  kind:
+
+  | `kind` | Carries |
+  |---|---|
+  | `choice`, `multi`, `boolean`, `nps` | `options[{label, count, share}]`, `top` (the most chosen; the first one on a tie), `tie` (true when several share the top count) and `tops` (all of them): print a tie as `{{ row.tie ? join(row.tops, ", ", "label") + " (tie)" : row.top.label }}` |
+  | `number`, `nps` | `mean`, `median`, `min`, `max`; a number also `sum` |
+  | `choice` asked as a scale | `mean`, `median`, `min`, `max` too — of the answers themselves when the options are numbers (`"1"`…`"5"` → 1…5), else of the option's position (1…n). A choice asked any other way has no mean. |
+  | `date` | `earliest`, `latest` (ISO dates) |
+  | `rows` (a repeatable group) | `rows {total, perSubmission, columns[{name, title, kind, count, sum?, avg?}]}`: rows over all answers, the mean per answer, and per column how many rows filled it in, with sum and mean of a number column |
+  | `text` | long text only (Long text, `ui.widget: "textarea"`): `samples[{text, at}]`, up to six, newest first |
+
+  `share` is a percentage on the 0–100 scale (37.5 is 37.5 %): print it with
+  `percent(share)`. An unanswered yes/no question counts as No. Only long text is quoted —
+  in `samples` and in `verbatims` — never an email, a link, a name or another short answer;
+  a form sets `ui.<field>.verbatim: false` to keep a long text out of the quotes.
+- **`submissions`** — a register: one row per submission in the period, oldest first:
+  `form`, `period`, `count`, `columns[{name, title, kind}]` (the form's fields, in order) and
+  `rows[{id, number, submitted_at, totals, …answers}]`. `number` is 1…count; every field's
+  key is on every row (null when unanswered, false for an untouched yes/no, [] for an empty
+  list); a repeatable group stays an array of objects, and `totals.<group>.<column>` is the
+  sum of each of its number columns, so `sum(rows, "totals.lineItems.amount")` adds a
+  register up. A scale of numbers answers a number. The `submissions-register` starter fills
+  its table with the form's own columns and a total (`submissions_shape` in the vocabulary).
+
+Previews, the designer's canvas and its preflight print a summary or register from the bound
+form's real submissions (all of them, or the period's); while the form has none, from twelve
+made-up submissions shaped like its questions — never the starter's demo survey.
+`GET /reports/:id/sample` returns that data with its JSON Schema and `origin`
+(`submissions`, `synthetic` or `definition`); `?form=frm_…&kind=summary|submissions` asks for
+another source than the saved one.
 
 ## Lifecycle
 
@@ -164,7 +202,7 @@ media at the page's width, pagination checks read the PDF itself. Each finding i
 | `barcode-value` | error | A barcode value outside Code 128-B |
 | `font-fallback` | error | Any glyph in a family the report did not declare (from the PDF's font list) |
 | `page-limit` | error | More than 40 pages |
-| `orphan-heading` | warning | A heading that is the last thing on a page |
+| `orphan-heading` | warning | A heading, section title or block title (a bars or chart title) that is the last thing on a page |
 | `split-totals` | warning | Totals on a later page than the rows they total |
 | `blank-page` | warning | A page with nothing but its header and footer |
 | `image-resolution` | warning | An image under 200 dpi at its printed size |
@@ -180,6 +218,7 @@ All under `/api/v1`, with an API key or a session. Problems are RFC 9457.
 | `GET, POST /reports` | List; create from `{ starter, title?, appearance?, sample?, form? }` or a definition |
 | `GET, PATCH, DELETE /reports/:id` | The working copy; DELETE is refused (409 `has-documents`) once a document was issued |
 | `POST /reports/:id/publish`, `GET /reports/:id/versions[/:v]` | Versions |
+| `GET /reports/:id/sample` | `?form=&kind=&since=&until=` → `{ data, schema, origin, count, source }`: the data the report designs against |
 | `POST /reports/:id/preview` | `{ definition?, data?, submission?, period?, format: png \| pdf \| html, pages?, dpi? }` → preflight and page images |
 | `POST /reports/:id/documents` | `{ data \| submission \| period, issue?, number?, locale?, currency? }` |
 | `GET /documents`, `GET, PATCH, DELETE /documents/:id` | Filter by `report`, `status`, exact `number`, `q`, `since`, `until`; drafts only change |
@@ -190,7 +229,9 @@ All under `/api/v1`, with an API key or a session. Problems are RFC 9457.
 
 Public: `/d/:token` (the share view: the sheet on a desk, with Download, Print and Copy
 link), `/d/:token.pdf`, `/assets/:id`. Renders draw from their own rate-limit bucket; a full
-renderer queue is a 503 with `Retry-After`.
+renderer queue is a 503 with `Retry-After`. A server without its Chromium answers every
+render with a 503 `renderer-not-installed` whose detail says what to run:
+`npx playwright install --only-shell chromium` (the server also says so once at start).
 
 ## Blocks
 

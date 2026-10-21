@@ -6,7 +6,7 @@
 import { currencyDigits, parseDecimal } from "./money.ts";
 import type { Labels } from "./labels.ts";
 
-export interface HelperContext { locale: string; currency: string; labels: Labels }
+export interface HelperContext { locale: string; currency: string; labels: Labels; /** A summary's questions, for question(name). */ questions?: unknown }
 
 export interface HelperDoc { name: string; signature: string; does: string; example: string }
 
@@ -14,15 +14,16 @@ export interface HelperDoc { name: string; signature: string; does: string; exam
 export const HELPER_DOCS: HelperDoc[] = [
   { name: "money", signature: "money(amount, currency?)", does: "An amount in the document's currency and locale, with the currency's digits (more when the amount has them, as a unit price may).", example: "{{ money(doc.money.total) }} → €1,234.50" },
   { name: "number", signature: "number(value, digits?)", does: "A number in the locale, with `digits` decimals when given.", example: "{{ number(row.qty) }} → 1,250" },
-  { name: "percent", signature: "percent(value, digits?)", does: "A percentage: 19 prints as 19% (19 %, in de and fr).", example: "{{ percent(tax.rate) }}" },
+  { name: "percent", signature: "percent(value, digits?)", does: "A percentage from a number on the 0–100 scale: 19 prints as 19% (19 %, in de and fr). A summary's share is already 0–100: percent(row.share), never row.share * 100.", example: "{{ percent(row.share) }} → 37.5%" },
   { name: "date", signature: "date(iso, style?)", does: "A date (ISO 8601) in the locale: style \"long\" (default), \"medium\" or \"short\". UTC.", example: "{{ date(doc.issuedAt) }} → 19 October 2026" },
   { name: "period", signature: "period(since, until)", does: "A date range the way the locale writes it, without repeating what both ends share.", example: "{{ period(period.since, period.until) }} → 1–30 September 2026" },
   { name: "datetime", signature: "datetime(iso)", does: "A date and time, UTC.", example: "{{ datetime(doc.submission.created_at) }}" },
   { name: "label", signature: "label(key)", does: "A built-in word in the document's language (invoice, subtotal, vat, total, amountDue, dueDate, …), or the report's override.", example: "{{ label(\"invoice\") }} → Factură" },
   { name: "iban", signature: "iban(value)", does: "An IBAN grouped by four, upper case.", example: "{{ iban(bank.iban) }} → DE89 3704 0044 0532 0130 00" },
-  { name: "sum", signature: "sum(array, key)", does: "The sum of one key over an array of objects, added exactly and returned as a number (exact to 15 significant digits: document amounts come from doc.money).", example: "{{ number(sum(items, \"qty\")) }}" },
+  { name: "sum", signature: "sum(array, key)", does: "The sum of one key over an array of objects, added exactly and returned as a number (exact to 15 significant digits: document amounts come from doc.money). A dotted key reads a path: sum(rows, \"totals.lineItems.amount\").", example: "{{ number(sum(items, \"qty\")) }}" },
   { name: "count", signature: "count(array, key?)", does: "How many items; with a key, how many have a value there.", example: "{{ count(items) }}" },
   { name: "avg", signature: "avg(array, key)", does: "The mean of one key over the items that have it.", example: "{{ number(avg(scores, \"value\"), 1) }}" },
+  { name: "question", signature: "question(name)", does: "A summary's question by its field name, or null when the form has none by that name; read it like a path. Steadier than questions[5], which moves when the form changes.", example: "{{ number(question(\"seats\").mean ?? 0, 1) }}" },
   { name: "round", signature: "round(value, digits?)", does: "Half away from zero, exactly.", example: "{{ round(2.345, 2) }} → 2.35" },
   { name: "join", signature: "join(array, separator?, key?)", does: "Items (or one key of each) as text, \", \" by default.", example: "{{ join(tags) }}" },
   { name: "upper", signature: "upper(text)", does: "Upper case, by the locale's rules.", example: "{{ upper(customer.city) }}" },
@@ -56,10 +57,19 @@ function items(v: unknown, name: string): unknown[] {
   return v;
 }
 
+/** One key of an item; a dotted key reads a path ("totals.lineItems.amount") when no key has that exact name. */
 function field(item: unknown, key: unknown): unknown {
   if (key === undefined || key === null) return item;
   if (typeof item !== "object" || item === null) return undefined;
-  return Object.hasOwn(item, String(key)) ? (item as Record<string, unknown>)[String(key)] : undefined;
+  const k = String(key);
+  if (Object.hasOwn(item, k)) return (item as Record<string, unknown>)[k];
+  if (!k.includes(".")) return undefined;
+  let at: unknown = item;
+  for (const part of k.split(".")) {
+    if (typeof at !== "object" || at === null || !Object.hasOwn(at, part)) return undefined;
+    at = (at as Record<string, unknown>)[part];
+  }
+  return at;
 }
 
 function isoDate(v: unknown, name: string): Date {
@@ -165,6 +175,11 @@ export function makeHelpers(ctx: HelperContext): Record<string, (...args: unknow
       const values = items(array, "avg").map((i) => field(i, key)).filter((v) => parseDecimal(v) !== null);
       if (!values.length) return 0;
       return Number(exactSum(values)) / values.length;
+    },
+    question(name) {
+      // Expressions read question("…") as a path (expr.ts); this serves faqir blocks.
+      const list = Array.isArray(ctx.questions) ? ctx.questions as { name?: unknown }[] : [];
+      return list.find((q) => q && q.name === name) ?? null;
     },
     round(value, digits) {
       const d = typeof digits === "number" && Number.isInteger(digits) && digits >= 0 && digits <= 10 ? digits : 0;

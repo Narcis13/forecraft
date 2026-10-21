@@ -34,7 +34,7 @@ block content
         div(data-ui="card")
           div(data-part="header")
             h2(data-part="title") Source
-            p(data-part="description") Where a document's data comes from: sent with the request, a form's submission, or a summary of a form's submissions over a period.
+            p(data-part="description") Where a document's data comes from: sent with the request, a form's submission, or a form's submissions over a period (a summary, or a register that lists them).
           div(data-part="body")
             div(data-ui="stack" data-gap="4")
               div(data-ui="field-group")
@@ -44,6 +44,7 @@ block content
                     option(value="data") Sent with each document
                     option(value="submission") A submission of a form
                     option(value="summary") A summary of a form
+                    option(value="submissions") A register of a form's submissions
               div(data-ui="field-group" l-show="source !== 'data'")
                 label(data-part="label" for="set-form") Form
                 div(data-part="input")
@@ -65,3 +66,10 @@ block content
         p(data-ui="text" data-variant="muted") The report, its versions and its drafts are deleted. A report that has issued documents cannot be deleted: they are kept as issued.
       div(data-part="footer")
         button(type="button" data-ui="button" data-variant="destructive" @click="remove()") Delete report
+
+block dialogs
+  if page.report.published
+    include "partials/issue-dialog.faqir" (id=page.report.id newTab=false)
+
+block scripts
+  script(src="/issue-dialog.js" defer)

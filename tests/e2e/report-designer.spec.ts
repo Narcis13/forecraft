@@ -123,8 +123,9 @@ test.describe("the report designer", () => {
     await page.locator("#rt-look").click();
     const themes = page.locator("[data-rd-theme]");
     expect(await themes.count()).toBeGreaterThanOrEqual(3);
-    await themes.filter({ hasText: "swiss-document" }).click();
-    await expect(themes.filter({ hasText: "swiss-document" })).toHaveAttribute("aria-pressed", "true");
+    // Themes are named for people ("Swiss document"), not by their slug.
+    await themes.filter({ hasText: "Swiss document" }).click();
+    await expect(page.locator('[data-rd-theme][data-theme-id="swiss-document"]')).toHaveAttribute("aria-pressed", "true");
     await page.locator("#rd-accent").fill("#9a3412");
     await page.locator("#rd-paper").selectOption("letter");
     await page.locator("#rd-locale").selectOption("de-DE");
@@ -164,9 +165,11 @@ test.describe("the report designer", () => {
     await page.getByRole("button", { name: "Publish" }).click();
     await expect(page.getByText(/Published version 1/).first()).toBeVisible();
 
-    // 12. The report's page: issue a document from the sample.
+    // 12. The report's page: issue a document from the sample (the issue dialog holds it as JSON).
     await page.goto(`/app/reports/${reportId}`);
     await page.getByRole("button", { name: "Issue a document" }).click();
+    await expect(page.locator("#issue-data")).toHaveValue(/Northwind Studio GmbH/);
+    await page.locator("#issue-document").getByRole("button", { name: "Issue (numbered, cannot be edited)" }).click();
     await page.waitForURL(/\/app\/documents\/[^/]+$/);
     const documentId = page.url().match(/documents\/([^/]+)$/)![1]!;
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(/^DOC-\d{4}-\d{3}$/);

@@ -4,6 +4,7 @@
 // seconds); the server only starts listening once it is done, so Playwright's
 // readiness check on /health stays correct.
 import { mkdirSync, rmSync } from "node:fs";
+import { dirname } from "node:path";
 import { openDb } from "../src/db/index.ts";
 import { closeBrowser } from "../src/reports/pdf.ts";
 import { seedDemo } from "../src/seed.ts";
@@ -11,8 +12,8 @@ import { seedReports } from "../src/seed-reports-run.ts";
 
 const DEMO_PASSWORD = "e2e-demo-password-1";
 
-const file = "test-results/e2e.db";
-mkdirSync("test-results", { recursive: true });
+const file = process.env.E2E_DB ?? "test-results/e2e.db";
+mkdirSync(dirname(file), { recursive: true });
 for (const suffix of ["", "-wal", "-shm"]) rmSync(file + suffix, { force: true });
 process.env.FORECRAFT_DB = file;
 

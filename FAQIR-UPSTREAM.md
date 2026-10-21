@@ -225,6 +225,67 @@ named input.
   that renders it with min/max captions, and an input variant of `rating`
   (radios under a star mask) as a `rating` widget.
 
+### 52. A `show` rule on a repeatable group leaves its card, row card and buttons on screen
+
+- **Seen:** rule `{ show: "lineItems", when: … }` on an array-of-objects field. While the
+  rule says hidden, the inputs inside each row disappear, but the group's fieldset card,
+  the empty row card and "Remove row" / "Add a row" stay; and the console says
+  `[Faqir] l-rules: rule "show-lineitems" names an absent field "lineItems"` on every
+  load.
+- **Where:** `packages/rules/src/plugin.js`: `applyVisible` hides the field-group of each
+  *control* whose name sits under the rule's path, so a repeatable group (a fieldset with
+  a `<template l-for>` and two buttons, no field-group of its own) is never hidden as a
+  whole; `reportMissingControls` runs when `l-rules` binds, before `l-for` has rendered
+  the first row, so the group has no control yet. `packages/forms/src/index.js`
+  `renderField` (object-array) marks the fieldset with nothing a rule could find.
+- **Here:** `public/form.js` marks each repeatable fieldset `data-rules-path="<field>"`
+  and binds `l-bind:hidden="$rules.visible['<field>'] === false"` on it before faqir-core
+  starts; `ui/core/plugins/faqir-rules.js` is patched so `reportMissingControls` counts a
+  `[data-rules-path]` element as the field's control. The server already drops a hidden
+  array and its findings. `tests/e2e/ux-public-form.spec.ts` guards it.
+- **Suggested fix:** `renderForm` emits `data-rules-path` on a repeatable group's
+  fieldset (and on a nested object's); the plugin treats such an element as the group for
+  every control inside it, hides it with them (also when it has no rows), and counts it
+  in `reportMissingControls`. Test: a hidden repeatable group has no visible box or
+  button, with zero and with two rows, and the console stays quiet.
+
+### 55. faqir-validate shows the browser's own sentence before its built-in one
+
+- **Seen:** on a forecraft form, an empty required field said "Please fill in this
+  field." (Chrome's wording, and another language in another browser) while the
+  server, for the same field, said "This field is required.". The sentence sits in the
+  themed error slot, but it is the browser's, not the form's.
+- **Where:** `registry/core/plugins/faqir-validate.js` `messageFor`: the chain is
+  `data-error-<constraint>` → `data-error` → `el.validationMessage` → the built-in
+  `CONSTRAINTS` sentence, so the built-ins (which `@faqir-ui/rules` pins as the server's
+  wording) are reached only when the browser has no message, which is never.
+- **Here:** `public/form.js` writes `data-error-required`, `-type`, `-min`, `-max`,
+  `-step`, `-short`, `-long`, `-pattern` and `-input` on every control (and inside row
+  templates) from `src/forms/wording.ts`, the table the server words its 422 with.
+- **Suggested fix:** put the built-in sentence before `validationMessage` (keep the
+  browser's only for a constraint the table does not know), and let a form carry one
+  messages table (`data-messages` on the form, or the rules definition's `messages`) that
+  both the plugin and `@faqir-ui/rules` read. Test: an empty required field in Chrome
+  shows "This field is required.".
+
+### 56. Nothing outside a wizard can send it to a step
+
+- **Seen:** the server refused a wizard's submit for a field on step 1 (a rule made it
+  required from step 2). The page has the error, but no public way to show step 1: the
+  wizard's `step` lives in the form's `l-data`, and a directive on the form root cannot
+  be bound from outside. A field another step makes required is also not checked when
+  leaving that step, so the visitor finds out only at the end.
+- **Where:** `packages/forms/src/index.js` `renderWizard` / `composeForm` (the wizard is
+  driven by `step` in the form's scope and the `l-validate` hook).
+- **Here:** `public/form.js` adds a hidden element inside the form with
+  `l-on:fc-step="step = $event.detail"` before faqir-core starts and dispatches `fc-step` on
+  it; a capture-phase submit listener checks the visited steps for a control that is
+  `required` now and empty, and jumps back to it.
+- **Suggested fix:** `renderForm` emits a `faqir:wizard-goto` listener (or a
+  `Faqir.forms.goto(form, step)`), and the wizard's advance re-checks earlier steps'
+  requiredness through `$rules.required`, jumping to the first step with a gap. Test: a
+  rule on step 2 that requires a field on step 1 stops Next on step 2 and shows step 1.
+
 ---
 
 ## Template (`@faqir-ui/template`)
@@ -378,6 +439,42 @@ named input.
   the ISO value in a hidden `<input name>` the picker updates (the pattern native date
   inputs follow), so `FormData` and native submits carry what the schema validates. Test:
   `new FormData(form).get(name)` is ISO after a pick.
+
+### 53. The calendar's week always starts on Sunday
+
+- **Seen:** a visitor in the UK, Romania or Germany reads a Sunday-first month grid;
+  every week there starts on Monday.
+- **Where:** `registry/recipes/calendar/calendar.js` `buildGrid` (`startDow =
+  firstDay.getDay()`) and the Home/End keys; `packages/forms/src/index.js`
+  `renderDatePicker` writes the `Su … Sa` header in that order.
+- **Here:** a local patch in `ui/core/faqir-core*.js` and `ui/recipes/calendar/calendar.js`
+  (marked `/* forecraft patch: see FAQIR-UPSTREAM.md #53 */`): the grid and Home/End read
+  `data-week-start` (0 = Sunday … 6 = Saturday) from the calendar root. `public/form.js`
+  sets it from `Intl.Locale(navigator.language).getWeekInfo()` and rotates the header
+  cells to match.
+- **Suggested fix:** the same `data-week-start` in the recipe, the header rendered from
+  it (and `renderDatePicker` taking a `weekStart` option), default from the page's locale.
+
+### 54. A date-picker cannot be typed into, and moves one month at a time
+
+- **Seen:** the date field is a `readonly` input that opens the calendar; a birth date is
+  hundreds of clicks on "‹". The visible text is always US English ("October 21, 2026"),
+  and `required` on a readonly input is never checked by the browser, so an empty
+  required date was refused only by the server.
+- **Where:** `packages/forms/src/index.js` `renderDatePicker` (`readonly` on the display
+  input); `registry/recipes/date-picker/date-picker.js` `formatDisplay`; the calendar
+  header has only prev/next buttons.
+- **Here:** `public/form.js` makes the display input editable, reads what is typed in the
+  visitor's numeric format (21/10/2026 for en-GB, 10/21/2026 for en-US, 21.10.2026 for
+  de/ro, or ISO) on change and Enter, writes the picked or typed date back in that
+  format, shows the format as the placeholder, adds month and year selects to the
+  calendar header, and passes `formatMinimum` / `formatMaximum` to the calendar's
+  `data-min` / `data-max`. An unreadable or out-of-range date is an `l-validate:date`
+  failure on the display input.
+- **Suggested fix:** an editable display input parsed with `Intl.DateTimeFormat` parts,
+  display text from `Intl` in the page's locale, month/year selects (or a year view) in
+  the calendar header, and `formatMinimum`/`formatMaximum` from the schema into
+  `data-min`/`data-max` in `renderDatePicker`.
 
 ---
 

@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { createApp } from "./app.ts";
 import { openDb } from "./db/index.ts";
 import { precompile } from "./render/index.ts";
+import { browserCheck } from "./reports/pdf.ts";
 
 const port = Number(process.env.PORT ?? 3000);
 const file = process.env.FORECRAFT_DB ?? join(import.meta.dirname, "../data/forecraft.db");
@@ -11,6 +12,8 @@ const file = process.env.FORECRAFT_DB ?? join(import.meta.dirname, "../data/fore
 precompile(readdirSync(join(import.meta.dirname, "../templates/pages"), { recursive: true, encoding: "utf8" })
   .filter((f) => f.endsWith(".faqir"))
   .map((f) => `pages/${f.replaceAll("\\", "/")}`));
+// Reports print in Chromium, which `npm install` does not fetch: say so once, and boot anyway.
+void browserCheck().then((problem) => { if (problem) console.warn(`forecraft: reports cannot print. ${problem}`); });
 const db = openDb(file);
 const app = createApp(db);
 

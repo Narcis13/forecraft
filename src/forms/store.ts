@@ -37,9 +37,29 @@ export interface FormResource {
   definition: FormDefinition;
 }
 
+function slugBase(title: string): string {
+  return title.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/[\s_]+/g, "-").replace(/-+/g, "-").slice(0, 40) || "form";
+}
+
 export function slugify(title: string): string {
-  const base = title.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/[\s_]+/g, "-").replace(/-+/g, "-").slice(0, 40);
-  return `${base || "form"}-${randomBytes(3).toString("hex")}`;
+  return `${slugBase(title)}-${randomBytes(3).toString("hex")}`;
+}
+
+/**
+ * Until a form is first published its address follows its title, as long as the
+ * address is still the one made from the old title ("untitled-form-088f77" →
+ * "workshop-orders-088f77"). A slug someone chose stays; so does a published one,
+ * which people may already have.
+ */
+function followTitle(db: DB, row: FormRow, definition: unknown): string {
+  if (row.published_version !== null) return row.slug;
+  const before = (JSON.parse(row.definition) as FormDefinition).schema.title;
+  const after = (definition as FormDefinition).schema.title;
+  const m = /-([0-9a-f]{6})$/.exec(row.slug);
+  if (!m || before === after || row.slug !== `${slugBase(before)}-${m[1]}`) return row.slug;
+  const next = `${slugBase(after)}-${m[1]}`;
+  const other = getFormBySlug(db, next);
+  return other && other.id !== row.id ? row.slug : next;
 }
 
 export function toResource(db: DB, row: FormRow): FormResource {
@@ -108,7 +128,7 @@ export function updateForm(db: DB, row: FormRow, patch: FormPatch): FormRow {
     definition: patch.definition !== undefined ? JSON.stringify(patch.definition) : row.definition,
     status: patch.status ?? row.status,
     submission_limit: patch.submission_limit !== undefined ? patch.submission_limit : row.submission_limit,
-    slug: patch.slug ?? row.slug,
+    slug: patch.slug ?? (patch.definition !== undefined ? followTitle(db, row, patch.definition) : row.slug),
     updated_at: now(),
   };
   db.prepare("UPDATE forms SET definition = ?, status = ?, submission_limit = ?, slug = ?, updated_at = ? WHERE id = ?")

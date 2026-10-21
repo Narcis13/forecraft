@@ -44,3 +44,10 @@ block content
                 td(data-part="td" data-align="end") {{ v.documents }}
                 td(data-part="td" data-align="end")
                   a(data-ui="button" data-variant="ghost" data-size="sm" href=v.href) JSON
+
+block dialogs
+  if page.report.published
+    include "partials/issue-dialog.faqir" (id=page.report.id newTab=false)
+
+block scripts
+  script(src="/issue-dialog.js" defer)

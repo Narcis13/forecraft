@@ -1,0 +1,430 @@
+{
+  "schema": {
+    "type": "object",
+    "title": "Submissions register",
+    "description": "Every submission of a form in a period, one row each, with a total.",
+    "properties": {
+      "form": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "period": {
+        "type": "object",
+        "properties": {
+          "since": {
+            "type": "string"
+          },
+          "until": {
+            "type": "string"
+          }
+        }
+      },
+      "count": {
+        "type": "integer"
+      },
+      "columns": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "rows": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "number": {
+              "type": "integer"
+            },
+            "submitted_at": {
+              "type": "string"
+            },
+            "totals": {
+              "type": "object",
+              "properties": {
+                "lineItems": {
+                  "type": "object",
+                  "title": "Extras",
+                  "properties": {
+                    "qty": {
+                      "type": "number",
+                      "title": "Qty"
+                    },
+                    "amount": {
+                      "type": "number",
+                      "title": "Amount"
+                    }
+                  }
+                }
+              }
+            },
+            "name": {
+              "type": "string",
+              "title": "Your name"
+            },
+            "email": {
+              "type": "string",
+              "title": "Email"
+            },
+            "workshop": {
+              "type": "string",
+              "title": "Workshop"
+            },
+            "seats": {
+              "type": "integer",
+              "title": "Seats"
+            },
+            "payment": {
+              "type": "string",
+              "title": "Payment"
+            },
+            "newsletter": {
+              "type": "boolean",
+              "title": "Newsletter"
+            },
+            "lineItems": {
+              "type": "array",
+              "title": "Extras",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "title": "Item"
+                  },
+                  "qty": {
+                    "type": "number",
+                    "title": "Qty"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "title": "Amount"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "required": []
+  },
+  "sample": {
+    "form": {
+      "id": "frm_example",
+      "title": "Workshop orders",
+      "description": "Seats and extras for the autumn workshops."
+    },
+    "period": {
+      "since": "2026-09-01",
+      "until": "2026-09-30"
+    },
+    "count": 6,
+    "columns": [
+      {
+        "name": "name",
+        "title": "Your name",
+        "kind": "text"
+      },
+      {
+        "name": "email",
+        "title": "Email",
+        "kind": "email"
+      },
+      {
+        "name": "workshop",
+        "title": "Workshop",
+        "kind": "choice"
+      },
+      {
+        "name": "seats",
+        "title": "Seats",
+        "kind": "number"
+      },
+      {
+        "name": "payment",
+        "title": "Payment",
+        "kind": "choice"
+      },
+      {
+        "name": "newsletter",
+        "title": "Newsletter",
+        "kind": "boolean"
+      },
+      {
+        "name": "lineItems",
+        "title": "Extras",
+        "kind": "rows"
+      }
+    ],
+    "rows": [
+      {
+        "name": "Elena Popescu",
+        "email": "elena@example.com",
+        "workshop": "Advanced React",
+        "seats": 3,
+        "payment": "Invoice",
+        "newsletter": true,
+        "lineItems": [
+          {
+            "label": "Lunch",
+            "qty": 3,
+            "amount": 45
+          },
+          {
+            "label": "Printed workbook",
+            "qty": 3,
+            "amount": 30
+          }
+        ],
+        "id": "sub_example1",
+        "number": 1,
+        "submitted_at": "2026-09-03T10:10:00.000Z",
+        "totals": {
+          "lineItems": {
+            "qty": 6,
+            "amount": 75
+          }
+        }
+      },
+      {
+        "name": "Tom Becker",
+        "email": "tom@example.com",
+        "workshop": "Design systems",
+        "seats": 1,
+        "payment": "Card",
+        "newsletter": false,
+        "lineItems": [
+          {
+            "label": "Lunch",
+            "qty": 1,
+            "amount": 15
+          }
+        ],
+        "id": "sub_example2",
+        "number": 2,
+        "submitted_at": "2026-09-07T10:17:00.000Z",
+        "totals": {
+          "lineItems": {
+            "qty": 1,
+            "amount": 15
+          }
+        }
+      },
+      {
+        "name": "Aiko Tanaka",
+        "email": "aiko@example.com",
+        "workshop": "Accessible forms",
+        "seats": 2,
+        "payment": "Card",
+        "newsletter": true,
+        "lineItems": [],
+        "id": "sub_example3",
+        "number": 3,
+        "submitted_at": "2026-09-11T10:24:00.000Z",
+        "totals": {
+          "lineItems": {
+            "qty": 0,
+            "amount": 0
+          }
+        }
+      },
+      {
+        "name": "Marc Dubois",
+        "email": "marc@example.com",
+        "workshop": "Advanced React",
+        "seats": 5,
+        "payment": "Invoice",
+        "newsletter": false,
+        "lineItems": [
+          {
+            "label": "Lunch",
+            "qty": 5,
+            "amount": 75
+          },
+          {
+            "label": "Parking",
+            "qty": 2,
+            "amount": 20
+          }
+        ],
+        "id": "sub_example4",
+        "number": 4,
+        "submitted_at": "2026-09-15T10:31:00.000Z",
+        "totals": {
+          "lineItems": {
+            "qty": 7,
+            "amount": 95
+          }
+        }
+      },
+      {
+        "name": "Sara Lind",
+        "email": "sara@example.com",
+        "workshop": "Design systems",
+        "seats": 2,
+        "payment": "Card",
+        "newsletter": true,
+        "lineItems": [
+          {
+            "label": "Printed workbook",
+            "qty": 2,
+            "amount": 20
+          }
+        ],
+        "id": "sub_example5",
+        "number": 5,
+        "submitted_at": "2026-09-19T10:38:00.000Z",
+        "totals": {
+          "lineItems": {
+            "qty": 2,
+            "amount": 20
+          }
+        }
+      },
+      {
+        "name": "Radu Ionescu",
+        "email": "radu@example.com",
+        "workshop": "Accessible forms",
+        "seats": 4,
+        "payment": "Invoice",
+        "newsletter": false,
+        "lineItems": [
+          {
+            "label": "Lunch",
+            "qty": 4,
+            "amount": 60
+          }
+        ],
+        "id": "sub_example6",
+        "number": 6,
+        "submitted_at": "2026-09-23T10:45:00.000Z",
+        "totals": {
+          "lineItems": {
+            "qty": 4,
+            "amount": 60
+          }
+        }
+      }
+    ]
+  },
+  "layout": [
+    {
+      "id": "title",
+      "block": "title",
+      "eyebrow": "Register · {{ period.since != \"\" ? period(period.since, period.until) : \"all submissions\" }}",
+      "text": "{{ form.title }}",
+      "details": [
+        {
+          "label": "Submissions",
+          "value": "{{ number(count) }}"
+        },
+        {
+          "label": "{{ label(\"period\") }}",
+          "value": "{{ period.since != \"\" ? period(period.since, period.until) : \"—\" }}"
+        },
+        {
+          "label": "{{ label(\"reference\") }}",
+          "value": "{{ doc.number ?? label(\"draft\") }}"
+        }
+      ]
+    },
+    {
+      "id": "register",
+      "block": "table",
+      "rows": "rows",
+      "columns": [
+        {
+          "label": "No.",
+          "value": "{{ row.number }}",
+          "align": "right",
+          "width": "narrow"
+        },
+        {
+          "label": "Date",
+          "value": "{{ date(row.submitted_at, \"medium\") }}"
+        },
+        {
+          "label": "Your name",
+          "value": "{{ row.name ?? \"—\" }}"
+        },
+        {
+          "label": "Workshop",
+          "value": "{{ row.workshop ?? \"—\" }}"
+        },
+        {
+          "label": "Seats",
+          "value": "{{ row.seats == null ? \"—\" : number(row.seats) }}",
+          "format": "number"
+        },
+        {
+          "label": "Payment",
+          "value": "{{ row.payment ?? \"—\" }}"
+        },
+        {
+          "label": "Extras: Amount",
+          "value": "{{ number(row.totals.lineItems.amount) }}",
+          "format": "number"
+        }
+      ],
+      "footer": [
+        {
+          "label": "Total",
+          "value": "{{ number(sum(rows, \"seats\")) }}"
+        }
+      ],
+      "empty": "No submissions in this period."
+    },
+    {
+      "id": "footer",
+      "block": "footer",
+      "lines": [
+        "{{ doc.title }} · {{ doc.number ?? label(\"draft\") }}"
+      ]
+    }
+  ],
+  "appearance": {
+    "theme": "swiss-document",
+    "accent": "#1e3a5f",
+    "paper": "a4",
+    "orientation": "portrait",
+    "margins": "normal",
+    "type": "inter",
+    "density": "compact",
+    "locale": "en-GB",
+    "currency": "EUR"
+  },
+  "numbering": {
+    "pattern": "REG-{YYYY}-{seq:3}"
+  },
+  "documentTitle": "{{ form.title }} · {{ period.since != \"\" ? period(period.since, period.until) : \"all submissions\" }}",
+  "runningHeader": "Register · {{ form.title }}",
+  "source": {
+    "kind": "submissions",
+    "form": "frm_example"
+  }
+}

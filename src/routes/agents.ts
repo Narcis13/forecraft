@@ -86,7 +86,7 @@ curl -s "$API/forms/frm_…/submissions?limit=20" -H "Authorization: Bearer $FOR
 A report is one JSON definition printed as an A4 or Letter PDF; start from a starter and choose the look from curated values (theme, one dark accent hex, paper, type pairing), never sizes or colours.
 
 \`\`\`sh
-# 1. see the starters (invoice, letter, business-report, confirmation, survey-summary, blank)
+# 1. see the starters (invoice, letter, business-report, confirmation, survey-summary, submissions-register, blank)
 curl -s $API/report-starters -H "Authorization: Bearer $FORECRAFT_API_KEY"
 
 # 2. create from invoice with your company and accent (returns the report, id rpt_…, with its definition)
@@ -109,6 +109,8 @@ curl -sX POST $API/documents/doc_…/void -H "Authorization: Bearer $FORECRAFT_A
 \`\`\`
 
 With MCP the same loop is forecraft_list_report_starters, forecraft_create_report, forecraft_preview_report (returns the findings and the pages as images), forecraft_publish_report, forecraft_issue_document and forecraft_void_document. Upload a logo with forecraft_upload_asset and set \`appearance.logo\` to the returned \`asset:ast_…\` ref. Bad data is a 422 \`invalid-data\` with a pointer per fault; a full renderer is a 503 \`renderer-busy\` with \`Retry-After\`.
+
+A report's data comes from its \`source\`: \`{"kind":"data"}\` (you send it), \`{"kind":"submission","form":"frm_…"}\` (one submission), \`{"kind":"summary","form":"frm_…"}\` (aggregates of a form's submissions over a \`period\`) or \`{"kind":"submissions","form":"frm_…"}\` (a register: one row per submission in a \`period\`). \`GET $API/reports/rpt_…/sample\` returns the data a report designs against, computed from the bound form. Shares are percentages on the 0–100 scale: print them with \`percent(share)\`.
 
 ## MCP
 

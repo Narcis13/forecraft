@@ -110,6 +110,22 @@ describe("forms API", () => {
     assert.ok(body.errors[0].pointer.startsWith("/schema"));
   });
 
+  test("a draft's address follows its title until the first publish; a chosen one stays", async () => {
+    const make = async (title: string, slug?: string) => (await (await s.api("/api/v1/forms", { method: "POST", json: { definition: { ...definition, schema: { ...definition.schema, title } }, ...(slug ? { slug } : {}) } })).json());
+    const retitle = async (id: string, title: string) => (await (await s.api(`/api/v1/forms/${id}`, { method: "PATCH", json: { definition: { ...definition, schema: { ...definition.schema, title } } } })).json());
+    const form = await make("Untitled form");
+    assert.match(form.slug, /^untitled-form-[0-9a-f]{6}$/);
+    const hex = form.slug.slice(-6);
+    assert.equal((await retitle(form.id, "Workshop orders")).slug, `workshop-orders-${hex}`);
+    assert.equal((await retitle(form.id, "Spring workshop")).slug, `spring-workshop-${hex}`);
+    // Published: people may have the link, so it no longer moves.
+    assert.equal((await s.api(`/api/v1/forms/${form.id}/publish`, { method: "POST" })).status, 201);
+    assert.equal((await retitle(form.id, "Autumn workshop")).slug, `spring-workshop-${hex}`);
+    // A slug someone chose never follows the title.
+    const chosen = await make("Pricing survey", "pricing");
+    assert.equal((await retitle(chosen.id, "Price survey")).slug, "pricing");
+  });
+
   test("closed and full forms refuse submissions", async () => {
     const forms = (await (await s.api("/api/v1/forms")).json()).items;
     const contact = forms.find((f: { slug: string }) => f.slug === "contact");

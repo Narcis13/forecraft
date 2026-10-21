@@ -114,14 +114,14 @@ const REPORT_DEFINITION_SCHEMA = {
     documentTitle: { type: "string" },
     runningHeader: { type: "string" },
     labels: { type: "object", description: "Label overrides, keyed by label name." },
-    source: { type: "object", description: "Where data comes from: { kind: \"data\" } (default), { kind: \"submission\", form } or { kind: \"summary\", form }." },
+    source: { type: "object", description: "Where data comes from: { kind: \"data\" } (default), { kind: \"submission\", form } (one submission), { kind: \"summary\", form } (aggregates over a period) or { kind: \"submissions\", form } (a register: one row per submission in a period)." },
   },
   required: ["schema", "layout"],
 };
 
 const REPORT_ID_PROP = { type: "string", description: "The report id (rpt_…), as returned by forecraft_create_report / forecraft_list_reports." };
 const DOCUMENT_ID_PROP = { type: "string", description: "The document id (doc_…), as returned by forecraft_issue_document / forecraft_list_documents." };
-const PERIOD_PROP = { type: "object", properties: { since: { type: "string" }, until: { type: "string" } }, additionalProperties: false, description: "For summary reports: ISO 8601 dates { since, until }." };
+const PERIOD_PROP = { type: "object", properties: { since: { type: "string" }, until: { type: "string" } }, additionalProperties: false, description: "For summary and submissions reports: ISO 8601 dates { since, until }." };
 const LOCALE_PROP = { type: "string", description: "Override the report's locale for this document, e.g. ro-RO." };
 const CURRENCY_PROP = { type: "string", pattern: "^[A-Z]{3}$", description: "Override the report's currency for this document (ISO 4217)." };
 
@@ -491,8 +491,8 @@ const TOOLS = [
     name: "forecraft_list_report_starters",
     title: "List report starters",
     description:
-      "List the complete starter reports (invoice, letter, business-report, confirmation, survey-summary, blank) with their theme, paper, data source and blocks. " +
-      "Pick one and pass its id to forecraft_create_report; the two that read a form (confirmation, survey-summary) need needsForm: a form id.",
+      "List the complete starter reports (invoice, letter, business-report, confirmation, survey-summary, submissions-register, blank) with their theme, paper, data source and blocks. " +
+      "Pick one and pass its id to forecraft_create_report; the three that read a form (confirmation, survey-summary, submissions-register) need needsForm: a form id.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     annotations: { title: "List report starters", ...READ },
     async run() {
@@ -513,7 +513,7 @@ const TOOLS = [
         title: { type: "string", description: "Name for the report (starter only)." },
         appearance: REPORT_APPEARANCE_SCHEMA,
         sample: { type: "object", description: "Starter only: your example data; each top-level key replaces the starter's (send a whole seller: name, street, city, iban…)." },
-        form: { type: "string", description: "Starter only: the form id (frm_…) a confirmation or survey-summary report reads." },
+        form: { type: "string", description: "Starter only: the form id (frm_…) a confirmation, survey-summary or submissions-register report reads." },
         definition: REPORT_DEFINITION_SCHEMA,
       },
       additionalProperties: false,
